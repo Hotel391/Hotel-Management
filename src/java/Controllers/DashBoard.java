@@ -15,7 +15,7 @@ public class DashBoard extends HttpServlet {
     throws ServletException, IOException {
         List<Employee> list=DAL.EmployeeDAO.getInstance().getAllEmployee();
         request.setAttribute("listEmployee", list);
-        request.getRequestDispatcher("/View/Dashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Admin/Dashboard.jsp").forward(request, response);
     } 
 
     @Override

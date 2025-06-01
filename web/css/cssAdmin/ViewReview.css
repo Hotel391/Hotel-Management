@@ -1,0 +1,40 @@
+.room-table-container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.room-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    table-layout: fixed;
+}
+
+.room-table thead {
+    background-color: #f2f2f2;
+}
+
+.room-table th,
+.room-table td {
+    padding: 15px;
+    text-align: left;
+    vertical-align: middle;
+
+}
+
+/* Grid 12 columns: */
+.col-orderid { width: 16.66%; } /* 2/12 */
+.col-name     { width: 16.66%; } /* 2/12 */
+.col-rating   { width: 16.66%; } /* 2/12 */
+.col-feedback { width: 33.33%; } /* 4/12 */
+.col-date     { width: 16.66%; } /* 2/12 */
+
+
+
+.star {
+    color: orange;
+    font-size: 18px;
+}

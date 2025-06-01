@@ -13,7 +13,7 @@ public class DashBoard extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        List<Employee> list=DAL.EmployeeDAO.getInstance().getAllEmployee();
+        List<Employee> list=dal.EmployeeDAO.getInstance().getAllEmployee();
         request.setAttribute("listEmployee", list);
         request.getRequestDispatcher("/View/Admin/Dashboard.jsp").forward(request, response);
     } 

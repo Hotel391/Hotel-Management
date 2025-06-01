@@ -46,7 +46,7 @@ public class TypeRoomServlet extends HttpServlet {
         int endPage;
 
         if (key != null && !key.trim().isEmpty()) {
-            typeRoomTotal = DAL.TypeRoomDAO.getInstance().searchTypeRoom(key).size();
+            typeRoomTotal = dal.TypeRoomDAO.getInstance().searchTypeRoom(key).size();
 
             endPage = typeRoomTotal / 5;
 
@@ -58,7 +58,7 @@ public class TypeRoomServlet extends HttpServlet {
         } else {
             //Take pagination numbers
 
-            typeRoomTotal = DAL.TypeRoomDAO.getInstance().getTypeRoomQuantity();
+            typeRoomTotal = dal.TypeRoomDAO.getInstance().getTypeRoomQuantity();
 
             endPage = typeRoomTotal / 5;
 
@@ -72,7 +72,7 @@ public class TypeRoomServlet extends HttpServlet {
             //Take data number each page
             int indexPage = Integer.parseInt(request.getParameter("page") == null ? "1" : request.getParameter("page"));
 
-            typeRoomList = DAL.TypeRoomDAO.getInstance().typeRoomPagination(indexPage, key);
+            typeRoomList = dal.TypeRoomDAO.getInstance().typeRoomPagination(indexPage, key);
 
             request.setAttribute("currentPage", indexPage);
 

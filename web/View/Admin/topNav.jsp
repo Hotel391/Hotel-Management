@@ -1,9 +1,14 @@
-<link rel="stylesheet" href="Css/navDashboardStyle.css"/>
+
 <div class="top-navbar">
     <span id="menu-toggle"><i class="bi bi-list"></i></span>
     <h1>Dashboard</h1>
     <div class="user-profile">
-        <img src="${pageContext.request.contextPath}/Image/User.png" alt="User Profile">
+        <img id="user-profile-button" src="${pageContext.request.contextPath}/Image/User.png" alt="User Profile">
+        <div class="user-info">
+            <a href="#" class="text-decoration-none text-reset">
+                <i class="bi bi-person-circle"></i>Profile</a><br>
+            <a href="#" class="text-decoration-none text-reset">
+                <i class="bi bi-box-arrow-right"></i>Logout</a>
+        </div>
     </div>
 </div>
-<script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>

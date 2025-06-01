@@ -5,6 +5,12 @@ body {
     color: white;
 }
 
+.container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+}
+
 .left-nav {
     display: flex;
     flex-direction: column;
@@ -149,6 +155,26 @@ body {
     height: 50px;
     cursor: pointer;
 }
+.user-info{
+    position: fixed;
+    top: 100px;
+    right: 30px;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    padding: 15px 20px;
+    width: 175px;
+    line-height: 30px;
+    background-color: white;
+}
+.user-info.visible{
+    display: none;
+}
+.user-info i{
+    font-size: 14px;
+    color: red;
+    margin-right: 12px;
+}
+
 
 @media screen and (max-width: 1380px) {
     .left-nav {
@@ -221,7 +247,19 @@ body {
     margin-right: 0;
 }
 
-@media screen and (max-width: 758px) {
+.top-navbar.collapsed {
+    left: 70px;
+    padding: 20px;
+}
+
+.left-nav.mobile-visible {
+    display: flex !important;
+    width: 70px;
+    z-index: 1000;
+}
+
+
+@media screen and (max-width: 768px) {
     .left-nav {
         display: none;
     }

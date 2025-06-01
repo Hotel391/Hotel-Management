@@ -3,8 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/D:/file%20code/HotelManagement/HotelManagement/web/View/Admin/Dashboard.jsp</file>
+            <file>file:/D:/file%20code/HotelManagement/HotelManagement/src/java/DAL/BookingDAO.java</file>
             <file>file:/D:/file%20code/HotelManagement/HotelManagement/web/index.html</file>
-            <file>file:/D:/file%20code/HotelManagement/HotelManagement/web/View/Admin/navDashboard.jsp</file>
+            <file>file:/D:/file%20code/HotelManagement/HotelManagement/src/java/Models/Booking.java</file>
+            <file>file:/D:/file%20code/HotelManagement/HotelManagement/src/java/Controllers/Admin/DashBoard.java</file>
         </group>
     </open-files>
 </project-private>

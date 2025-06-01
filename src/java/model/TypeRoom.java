@@ -7,26 +7,16 @@ public class TypeRoom {
     private int typeId;
     private String typeName;
     private String description;
-    private int price;
-    private List<RoomImage> roomImage;
+    private double price;
 
     public TypeRoom() {
     }
 
-    public TypeRoom(int typeId, String typeName, String description, int price, List<RoomImage> roomImage) {
+    public TypeRoom(int typeId, String typeName, String description, double price) {
         this.typeId = typeId;
         this.typeName = typeName;
         this.description = description;
         this.price = price;
-        this.roomImage = roomImage;
-    }
-
-    public List<RoomImage> getRoomImage() {
-        return roomImage;
-    }
-
-    public void setRoomImage(List<RoomImage> roomImage) {
-        this.roomImage = roomImage;
     }
 
     public String getDescription() {
@@ -53,11 +43,11 @@ public class TypeRoom {
         this.typeName = typeName;
     }
 
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(double price) {
         this.price = price;
     }
     

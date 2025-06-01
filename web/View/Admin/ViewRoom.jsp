@@ -11,7 +11,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>View Room</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cssAdmin/ViewRoom.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/cssAdmin/ViewRoom.css">
     </head>
     <body>
         <div class="link-insert"><a href="AdminRoom?choose=insertRoom">Insert new room</a></div>

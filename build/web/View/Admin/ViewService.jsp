@@ -11,7 +11,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>View service</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cssAdmin/ViewService.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/cssAdmin/ViewService.css">
     </head>
     <body>
         <div class="link-insert"><a href="AdminService?choose=insertService">Insert new service</a></div>

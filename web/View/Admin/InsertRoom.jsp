@@ -11,7 +11,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Insert Room</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cssAdmin/styleIU.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/cssAdmin/styleIU.css">
     </head>
     <body>
         <form action="AdminRoom?choose=insertRoom" method="post">

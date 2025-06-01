@@ -55,17 +55,14 @@ public class EmployeeDAO {
         }
         return list;
     }
-
-    public static void main(String[] args) {
-        List<Employee> employees = EmployeeDAO.getInstance().getAllEmployee();
-
-        for (Employee e : employees) {
-            System.out.println("ID: " + e.getEmployeeId());
-            System.out.println("Username: " + e.getUsername());
-            System.out.println("Full Name: " + e.getFullName());
-            System.out.println("Email: " + e.getEmail());
-            System.out.println("Role: " + (e.getRole() != null ? e.getRole().getRoleName() : "No Role"));
-            System.out.println("------------");
+    public int countEmployee() {
+        String sql = "select count(*) from Employee";
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
         }
+        return 0;
     }
 }

@@ -1,4 +1,4 @@
-package Controllers;
+package controllers.admin;
 
 import Models.Employee;
 import java.io.IOException;

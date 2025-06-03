@@ -33,6 +33,10 @@
         <url-pattern>/admin/service</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
+        <servlet-name>DashBoard</servlet-name>
+        <url-pattern>/admin/dashboard</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>Statistics</servlet-name>
         <url-pattern>/admin/dashboard/statistics</url-pattern>
     </servlet-mapping>

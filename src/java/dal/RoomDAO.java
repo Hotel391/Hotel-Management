@@ -213,37 +213,4 @@ public class RoomDAO {
 
         return listTypeRoom;
     }
-
-    public static void main(String[] args) {
-        // Gọi DAO và lấy danh sách phòng
-        RoomDAO dao = new RoomDAO(); // nếu bạn có constructor không tham số
-        List<Room> rooms = dao.getAllRoom();
-
-        // In ra danh sách phòng
-        for (Room room : rooms) {
-            System.out.println("Room Number: " + room.getRoomNumber());
-            System.out.println("Is Cleaned: " + (room.getIsCleaner() ? "Yes" : "No"));
-
-            TypeRoom tr = room.getTypeRoom();
-            System.out.println("Type: " + tr.getTypeName());
-            System.out.println("Description: " + tr.getDescription());
-            System.out.println("Price: " + tr.getPrice());
-
-            List<RoomNService> services = tr.getServices();
-            if (services.isEmpty()) {
-                System.out.println("  No services.");
-            } else {
-                System.out.println("  Services:");
-                for (RoomNService rns : services) {
-                    Service s = rns.getService();
-                    System.out.println("    - " + s.getServiceName()
-                            + " x" + rns.getQuantity()
-                            + " (" + s.getPrice() + " VND)");
-                }
-            }
-
-            System.out.println("----------------------------");
-        }
-
-    }
 }

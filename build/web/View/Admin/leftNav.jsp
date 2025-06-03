@@ -9,7 +9,7 @@
         <div class="nav-links">
             <ul class="nav-list">
                 <li>
-                    <a class="align-items-center" href="#">
+                    <a class="align-items-center" href="${pageContext.request.contextPath}/admin/dashboard">
                         <span><i class="bi bi-speedometer2"></i></span>Dashboard
                     </a>
                 </li>
@@ -25,7 +25,7 @@
                         <span><i class="bi bi-hospital"></i></span>Room</a></li>
                 <li><a href="#">
                         <span><i class="bi bi-tools"></i></span>Services</a></li>
-                <li><a href="#">
+                <li><a href="${pageContext.request.contextPath}/admin/dashboard/statistics">
                         <span><i class="bi bi-bar-chart-line-fill"></i></span>Statistics</a></li>
             </ul>
         </div>

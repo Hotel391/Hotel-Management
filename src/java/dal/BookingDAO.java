@@ -1,6 +1,6 @@
-package DAL;
+package dal;
 
-import Models.DailyRevenue;
+import models.DailyRevenue;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

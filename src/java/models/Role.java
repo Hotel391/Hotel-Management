@@ -1,4 +1,4 @@
-package Models;
+package models;
 
 public class Role {
     private int roleId;

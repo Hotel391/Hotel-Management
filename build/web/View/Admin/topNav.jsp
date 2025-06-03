@@ -1,7 +1,7 @@
 
 <div class="top-navbar">
     <span id="menu-toggle"><i class="bi bi-list"></i></span>
-    <h1>Dashboard</h1>
+    <h1>${title}</h1>
     <div class="user-profile">
         <img id="user-profile-button" src="${pageContext.request.contextPath}/Image/User.png" alt="User Profile">
         <div class="user-info">

@@ -1,7 +1,7 @@
-package DAL;
+package dal;
 
-import Models.Employee;
-import Models.Role;
+import models.Employee;
+import models.Role;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

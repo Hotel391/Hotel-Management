@@ -1,5 +1,6 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TypeRoom {
@@ -8,35 +9,20 @@ public class TypeRoom {
     private String typeName;
     private String description;
     private int price;
-    private List<RoomImage> roomImage;
+    private List<RoomNService> services = new ArrayList<>();
 
+    // Constructors
     public TypeRoom() {
     }
 
-    public TypeRoom(int typeId, String typeName, String description, int price, List<RoomImage> roomImage) {
+    public TypeRoom(int typeId, String typeName, String description, int price) {
         this.typeId = typeId;
         this.typeName = typeName;
         this.description = description;
         this.price = price;
-        this.roomImage = roomImage;
     }
 
-    public List<RoomImage> getRoomImage() {
-        return roomImage;
-    }
-
-    public void setRoomImage(List<RoomImage> roomImage) {
-        this.roomImage = roomImage;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
+    // Getter & Setter
     public int getTypeId() {
         return typeId;
     }
@@ -53,6 +39,14 @@ public class TypeRoom {
         this.typeName = typeName;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public int getPrice() {
         return price;
     }
@@ -60,6 +54,19 @@ public class TypeRoom {
     public void setPrice(int price) {
         this.price = price;
     }
-    
-    
+
+    public List<RoomNService> getServices() {
+        return services;
+    }
+
+    public void setServices(List<RoomNService> services) {
+        this.services = services;
+    }
+
+    public void addRoomNService(RoomNService rns) {
+        if (rns != null) {
+            services.add(rns);
+        }
+    }
+
 }

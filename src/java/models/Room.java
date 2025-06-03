@@ -1,7 +1,5 @@
 package models;
 
-import java.util.List;
-
 public class Room {
 
     private int roomNumber;
@@ -26,7 +24,7 @@ public class Room {
         this.roomNumber = roomNumber;
     }
 
-    public boolean isIsCleaner() {
+    public boolean getIsCleaner() {
         return isCleaner;
     }
 

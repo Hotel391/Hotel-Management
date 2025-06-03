@@ -70,6 +70,11 @@ public class Review {
     public void setCustomerAccount(CustomerAccount customerAccount) {
         this.customerAccount = customerAccount;
     }
+
+    @Override
+    public String toString() {
+        return "Review{" + "reviewId=" + reviewId + ", rating=" + rating + ", feedBack=" + feedBack + ", date=" + date + ", bookingDetail=" + bookingDetail.getBooking().getBookingId() + ", customerAccount=" + customerAccount.getCustomer().getFullName() + '}';
+    }
     
     
 }

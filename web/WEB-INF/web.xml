@@ -8,9 +8,29 @@
         <servlet-name>Statistics</servlet-name>
         <servlet-class>controllers.admin.Statistics</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AdminReview</servlet-name>
+        <servlet-class>controllers.admin.AdminReview</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminRoom</servlet-name>
+        <servlet-class>controllers.admin.AdminRoom</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminService</servlet-name>
+        <servlet-class>controllers.admin.AdminService</servlet-class>
+    </servlet>
     <servlet-mapping>
-        <servlet-name>DashBoard</servlet-name>
-        <url-pattern>/admin/dashboard</url-pattern>
+        <servlet-name>AdminReview</servlet-name>
+        <url-pattern>/admin/review</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminRoom</servlet-name>
+        <url-pattern>/admin/room</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminService</servlet-name>
+        <url-pattern>/admin/service</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Statistics</servlet-name>

@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/cssAdmin/ViewRoom.css">
     </head>
     <body>
-        <div class="link-insert"><a href="AdminRoom?choose=insertRoom">Insert new room</a></div>
+        <div class="link-insert"><a href="room?choose=insertRoom">Insert new room</a></div>
         <div class="room-table-container">
             <table class="room-table">
                 <h2>List room</h2>
@@ -46,8 +46,8 @@
                                     </c:otherwise>
                                 </c:choose>
                             </td>
-                            <td><a href="AdminRoom?choose=updateRoom&roomNumber=${room.roomNumber}&typeRoomId=${room.typeRoom.typeId}">Update</a></td>
-                            <td><a href="AdminRoom?choose=deleteRoom&roomNumber=${room.roomNumber}" onclick="return confirm('Are you sure to delete?');">Delete</a></td>
+                            <td><a href="room?choose=updateRoom&roomNumber=${room.roomNumber}&typeRoomId=${room.typeRoom.typeId}">Update</a></td>
+                            <td><a href="room?choose=deleteRoom&roomNumber=${room.roomNumber}" onclick="return confirm('Are you sure to delete?');">Delete</a></td>
                         </tr>
                     </c:forEach>
 

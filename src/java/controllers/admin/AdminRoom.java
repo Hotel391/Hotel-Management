@@ -21,24 +21,6 @@ import models.TypeRoom;
  */
 public class AdminRoom extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -51,39 +33,39 @@ public class AdminRoom extends HttpServlet {
         if (choose.equals("deleteRoom")) {
             String roomNumberStr = request.getParameter("roomNumber");
             int roomNumber = Integer.parseInt(roomNumberStr);
-            dals.RoomDAO.getInstance().deleteRoom(roomNumber);
-            response.sendRedirect("AdminRoom");
+            dal.RoomDAO.getInstance().deleteRoom(roomNumber);
+            response.sendRedirect("room");
         }
 
         //forward sang InsertRoom.jsp
         if (choose.equals("insertRoom")) {
             String submit = request.getParameter("submit");
             if (submit == null) {
-                List<TypeRoom> tr = dals.RoomDAO.getInstance().getAllTypeRoom();
+                List<TypeRoom> tr = dal.RoomDAO.getInstance().getAllTypeRoom();
                 request.setAttribute("typeRoom", tr);
-                request.getRequestDispatcher("View/Admin/InsertRoom.jsp").forward(request, response);
+                request.getRequestDispatcher("/View/Admin/InsertRoom.jsp").forward(request, response);
             }
         }
 
         //forward sang UpdateRoom.jsp
         if (choose.equals("updateRoom")) {
             String submit = request.getParameter("submit");
-            List<TypeRoom> tr = dals.RoomDAO.getInstance().getAllTypeRoom();
+            List<TypeRoom> tr = dal.RoomDAO.getInstance().getAllTypeRoom();
             if (submit == null) {
                 String roomNumber = request.getParameter("roomNumber");
                 String typeRoomId = request.getParameter("typeRoomId");
                 request.setAttribute("roomNumber", roomNumber);
                 request.setAttribute("typeRoomId", typeRoomId);
                 request.setAttribute("typeRoom", tr);
-                request.getRequestDispatcher("View/Admin/UpdateRoom.jsp").forward(request, response);
+                request.getRequestDispatcher("/View/Admin/UpdateRoom.jsp").forward(request, response);
             }
         }
 
         //view list room
         if (choose.equals("viewAll")) {
-            List<Room> r = dals.RoomDAO.getInstance().getAllRoom();
+            List<Room> r = dal.RoomDAO.getInstance().getAllRoom();
             request.setAttribute("listR", r);
-            request.getRequestDispatcher("View/Admin/ViewRoom.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
         }
     }
 
@@ -112,8 +94,8 @@ public class AdminRoom extends HttpServlet {
                     typeRoomID = Integer.parseInt(typeRoomIdstr);
                 } catch (Exception e) {
                 }
-                dals.RoomDAO.getInstance().updateRoom(typeRoomID, roomNumber);
-                response.sendRedirect("AdminRoom");
+                dal.RoomDAO.getInstance().updateRoom(typeRoomID, roomNumber);
+                response.sendRedirect("room");
                 return;
             }
         }
@@ -131,7 +113,7 @@ public class AdminRoom extends HttpServlet {
 
                 request.setAttribute("roomNumber", roomNumberStr);
 
-                List<TypeRoom> tr = dals.RoomDAO.getInstance().getAllTypeRoom();
+                List<TypeRoom> tr = dal.RoomDAO.getInstance().getAllTypeRoom();
                 request.setAttribute("typeRoom", tr);
 
                 try {
@@ -147,12 +129,12 @@ public class AdminRoom extends HttpServlet {
                 }
 
                 if (haveError) {
-                    request.getRequestDispatcher("View/Admin/InsertRoom.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Admin/InsertRoom.jsp").forward(request, response);
                     return;
                 }
 
-                dals.RoomDAO.getInstance().insertRoom(roomNumber, typeRoomId);
-                response.sendRedirect("AdminRoom");
+                dal.RoomDAO.getInstance().insertRoom(roomNumber, typeRoomId);
+                response.sendRedirect("room");
 
             }
         }

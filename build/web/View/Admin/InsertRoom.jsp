@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/cssAdmin/styleIU.css">
     </head>
     <body>
-        <form action="AdminRoom?choose=insertRoom" method="post">
+        <form action="room?choose=insertRoom" method="post">
             <div class="container">
                 <h2>Insert New Room</h2>
                 <table>

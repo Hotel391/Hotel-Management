@@ -1,6 +1,5 @@
-package dals;
+package dal;
 
-import dals.DBContext;
 import models.Employee;
 import models.Role;
 import java.sql.Connection;

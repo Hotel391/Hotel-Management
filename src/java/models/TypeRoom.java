@@ -2,7 +2,6 @@ package models;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class TypeRoom {
 
@@ -10,7 +9,6 @@ public class TypeRoom {
     private String typeName;
     private String description;
     private int price;
-    private List<RoomImage> roomImage = new ArrayList<>();
     private List<RoomNService> services = new ArrayList<>();
 
     // Constructors
@@ -22,11 +20,6 @@ public class TypeRoom {
         this.typeName = typeName;
         this.description = description;
         this.price = price;
-    }
-
-    public TypeRoom(int typeId, String typeName, String description, int price, List<RoomImage> roomImage) {
-        this(typeId, typeName, description, price);
-        this.roomImage = roomImage;
     }
 
     // Getter & Setter
@@ -62,14 +55,6 @@ public class TypeRoom {
         this.price = price;
     }
 
-    public List<RoomImage> getRoomImage() {
-        return roomImage;
-    }
-
-    public void setRoomImage(List<RoomImage> roomImage) {
-        this.roomImage = roomImage;
-    }
-
     public List<RoomNService> getServices() {
         return services;
     }
@@ -84,17 +69,4 @@ public class TypeRoom {
         }
     }
 
-    // Optional: For using as Map key (equals + hashCode)
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TypeRoom)) return false;
-        TypeRoom typeRoom = (TypeRoom) o;
-        return typeId == typeRoom.typeId;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(typeId);
-    }
 }

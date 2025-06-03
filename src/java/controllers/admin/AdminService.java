@@ -20,15 +20,7 @@ import models.Service;
  */
 public class AdminService extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -49,15 +41,15 @@ public class AdminService extends HttpServlet {
         if(choose.equals("deleteService")){
             String serviceIdStr = request.getParameter("serviceId");
             int serviceId = Integer.parseInt(serviceIdStr);
-            dals.ServiceDAO.getInstance().deleteService(serviceId);
-            response.sendRedirect("AdminService");
+            dal.ServiceDAO.getInstance().deleteService(serviceId);
+            response.sendRedirect("service");
         }
 
         //forward to InsertService.jsp
         if (choose.equals("insertService")) {
             String submit = request.getParameter("submit");
             if (submit == null) {
-                request.getRequestDispatcher("View/Admin/InsertService.jsp").forward(request, response);
+                request.getRequestDispatcher("/View/Admin/InsertService.jsp").forward(request, response);
             }
         }
 
@@ -71,15 +63,15 @@ public class AdminService extends HttpServlet {
                 request.setAttribute("serviceId", serviceID);
                 request.setAttribute("serviceName", serviceName);
                 request.setAttribute("price", price);
-                request.getRequestDispatcher("View/Admin/UpdateService.jsp").forward(request, response);
+                request.getRequestDispatcher("/View/Admin/UpdateService.jsp").forward(request, response);
             }
         }
 
         //list all service
         if (choose.equals("ViewAllService")) {
-            List<Service> list = dals.ServiceDAO.getInstance().getAllService();
+            List<Service> list = dal.ServiceDAO.getInstance().getAllService();
             request.setAttribute("listS", list);
-            request.getRequestDispatcher("View/Admin/ViewService.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
         }
     }
 
@@ -127,12 +119,12 @@ public class AdminService extends HttpServlet {
                 }
 
                 if (haveError) {
-                    request.getRequestDispatcher("View/Admin/InsertService.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Admin/InsertService.jsp").forward(request, response);
                     return;
                 }
 
-                dals.ServiceDAO.getInstance().insertService(serviceName, price);
-                response.sendRedirect("AdminService");
+                dal.ServiceDAO.getInstance().insertService(serviceName, price);
+                response.sendRedirect("service");
                 
             }
         }
@@ -154,12 +146,12 @@ public class AdminService extends HttpServlet {
                     request.setAttribute("serviceName", serviceName);
                     request.setAttribute("price", priceStr);
                     request.setAttribute("error", "Price must be integer number");
-                    request.getRequestDispatcher("View/Admin/UpdateService.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Admin/UpdateService.jsp").forward(request, response);
                 }
 
                 Service s = new Service(serviceId, serviceName, price);
-                dals.ServiceDAO.getInstance().updateService(s);
-                response.sendRedirect("AdminService");
+                dal.ServiceDAO.getInstance().updateService(s);
+                response.sendRedirect("service");
             }
         }
     }

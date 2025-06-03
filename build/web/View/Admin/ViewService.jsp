@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/cssAdmin/ViewService.css">
     </head>
     <body>
-        <div class="link-insert"><a href="AdminService?choose=insertService">Insert new service</a></div>
+        <div class="link-insert"><a href="service?choose=insertService">Insert new service</a></div>
         <div class="room-table-container">
             <h2>List service</h2>
             <table class="room-table">
@@ -33,8 +33,8 @@
                             <td>${s.serviceId}</td>
                             <td>${s.serviceName}</td>
                             <td>${s.price}</td>
-                            <td><a href="AdminService?choose=updateService&serviceId=${s.serviceId}&serviceName=${s.serviceName}&price=${s.price}">Update</a></td>
-                            <td><a href="AdminService?choose=deleteService&serviceId=${s.serviceId}" onclick="return confirm('Are you sure to delete?');">Delete</a></td>
+                            <td><a href="service?choose=updateService&serviceId=${s.serviceId}&serviceName=${s.serviceName}&price=${s.price}">Update</a></td>
+                            <td><a href="service?choose=deleteService&serviceId=${s.serviceId}" onclick="return confirm('Are you sure to delete?');">Delete</a></td>
                         </tr>
                     </c:forEach>
 

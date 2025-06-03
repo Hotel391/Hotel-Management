@@ -1,0 +1,103 @@
+.total-information {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+.total-information i{
+    font-size: 57px;
+}
+
+.total-information > div{
+    display: flex;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: 0.3s;
+    width: 100%;
+    padding-left: 10px;
+}
+.total-information .retail-information {
+    padding-top: 10px;
+    margin-left: 30px;
+}
+.total-information > div:hover {
+    box-shadow: 4px 10px 10px rgba(0,0,0,0.2),
+                -4px 10px 10px rgba(0,0,0,0.2);
+}
+.total-information h6{
+    font-size: 12.25px;
+    color: #6e6e6e;
+}
+.detail-information{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+.detail-information{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+.room-status {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+.room-status > div {
+    display: flex;
+    background-color: #245846;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: 0.3s;
+    width: 100%;
+    padding-left: 10px;
+    color: white;
+    padding-right: 20px;
+}
+.room-status i{
+    font-size: 35px;
+}
+.room-status >div >div{
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+.room-status >div >div h6{
+    margin-left: 10px;
+}
+.room-status >div >div h5{
+    margin-left: auto;
+}
+.room-status-title{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;
+    margin-top: 20px;
+    background-color: white;
+    border-radius: 10px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.room-status-title > div {
+  text-align: center;
+}
+
+.chart-column {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: white;
+}
+@media screen and (max-width: 1100px) {
+    .total-information {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .total-information i {
+        font-size: 40px;
+    }
+    .total-information h6 {
+        font-size: 10px;
+    }
+    .detail-information {
+        grid-template-columns: 1fr;
+    }
+}

@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/cssAdmin/styleIU.css">
     </head>
     <body>
-        <form action="AdminService?choose=updateService" method="post">
+        <form action="service?choose=updateService" method="post">
             <div class="container">
                 <h2>Update Service</h2>
                 <table>

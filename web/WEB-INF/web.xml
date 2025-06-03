@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     <servlet>
-        <servlet-name>AllReview</servlet-name>
-        <servlet-class>controllers.admin.AllReview</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>AdminReview</servlet-name>
         <servlet-class>controllers.admin.AdminReview</servlet-class>
     </servlet>
@@ -17,19 +13,15 @@
         <servlet-class>controllers.admin.AdminService</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>AllReview</servlet-name>
-        <url-pattern>/AllReview</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>AdminReview</servlet-name>
-        <url-pattern>/AdminReview</url-pattern>
+        <url-pattern>/admin/review</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>AdminRoom</servlet-name>
-        <url-pattern>/AdminRoom</url-pattern>
+        <url-pattern>/admin/room</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>AdminService</servlet-name>
-        <url-pattern>/AdminService</url-pattern>
+        <url-pattern>/admin/service</url-pattern>
     </servlet-mapping>
 </web-app>

@@ -16,7 +16,7 @@
     <body>
         <div class="container">
             <h2>Update Room</h2>
-            <form action="AdminRoom?choose=updateRoom" method="Post">
+            <form action="room?choose=updateRoom" method="Post">
                 <table>
                     <tr>
                         <td>Room number</td>

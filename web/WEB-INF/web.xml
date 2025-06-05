@@ -40,4 +40,5 @@
         <servlet-name>Statistics</servlet-name>
         <url-pattern>/admin/dashboard/statistics</url-pattern>
     </servlet-mapping>
+    
 </web-app>

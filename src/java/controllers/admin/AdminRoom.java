@@ -6,7 +6,6 @@
 package controllers.admin;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -92,7 +91,8 @@ public class AdminRoom extends HttpServlet {
                 try {
                     roomNumber = Integer.parseInt(roomNumberstr);
                     typeRoomID = Integer.parseInt(typeRoomIdstr);
-                } catch (Exception e) {
+                } catch (NumberFormatException e) {
+                    ///
                 }
                 dal.RoomDAO.getInstance().updateRoom(typeRoomID, roomNumber);
                 response.sendRedirect("room");

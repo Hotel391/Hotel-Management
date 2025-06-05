@@ -23,15 +23,6 @@ public class TypeRoom {
         this.price = price;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    // Getter & Setter
     public int getTypeId() {
         return typeId;
     }
@@ -46,6 +37,14 @@ public class TypeRoom {
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getPrice() {
@@ -64,9 +63,7 @@ public class TypeRoom {
         this.services = services;
     }
 
-    public void addRoomNService(RoomNService rns) {
-        if (rns != null) {
-            services.add(rns);
-        }
+    public void addRoomNService(RoomNService rns){
+        this.services.add(rns);
     }
 }

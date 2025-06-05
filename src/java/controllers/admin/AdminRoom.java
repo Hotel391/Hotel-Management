@@ -1,8 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-
 package controllers.admin;
 
 import java.io.IOException;
@@ -14,10 +9,6 @@ import java.util.List;
 import models.Room;
 import models.TypeRoom;
 
-/**
- *
- * @author Tuan'sPC
- */
 public class AdminRoom extends HttpServlet {
 
     @Override

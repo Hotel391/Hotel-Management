@@ -1,6 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html>
+<html lang="vn">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
@@ -34,45 +34,45 @@
                              ">
                             <div class="card-body p-5 shadow-5 text-center">
                                 <h2 class="fw-bold mb-5">Sign up now</h2>
-                                <form>
+                                <form method="post" action="${pageContext.request.contextPath}/register">
                                     <!-- full name -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="text" name="fullname" id="form3Example3" class="form-control" />
-                                        <label class="form-label" for="form3Example3">Fullname</label>
-                                        <div class="error-message">${errorName}</div>
+                                        <input type="text" name="fullname" class="form-control" />
+                                        <label class="form-label">Fullname</label>
+                                        <div class="error-message">${errorFullname}</div>
                                     </div>
-                                        
+
                                     <!-- Email input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="text" name="email" id="form3Example3" class="form-control" />
-                                        <label class="form-label" for="form3Example3">Email address</label>
+                                        <input type="text" name="email"" class="form-control" />
+                                        <label class="form-label">Email address</label>
                                     </div>
-                                    
+
                                     <!-- Password input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="text" name="username" id="form3Example4" class="form-control" />
-                                        <label class="form-label" for="form3Example4">Username</label>
+                                        <input type="text" name="username" class="form-control" />
+                                        <label class="form-label">Username</label>
                                     </div>
-                                    
+
                                     <!-- Password input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="password" name="password" id="form3Example4" class="form-control" />
-                                        <label class="form-label" for="form3Example4">Password</label>
+                                        <input type="password" name="password" class="form-control" />
+                                        <label class="form-label">Password</label>
                                     </div>
 
                                     <!-- Confirm Password input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input name="confirmPassword" type="password" id="form3Example4" class="form-control" />
-                                        <label class="form-label" for="form3Example4">Confirm Password</label>
+                                        <input name="confirmPassword" type="password" class="form-control" />
+                                        <label class="form-label">Confirm Password</label>
                                     </div>
-                                    
+
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="radio" name="Gender" value="Male" checked="checked" /> Male
-                                        <input type="radio" name="Gender" value="Female" /> Female
+                                        <input type="radio" name="Gender" value="0" checked="checked" /> Male
+                                        <input type="radio" name="Gender" value="1" /> Female
                                     </div>
 
                                     <!-- Submit button -->
-                                    <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block mb-4">
+                                    <button type="submit" data-mdb-ripple-init class="btn btn-primary btn-block mb-4">
                                         Sign up
                                     </button>
 
@@ -93,6 +93,10 @@
                         <img src="${pageContext.request.contextPath}/Image/HotelView/HotelView2.png" class="w-100 rounded-4 shadow-4"
                              alt="" />
                     </div>
+                    <form method="post">
+                        <input type="text" name="fullname"/> Fullname
+                        <button type="submit">google</button>
+                    </form>
                 </div>
             </div>
             <!-- Jumbotron -->

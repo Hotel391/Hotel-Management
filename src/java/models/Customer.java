@@ -57,7 +57,7 @@ public class Customer {
         this.email = email;
     }
 
-    public boolean isGender() {
+    public boolean getGender() {
         return gender;
     }
 

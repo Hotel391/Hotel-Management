@@ -65,4 +65,16 @@ public class EmployeeDAO {
         }
         return 0;
     }
+    public List<String> getAllString(String input){
+        List<String> listString=new ArrayList<>();
+        String sql="select "+input+" from Employee";
+        try(PreparedStatement st=con.prepareStatement(sql); ResultSet rs=st.executeQuery()){
+            while (rs.next()) {
+                listString.add(rs.getString(1));
+            }
+        } catch(SQLException e){
+            //
+        }
+        return listString;
+    }
 }

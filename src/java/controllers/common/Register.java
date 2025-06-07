@@ -26,8 +26,10 @@ public class Register extends HttpServlet {
         
         //verify fullname
         String fullname = request.getParameter("fullname").trim();
-        boolean errorFullname = Validation.validateField(request, "errorFullname", fullname, "FULLNAME", "Name",
-          "Fullname must contain alphabet more than 1 character");
+        boolean errorFullname = fullname==null || fullname.isEmpty();
+        if(errorFullname){
+            request.setAttribute("errorFullname", "Name is required");
+        }
         if(!errorFullname){
             request.removeAttribute("errorFullname");
         }
@@ -37,7 +39,7 @@ public class Register extends HttpServlet {
         boolean errorEmail= Validation.validateField(request, "errorEmail", email, "EMAIL", "Email", 
         "Invalid email.");
         if(!errorEmail && service.isEmailExists(email)){
-            request.setAttribute("errorUsername","Username is existed");
+            request.setAttribute("errorEmail","Email is existed");
             errorEmail = true;
         }
         if(!errorEmail){
@@ -75,7 +77,7 @@ public class Register extends HttpServlet {
             request.removeAttribute("errorConfirmPassword");
         }
         
-        boolean gender = request.getParameter("gender").equals("0");
+        boolean gender = "0".equals(request.getParameter("gender"));
         if (errorFullname|| errorEmail || errorUsername || errorPassword || errorConfirmPassword) {
             request.getRequestDispatcher("View/Register.jsp").forward(request,response);
             return;
@@ -86,6 +88,7 @@ public class Register extends HttpServlet {
         newCustomer.setFullName(fullname);
         newCustomer.setEmail(email);
         newCustomer.setGender(gender);
+        newCustomer.setActivate(true);
         newCustomer.setCustomerId(service.registerCustomer(newCustomer));
 
         CustomerAccount newAccount = new CustomerAccount();
@@ -103,7 +106,7 @@ public class Register extends HttpServlet {
             return true;
         }
         if (!confirmPassword.equals(password)) {
-            request.setAttribute("errorConfirmPassword", "Passwords do not match");
+            request.setAttribute("errorConfirmPassword", "Confirm Password do not match Password");
             return true;
         }
         return false;

@@ -3,7 +3,7 @@
 <html lang="vn">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Register</title>
         <!-- Font Awesome -->
         <link
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -37,38 +37,42 @@
                                 <form method="post" action="${pageContext.request.contextPath}/register">
                                     <!-- full name -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="text" name="fullname" class="form-control" />
+                                        <input type="text" name="fullname" class="form-control" value="${param.fullname}"/>
                                         <label class="form-label">Fullname</label>
                                         <div class="error-message">${errorFullname}</div>
                                     </div>
 
                                     <!-- Email input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="text" name="email"" class="form-control" />
+                                        <input type="text" name="email" class="form-control" value="${param.email}"/>
                                         <label class="form-label">Email address</label>
+                                        <div class="error-message">${errorEmail}</div>
                                     </div>
 
                                     <!-- Password input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="text" name="username" class="form-control" />
+                                        <input type="text" name="username" class="form-control" value="${param.username}"/>
                                         <label class="form-label">Username</label>
+                                        <div class="error-message">${errorUsername}</div>
                                     </div>
 
                                     <!-- Password input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="password" name="password" class="form-control" />
+                                        <input type="password" name="password" class="form-control" value="${param.password}"/>
                                         <label class="form-label">Password</label>
+                                        <div class="error-message">${errorPassword}</div>
                                     </div>
 
                                     <!-- Confirm Password input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input name="confirmPassword" type="password" class="form-control" />
+                                        <input name="confirmPassword" type="password" class="form-control" value="${param.confirmPassword}"/>
                                         <label class="form-label">Confirm Password</label>
+                                        <div class="error-message">${errorConfirmPassword}</div>
                                     </div>
 
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="radio" name="Gender" value="0" checked="checked" /> Male
-                                        <input type="radio" name="Gender" value="1" /> Female
+                                        <input type="radio" name="gender" value="0" ${param.gender ne '1' ? 'checked="checked"' : ''} /> Male
+                                        <input type="radio" name="gender" value="1" ${param.gender eq '1' ? 'checked="checked"' : ''}/> Female
                                     </div>
 
                                     <!-- Submit button -->
@@ -93,10 +97,6 @@
                         <img src="${pageContext.request.contextPath}/Image/HotelView/HotelView2.png" class="w-100 rounded-4 shadow-4"
                              alt="" />
                     </div>
-                    <form method="post">
-                        <input type="text" name="fullname"/> Fullname
-                        <button type="submit">google</button>
-                    </form>
                 </div>
             </div>
             <!-- Jumbotron -->

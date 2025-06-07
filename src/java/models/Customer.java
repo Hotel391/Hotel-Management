@@ -73,7 +73,7 @@ public class Customer {
         this.CCCD = CCCD;
     }
 
-    public boolean isActivate() {
+    public boolean getActivate() {
         return activate;
     }
 

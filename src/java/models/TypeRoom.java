@@ -10,10 +10,11 @@ public class TypeRoom {
     private String description;
     private int price;
     private List<RoomNService> services = new ArrayList<>();
-
+    
     // Constructors
     public TypeRoom() {
     }
+
 
     public TypeRoom(int typeId, String typeName, String description, int price) {
         this.typeId = typeId;
@@ -22,7 +23,6 @@ public class TypeRoom {
         this.price = price;
     }
 
-    // Getter & Setter
     public int getTypeId() {
         return typeId;
     }
@@ -63,10 +63,7 @@ public class TypeRoom {
         this.services = services;
     }
 
-    public void addRoomNService(RoomNService rns) {
-        if (rns != null) {
-            services.add(rns);
-        }
+    public void addRoomNService(RoomNService rns){
+        this.services.add(rns);
     }
-
 }

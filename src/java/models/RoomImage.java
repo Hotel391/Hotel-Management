@@ -17,5 +17,4 @@ public class RoomImage {
     public void setImage(String image) {
         this.image = image;
     }
-    
 }

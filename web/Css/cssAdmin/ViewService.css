@@ -14,7 +14,7 @@
 
 .room-table-container {
   max-width: 1200px;
-  margin: auto;
+  margin: 15px;
 }
 
 .room-table {
@@ -24,6 +24,7 @@
   border-radius: 12px; 
   overflow: hidden; 
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
+  color: black;
 }
 
 .room-table thead {

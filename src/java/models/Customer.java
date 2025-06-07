@@ -57,7 +57,7 @@ public class Customer {
         this.email = email;
     }
 
-    public boolean isGender() {
+    public boolean getGender() {
         return gender;
     }
 
@@ -73,7 +73,7 @@ public class Customer {
         this.CCCD = CCCD;
     }
 
-    public boolean isActivate() {
+    public boolean getActivate() {
         return activate;
     }
 

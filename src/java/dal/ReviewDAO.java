@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dal;
 
 
@@ -18,10 +14,6 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Vector;
 
-/**
- *
- * @author Tuan'sPC
- */
 public class ReviewDAO {
 
     private static ReviewDAO instance;
@@ -145,16 +137,5 @@ public class ReviewDAO {
             ex.printStackTrace();
         }
         return listReview;
-    }
-
-    public static void main(String[] args) {
-
-        ReviewDAO rD = new ReviewDAO();
-        Date date = Date.valueOf("2024-06-06");
-
-        List<Review> list = rD.searchReview("a", null);
-        for (Review review : list) {
-            System.out.println(review.toString());
-        }
     }
 }

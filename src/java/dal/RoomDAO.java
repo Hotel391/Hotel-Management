@@ -1,9 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dal;
-
 
 import models.Room;
 import models.RoomNService;
@@ -16,10 +11,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
 
-/**
- *
- * @author Tuan'sPC
- */
 public class RoomDAO {
 
     private static RoomDAO instance;
@@ -34,6 +25,61 @@ public class RoomDAO {
 
     private RoomDAO() {
         con = new DBContext().connect;
+    }
+    
+    public int RoomCount(){
+        String sql="select count(*) from Room";
+        
+        try(PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()){
+            if(rs.next()){
+                return rs.getInt(1);
+            }
+        } catch(SQLException e){
+        }
+        return 0;
+    }
+
+    public int RoomAvailableCount() {
+        String sql = """
+                     SELECT COUNT(*) \r
+                     FROM Room r\r
+                     WHERE NOT EXISTS (\r
+                         SELECT 1 FROM BookingDetail bd \r
+                     \tWHERE bd.RoomNumber = r.RoomNumber and \r
+                     \tCONVERT(DATE, GETDATE()) >= bd.StartDate\r
+                           and CONVERT(DATE, GETDATE()) < bd.EndDate\r
+                     )\r
+                     """
+        ;
+        
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+        }
+        return 0;
+    }
+    public int RoomBookedCount() {
+        String sql = """
+                     SELECT COUNT(*) \r
+                     FROM Room r\r
+                     WHERE EXISTS (\r
+                         SELECT 1 FROM BookingDetail bd \r
+                     \tWHERE bd.RoomNumber = r.RoomNumber and \r
+                     \tCONVERT(DATE, GETDATE()) >= bd.StartDate\r
+                           and CONVERT(DATE, GETDATE()) < bd.EndDate\r
+                     )\r
+                     """
+        ;
+        
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+        }
+        return 0;
     }
 
     public List<Room> getAllRoom() {
@@ -101,8 +147,7 @@ public class RoomDAO {
                 + "   SET [TypeId] = ?\n"
                 + " WHERE [RoomNumber] =?";
 
-        try {
-            PreparedStatement ptm = con.prepareStatement(sql);
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
             ptm.setInt(1, typeRoomID);
             ptm.setInt(2, roomNumber);
             ptm.executeUpdate();
@@ -117,8 +162,8 @@ public class RoomDAO {
                 + "           ,[TypeId])\n"
                 + "     VALUES(?, ?)";
         int n = 0;
-        try {
-            PreparedStatement ptm = con.prepareStatement(sql);
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
+            
             ptm.setInt(1, roomNumber);
             ptm.setInt(2, typeRoom);
             n = ptm.executeUpdate();
@@ -132,10 +177,8 @@ public class RoomDAO {
         String sql = "DELETE FROM [dbo].[Room]\n"
                 + "      WHERE RoomNumber =?";
 
-        try {
-            PreparedStatement ptm = con.prepareStatement(sql);
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {        
             ptm.setInt(1, roomNumber);
-
             ptm.executeUpdate();
         } catch (SQLException ex) {
             ex.getStackTrace();
@@ -166,38 +209,4 @@ public class RoomDAO {
 
         return listTypeRoom;
     }
-
-    public static void main(String[] args) {
-        // Gọi DAO và lấy danh sách phòng
-        RoomDAO dao = new RoomDAO(); // nếu bạn có constructor không tham số
-        List<Room> rooms = dao.getAllRoom();
-
-        // In ra danh sách phòng
-        for (Room room : rooms) {
-            System.out.println("Room Number: " + room.getRoomNumber());
-            System.out.println("Is Cleaned: " + (room.getIsCleaner() ? "Yes" : "No"));
-
-            TypeRoom tr = room.getTypeRoom();
-            System.out.println("Type: " + tr.getTypeName());
-            System.out.println("Description: " + tr.getDescription());
-            System.out.println("Price: " + tr.getPrice());
-
-            List<RoomNService> services = tr.getServices();
-            if (services.isEmpty()) {
-                System.out.println("  No services.");
-            } else {
-                System.out.println("  Services:");
-                for (RoomNService rns : services) {
-                    Service s = rns.getService();
-                    System.out.println("    - " + s.getServiceName()
-                            + " x" + rns.getQuantity()
-                            + " (" + s.getPrice() + " VND)");
-                }
-            }
-
-            System.out.println("----------------------------");
-        }
-
-    }
-
 }

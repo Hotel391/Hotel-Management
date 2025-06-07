@@ -25,7 +25,7 @@
                         <span><i class="bi bi-hospital"></i></span>Room</a></li>
                 <li><a href="#">
                         <span><i class="bi bi-tools"></i></span>Services</a></li>
-                <li><a href="${pageContext.request.contextPath}/admin/dashboard/statistics">
+                <li><a href="${pageContext.request.contextPath}/admin/statistics">
                         <span><i class="bi bi-bar-chart-line-fill"></i></span>Statistics</a></li>
             </ul>
         </div>

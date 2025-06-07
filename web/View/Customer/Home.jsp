@@ -5,36 +5,54 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Home</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <%--style for dashbord--%>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
               crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/navDashboardStyle.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/dashboardStyle.css" />
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/mainDashboardStyle.css" />
+        <%--write more in following--%>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FF5722;">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=leb">Profile</a>
+        <div class="containerBox">
+            <jsp:include page="leftNav.jsp" />
+            <div class="right-section">
+                <c:set var="title" value="Home Page" scope="request"/>
+                <jsp:include page="topNav.jsp" />
+                <!--                <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FF5722;">-->
+<!--                <div class="container-fluid">
+                    <a class="navbar-brand" href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=leb">Profile</a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Home</a>
-                        </li>
-                    </ul>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-                    <!-- Search form -->
-                    <form class="d-flex" action="yourServletURL" method="get">
-                        <input class="form-control me-2" type="search" name="query" placeholder="Search..." aria-label="Search">
-                        <button class="btn btn-outline-success" type="submit">Search</button>
-                    </form>
-                </div>
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="#">Home</a>
+                            </li>
+                        </ul>
+
+                         Search form 
+                        <form class="d-flex" action="yourServletURL" method="get">
+                            <input class="form-control me-2" type="search" name="query" placeholder="Search..." aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>-->
             </div>
-        </nav>
+        </div>
+        <!--    </nav>-->
     </body>
+    <%--script for dashbord--%>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
+    <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
+    <%--write more in following--%>
 </html>

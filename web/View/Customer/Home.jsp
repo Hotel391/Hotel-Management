@@ -11,7 +11,7 @@
               crossorigin="anonymous">
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FF5722;">
             <div class="container-fluid">
                 <a class="navbar-brand" href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=leb">Profile</a>
 

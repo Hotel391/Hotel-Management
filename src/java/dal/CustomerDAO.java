@@ -8,6 +8,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import models.Customer;
+import models.Role;
+import utility.Encryption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CustomerDAO {
 
@@ -37,7 +41,7 @@ public class CustomerDAO {
         return 0;
     }
 
-    public List<String> getAllEmail() {
+public List<String> getAllEmail() {
         List<String> listEmail = new ArrayList<>();
         String sql = "select Email from Customer";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
@@ -49,6 +53,49 @@ public class CustomerDAO {
         }
         return listEmail;
     }
+
+    //create function to search customer by customerID
+
+    public Customer getCustomerByCustomerID(int CustomerID) {
+        String sql = "select * from Customer where CustomerID = ?";
+        try (PreparedStatement st = con.prepareStatement(sql);) {
+            st.setInt(1, CustomerID);
+            try (ResultSet rs = st.executeQuery();) {
+                if (rs.next()) {
+                    return new Customer(rs.getInt(1), 
+                            rs.getString(2), 
+                            rs.getString(3), 
+                           rs.getString(4), 
+                            rs.getBoolean(5), 
+                            rs.getString(6), 
+                            rs.getBoolean(7), 
+                            new Role(rs.getInt(8)));
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+    
+    //create function to check existed email
+    
+    public boolean checkExistedEmail(String email) {
+        String sql = "select * from Customer where Email = ?";
+        try (PreparedStatement st = con.prepareStatement(sql);) {
+            st.setString(1, email);
+            try (ResultSet rs = st.executeQuery();) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+
 
     public int insertCustomer(Customer customer) {
         String sql = """
@@ -66,7 +113,7 @@ public class CustomerDAO {
                 }
             }
         } catch (SQLException e) {
-            //
+            e.printStackTrace();
         }
         return 0;
     }

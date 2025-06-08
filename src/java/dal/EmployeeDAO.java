@@ -65,6 +65,44 @@ public class EmployeeDAO {
         }
         return 0;
     }
+    
+    //create function to take Employee upon username and password
+    
+    public Employee getEmployeeLogin(String username, String password) {
+        String sql = "select e.*, r.RoleName from Employee e\n"
+                + "join Role r on r.RoleId=e.RoleId where Username=? and Password=?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, username);
+            st.setString(2, password);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                Employee e = new Employee();
+                e.setEmployeeId(rs.getInt("EmployeeId"));
+                e.setUsername(rs.getString("Username"));
+                e.setPassword(rs.getString("Password"));
+                e.setFullName(rs.getString("FullName"));
+                e.setAddress(rs.getString("Address"));
+                e.setPhoneNumber(rs.getString("PhoneNumber"));
+                e.setEmail(rs.getString("Email"));
+                e.setGender(rs.getBoolean("Gender"));
+                e.setCCCD(rs.getString("CCCD"));
+                e.setDateOfBirth(rs.getDate("dateOfBirth"));
+                e.setRegistrationDate(rs.getDate("registrationDate"));
+                e.setActivate(rs.getBoolean("activate"));
+
+                Role r = new Role();
+                r.setRoleId(rs.getInt("RoleId"));
+                r.setRoleName(rs.getString("RoleName"));
+                e.setRole(r);
+                return e;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    
     public List<String> getAllString(String input){
         List<String> listString=new ArrayList<>();
         String sql="select "+input+" from Employee";

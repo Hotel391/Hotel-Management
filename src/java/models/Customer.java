@@ -13,6 +13,8 @@ public class Customer {
 
     public Customer() {
     }
+    
+    
 
     public Customer(int customerId, String fullName, String phoneNumber, String email, boolean gender, String CCCD, boolean activate, Role role) {
         this.customerId = customerId;

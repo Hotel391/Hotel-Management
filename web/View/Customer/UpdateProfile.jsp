@@ -49,10 +49,11 @@
 
                                     <div class="mb-3">
                                         <label class="form-label">Phone Number</label>
-                                        <input type="text" class="form-control" name="phoneNumber" value="${customerAccount.customer.phoneNumber}" required>
-                                        <c:if test="${not empty phoneError}">
-                                            <div class="text-danger">${phoneError}</div>
-                                        </c:if>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               name="phoneNumber" 
+                                               value="${customerAccount.customer.phoneNumber}" >
+                                        
                                     </div>
 
                                     <div class="mb-3">
@@ -96,7 +97,7 @@
                                             </c:if>
                                         </c:if>
                                         <label class="form-label">New Password</label>
-                                        <input type="text" class="form-control" name="newPassWord" value="${param.newPassWord}" required>
+                                        <input type="password" class="form-control" name="newPassWord" value="${param.newPassWord}" required>
                                         <c:if test="${not empty passwordError}">
                                             <div class="text-danger">${passwordError}</div>
                                         </c:if>

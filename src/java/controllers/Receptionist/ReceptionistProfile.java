@@ -27,7 +27,7 @@ public class ReceptionistProfile extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        Employee receptionist = (Employee) session.getAttribute("loggedInUser");
+        Employee receptionist = (Employee) session.getAttribute("employeeInfo");
 
         if (receptionist == null) {
             response.sendRedirect("/View/login.jsp");

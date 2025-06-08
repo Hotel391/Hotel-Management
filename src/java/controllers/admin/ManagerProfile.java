@@ -12,7 +12,7 @@ import java.io.IOException;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "ManagerProfileServlet", urlPatterns = "/view/admin/managerProfile")
+@WebServlet(name = "ManagerProfileServlet", urlPatterns = "/managerProfile")
 public class ManagerProfile extends HttpServlet {
 
     private EmployeeDAO employeeDAO;
@@ -27,7 +27,9 @@ public class ManagerProfile extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        Employee manager = (Employee) session.getAttribute("loggedInUser");
+        Employee manager = (Employee) session.getAttribute("employeeInfo");
+        
+        System.out.println("info: " + manager.toString());
 
         if (manager == null) {
             response.sendRedirect("/View/login.jsp");

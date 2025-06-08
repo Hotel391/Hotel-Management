@@ -159,7 +159,7 @@
                         <!-- Action Buttons -->
                         <div class="d-flex justify-content-end gap-2">
                             <c:if test="${not isEditing}">
-                                <a href="${pageContext.request.contextPath}/view/admin/managerProfile?action=updateprofile" class="btn btn-primary">Update Profile</a>
+                                <a href="${pageContext.request.contextPath}/managerProfile?action=updateprofile" class="btn btn-primary">Update Profile</a>
                                 <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#passwordModal">Change Password</button>
                             </c:if>
                             <c:if test="${isEditing}">

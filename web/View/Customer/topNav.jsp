@@ -5,19 +5,16 @@
     <div class="user-profile">
         <img id="user-profile-button" src="${pageContext.request.contextPath}/Image/User.png" alt="User Profile">
         <div class="user-info">
-            <c:choose>
-                <c:when test="${not empty sessionScope.username}">
-                    <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${sessionScope.username}" class="text-decoration-none text-reset">
+
+                <c:if test="${not empty sessionScope.customerInfo}">
+                    <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${sessionScope.customerInfo.username}" class="text-decoration-none text-reset">
                         <i class="bi bi-person-circle"></i> Profile
                     </a><br>
-                    <a href="#" class="text-decoration-none text-reset">
+                    <a href="${pageContext.request.contextPath}/login?service=logout" class="text-decoration-none text-reset">
                         <i class="bi bi-box-arrow-right"></i>Logout</a>
-                </c:when>
-                <c:otherwise>
-                    <span><i class="bi bi-person-circle"></i> Profile</span><br>
-                    <span><i class="bi bi-box-arrow-right"></i> Logout</span><br>
-                </c:otherwise>
-            </c:choose>
+                </c:if>
+
+
         </div>
     </div>
 </div>

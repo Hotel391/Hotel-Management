@@ -170,5 +170,12 @@ public class Employee {
     public void setCleanerFloor(CleanerFloor cleanerFloor) {
         this.cleanerFloor = cleanerFloor;
     }
+
+    @Override
+    public String toString() {
+        return "Employee{" + "employeeId=" + employeeId + ", username=" + username + ", password=" + password + ", fullName=" + fullName + ", address=" + address + ", phoneNumber=" + phoneNumber + ", email=" + email + ", gender=" + gender + ", CCCD=" + CCCD + ", dateOfBirth=" + dateOfBirth + ", registrationDate=" + registrationDate + ", activate=" + activate + ", role=" + role + ", cleanerFloor=" + cleanerFloor + '}';
+    }
+    
+    
     
 }

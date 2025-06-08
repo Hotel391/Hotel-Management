@@ -39,7 +39,7 @@
 </head>
 <body class="bg-light">
     <div class="container mt-4">
-        <a href="${pageContext.request.contextPath}/receptionist/dashboard" class="btn btn-outline-primary mb-3">Back to Dashboard</a>
+        <a href="${pageContext.request.contextPath}/receptionistPage" class="btn btn-outline-primary mb-3">Back to Dashboard</a>
         <div class="card shadow-sm">
             <div class="card-header">
                 <h3 class="mb-0">Receptionist Profile</h3>

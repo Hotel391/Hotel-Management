@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author win
  */
-@WebServlet("/receptionist/receptionistPage")
+@WebServlet("/receptionistPage")
 public class ReceptionistPage extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

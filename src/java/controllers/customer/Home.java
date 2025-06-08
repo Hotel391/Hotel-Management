@@ -15,10 +15,6 @@ public class Home extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
-        CustomerAccount customerAccount = (CustomerAccount) session.getAttribute("customerAccount");
-        String username = customerAccount.getUsername();
-        session.setAttribute("username", username);
          
         request.getRequestDispatcher("/View/Customer/Home.jsp").forward(request, response);
         

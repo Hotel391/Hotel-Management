@@ -60,6 +60,29 @@ public class CustomerAccountDAO {
         }
         return null;
     }
+    
+    //create function check account by email
+    
+    public CustomerAccount checkAccountByEmail(String email) {
+        String sql = "select ca.* from CustomerAccount ca join Customer c on ca.CustomerId = c.CustomerId where c.Email=?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, email);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                CustomerAccount ca = new CustomerAccount();
+                ca.setUsername(rs.getString("Username"));
+                ca.setPassword(rs.getString("Password"));
+                int customerId = rs.getInt("CustomerId");
+                Customer c = CustomerDAO.getInstance().getCustomerByCustomerID(customerId);
+                ca.setCustomer(c);
+                return ca;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Consider logging the exception properly
+        }
+        return null;
+    }
+
 
     public void insertCustomerAccount(CustomerAccount customerAccount) {
         String sql = """

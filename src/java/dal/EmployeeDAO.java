@@ -63,7 +63,6 @@ public class EmployeeDAO {
                     cf.setFloor(floor);
                     e.setCleanerFloor(cf);
                 }
-
                 list.add(e);
             }
         } catch (SQLException e) {

@@ -27,7 +27,7 @@ public class CustomerDAO {
         con = new DBContext().connect;
     }
 
-    public CustomerAccount getCustomer(String username) {
+    public CustomerAccount getCustomerAccount(String username) {
         CustomerAccount ca = null;
         String sql = """
                  SELECT 
@@ -86,23 +86,21 @@ public class CustomerDAO {
     }
 
 
-
-    public void updateCustomerInfo(String username, String fullname, String email,
-            String phoneNumber, int gender, String cccd) {
-        String sql = "UPDATE Customer SET FullName = ?, Email = ?, PhoneNumber = ?, Gender = ?, CCCD = ? "
+    public void updateCustomerInfo(String username, String fullname,
+            String phoneNumber, int gender) {
+        String sql = "UPDATE Customer SET FullName = ?, PhoneNumber = ?, Gender = ? "
                 + "WHERE CustomerId = (SELECT CustomerId FROM CustomerAccount WHERE Username = ?)";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, fullname);
-            ptm.setString(2, email);
-            ptm.setString(3, phoneNumber);
-            ptm.setInt(4, gender);
-            ptm.setString(5, cccd);
-            ptm.setString(6, username);
+            ptm.setString(2, phoneNumber);
+            ptm.setInt(3, gender);
+            ptm.setString(4, username);
             ptm.executeUpdate();
         }catch (SQLException e) {
              e.printStackTrace();
         }
     }
+    
 
     public int customerCount() {
         String sql = "SELECT COUNT(*) FROM Customer";
@@ -127,6 +125,19 @@ public class CustomerDAO {
             //
         }
         return listEmail;
+    }
+    
+    public List<String> getAllPhone() {
+        List<String> listPhone = new ArrayList<>();
+        String sql = "select PhoneNumber from Customer";
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                listPhone.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return listPhone;
     }
 
     public int insertCustomer(Customer customer) {

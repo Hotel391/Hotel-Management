@@ -26,62 +26,155 @@
 
                     <div class="card shadow text-dark" style="background-color: #fffff; width: 100%; max-width: 700px;">
 
-                        <div class="card-header bg-primary text-white">
-                            <h4 class="mb-0">Update Profile</h4>
-                        </div>
-                        <div class="card-body">
-                            <form action="customerProfile?service=update" method="post">
-                                <input type="hidden" name="service" value="update"/>
-                                <input type="hidden" name="submit" value="submit"/>
-                                <input type="hidden" name="username" value="${customerAccount.username}"/>
+                        <!--update info customer-->
+                        <c:if test="${type == 'update'}">
 
-                                <div class="mb-3">
-                                    <label class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" name="fullName" value="${customerAccount.customer.fullName}" required>
-                                    <c:if test="${not empty fullNameError}">
-                                        <div class="text-danger">${fullNameError}</div>
-                                    </c:if>
-                                </div>
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">Update Profile</h4>
+                            </div>
+                            <div class="card-body">
+                                <form action="customerProfile?service=update" method="post">
+                                    <input type="hidden" name="service" value="update"/>
+                                    <input type="hidden" name="type" value="update">
+                                    <input type="hidden" name="submit" value="submit"/>
+                                    <input type="hidden" name="username" value="${customerAccount.username}"/>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" class="form-control" name="email" value="${customerAccount.customer.email}" required>
-                                    <c:if test="${not empty emailError}">
-                                        <div class="text-danger">${emailError}</div>
-                                    </c:if>
-                                </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" name="fullName" value="${customerAccount.customer.fullName}" required>
+                                        <c:if test="${not empty fullNameError}">
+                                            <div class="text-danger">${fullNameError}</div>
+                                        </c:if>
+                                    </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Phone Number</label>
-                                    <input type="text" class="form-control" name="phoneNumber" value="${customerAccount.customer.phoneNumber}" required>
-                                    <c:if test="${not empty phoneError}">
-                                        <div class="text-danger">${phoneError}</div>
-                                    </c:if>
-                                </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="text" class="form-control" name="phoneNumber" value="${customerAccount.customer.phoneNumber}" required>
+                                        <c:if test="${not empty phoneError}">
+                                            <div class="text-danger">${phoneError}</div>
+                                        </c:if>
+                                    </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Gender</label>
-                                    <select class="form-select" name="gender">
-                                        <option value="true" ${customerAccount.customer.gender ? "selected" : ""}>Male</option>
-                                        <option value="false" ${!customerAccount.customer.gender ? "selected" : ""}>Female</option>
-                                    </select>
-                                </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Gender</label>
+                                        <select class="form-select" name="gender">
+                                            <option value="true" ${customerAccount.customer.gender ? "selected" : ""}>Male</option>
+                                            <option value="false" ${!customerAccount.customer.gender ? "selected" : ""}>Female</option>
+                                        </select>
+                                    </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">CCCD</label>
-                                    <input type="text" class="form-control" name="cccd" value="${customerAccount.customer.CCCD}" required>
-                                </div>
 
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="bi bi-save"></i> Save Changes
-                                    </button>
-                                    <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
-                                        <i class="bi bi-arrow-left-circle"></i> Cancel
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="bi bi-save"></i> Save Changes
+                                        </button>
+                                        <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
+                                            <i class="bi bi-arrow-left-circle"></i> Cancel
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </c:if>
+
+                        
+                        <!--input old password-->
+                        <c:if test="${type == 'oldPass'}">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">Input old password</h4>
+                            </div>
+                            <div class="card-body">
+                                <form action="customerProfile?service=inputOldPass" method="post">
+                                    <input type="hidden" name="service" value="inputOldPass"/>
+                                    <input type="hidden" name="type" value="oldPass">
+                                    <input type="hidden" name="submit" value="submit"/>
+                                    <input type="hidden" name="username" value="${sessionScope.username}"/>
+                                    <div class="mb-3">
+                                        <label class="form-label">Old Password</label>
+                                        <input type="text" class="form-control" name="oldPass" required>
+                                        <c:if test="${not empty oldError}">
+                                            <div class="text-danger">${oldError}</div>
+                                        </c:if>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-save"></i> Enter
+                                            </button>
+                                            <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
+                                                <i class="bi bi-arrow-left-circle"></i> Cancel
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </c:if>
+                        
+                        <!--change password-->
+                        <c:if test="${type == 'changePass'}">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">Change password</h4>
+                            </div>
+                            <div class="card-body">
+                                <form action="customerProfile?service=changePass" method="post">
+                                    <input type="hidden" name="service" value="changePass"/>
+                                    <input type="hidden" name="type" value="changePass">
+                                    <input type="hidden" name="submit" value="submit"/>
+                                    <input type="hidden" name="username" value="${customerAccount.username}"/>
+                                    <div class="mb-3">
+                                        
+                                        <label class="form-label">Old Password</label>
+                                        <input type="text" class="form-control" name="oldPass" value="${param.oldPass}" required>
+                                        <c:if test="${not empty oldPasswordError}">
+                                            <div class="text-danger">${oldPasswordError}</div>
+                                        </c:if>
+                                        
+                                        <label class="form-label">New Password</label>
+                                        <input type="text" class="form-control" name="newPassWord" value="${param.newPassWord}" required>
+                                        <c:if test="${not empty passwordError}">
+                                            <div class="text-danger">${passwordError}</div>
+                                        </c:if>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-save"></i> Save Changes
+                                            </button>
+                                            <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
+                                                <i class="bi bi-arrow-left-circle"></i> Cancel
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </c:if>
+
+                        <!--change username-->
+                        <c:if test="${type == 'changeUserName'}">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="mb-0">Change UserName</h4>
+                            </div>
+                            <div class="card-body">
+                                <form action="customerProfile?service=changeUserName" method="post">
+                                    <input type="hidden" name="service" value="changeUserName"/>
+                                    <input type="hidden" name="type" value="changeUserName">
+                                    <input type="hidden" name="submit" value="submit"/>
+                                    <input type="hidden" name="customerId" value="${customerAccount.customer.customerId}"/>
+                                    <input type="hidden" name="username" value="${customerAccount.username}"/>
+                                    <div class="mb-3">
+                                        <label class="form-label">New UserName</label>
+                                        <input type="text" class="form-control" name="newUserName" value="${param.newUserName}" required>
+                                        <c:if test="${not empty usernameError}">
+                                            <div class="text-danger">${usernameError}</div>
+                                        </c:if>
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-save"></i> Save Changes
+                                            </button>
+                                            <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
+                                                <i class="bi bi-arrow-left-circle"></i> Cancel
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </c:if>
+
                     </div>
                 </div>
             </div>

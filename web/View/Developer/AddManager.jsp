@@ -40,9 +40,12 @@
                                    placeholder="Username" aria-label="Username" 
                                    aria-describedby="visible-addon" value="${param.userName}">
                         </div>
-                        <c:if test="${not empty usernameError}">
-                            <small class="text-danger">${usernameError}</small>
-                        </c:if>
+
+                        <small class="text-danger" style="display: block; min-height: 1.2em;">
+                            <c:if test="${not empty usernameError}">
+                                <c:out value="${usernameError}" />
+                            </c:if>
+                        </small>
 
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="visible-addon2">
@@ -56,9 +59,13 @@
                             </span>
                         </div>
 
-                        <c:if test="${not empty passwordError}">
-                            <small class="text-danger">${passwordError}</small>
-                        </c:if>
+
+                        <small class="text-danger" style="display: block; min-height: 1.2em;">
+                            <c:if test="${not empty passwordError}">
+                                <c:out value="${passwordError}" />
+                            </c:if>
+                        </small>
+
                         <button type="submit" class="btn btn-primary w-100">Add</button>
                     </form>
                 </div>

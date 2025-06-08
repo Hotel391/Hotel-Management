@@ -23,59 +23,62 @@
                 <c:set var="title" value="Developer" scope="request"/>
                 <jsp:include page="topNav.jsp" />
 
-                <div style="margin: 20px">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3 style="color: orange; margin: 0;">All Manager Accounts</h3>
-                        <a href="developerPage?service=add" class="btn btn-primary">
-                            Add New Account Manager <i class="bi bi-person-add"></i>
-                        </a>
-                    </div>
+                <c:if test="${adminAccount.role.roleId == 0}">
 
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Employee ID</th>
-                                    <th>Username</th>
-                                    <th>Password</th>
-                                    <th>Registration Date</th>
-                                    <th>Activate</th>
-                                    <th>Role Name</th>
-                                    <th>Delete</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <c:forEach var="e" items="${requestScope.list}">
+                    <div style="margin: 20px">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 style="color: orange; margin: 0;">All Manager Accounts</h3>
+                            <a href="developerPage?service=add" class="btn btn-primary">
+                                Add New Account Manager <i class="bi bi-person-add"></i>
+                            </a>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover align-middle">
+                                <thead class="table-light">
                                     <tr>
-                                        <td>${e.employeeId}</td>
-                                        <td>${e.username}</td>
-                                        <td>${e.password}</td>
-                                        <td>${e.registrationDate}</td>
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${e.activate == true}">
-                                                    <i class="bi bi-check2-circle text-success fs-5"></i>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <i class="bi bi-x-circle text-danger fs-5"></i>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </td>
-                                        <td>${e.role.roleName}</td>
-                                        <td>
-                                            <a href="developerPage?service=deleteManager&employeeID=${e.employeeId}" 
-                                               onclick="return confirm('Are you sure to delete?');"
-                                               class="btn btn-sm btn-danger">
-                                                <i class="bi bi-trash-fill"></i>
-                                            </a>
-                                        </td>
-
+                                        <!--                                    <th>Employee ID</th>-->
+                                        <th>Username</th>
+                                        <th>Password</th>
+                                        <th>Registration Date</th>
+                                        <th>Activate</th>
+                                        <th>Role Name</th>
+                                        <th>Delete</th>
                                     </tr>
-                                </c:forEach>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="e" items="${requestScope.list}">
+                                        <tr>
+    <!--                                        <td>${e.employeeId}</td>-->
+                                            <td>${e.username}</td>
+                                            <td>${e.password}</td>
+                                            <td>${e.registrationDate}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${e.activate == true}">
+                                                        <i class="bi bi-check2-circle text-success fs-5"></i>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <i class="bi bi-x-circle text-danger fs-5"></i>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>${e.role.roleName}</td>
+                                            <td>
+                                                <a href="developerPage?service=deleteManager&employeeID=${e.employeeId}" 
+                                                   onclick="return confirm('Are you sure to delete?');"
+                                                   class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </a>
+                                            </td>
+
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                </c:if>
             </div>
         </div>
     </body>

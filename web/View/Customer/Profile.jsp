@@ -49,24 +49,6 @@
                                         <c:otherwise>Female</c:otherwise>
                                     </c:choose>
                                 </dd>
-
-                                <dt class="col-sm-3">CCCD:</dt>
-                                <dd class="col-sm-9">${customerAccount.customer.CCCD}</dd>
-
-                                <dt class="col-sm-3">Activate:</dt>
-                                <dd class="col-sm-9">
-                                    <c:choose>
-                                        <c:when test="${customerAccount.customer.activate}">
-                                            <i class="bi bi-check-circle-fill text-success"></i> Active
-                                        </c:when>
-                                        <c:otherwise>
-                                            <i class="bi bi-x-circle-fill text-danger"></i> Inactive
-                                        </c:otherwise>
-                                    </c:choose>
-                                </dd>
-
-                                <dt class="col-sm-3">Role:</dt>
-                                <dd class="col-sm-9">${customerAccount.customer.role.roleName}</dd>
                             </dl>
 
                             <!--back home,update profile-->
@@ -77,6 +59,14 @@
 
                                 <a href="${pageContext.request.contextPath}/customer/customerProfile?service=update&username=${customerAccount.username}" class="btn btn-primary">
                                     <i class="bi bi-pencil-square"></i> Update Profile
+                                </a>
+
+                                <a href="${pageContext.request.contextPath}/customer/customerProfile?service=changePass&username=${customerAccount.username}" class="btn btn-warning">
+                                    <i class="bi bi-key"></i> Change Password
+                                </a>
+
+                                <a href="${pageContext.request.contextPath}/customer/customerProfile?service=changeUserName&username=${customerAccount.username}" class="btn btn-primary">
+                                    <i class="bi bi-pencil-square"></i> Change username
                                 </a>
                             </div>
                         </div>

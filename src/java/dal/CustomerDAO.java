@@ -51,13 +51,12 @@ public class CustomerDAO {
 
     public int insertCustomer(Customer customer) {
         String sql = """
-                     insert into Customer (FullName,Email,Gender,activate,RoleId)\r
-                     values (?,?,?,?,4)""";
+                     insert into Customer (FullName,Email,Gender,RoleId)\r
+                     values (?,?,?,4)""";
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, customer.getFullName());
             st.setString(2, customer.getEmail());
             st.setBoolean(3, customer.getGender());
-            st.setBoolean(4, customer.getActivate());
             st.executeUpdate();
 
             try(ResultSet rs=st.getGeneratedKeys()){

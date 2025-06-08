@@ -1,6 +1,6 @@
 package models;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class EmailVerificationToken {
     private int tokenId;
@@ -10,13 +10,13 @@ public class EmailVerificationToken {
     private String password;
     private boolean gender;
     private String token;
-    private Date expiryDate;
+    private Timestamp expiryDate;
     private boolean isUsed;
 
     public EmailVerificationToken() {
     }
 
-    public EmailVerificationToken(int tokenId, String fullname, String email, String username, String password, boolean gender, String token, Date expiryDate, boolean isUsed) {
+    public EmailVerificationToken(int tokenId, String fullname, String email, String username, String password, boolean gender, String token, Timestamp expiryDate, boolean isUsed) {
         this.tokenId = tokenId;
         this.fullname = fullname;
         this.email = email;
@@ -84,11 +84,11 @@ public class EmailVerificationToken {
         this.token = token;
     }
 
-    public Date getExpiryDate() {
+    public Timestamp getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(Date expiryDate) {
+    public void setExpiryDate(Timestamp expiryDate) {
         this.expiryDate = expiryDate;
     }
 

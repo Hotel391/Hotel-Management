@@ -53,4 +53,19 @@ public class CustomerAccountDAO {
             //
         }
     }
+    
+    public void resetPasswrod(String email, String password){
+        String sql="""
+                   update CustomerAccount
+                   set Password=?
+                   where CustomerId in (select CustomerId from Customer
+                   where Email=?)""";
+        try(PreparedStatement st=con.prepareStatement(sql)) {
+            st.setString(1, password);
+            st.setString(2, email);
+            st.executeUpdate();
+        } catch (SQLException e) {
+        //
+        }
+    }
 }

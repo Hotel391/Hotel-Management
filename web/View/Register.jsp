@@ -49,7 +49,7 @@
                                         <div class="error-message">${errorEmail}</div>
                                     </div>
 
-                                    <!-- Password input -->
+                                    <!-- Username input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
                                         <input type="text" name="username" class="form-control" value="${param.username}"/>
                                         <label class="form-label">Username</label>

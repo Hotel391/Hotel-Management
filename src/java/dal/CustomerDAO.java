@@ -56,7 +56,7 @@ public class CustomerDAO {
 
             if (rs.next()) {
                 // Create and populate Role
-                Role role = new Role();
+                Role role = new Role(rs.getInt(8));
                 role.setRoleId(rs.getInt("RoleId"));
                 role.setRoleName(rs.getString("RoleName"));
 

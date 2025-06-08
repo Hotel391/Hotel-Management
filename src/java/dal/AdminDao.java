@@ -56,7 +56,7 @@ public class AdminDao {
                      \tWHERE e.RoleId = 1;""";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
-                Role r = new Role();
+                Role r = new Role(rs.getInt(8));
                 r.setRoleId(rs.getInt(13));
                 r.setRoleName(rs.getString(14));
                 Employee em = new Employee(rs.getInt(1),

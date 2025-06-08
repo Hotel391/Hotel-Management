@@ -97,7 +97,7 @@ public class Register extends HttpServlet {
         newAccount.setCustomer(newCustomer);
         service.registerAccount(newAccount);
 
-        response.sendRedirect("login");
+        response.sendRedirect("verifyEmail");
     }
 
     private boolean isErrorConfirmPassword(HttpServletRequest request, String confirmPassword, String password) {

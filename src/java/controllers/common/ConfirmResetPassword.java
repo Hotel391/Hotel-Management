@@ -50,7 +50,7 @@ public class ConfirmResetPassword extends HttpServlet {
         request.setAttribute("success", "true");
         String email = request.getParameter("email");
         request.setAttribute("email", email);
-        String tokenId=request.getParameter("tokenId");
+        String tokenId = request.getParameter("tokenId");
         request.setAttribute("tokenId", tokenId);
 
         //verify Password
@@ -72,13 +72,13 @@ public class ConfirmResetPassword extends HttpServlet {
             request.getRequestDispatcher("View/ConfirmResetPassword.jsp").forward(request, response);
             return;
         }
-        password=Encryption.toSHA256(password);
+        password = Encryption.toSHA256(password);
         dal.CustomerAccountDAO.getInstance().resetPasswrod(email, password);
-        
-        RegisterService service=new RegisterService();
-        
+
+        RegisterService service = new RegisterService();
+
         service.deleteConfirmedToken(Integer.parseInt(tokenId));
-        
+
         response.sendRedirect("login");
     }
 

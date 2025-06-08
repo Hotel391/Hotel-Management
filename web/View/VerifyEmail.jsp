@@ -32,5 +32,5 @@
         </div>
     </body>
     <script src="${pageContext.request.contextPath}/Js/SetCountDown.js"></script>
-    
+
 </html>

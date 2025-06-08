@@ -55,10 +55,10 @@ public class Email {
         };
         Session session = Session.getInstance(props, auth);
         String linkRaw;
-        if(type.equals("reset")){
-            linkRaw=htmlResetPassword;
-        } else{
-            linkRaw=htmlConfirmEmail;
+        if (type.equals("reset")) {
+            linkRaw = htmlResetPassword;
+        } else {
+            linkRaw = htmlConfirmEmail;
         }
         String htmlContent = linkRaw.replace("${username}", username)
                 .replace("${confirmLink}", linkConfirm);

@@ -98,9 +98,9 @@ public class Register extends HttpServlet {
         String linkConfirm = request.getScheme() + "://"
                 + request.getServerName() + ":"
                 + request.getServerPort()
-                + request.getContextPath()+"/confirmEmail?token="+token.getToken();
-        emailService.sendEmail(email, username, linkConfirm,"register");
-        
+                + request.getContextPath() + "/confirmEmail?token=" + token.getToken();
+        emailService.sendEmail(email, username, linkConfirm, "register");
+
         response.sendRedirect("verifyEmail?email=" + email);
     }
 

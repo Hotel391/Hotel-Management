@@ -18,7 +18,7 @@ public class VerifyEmail extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String type=request.getParameter("type");
+        String type = request.getParameter("type");
         String email = request.getParameter("email");
         if (email == null || email.isEmpty()) {
             response.sendRedirect("register");
@@ -32,12 +32,12 @@ public class VerifyEmail extends HttpServlet {
         if (token == null && !"reset".equals(type)) {
             response.sendRedirect("register");
             return;
-        } else if(token==null){
+        } else if (token == null) {
             response.sendRedirect("login");
             return;
         }
-        
-        if (!service.isEmailExists(email)) {
+
+        if ("reset".equals(type) && !service.isEmailExists(email)) {
             response.sendRedirect("login");
             return;
         }
@@ -56,10 +56,10 @@ public class VerifyEmail extends HttpServlet {
                     + request.getContextPath();
             if (!"reset".equals(request.getParameter("type"))) {
                 String linkConfirm = linkRaw + "/confirmEmail?token=" + token.getToken();
-                emailService.sendEmail(email, token.getUsername(), linkConfirm,"register");
+                emailService.sendEmail(email, token.getUsername(), linkConfirm, "register");
             } else {
                 String linkConfirm = linkRaw + "/confirmResetPassword?token=" + token.getToken();
-                emailService.sendEmail(email, email, linkConfirm,"reset");
+                emailService.sendEmail(email, email, linkConfirm, "reset");
             }
         }
 

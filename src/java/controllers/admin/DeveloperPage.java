@@ -21,8 +21,9 @@ public class DeveloperPage extends HttpServlet {
         String submit = request.getParameter("submit");
 
         HttpSession session = request.getSession();
-        String username = (String) session.getAttribute("username");
-
+        Employee employeeInfo = (Employee) session.getAttribute("employeeInfo");
+        String username = employeeInfo.getUsername();
+        
         if (service == null) {
             service = "viewAll";
         }

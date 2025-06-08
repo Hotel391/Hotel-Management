@@ -9,11 +9,11 @@ package models;
  * @author Hai Long
  */
 public class Constants {
-        public static String GOOGLE_CLIENT_ID = "200776812058-qrg1li14uugvdeb351am8g4savbpjnvo.apps.googleusercontent.com";
+        public static String GOOGLE_CLIENT_ID = "";
 
-	public static String GOOGLE_CLIENT_SECRET = "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";
+	public static String GOOGLE_CLIENT_SECRET = "";
 
-	public static String GOOGLE_REDIRECT_URI = "http://localhost:9999/HotelManagement/login";
+	public static String GOOGLE_REDIRECT_URI = "http://localhost:9999/fptHotel/login";
 
 	public static String GOOGLE_LINK_GET_TOKEN = "https://accounts.google.com/o/oauth2/token";
 

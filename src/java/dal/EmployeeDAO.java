@@ -55,7 +55,6 @@ public class EmployeeDAO {
         }
         return list;
     }
-    
     public int countEmployee() {
         String sql = "select count(*) from Employee";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
@@ -66,78 +65,6 @@ public class EmployeeDAO {
         }
         return 0;
     }
-
-    public Employee getAccountAdmin(String username) {
-        String sql = "SELECT Username, Password, RoleId FROM Employee "
-                + "WHERE Username COLLATE SQL_Latin1_General_CP1_CS_AS = ? and roleId =0";
-        try (PreparedStatement ptm = con.prepareStatement(sql) ) {
-            ptm.setString(1, username);
-            ResultSet rs = ptm.executeQuery();
-            if (rs.next()) {
-                Role role = new Role();
-                role.setRoleId(rs.getInt("RoleId"));
-                Employee emp = new Employee();
-                emp.setUsername(rs.getString("Username"));
-                emp.setPassword(rs.getString("Password"));
-                emp.setRole(role);
-                return emp;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public void updatePasswordAdminByUsername(String username,String newPassword) {
-        String sql = "UPDATE Employee SET Password = ? WHERE Username COLLATE SQL_Latin1_General_CP1_CS_AS = ?";
-        try (PreparedStatement ptm = con.prepareStatement(sql)) {
-            ptm.setString(1, newPassword);
-            ptm.setString(2, username);
-            ptm.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    //create function to take Employee upon username and password
-    
-    public Employee getEmployeeLogin(String username, String password) {
-        String sql = "select e.*, r.RoleName from Employee e\n"
-                + "join Role r on r.RoleId=e.RoleId where Username=? and Password=?";
-        try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setString(1, username);
-            st.setString(2, password);
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                Employee e = new Employee();
-                e.setEmployeeId(rs.getInt("EmployeeId"));
-                e.setUsername(rs.getString("Username"));
-                e.setPassword(rs.getString("Password"));
-                e.setFullName(rs.getString("FullName"));
-                e.setAddress(rs.getString("Address"));
-                e.setPhoneNumber(rs.getString("PhoneNumber"));
-                e.setEmail(rs.getString("Email"));
-                e.setGender(rs.getBoolean("Gender"));
-                e.setCCCD(rs.getString("CCCD"));
-                e.setDateOfBirth(rs.getDate("dateOfBirth"));
-                e.setRegistrationDate(rs.getDate("registrationDate"));
-                e.setActivate(rs.getBoolean("activate"));
-
-                Role r = new Role();
-                r.setRoleId(rs.getInt("RoleId"));
-                r.setRoleName(rs.getString("RoleName"));
-                e.setRole(r);
-                return e;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    
     public List<String> getAllString(String input){
         List<String> listString=new ArrayList<>();
         String sql="select "+input+" from Employee";

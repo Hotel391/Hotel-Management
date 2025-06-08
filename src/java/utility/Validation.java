@@ -12,7 +12,6 @@ public class Validation {
     private static final Map<String, Pattern> regexMap=new HashMap<>(); 
     
     static{
-        regexMap.put("FULLNAME", Pattern.compile("^[\\p{L} ]{2,100}$"));
         regexMap.put("PHONE_NUMBER", Pattern.compile("^0\\d{9,10}$"));
         regexMap.put("USERNAME",Pattern.compile("^[\\da-zA-Z_]{5,20}$"));
         regexMap.put("EMOJI",Pattern.compile("[\\uD83C-\\uDBFF\\uDC00-\\uDFFF]+"));

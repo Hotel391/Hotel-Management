@@ -60,8 +60,8 @@ public class ServiceDAO {
                 + "      ,[Price] = ?\n"
                 + " WHERE ServiceId = ?";
 
-        try (PreparedStatement ptm = con.prepareStatement(sql);) {
-            
+        try {
+            PreparedStatement ptm = con.prepareStatement(sql);
             ptm.setString(1, s.getServiceName());
             ptm.setInt(2, s.getPrice());
             ptm.setInt(3, s.getServiceId());
@@ -77,8 +77,8 @@ public class ServiceDAO {
                 + "            ,[Price])\n"
                 + "     VALUES(?, ?)";
         int n = 0;
-        try (PreparedStatement ptm = con.prepareStatement(sql);) {
-            
+        try {
+            PreparedStatement ptm = con.prepareStatement(sql);
             ptm.setString(1, serviceName);
             ptm.setInt(2, price);
             n = ptm.executeUpdate();
@@ -92,8 +92,8 @@ public class ServiceDAO {
         String sql = "DELETE FROM [dbo].[Service]\n"
                 + "      WHERE ServiceId=?";
 
-        try ( PreparedStatement ptm = con.prepareStatement(sql);) {
-           
+        try {
+            PreparedStatement ptm = con.prepareStatement(sql);
             ptm.setInt(1, roomNumber);
 
             ptm.executeUpdate();

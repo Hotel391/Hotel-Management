@@ -1,5 +1,4 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -27,21 +26,24 @@
             <div class="container-fluid h-custom login-content">
                 <div class="row d-flex justify-content-center align-items-center h-100">
                     <div class="col-md-9 col-lg-6 col-xl-5">
-                        <img src="${pageContext.request.contextPath}/Image/HotelView/HotelView2.png"
+                        <img src="${pageContext.request.contextPath}/Image/Contact.jpg"
                              class="img-fluid hotel-img" alt="Hotel image">
                     </div>
                     <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                        <form action="login" method="get">
+                        <form>
                             <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
                                 <p class="lead fw-normal mb-0 me-3">Sign in with</p>
+                                <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-floating mx-1">
+                                    <i class="fab fa-facebook-f"></i>
+                                </button>
 
-                                <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:9999/fptHotel/login&response_type=code
-                                   &client_id=200776812058-qrg1li14uugvdeb351am8g4savbpjnvo.apps.googleusercontent.com&approval_prompt=force&state=loginGoogle">
-                                    <button  type="button" class="btn btn-primary btn-floating mx-1">
-                                        <i class="fab fa-google"></i>
-                                    </button>
-                                </a>
+                                <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-floating mx-1">
+                                    <i class="fab fa-twitter"></i>
+                                </button>
 
+                                <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-floating mx-1">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </button>
                             </div>
 
                             <div class="divider d-flex align-items-center my-4">
@@ -50,50 +52,37 @@
 
                             <!-- Email input -->
                             <div data-mdb-input-init class="form-outline mb-4">
-                                <input type="text" 
-                                       name="username" 
-                                       id="form3Example3"  
-                                       class="form-control form-control-lg"
-                                       placeholder="Enter a valid email address"
-                                       value="${param.username != null ? param.username : ''}"/>
-                                <label class="form-label" for="form3Example3">Email address or username</label>
+                                <input type="email" id="form3Example3" class="form-control form-control-lg"
+                                       placeholder="Enter a valid email address" />
+                                <label class="form-label" for="form3Example3">Email address</label>
                             </div>
 
                             <!-- Password input -->
                             <div data-mdb-input-init class="form-outline mb-3">
-                                <input type="password" 
-                                       name="password" 
-                                       id="form3Example4" 
-                                       class="form-control form-control-lg"
-                                       placeholder="Enter password"
-                                       value="${param.password != null ? param.password  : ''}"/>
+                                <input type="password" id="form3Example4" class="form-control form-control-lg"
+                                       placeholder="Enter password" />
                                 <label class="form-label" for="form3Example4">Password</label>
                             </div>
 
-                            <c:if test="${requestScope.error != null}">
-                                <div class="alert alert-danger" role="alert">
-                                    ${requestScope.error}
-                                </div>
-                            </c:if>
-
                             <div class="d-flex justify-content-between align-items-center">
-
-                                <a href="#!" class="text-body">Forgot password?</a>
+                                <!-- Checkbox -->
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3" />
+                                    <label class="form-check-label" for="form2Example3">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <a href="forgotPassword" class="text-body">Forgot password?</a>
                             </div>
 
-
-
                             <div class="text-center text-lg-start mt-4 pt-2">
-                                <input type="hidden" name="service" value="login">
-                                <input type="hidden" name="submit" value="submit">
-                                <button  type="submit" class="btn btn-primary btn-lg"
+                                <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
                                          style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
                                 <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="register"
                                                                                                   class="link-danger">Register</a></p>
                             </div>
 
                         </form>
-
                     </div>
                 </div>
             </div>

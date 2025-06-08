@@ -139,5 +139,5 @@ public class Employee {
     public void setRole(Role role) {
         this.role = role;
     }
-    
+
 }

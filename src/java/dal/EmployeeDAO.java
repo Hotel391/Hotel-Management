@@ -55,6 +55,7 @@ public class EmployeeDAO {
         }
         return list;
     }
+    
     public int countEmployee() {
         String sql = "select count(*) from Employee";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
@@ -64,6 +65,40 @@ public class EmployeeDAO {
         } catch (SQLException e) {
         }
         return 0;
+    }
+
+    public Employee getAccountAdmin(String username) {
+        String sql = "SELECT Username, Password, RoleId FROM Employee "
+                + "WHERE Username COLLATE SQL_Latin1_General_CP1_CS_AS = ? and roleId =0";
+        try (PreparedStatement ptm = con.prepareStatement(sql) ) {
+            ptm.setString(1, username);
+            ResultSet rs = ptm.executeQuery();
+            if (rs.next()) {
+                Role role = new Role();
+                role.setRoleId(rs.getInt("RoleId"));
+                Employee emp = new Employee();
+                emp.setUsername(rs.getString("Username"));
+                emp.setPassword(rs.getString("Password"));
+                emp.setRole(role);
+                return emp;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public void updatePasswordAdminByUsername(String username,String newPassword) {
+        String sql = "UPDATE Employee SET Password = ? WHERE Username COLLATE SQL_Latin1_General_CP1_CS_AS = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setString(1, newPassword);
+            ptm.setString(2, username);
+            ptm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
     
     //create function to take Employee upon username and password

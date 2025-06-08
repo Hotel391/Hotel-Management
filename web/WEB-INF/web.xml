@@ -28,6 +28,7 @@
         <servlet-name>Register</servlet-name>
         <servlet-class>controllers.common.Register</servlet-class>
     </servlet>
+
     <servlet>
         <servlet-name>VerifyEmail</servlet-name>
         <servlet-class>controllers.common.VerifyEmail</servlet-class>
@@ -44,6 +45,7 @@
         <servlet-name>ConfirmResetPassword</servlet-name>
         <servlet-class>controllers.common.ConfirmResetPassword</servlet-class>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>AdminReview</servlet-name>
         <url-pattern>/admin/review</url-pattern>
@@ -72,6 +74,7 @@
         <servlet-name>Register</servlet-name>
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>VerifyEmail</servlet-name>
         <url-pattern>/verifyEmail</url-pattern>

@@ -1,6 +1,5 @@
 package dal;
 
-
 import models.Room;
 import models.RoomNService;
 import models.Service;
@@ -148,8 +147,7 @@ public class RoomDAO {
                 + "   SET [TypeId] = ?\n"
                 + " WHERE [RoomNumber] =?";
 
-        try {
-            PreparedStatement ptm = con.prepareStatement(sql);
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
             ptm.setInt(1, typeRoomID);
             ptm.setInt(2, roomNumber);
             ptm.executeUpdate();
@@ -164,8 +162,8 @@ public class RoomDAO {
                 + "           ,[TypeId])\n"
                 + "     VALUES(?, ?)";
         int n = 0;
-        try {
-            PreparedStatement ptm = con.prepareStatement(sql);
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
+            
             ptm.setInt(1, roomNumber);
             ptm.setInt(2, typeRoom);
             n = ptm.executeUpdate();
@@ -179,10 +177,8 @@ public class RoomDAO {
         String sql = "DELETE FROM [dbo].[Room]\n"
                 + "      WHERE RoomNumber =?";
 
-        try {
-            PreparedStatement ptm = con.prepareStatement(sql);
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {        
             ptm.setInt(1, roomNumber);
-
             ptm.executeUpdate();
         } catch (SQLException ex) {
             ex.getStackTrace();

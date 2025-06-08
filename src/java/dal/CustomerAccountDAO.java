@@ -8,29 +8,27 @@ import java.util.ArrayList;
 import java.util.List;
 import models.Customer;
 import models.CustomerAccount;
-/**
- *
- * @author TranTrungHieu
- */
+
 public class CustomerAccountDAO {
+
     private static CustomerAccountDAO instance;
     private Connection con;
 
-    public static CustomerAccountDAO getInstance(){
-        if(instance == null){
-            instance= new CustomerAccountDAO();
+    public static CustomerAccountDAO getInstance() {
+        if (instance == null) {
+            instance = new CustomerAccountDAO();
         }
         return instance;
     }
 
-    private CustomerAccountDAO(){
-        con=new DBContext().connect;
+    private CustomerAccountDAO() {
+        con = new DBContext().connect;
     }
 
-    public List<String> getAllUsername(){
-        List<String> listUsername=new ArrayList<>();
-        String sql="select Username from CustomerAccount";
-        try(PreparedStatement st=con.prepareStatement(sql); ResultSet rs=st.executeQuery()) {
+    public List<String> getAllUsername() {
+        List<String> listUsername = new ArrayList<>();
+        String sql = "select Username from CustomerAccount";
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 listUsername.add(rs.getString(1));
             }
@@ -39,9 +37,8 @@ public class CustomerAccountDAO {
         }
         return listUsername;
     }
-    
     //create a function to check login 
-    
+
     public CustomerAccount checkLogin(String username, String password) {
         String sql = "select * from CustomerAccount where Username=? and Password=?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -63,12 +60,10 @@ public class CustomerAccountDAO {
         return null;
     }
 
-
     public void insertCustomerAccount(CustomerAccount customerAccount) {
         String sql = """
                      insert into CustomerAccount (Username,Password,CustomerId)\r
-                     values (?,?,?)""" 
-        ;
+                     values (?,?,?)""";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, customerAccount.getUsername());
             st.setString(2, customerAccount.getPassword());
@@ -78,23 +73,23 @@ public class CustomerAccountDAO {
             e.printStackTrace();
         }
     }
-    
-    public void resetPasswrod(String email, String password){
-        String sql="""
+
+    public void resetPasswrod(String email, String password) {
+        String sql = """
                    update CustomerAccount
                    set Password=?
                    where CustomerId in (select CustomerId from Customer
                    where Email=?)""";
-        try(PreparedStatement st=con.prepareStatement(sql)) {
+        try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, password);
             st.setString(2, email);
             st.executeUpdate();
         } catch (SQLException e) {
-        //
+            //
         }
     }
     //check existed by username
-    
+
     public boolean isUsernameExisted(String username) {
         String sql = "select * from CustomerAccount where Username=?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -107,5 +102,32 @@ public class CustomerAccountDAO {
             e.printStackTrace();
         }
         return false;
+        //
+    }
+
+    public void changePassword(String password, String username) {
+        String sql = """
+                     UPDATE CustomerAccount
+                     SET Password = ?
+                     WHERE Username = ?;""";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setString(1, password);
+            ptm.setString(2, username);
+            ptm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void changeUsername(String username, int customerId) {
+        String sql = "UPDATE CustomerAccount SET Username = ? WHERE CustomerId = ?";
+
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setString(1, username);
+            ptm.setInt(2, customerId);
+            ptm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

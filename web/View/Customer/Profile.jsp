@@ -38,10 +38,12 @@
 
                                 <dt class="col-sm-3">Email:</dt>
                                 <dd class="col-sm-9">${customerAccount.customer.email}</dd>
-
+                                
+                                <c:if test="${customerAccount.customer.phoneNumber != null}">
                                 <dt class="col-sm-3">Phone Number:</dt>
                                 <dd class="col-sm-9">${customerAccount.customer.phoneNumber}</dd>
-
+                                </c:if>
+                                
                                 <dt class="col-sm-3">Gender:</dt>
                                 <dd class="col-sm-9">
                                     <c:choose>

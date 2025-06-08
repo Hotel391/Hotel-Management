@@ -58,8 +58,8 @@ public class CustomerAccountDAO {
     public void changePassword(String password, String username) {
         String sql = """
                      UPDATE CustomerAccount
-                     SET Password = '?'
-                     WHERE Username = '?';""";
+                     SET Password = ?
+                     WHERE Username = ?;""";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, password);
             ptm.setString(2, username);

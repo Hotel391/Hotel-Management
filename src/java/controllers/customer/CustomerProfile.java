@@ -74,7 +74,6 @@ public class CustomerProfile extends HttpServlet {
             }
         }
 
-
         if (service.equals("changePass")) {
             type = "changePass";
 
@@ -85,12 +84,14 @@ public class CustomerProfile extends HttpServlet {
             } else {
                 String newPassWord = request.getParameter("newPassWord");
                 String oldPass = request.getParameter("oldPass");
-                
-                if(!oldPass.equals(ca.getPassword())){
-                    request.setAttribute("type", request.getParameter("type"));
-                    request.setAttribute("oldPasswordError", "Mật khẩu cũ không đúng");
-                    request.getRequestDispatcher("/View/Customer/UpdateProfile.jsp").forward(request, response);
-                    return;
+
+                if (oldPass != null) {
+                    if (!oldPass.equals(ca.getPassword())) {
+                        request.setAttribute("type", request.getParameter("type"));
+                        request.setAttribute("oldPasswordError", "Mật khẩu cũ không đúng");
+                        request.getRequestDispatcher("/View/Customer/UpdateProfile.jsp").forward(request, response);
+                        return;
+                    }
                 }
                 boolean hasError = false;
                 hasError |= Validation.validateField(
@@ -131,10 +132,9 @@ public class CustomerProfile extends HttpServlet {
                 hasError |= Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Full Name", "Full name must be 2–100 characters, letters and spaces only.");
                 hasError |= Validation.validateField(request, "phoneError", phoneNumber, "PHONE_NUMBER", "Phone Number", "Phone number must start with 0 and have 10–11 digits.");
 
-                String currentPhone = dal.CustomerDAO.getInstance().getCustomerAccount(username).getCustomer().getPhoneNumber();
                 List<String> list = dal.CustomerDAO.getInstance().getAllPhone();
                 for (String phone : list) {
-                    if (phone.equals(phoneNumber) && !phone.equals(currentPhone)) {
+                    if (phone != null && phone.equals(phoneNumber)) {
                         request.setAttribute("phoneError", "Phone đã tồn tại");
                         hasError = true;
                         break;
@@ -149,7 +149,6 @@ public class CustomerProfile extends HttpServlet {
                     c.setPhoneNumber(phoneNumber);
                     c.setGender(genderBoolean);
                     caa.setCustomer(c);
-                    request.setAttribute("username", username);
                     request.setAttribute("customerAccount", caa);
                     request.setAttribute("type", request.getParameter("type"));
                     request.getRequestDispatcher("/View/Customer/UpdateProfile.jsp").forward(request, response);

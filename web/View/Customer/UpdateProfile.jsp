@@ -76,37 +76,6 @@
                             </div>
                         </c:if>
 
-                        
-                        <!--input old password-->
-                        <c:if test="${type == 'oldPass'}">
-                            <div class="card-header bg-primary text-white">
-                                <h4 class="mb-0">Input old password</h4>
-                            </div>
-                            <div class="card-body">
-                                <form action="customerProfile?service=inputOldPass" method="post">
-                                    <input type="hidden" name="service" value="inputOldPass"/>
-                                    <input type="hidden" name="type" value="oldPass">
-                                    <input type="hidden" name="submit" value="submit"/>
-                                    <input type="hidden" name="username" value="${sessionScope.username}"/>
-                                    <div class="mb-3">
-                                        <label class="form-label">Old Password</label>
-                                        <input type="text" class="form-control" name="oldPass" required>
-                                        <c:if test="${not empty oldError}">
-                                            <div class="text-danger">${oldError}</div>
-                                        </c:if>
-                                        <div class="d-flex gap-2">
-                                            <button type="submit" class="btn btn-success">
-                                                <i class="bi bi-save"></i> Enter
-                                            </button>
-                                            <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
-                                                <i class="bi bi-arrow-left-circle"></i> Cancel
-                                            </a>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </c:if>
-                        
                         <!--change password-->
                         <c:if test="${type == 'changePass'}">
                             <div class="card-header bg-primary text-white">
@@ -119,13 +88,13 @@
                                     <input type="hidden" name="submit" value="submit"/>
                                     <input type="hidden" name="username" value="${customerAccount.username}"/>
                                     <div class="mb-3">
-                                        
-                                        <label class="form-label">Old Password</label>
-                                        <input type="text" class="form-control" name="oldPass" value="${param.oldPass}" required>
-                                        <c:if test="${not empty oldPasswordError}">
-                                            <div class="text-danger">${oldPasswordError}</div>
+                                        <c:if test="${customerAccount.password != null}">
+                                            <label class="form-label">Old Password</label>
+                                            <input type="text" class="form-control" name="oldPass" value="${param.oldPass}" required>
+                                            <c:if test="${not empty oldPasswordError}">
+                                                <div class="text-danger">${oldPasswordError}</div>
+                                            </c:if>
                                         </c:if>
-                                        
                                         <label class="form-label">New Password</label>
                                         <input type="text" class="form-control" name="newPassWord" value="${param.newPassWord}" required>
                                         <c:if test="${not empty passwordError}">

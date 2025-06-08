@@ -15,7 +15,7 @@ public class Home extends HttpServlet {
     throws ServletException, IOException {
 
 //        HttpSession session = request.getSession();
-//        session.setAttribute("username", "letbb");
+//        session.setAttribute("username", "tranthiff");
          
         request.getRequestDispatcher("/View/Customer/Home.jsp").forward(request, response);
         

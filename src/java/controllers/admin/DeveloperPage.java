@@ -19,7 +19,6 @@ public class DeveloperPage extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String service = request.getParameter("service");
-        String submit = request.getParameter("submit");
 
         HttpSession session = request.getSession();
         Employee employeeInfo = (Employee) session.getAttribute("employeeInfo");
@@ -33,7 +32,6 @@ public class DeveloperPage extends HttpServlet {
         if (service.equals("changePass")) {
             Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(username);
             request.setAttribute("employee", em);
-            request.setAttribute("type", "changepass");
             request.getRequestDispatcher("View/Developer/InfoAdmin.jsp").forward(request, response);
         }
 
@@ -105,11 +103,11 @@ public class DeveloperPage extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/developerPage?service=viewAll");
         }
 
-        if ("add".equals(service)) {
-
+        if (!"add".equals(service)) {return;}
+            
+        //add new account manager
             String password = request.getParameter("password");
             boolean hasError = false;
-            // Kiểm tra trùng username
             
 
             // Kiểm tra định dạng username và password
@@ -123,6 +121,7 @@ public class DeveloperPage extends HttpServlet {
                     "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
             );
             
+            // Kiểm tra trùng username
             List<Employee> employees = dal.EmployeeDAO.getInstance().getAllEmployee();
             for (Employee employee : employees) {
                 if (employee.getUsername().equalsIgnoreCase(userName)) {
@@ -142,6 +141,6 @@ public class DeveloperPage extends HttpServlet {
             response.sendRedirect("developerPage");
         }
 
-    }
+    
 
 }

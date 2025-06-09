@@ -54,7 +54,7 @@ public class CustomerProfile extends HttpServlet {
 
                 List<String> userName = dal.CustomerAccountDAO.getInstance().getAllUsername();
                 for (String un : userName) {
-                    if (un.equals(newUserName)) {
+                    if (un.equalsIgnoreCase(newUserName)) {
                         hasError = true;
                         request.setAttribute("usernameError", "username này đã tồn tại");
                         break;

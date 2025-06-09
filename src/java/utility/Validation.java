@@ -27,17 +27,17 @@ public class Validation {
         return regex.matcher(input).matches();
     }
 
-    public static boolean validateField(jakarta.servlet.http.HttpServletRequest request, String attrKey, String value, String patternKey, String fieldLabel
+    public static boolean validateField(jakarta.servlet.http.HttpServletRequest httpRequest, String attrKey, String value, String patternKey, String fieldLabel
                             ,String messageError) {
         if (value == null || value.trim().isEmpty()) {
-            request.setAttribute(attrKey, fieldLabel + " is required.");
+            httpRequest.setAttribute(attrKey, fieldLabel + " is required.");
             return true;
         }
         if (!checkFormatException(value, patternKey)) {
-            request.setAttribute(attrKey, messageError);
+            httpRequest.setAttribute(attrKey, messageError);
             return true;
         }
-        request.removeAttribute(attrKey);
+        httpRequest.removeAttribute(attrKey);
         return false;
     }
 }

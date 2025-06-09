@@ -38,7 +38,7 @@
                              class="img-fluid hotel-img" alt="Hotel image">
                     </div>
                     <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                        <form action="login" method="get">
+                        <form action="login" method="post">
                             <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
                                 <p class="lead fw-normal mb-0 me-3">Sign in with</p>
 
@@ -92,7 +92,7 @@
                             <div class="text-center text-lg-start mt-4 pt-2">
                                 <input type="hidden" name="service" value="login">
                                 <input type="hidden" name="submit" value="submit">
-                                <button  type="submit" class="btn btn-primary btn-lg"
+                                <button type="submit" class="btn btn-primary btn-lg"
                                          style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
                                 <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="register"
                                                                                                   class="link-danger link-offset-2 link-underline-opacity-0">Register</a></p>

@@ -2,6 +2,7 @@ package controllers.admin;
 
 import dal.EmployeeDAO;
 import dal.RoleDAO;
+import dal.CustomerDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -79,8 +80,71 @@ public class EmployeeController extends HttpServlet {
             String password = request.getParameter("password");
             String fullName = request.getParameter("fullName");
             int roleId = Integer.parseInt(request.getParameter("roleId"));
+<<<<<<< Updated upstream
             if (username == null || username.isEmpty() || password == null || password.isEmpty() || 
                 fullName == null || fullName.isEmpty()) return null;
+=======
+
+            if (Validation.validateField(request, "usernameError", username, "USERNAME", "Username", "Tên đăng nhập không hợp lệ!")) {
+                hasError = true;
+            }
+            if (Validation.validateField(request, "passwordError", password, "PASSWORD", "Password", "Mật khẩu không hợp lệ!")) {
+                hasError = true;
+            }
+            if (Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Họ tên", "Họ tên không hợp lệ!")) {
+                hasError = true;
+            }
+            if (Validation.validateField(request, "phoneNumberError", phoneNumber, "PHONE_NUMBER", "Số điện thoại", "Số điện thoại không hợp lệ!")) {
+                hasError = true;
+            }
+            if (Validation.validateField(request, "emailError", email, "EMAIL", "Email", "Email không hợp lệ!")) {
+                hasError = true;
+            }
+
+            EmployeeDAO employeeDAO = EmployeeDAO.getInstance();
+            CustomerDAO customerDAO = CustomerDAO.getInstance();
+
+            
+            List<String> employeeUsernames = employeeDAO.getAllString("Username");
+            List<String> customerUsernames = customerDAO.getAllString("Username");
+            if (!hasError) {
+                if (employeeUsernames.contains(username) || customerUsernames.contains(username)) {
+                    request.setAttribute("usernameError", "Tên đăng nhập đã tồn tại!");
+                    hasError = true;
+                }
+                if (employeeDAO.getAllString("Email").contains(email)) {
+                    request.setAttribute("emailError", "Email đã tồn tại!");
+                    hasError = true;
+                }
+                if (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber)) {
+                    request.setAttribute("phoneNumberError", "Số điện thoại đã tồn tại!");
+                    hasError = true;
+                }
+            }
+
+            Role role = RoleDAO.getInstance().getRoleById(roleId);
+            if (!hasError && role == null) {
+                request.setAttribute("error", "Invalid role selected.");
+                hasError = true;
+            } else if (!hasError) {
+                String roleName = role.getRoleName();
+                if (!"Receptionist".equalsIgnoreCase(roleName) && !"Cleaner".equalsIgnoreCase(roleName)) {
+                    request.setAttribute("error", "Only Receptionist and Cleaner roles are allowed.");
+                    hasError = true;
+                }
+            }
+
+            if (hasError) {
+                request.setAttribute("listRole", RoleDAO.getInstance().getAllRoles());
+                request.setAttribute("username", username);
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("phoneNumber", phoneNumber);
+                request.setAttribute("email", email);
+                request.setAttribute("roleId", roleId);
+                request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
+                return null;
+            }
+>>>>>>> Stashed changes
 
             emp.setUsername(username);
             emp.setPassword(password);

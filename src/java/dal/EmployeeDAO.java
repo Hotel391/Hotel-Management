@@ -85,10 +85,6 @@ public class EmployeeDAO {
 
     public List<String> getAllString(String input) {
         List<String> listString = new ArrayList<>();
-        List<String> allowedColumns = Arrays.asList("Username", "FullName", "PhoneNumber", "Email", "CCCD");
-        if (!allowedColumns.contains(input)) {
-            return listString;
-        }
         String sql = "SELECT " + input + " FROM Employee";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
@@ -102,7 +98,28 @@ public class EmployeeDAO {
         }
         return listString;
     }
+<<<<<<< Updated upstream
      public void updatePasswordAdminByUsername(String username,String newPassword) {
+=======
+    
+    public boolean isUsernameExisted(String username) {
+        String sql = "select Username from Employee where Username COLLATE SQL_Latin1_General_CP1_CI_AS =?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, username);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+        //
+    }
+
+    public void updatePasswordAdminByUsername(String username, String newPassword) {
+>>>>>>> Stashed changes
         String sql = "UPDATE Employee SET Password = ? WHERE Username COLLATE SQL_Latin1_General_CP1_CS_AS = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, newPassword);

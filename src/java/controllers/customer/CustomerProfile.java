@@ -53,6 +53,7 @@ public class CustomerProfile extends HttpServlet {
                         "Username must be 5–20 characters, letters/numbers/underscores only."
                 );
 
+                // Kiểm tra trùng username
                 List<String> userName = dal.CustomerAccountDAO.getInstance().getAllUsername();
                 for (String un : userName) {
                     if (un.equalsIgnoreCase(newUserName)) {
@@ -61,10 +62,10 @@ public class CustomerProfile extends HttpServlet {
                         break;
                     }
                 }
-                // Kiểm tra trùng username
-                List<Employee> employees = dal.EmployeeDAO.getInstance().getAllEmployee();
-                for (Employee employee : employees) {
-                    if (employee.getUsername().equalsIgnoreCase(username)) {
+                
+                List<String> employees = dal.AdminDao.getInstance().getAllUsernames();
+                for (String un : employees) {
+                    if (un.equalsIgnoreCase(username)) {
                         request.setAttribute("usernameError", "Username already exists.");
                         hasError = true;
                         break;

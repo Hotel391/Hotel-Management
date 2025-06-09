@@ -6,6 +6,8 @@ import java.sql.Timestamp;
  * @author TranTrungHieu
  */
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import javax.mail.Authenticator;
@@ -23,6 +25,8 @@ public class Email {
     private String from = "fpthotel@gmail.com";
     private String password = "jcfu lbfu zxvz mpkc";
 
+    private Map<String, String> linkHtml = new HashMap<>();
+
     public String generateToken() {
         return UUID.randomUUID().toString();
     }
@@ -37,6 +41,8 @@ public class Email {
     }
 
     public Email() {
+        linkHtml.put("register", htmlConfirmEmail);
+        linkHtml.put("reset", htmlResetPassword);
     }
 
     public void sendEmail(String to, String username, String linkConfirm, String type) {
@@ -54,12 +60,7 @@ public class Email {
             }
         };
         Session session = Session.getInstance(props, auth);
-        String linkRaw;
-        if (type.equals("reset")) {
-            linkRaw = htmlResetPassword;
-        } else {
-            linkRaw = htmlConfirmEmail;
-        }
+        String linkRaw=linkHtml.get(type);
         String htmlContent = linkRaw.replace("${username}", username)
                 .replace("${confirmLink}", linkConfirm);
 

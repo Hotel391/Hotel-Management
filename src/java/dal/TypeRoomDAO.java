@@ -106,17 +106,17 @@ public class TypeRoomDAO {
         }
         sql += "order by TypeId offset ? rows fetch next 5 rows only\n";
 
-        try {
-            PreparedStatement st = con.prepareStatement(sql);
+        try(PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, (index - 1) * 5);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                TypeRoom tr = new TypeRoom(rs.getInt(1),
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getInt(4));
-
-                list.add(tr);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    TypeRoom tr = new TypeRoom(rs.getInt(1),
+                            rs.getString(2),
+                            rs.getString(3),
+                            rs.getInt(4));
+                    
+                    list.add(tr);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

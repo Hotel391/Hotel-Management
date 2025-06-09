@@ -84,7 +84,6 @@
                             </c:if>
 
                             <div class="d-flex justify-content-between align-items-center">
-
                                 <a class="link-danger link-offset-2 link-underline-opacity-0" href="forgotPassword" class="text-body">Forgot password?</a>
                             </div>
 

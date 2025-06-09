@@ -119,7 +119,8 @@ public class EmployeeDAO {
 
     public Employee getEmployeeLogin(String username, String password) {
         String sql = "select e.*, r.RoleName from Employee e\n"
-                + "join Role r on r.RoleId=e.RoleId where Username=? and Password=?";
+                + "join Role r on r.RoleId=e.RoleId where Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? "
+                + "and Password=?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
 

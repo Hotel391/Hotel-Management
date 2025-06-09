@@ -123,9 +123,7 @@ public class EmployeeDAO {
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
 
-            st.setString(2, (password));
-
-            st.setString(2, password);
+            st.setString(2, Encryption.toSHA256(password));
 
             ResultSet rs = st.executeQuery();
             if (rs.next()) {

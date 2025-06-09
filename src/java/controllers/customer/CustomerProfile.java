@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import models.Customer;
 import models.CustomerAccount;
+import models.Employee;
 import utility.Encryption;
 import utility.Validation;
 
@@ -60,6 +61,15 @@ public class CustomerProfile extends HttpServlet {
                         break;
                     }
                 }
+                // Kiểm tra trùng username
+                List<Employee> employees = dal.EmployeeDAO.getInstance().getAllEmployee();
+                for (Employee employee : employees) {
+                    if (employee.getUsername().equalsIgnoreCase(username)) {
+                        request.setAttribute("usernameError", "Username already exists.");
+                        hasError = true;
+                        break;
+                    }
+                }
 
                 if (hasError) {
                     request.setAttribute("type", request.getParameter("type"));
@@ -98,8 +108,6 @@ public class CustomerProfile extends HttpServlet {
                         return;
                     }
                 }
-
-                
 
                 boolean hasError = false;
                 hasError |= Validation.validateField(

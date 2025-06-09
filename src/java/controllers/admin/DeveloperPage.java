@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import models.Customer;
+import models.CustomerAccount;
 import models.Employee;
 import utility.Encryption;
 import utility.Validation;
@@ -125,6 +127,14 @@ public class DeveloperPage extends HttpServlet {
         List<Employee> employees = dal.EmployeeDAO.getInstance().getAllEmployee();
         for (Employee employee : employees) {
             if (employee.getUsername().equalsIgnoreCase(userName)) {
+                request.setAttribute("usernameError", "Username already exists.");
+                hasError = true;
+                break;
+            }
+        }
+        List<String> customerAccount = dal.CustomerAccountDAO.getInstance().getAllUsername();
+        for (String usernameca : customerAccount) {
+            if(usernameca.equalsIgnoreCase(userName)){
                 request.setAttribute("usernameError", "Username already exists.");
                 hasError = true;
                 break;

@@ -35,7 +35,6 @@ public class EmployeeDAO {
         String sql = "SELECT e.*, r.RoleName, cf.Floor "
                 + "FROM Employee e "
                 + "JOIN Role r ON r.RoleId = e.RoleId "
-
                 + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId where r.RoleId not in (0, 1)";
 
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
@@ -169,7 +168,7 @@ public class EmployeeDAO {
 
     public Employee getAccountAdmin(String username) {
         String sql = "SELECT Username, Password, RoleId FROM Employee "
-                + "WHERE Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? and roleId =0";
+                + "WHERE Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? AND RoleId = 0";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, username);
             ResultSet rs = ptm.executeQuery();

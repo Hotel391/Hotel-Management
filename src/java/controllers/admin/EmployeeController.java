@@ -1,5 +1,6 @@
 package controllers.admin;
 
+import dal.CustomerAccountDAO;
 import dal.EmployeeDAO;
 import dal.RoleDAO;
 import dal.CustomerDAO;
@@ -25,7 +26,7 @@ public class EmployeeController extends HttpServlet {
             throws ServletException, IOException {
         List<Employee> employeeList = EmployeeDAO.getInstance().getAllEmployee();
         List<Role> roleList = RoleDAO.getInstance().getAllRoles();
-        
+
         request.setAttribute("listEmployee", employeeList);
         request.setAttribute("listRole", roleList);
         if (employeeList.isEmpty()) {
@@ -126,13 +127,9 @@ public class EmployeeController extends HttpServlet {
             }
 
             EmployeeDAO employeeDAO = EmployeeDAO.getInstance();
-            CustomerDAO customerDAO = CustomerDAO.getInstance();
 
-            
-            List<String> employeeUsernames = employeeDAO.getAllString("Username");
-            List<String> customerUsernames = customerDAO.getAllString("Username");
             if (!hasError) {
-                if (employeeUsernames.contains(username) || customerUsernames.contains(username)) {
+                if (employeeDAO.isUsernameExisted(username) || CustomerAccountDAO.getInstance().isUsernameExisted(username)) {
                     request.setAttribute("usernameError", "Tên đăng nhập đã tồn tại!");
                     hasError = true;
                 }
@@ -178,8 +175,8 @@ public class EmployeeController extends HttpServlet {
             emp.setActivate(true);
             emp.setRole(role);
 
-            Integer floor = request.getParameter("floor") != null && !request.getParameter("floor").isEmpty() ?
-                            Integer.parseInt(request.getParameter("floor")) : null;
+            Integer floor = request.getParameter("floor") != null && !request.getParameter("floor").isEmpty()
+                    ? Integer.parseInt(request.getParameter("floor")) : null;
             if (floor != null && role.getRoleName().equalsIgnoreCase("Cleaner")) {
                 CleanerFloor cf = new CleanerFloor();
                 cf.setFloor(floor);
@@ -196,7 +193,7 @@ public class EmployeeController extends HttpServlet {
             request.setAttribute("error", "An error occurred: " + e.getMessage());
             request.setAttribute("listRole", RoleDAO.getInstance().getAllRoles());
             request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
-            return null;
+
         }
     }
 }

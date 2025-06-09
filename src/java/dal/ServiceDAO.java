@@ -40,8 +40,8 @@ public class ServiceDAO {
                 + "      ,[Price]\n"
                 + "  FROM [HotelManagementDB].[dbo].[Service]";
         List<Service> listService = new Vector<>();
-        try {
-            PreparedStatement ptm = con.prepareStatement(sql);
+        try(PreparedStatement ptm = con.prepareStatement(sql)) {
+            
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
                 Service s = new Service(rs.getInt(1),
@@ -49,7 +49,7 @@ public class ServiceDAO {
                         rs.getInt(3));
                 listService.add(s);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
         }
         return listService;
     }

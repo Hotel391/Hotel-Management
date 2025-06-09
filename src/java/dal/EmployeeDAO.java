@@ -35,7 +35,9 @@ public class EmployeeDAO {
         String sql = "SELECT e.*, r.RoleName, cf.Floor "
                 + "FROM Employee e "
                 + "JOIN Role r ON r.RoleId = e.RoleId "
-                + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId where e.RoleId not in (0,1)";
+
+                + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId where r.RoleId not in (0, 1)";
+
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 Employee e = new Employee();
@@ -121,9 +123,7 @@ public class EmployeeDAO {
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
 
-            st.setString(2, (password));
-
-            st.setString(2, password);
+            st.setString(2, Encryption.toSHA256(password));
 
             ResultSet rs = st.executeQuery();
             if (rs.next()) {

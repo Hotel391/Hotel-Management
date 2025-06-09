@@ -58,7 +58,7 @@ public class EmployeeController extends HttpServlet {
                 default:
                     error = "Invalid action.";
             }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             error = "Error: " + e.getMessage();
         }
 

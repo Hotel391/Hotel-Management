@@ -34,7 +34,7 @@ public class EmployeeDAO {
         String sql = "SELECT e.*, r.RoleName, cf.Floor "
                 + "FROM Employee e "
                 + "JOIN Role r ON r.RoleId = e.RoleId "
-                + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId";
+                + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId where r.RoleId not in (0, 1)";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 Employee e = new Employee();

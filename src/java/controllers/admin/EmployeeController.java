@@ -2,6 +2,7 @@ package controllers.admin;
 
 import dal.EmployeeDAO;
 import dal.RoleDAO;
+import dal.CustomerDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -125,17 +126,24 @@ public class EmployeeController extends HttpServlet {
             }
 
             EmployeeDAO employeeDAO = EmployeeDAO.getInstance();
-            if (employeeDAO.getAllString("Username").contains(username)) {
-                request.setAttribute("error", "Username already exists.");
-                return null;
-            }
-            if (employeeDAO.getAllString("Email").contains(email)) {
-                request.setAttribute("error", "Email already exists.");
-                return null;
-            }
-            if (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber)) {
-                request.setAttribute("error", "Phone number already exists.");
-                return null;
+            CustomerDAO customerDAO = CustomerDAO.getInstance();
+
+            
+            List<String> employeeUsernames = employeeDAO.getAllString("Username");
+            List<String> customerUsernames = customerDAO.getAllString("Username");
+            if (!hasError) {
+                if (employeeUsernames.contains(username) || customerUsernames.contains(username)) {
+                    request.setAttribute("usernameError", "Tên đăng nhập đã tồn tại!");
+                    hasError = true;
+                }
+                if (employeeDAO.getAllString("Email").contains(email)) {
+                    request.setAttribute("emailError", "Email đã tồn tại!");
+                    hasError = true;
+                }
+                if (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber)) {
+                    request.setAttribute("phoneNumberError", "Số điện thoại đã tồn tại!");
+                    hasError = true;
+                }
             }
 
             Role role = RoleDAO.getInstance().getRoleById(roleId);
@@ -192,4 +200,3 @@ public class EmployeeController extends HttpServlet {
         }
     }
 }
-

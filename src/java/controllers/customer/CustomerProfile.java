@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import models.Customer;
 import models.CustomerAccount;
+import models.Employee;
 import utility.Encryption;
 import utility.Validation;
 
@@ -52,11 +53,21 @@ public class CustomerProfile extends HttpServlet {
                         "Username must be 5–20 characters, letters/numbers/underscores only."
                 );
 
+                // Kiểm tra trùng username
                 List<String> userName = dal.CustomerAccountDAO.getInstance().getAllUsername();
                 for (String un : userName) {
-                    if (un.equals(newUserName)) {
+                    if (un.equalsIgnoreCase(newUserName)) {
                         hasError = true;
                         request.setAttribute("usernameError", "username này đã tồn tại");
+                        break;
+                    }
+                }
+                
+                List<String> employees = dal.AdminDao.getInstance().getAllUsernames();
+                for (String un : employees) {
+                    if (un.equalsIgnoreCase(username)) {
+                        request.setAttribute("usernameError", "Username already exists.");
+                        hasError = true;
                         break;
                     }
                 }
@@ -98,8 +109,6 @@ public class CustomerProfile extends HttpServlet {
                         return;
                     }
                 }
-
-                
 
                 boolean hasError = false;
                 hasError |= Validation.validateField(

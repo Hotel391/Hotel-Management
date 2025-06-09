@@ -81,18 +81,32 @@ public class AdminDao {
         }
         return list;
     }
-    
-    public void deleteManagerAccount(int employeeID){
-        String sql ="DELETE from Employee Where EmployeeId = ?";
-        try ( PreparedStatement st = con.prepareStatement(sql)) {
-        st.setInt(1, employeeID);
-        st.executeUpdate();
+
+    public List<String> getAllUsernames() {
+        List<String> usernames = new Vector<>();
+        String sql = "SELECT Username FROM Employee";
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+
+            while (rs.next()) {
+                usernames.add(rs.getString("Username"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return usernames;
+    }
+
+    public void deleteManagerAccount(int employeeID) {
+        String sql = "DELETE from Employee Where EmployeeId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, employeeID);
+            st.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    
-    public void addNewAccountManager(String userName , String password) {
+
+    public void addNewAccountManager(String userName, String password) {
         String sql = """
                      INSERT INTO [dbo].[Employee]
                                 ([Username]
@@ -102,7 +116,7 @@ public class AdminDao {
                                 ,[RoleId])
                           VALUES (?, ? ,?, ?, ?)""";
         try (PreparedStatement ptm = con.prepareStatement(sql);) {
-            
+
             ptm.setString(1, userName);
             ptm.setString(2, password);
             ptm.setDate(3, java.sql.Date.valueOf(LocalDate.now()));

@@ -28,7 +28,7 @@ public class CustomerAccountDAO {
 
     public List<String> getAllUsername() {
         List<String> listUsername = new ArrayList<>();
-        String sql = "select Username from CustomerAccount";
+        String sql = "select Username from CustomerAccount ";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 listUsername.add(rs.getString(1));
@@ -46,6 +46,7 @@ public class CustomerAccountDAO {
                 + "on c.CustomerId = ca.CustomerId "
                 + "where (Username COLLATE SQL_Latin1_General_CP1_CI_AS =? or "
                 + "email COLLATE SQL_Latin1_General_CP1_CI_AS =?) and Password=?";
+
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
             st.setString(2, username);
@@ -118,7 +119,7 @@ public class CustomerAccountDAO {
     //check existed by username
 
     public boolean isUsernameExisted(String username) {
-        String sql = "select * from CustomerAccount where Username=?";
+        String sql = "select Username from CustomerAccount where Username COLLATE SQL_Latin1_General_CP1_CI_AS =? ";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
             ResultSet rs = st.executeQuery();

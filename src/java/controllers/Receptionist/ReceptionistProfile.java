@@ -30,13 +30,13 @@ public class ReceptionistProfile extends HttpServlet {
         Employee receptionist = (Employee) session.getAttribute("employeeInfo");
 
         if (receptionist == null) {
-            response.sendRedirect("/View/Login.jsp");
+            response.sendRedirect("View/Login.jsp");
             return;
         }
 
 
         if (receptionist.getRole().getRoleId() != 2) {
-            request.getRequestDispatcher("/View/Login.jsp").forward(request, response);
+            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
             return;
         }
 
@@ -57,13 +57,13 @@ public class ReceptionistProfile extends HttpServlet {
         Employee receptionist = (Employee) session.getAttribute("employeeInfo");
 
         if (receptionist == null) {
-            response.sendRedirect("/View/Login.jsp");
+            response.sendRedirect("View/Login.jsp");
             return;
         }
 
 
         if (receptionist.getRole().getRoleId() != 2) {
-            request.getRequestDispatcher("/View/Login.jsp").forward(request, response);
+            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
             return;
         }
 

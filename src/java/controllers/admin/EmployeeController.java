@@ -9,12 +9,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import models.CleanerFloor;
 import models.Employee;
 import models.Role;
-
+import utility.Encryption;
 
 @WebServlet(name = "EmployeeController", urlPatterns = {"/view/admin/employees"})
 public class EmployeeController extends HttpServlet {
@@ -40,23 +39,36 @@ public class EmployeeController extends HttpServlet {
         String error = null;
 
         try {
-            switch (action) {
-                case "add":
-                    Employee newEmp = createEmployee(request, true);
-                    if (newEmp != null) EmployeeDAO.getInstance().addEmployee(newEmp);
-                    else error = "Invalid employee data.";
-                    break;
-                case "update":
-                    Employee updateEmp = createEmployee(request, false);
-                    if (updateEmp != null) EmployeeDAO.getInstance().updateEmployee(updateEmp);
-                    else error = "Invalid employee data.";
-                    break;
-                case "delete":
-                    int employeeId = Integer.parseInt(request.getParameter("employeeId"));
-                    EmployeeDAO.getInstance().deleteEmployee(employeeId);
-                    break;
-                default:
-                    error = "Invalid action.";
+            if (action == null || action.isEmpty()) {
+                error = "Invalid action.";
+            } else {
+                switch (action) {
+                    case "add":
+                        Employee newEmp = createEmployee(request, true);
+                        if (newEmp != null) {
+                            EmployeeDAO.getInstance().addEmployee(newEmp);
+                        } else {
+                            error = (String) request.getAttribute("error");
+                            if (error == null) {
+                                error = "Invalid employee data.";
+                            }
+                        }
+                        break;
+                    case "update":
+                        Employee updateEmp = createEmployee(request, false);
+                        if (updateEmp != null) {
+                            EmployeeDAO.getInstance().updateEmployee(updateEmp);
+                        } else {
+                            error = "Invalid employee data.";
+                        }
+                        break;
+                    case "delete":
+                        int employeeId = Integer.parseInt(request.getParameter("employeeId"));
+                        EmployeeDAO.getInstance().deleteEmployee(employeeId);
+                        break;
+                    default:
+                        error = "Invalid action.";
+                }
             }
         } catch (Exception e) {
             error = "Error: " + e.getMessage();
@@ -78,28 +90,49 @@ public class EmployeeController extends HttpServlet {
             String username = request.getParameter("username");
             String password = request.getParameter("password");
             String fullName = request.getParameter("fullName");
+            String phoneNumber = request.getParameter("phoneNumber");
+            String email = request.getParameter("email");
             int roleId = Integer.parseInt(request.getParameter("roleId"));
-            if (username == null || username.isEmpty() || password == null || password.isEmpty() || 
-                fullName == null || fullName.isEmpty()) return null;
+            
+            if (username == null || username.isEmpty() || password == null || password.isEmpty() ||
+                fullName == null || fullName.isEmpty() || phoneNumber == null || phoneNumber.isEmpty() ||
+                email == null || email.isEmpty()) {
+                return null;
+            }
+            Role role = RoleDAO.getInstance().getRoleById(roleId);
+            if (role == null) {
+                return null;
+            }
+
+            String roleName = role.getRoleName();
+            if (!"Receptionist".equalsIgnoreCase(roleName) && !"Cleaner".equalsIgnoreCase(roleName)) {
+                return null;
+            }
+
+            EmployeeDAO employeeDAO = EmployeeDAO.getInstance();
+            if (employeeDAO.getAllString("Username").contains(username)) {
+                request.setAttribute("error", "Username already exists.");
+                return null;
+            }
+            if (employeeDAO.getAllString("Email").contains(email)) {
+                request.setAttribute("error", "Email already exists.");
+                return null;
+            }
+            if (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber)) {
+                request.setAttribute("error", "Phone number already exists.");
+                return null;
+            }
 
             emp.setUsername(username);
-            emp.setPassword(password);
+            emp.setPassword(Encryption.toSHA256(password));
             emp.setFullName(fullName);
-            emp.setAddress(request.getParameter("address"));
-            emp.setPhoneNumber(request.getParameter("phoneNumber"));
-            emp.setEmail(request.getParameter("email"));
-            emp.setGender(Boolean.parseBoolean(request.getParameter("gender")));
-            emp.setCCCD(request.getParameter("cccd"));
-            emp.setDateOfBirth(Date.valueOf(request.getParameter("dateOfBirth")));
-            emp.setRegistrationDate(isAdd ? Date.valueOf(new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date())) : 
-                                            Date.valueOf(request.getParameter("registrationDate")));
-            emp.setActivate(Boolean.parseBoolean(request.getParameter("activate")));
-
-            Role role = RoleDAO.getInstance().getRoleById(roleId);
-            if (role == null) return null;
+            emp.setPhoneNumber(phoneNumber);
+            emp.setEmail(email);
+            emp.setRegistrationDate(new Date(System.currentTimeMillis()));
+            emp.setActivate(true);
             emp.setRole(role);
 
-            Integer floor = request.getParameter("floor") != null && !request.getParameter("floor").isEmpty() ? 
+            Integer floor = request.getParameter("floor") != null && !request.getParameter("floor").isEmpty() ?
                             Integer.parseInt(request.getParameter("floor")) : null;
             if (floor != null && role.getRoleName().equalsIgnoreCase("Cleaner")) {
                 CleanerFloor cf = new CleanerFloor();

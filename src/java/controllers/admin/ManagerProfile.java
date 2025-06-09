@@ -30,13 +30,13 @@ public class ManagerProfile extends HttpServlet {
         Employee manager = (Employee) session.getAttribute("employeeInfo");
 
         if (manager == null) {
-            response.sendRedirect("/View/Login.jsp");
+            response.sendRedirect("View/Login.jsp");
             return;
         }
 
 
         if (manager.getRole().getRoleId() != 1) {
-            request.getRequestDispatcher("/View/Login.jsp").forward(request, response);
+            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
             return;
         }
 
@@ -57,13 +57,13 @@ public class ManagerProfile extends HttpServlet {
         Employee manager = (Employee) session.getAttribute("employeeInfo");
 
         if (manager == null) {
-            response.sendRedirect("/View/Login.jsp");
+            response.sendRedirect("View/Login.jsp");
             return;
         }
 
 
         if (manager.getRole().getRoleId() != 1) {
-            request.getRequestDispatcher("/View/Login.jsp").forward(request, response);
+            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
             return;
         }
 

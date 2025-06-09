@@ -124,9 +124,9 @@ public class DeveloperPage extends HttpServlet {
         );
 
         // Kiểm tra trùng username
-        List<Employee> employees = dal.EmployeeDAO.getInstance().getAllEmployee();
-        for (Employee employee : employees) {
-            if (employee.getUsername().equalsIgnoreCase(userName)) {
+        List<String> employees = dal.AdminDao.getInstance().getAllUsernames();
+        for (String username : employees) {
+            if (username.equalsIgnoreCase(userName)) {
                 request.setAttribute("usernameError", "Username already exists.");
                 hasError = true;
                 break;

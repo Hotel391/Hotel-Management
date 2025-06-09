@@ -54,6 +54,7 @@ public class Login extends HttpServlet {
 
                 } else if (CustomerAccountDAO.getInstance().checkLogin(username, password) != null) {
                     CustomerAccount customerInfo = CustomerAccountDAO.getInstance().checkLogin(username, password);
+                    System.out.println("Info: " + customerInfo.toString());
                     session.setAttribute("customerInfo", customerInfo);
                     response.sendRedirect("customer/home");
                 } else if (EmployeeDAO.getInstance().getEmployeeLogin(username, password) != null) {

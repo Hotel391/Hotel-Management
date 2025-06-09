@@ -122,41 +122,31 @@
                                             <div class="col-md-6">
                                                 <label for="usernameAdd" class="form-label">Username</label>
                                                 <input type="text" id="usernameAdd" name="username" value="${fn:escapeXml(username)}" class="form-control" required />
-                                                <c:if test="${not empty usernameError}">
-                                                    <div class="text-danger">${usernameError}</div>
-                                                </c:if>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="passwordAdd" class="form-label">Password</label>
-                                                <input type="password" id="passwordAdd" name="password" value="" class="form-control" required />
-                                                <c:if test="${not empty passwordError}">
-                                                    <div class="text-danger">${passwordError}</div>
-                                                </c:if>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="fullNameAdd" class="form-label">Full Name</label>
-                                                <input type="text" id="fullNameAdd" name="fullName" value="${fn:escapeXml(fullName)}" class="form-control" required />
-                                                <c:if test="${not empty fullNameError}">
-                                                    <div class="text-danger">${fullNameError}</div>
-                                                </c:if>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="phoneNumberAdd" class="form-label">Phone Number</label>
-                                                <input type="text" id="phoneNumberAdd" name="phoneNumber" value="${fn:escapeXml(phoneNumber)}" class="form-control" required />
-                                                <c:if test="${not empty phoneNumberError}">
-                                                    <div class="text-danger">${phoneNumberError}</div>
-                                                </c:if>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="emailAdd" class="form-label">Email</label>
-                                                <input type="email" id="emailAdd" name="email" value="${fn:escapeXml(email)}" class="form-control" required />
-                                                <c:if test="${not empty emailError}">
-                                                    <div class="text-danger">${emailError}</div>
-                                                </c:if>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="roleIdAdd" class="form-label">Role</label>
-                                                <select id="roleIdAdd" name="roleId" class="form-select" required onchange="toggleFloorFieldAdd()">
+                                                <c:if test="${not empty usernameError}"><div class="text-danger">${usernameError}</div></c:if>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="passwordAdd" class="form-label">Password</label>
+                                                    <input type="password" id="passwordAdd" name="password" value="" class="form-control" required />
+                                                <c:if test="${not empty passwordError}"><div class="text-danger">${passwordError}</div></c:if>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="fullNameAdd" class="form-label">Full Name</label>
+                                                    <input type="text" id="fullNameAdd" name="fullName" value="${fn:escapeXml(fullName)}" class="form-control" required />
+                                                <c:if test="${not empty fullNameError}"><div class="text-danger">${fullNameError}</div></c:if>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="phoneNumberAdd" class="form-label">Phone Number</label>
+                                                    <input type="text" id="phoneNumberAdd" name="phoneNumber" value="${fn:escapeXml(phoneNumber)}" class="form-control" required />
+                                                <c:if test="${not empty phoneNumberError}"><div class="text-danger">${phoneNumberError}</div></c:if>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="emailAdd" class="form-label">Email</label>
+                                                    <input type="email" id="emailAdd" name="email" value="${fn:escapeXml(email)}" class="form-control" required />
+                                                <c:if test="${not empty emailError}"><div class="text-danger">${emailError}</div></c:if>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="roleIdAdd" class="form-label">Role</label>
+                                                    <select id="roleIdAdd" name="roleId" class="form-select" required onchange="toggleFloorFieldAdd()">
                                                     <c:forEach var="role" items="${listRole}">
                                                         <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
                                                             <option value="${role.roleId}" ${roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
@@ -172,6 +162,68 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="submit" class="btn btn-success">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit Employee Modal -->
+                    <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <form method="post" action="${pageContext.request.contextPath}/view/admin/employees">
+                                    <input type="hidden" name="action" value="update" />
+                                    <input type="hidden" id="employeeIdEdit" name="employeeId" />
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="usernameEdit" class="form-label">Username</label>
+                                                <input type="text" id="usernameEdit" name="username" value="${fn:escapeXml(username)}" class="form-control" required />
+                                                <c:if test="${not empty usernameError}"><div class="text-danger">${usernameError}</div></c:if>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="passwordEdit" class="form-label">Password</label>
+                                                    <input type="password" id="passwordEdit" name="password" value="" class="form-control" required />
+                                                <c:if test="${not empty passwordError}"><div class="text-danger">${passwordError}</div></c:if>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="fullNameEdit" class="form-label">Full Name</label>
+                                                    <input type="text" id="fullNameEdit" name="fullName" value="${fn:escapeXml(fullName)}" class="form-control" required />
+                                                <c:if test="${not empty fullNameError}"><div class="text-danger">${fullNameError}</div></c:if>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="phoneNumberEdit" class="form-label">Phone Number</label>
+                                                    <input type="text" id="phoneNumberEdit" name="phoneNumber" value="${fn:escapeXml(phoneNumber)}" class="form-control" required />
+                                                <c:if test="${not empty phoneNumberError}"><div class="text-danger">${phoneNumberError}</div></c:if>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="emailEdit" class="form-label">Email</label>
+                                                    <input type="email" id="emailEdit" name="email" value="${fn:escapeXml(email)}" class="form-control" required />
+                                                <c:if test="${not empty emailError}"><div class="text-danger">${emailError}</div></c:if>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="roleIdEdit" class="form-label">Role</label>
+                                                    <select id="roleIdEdit" name="roleId" class="form-select" required onchange="toggleFloorFieldEdit()">
+                                                    <c:forEach var="role" items="${listRole}">
+                                                        <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
+                                                            <option value="${role.roleId}" ${roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
+                                                        </c:if>
+                                                    </c:forEach>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6" id="floorFieldEdit" style="display:none;">
+                                                <label for="floorEdit" class="form-label">Floor</label>
+                                                <input type="number" id="floorEdit" name="floor" class="form-control" min="1" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
                                     </div>
                                 </form>
                             </div>
@@ -281,68 +333,68 @@
         <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
         <%--another in following--%>
         <script>
-                                                    function toggleFloorFieldAdd() {
-                                                        const roleId = document.getElementById('roleIdAdd').value;
-                                                        const roleName = document.querySelector('#roleIdAdd option:checked').text;
-                                                        const floorField = document.getElementById('floorFieldAdd');
-                                                        floorField.style.display = roleName.toLowerCase() === 'cleaner' ? 'block' : 'none';
-                                                    }
-
-                                                    function toggleFloorFieldEdit() {
-                                                        const roleId = document.getElementById('roleIdEdit').value;
-                                                        const roleName = document.querySelector('#roleIdEdit option:checked').text;
-                                                        const floorField = document.getElementById('floorFieldEdit');
-                                                        floorField.style.display = roleName.toLowerCase() === 'cleaner' ? 'block' : 'none';
-                                                    }
-
-                                                    function openEditModal(employeeId, fullName, username, password, address, phoneNumber, email, gender, cccd, dateOfBirth, registrationDate, activate, roleId, floor) {
-                                                        document.getElementById('employeeIdEdit').value = employeeId;
-                                                        document.getElementById('usernameEdit').value = username;
-                                                        document.getElementById('passwordEdit').value = password;
-                                                        document.getElementById('fullNameEdit').value = fullName;
-                                                        document.getElementById('addressEdit').value = address;
-                                                        document.getElementById('phoneNumberEdit').value = phoneNumber;
-                                                        document.getElementById('emailEdit').value = email;
-                                                        document.getElementById('genderEdit').value = gender;
-                                                        document.getElementById('cccdEdit').value = cccd;
-                                                        document.getElementById('dateOfBirthEdit').value = dateOfBirth;
-                                                        document.getElementById('registrationDateEdit').value = registrationDate;
-                                                        document.getElementById('activateEdit').value = activate;
-                                                        document.getElementById('roleIdEdit').value = roleId;
-                                                        const floorField = document.getElementById('floorFieldEdit');
-                                                        if (floor) {
-                                                            document.getElementById('floorEdit').value = floor;
-                                                            floorField.style.display = 'block';
-                                                        } else {
-                                                            floorField.style.display = 'none';
+                                                        function toggleFloorFieldAdd() {
+                                                            const roleId = document.getElementById('roleIdAdd').value;
+                                                            const roleName = document.querySelector('#roleIdAdd option:checked').text;
+                                                            const floorField = document.getElementById('floorFieldAdd');
+                                                            floorField.style.display = roleName.toLowerCase() === 'cleaner' ? 'block' : 'none';
                                                         }
-                                                        toggleFloorFieldEdit();
-                                                    }
 
-                                                    function openViewModal(employeeId, fullName, username, address, phoneNumber, email, gender, cccd, dateOfBirth, registrationDate, activate, roleName, floor) {
-                                                        document.getElementById('employeeIdView').textContent = employeeId;
-                                                        document.getElementById('fullNameView').textContent = fullName || '-';
-                                                        document.getElementById('usernameView').textContent = username || '-';
-                                                        document.getElementById('addressView').textContent = address || '-';
-                                                        document.getElementById('phoneNumberView').textContent = phoneNumber || '-';
-                                                        document.getElementById('emailView').textContent = email || '-';
-                                                        document.getElementById('genderView').textContent = gender ? 'Male' : 'Female';
-                                                        document.getElementById('cccdView').textContent = cccd || '-';
-                                                        document.getElementById('dateOfBirthView').textContent = dateOfBirth || '-';
-                                                        document.getElementById('registrationDateView').textContent = registrationDate || '-';
-                                                        document.getElementById('activateView').textContent = activate ? 'Active' : 'Inactive';
-                                                        document.getElementById('roleView').textContent = roleName || '-';
-                                                        document.getElementById('floorView').textContent = floor !== 'null' ? floor : '-';
-                                                    }
+                                                        function toggleFloorFieldEdit() {
+                                                            const roleId = document.getElementById('roleIdEdit').value;
+                                                            const roleName = document.querySelector('#roleIdEdit option:checked').text;
+                                                            const floorField = document.getElementById('floorFieldEdit');
+                                                            floorField.style.display = roleName.toLowerCase() === 'cleaner' ? 'block' : 'none';
+                                                        }
 
-                                                    function openDeleteModal(employeeId) {
-                                                        document.getElementById('employeeIdDelete').textContent = employeeId;
-                                                        document.getElementById('employeeIdDeleteInput').value = employeeId;
-                                                    }
+                                                        function openEditModal(employeeId, fullName, username, password, address, phoneNumber, email, gender, cccd, dateOfBirth, registrationDate, activate, roleId, floor) {
+                                                            document.getElementById('employeeIdEdit').value = employeeId;
+                                                            document.getElementById('usernameEdit').value = username;
+                                                            document.getElementById('passwordEdit').value = password;
+                                                            document.getElementById('fullNameEdit').value = fullName;
+                                                            document.getElementById('addressEdit').value = address;
+                                                            document.getElementById('phoneNumberEdit').value = phoneNumber;
+                                                            document.getElementById('emailEdit').value = email;
+                                                            document.getElementById('genderEdit').value = gender;
+                                                            document.getElementById('cccdEdit').value = cccd;
+                                                            document.getElementById('dateOfBirthEdit').value = dateOfBirth;
+                                                            document.getElementById('registrationDateEdit').value = registrationDate;
+                                                            document.getElementById('activateEdit').value = activate;
+                                                            document.getElementById('roleIdEdit').value = roleId;
+                                                            const floorField = document.getElementById('floorFieldEdit');
+                                                            if (floor) {
+                                                                document.getElementById('floorEdit').value = floor;
+                                                                floorField.style.display = 'block';
+                                                            } else {
+                                                                floorField.style.display = 'none';
+                                                            }
+                                                            toggleFloorFieldEdit();
+                                                        }
 
-                                                    document.getElementById('roleIdAdd').addEventListener('change', toggleFloorFieldAdd);
-                                                    document.getElementById('roleIdEdit').addEventListener('change', toggleFloorFieldEdit);
-                                                    toggleFloorFieldAdd();
+                                                        function openViewModal(employeeId, fullName, username, address, phoneNumber, email, gender, cccd, dateOfBirth, registrationDate, activate, roleName, floor) {
+                                                            document.getElementById('employeeIdView').textContent = employeeId;
+                                                            document.getElementById('fullNameView').textContent = fullName || '-';
+                                                            document.getElementById('usernameView').textContent = username || '-';
+                                                            document.getElementById('addressView').textContent = address || '-';
+                                                            document.getElementById('phoneNumberView').textContent = phoneNumber || '-';
+                                                            document.getElementById('emailView').textContent = email || '-';
+                                                            document.getElementById('genderView').textContent = gender ? 'Male' : 'Female';
+                                                            document.getElementById('cccdView').textContent = cccd || '-';
+                                                            document.getElementById('dateOfBirthView').textContent = dateOfBirth || '-';
+                                                            document.getElementById('registrationDateView').textContent = registrationDate || '-';
+                                                            document.getElementById('activateView').textContent = activate ? 'Active' : 'Inactive';
+                                                            document.getElementById('roleView').textContent = roleName || '-';
+                                                            document.getElementById('floorView').textContent = floor !== 'null' ? floor : '-';
+                                                        }
+
+                                                        function openDeleteModal(employeeId) {
+                                                            document.getElementById('employeeIdDelete').textContent = employeeId;
+                                                            document.getElementById('employeeIdDeleteInput').value = employeeId;
+                                                        }
+
+                                                        document.getElementById('roleIdAdd').addEventListener('change', toggleFloorFieldAdd);
+                                                        document.getElementById('roleIdEdit').addEventListener('change', toggleFloorFieldEdit);
+                                                        toggleFloorFieldAdd();
         </script>
     </body>
 </html>

@@ -46,6 +46,7 @@ public class CustomerAccountDAO {
                 + "on c.CustomerId = ca.CustomerId "
                 + "where (Username COLLATE SQL_Latin1_General_CP1_CI_AS =? or "
                 + "email COLLATE SQL_Latin1_General_CP1_CI_AS =?) and Password=?";
+
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
             st.setString(2, username);

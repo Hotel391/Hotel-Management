@@ -62,4 +62,7 @@ public class RegisterService {
     public boolean isUsernameExistInToken(String username){
         return tokenDAO.checkExistedUsername(username);
     }
+    public boolean isUsernameExistInToken(String username){
+        return tokenDAO.checkExistedUsername(username);
+    }
 }

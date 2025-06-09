@@ -118,6 +118,7 @@ public class EmployeeDAO {
         //
     }
 
+
     public void updatePasswordAdminByUsername(String username, String newPassword) {
         String sql = "UPDATE Employee SET Password = ? WHERE Username COLLATE SQL_Latin1_General_CP1_CS_AS = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {

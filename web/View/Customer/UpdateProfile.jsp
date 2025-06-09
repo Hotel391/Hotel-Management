@@ -24,7 +24,7 @@
                 <jsp:include page="topNav.jsp" />
                 <div class="d-flex justify-content-center align-items-start mt-3" style="min-height: calc(100vh - 60px); padding-top: 10px;">
 
-                    <div class="card shadow text-dark" style="background-color: #fffff; width: 100%; max-width: 700px;">
+                    <div class="card shadow text-dark" style="background-color: #ffffff; width: 100%; max-width: 700px;">
 
                         <!--update info customer-->
                         <c:if test="${type == 'update'}">
@@ -53,7 +53,9 @@
                                                class="form-control" 
                                                name="phoneNumber" 
                                                value="${customerAccount.customer.phoneNumber}" >
-                                        
+                                        <c:if test="${not empty phoneError}">
+                                            <div class="text-danger">${phoneError}</div>
+                                        </c:if>
                                     </div>
 
                                     <div class="mb-3">

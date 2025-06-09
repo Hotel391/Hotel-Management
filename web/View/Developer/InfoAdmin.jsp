@@ -21,7 +21,6 @@
             <jsp:include page="leftNav.jsp" />
             <div class="right-section">
                 <!--change password-->
-                <c:if test="${type == 'changepass'}">
                     <c:set var="title" value="Change Password" scope="request"/>
                     <jsp:include page="topNav.jsp" />
 
@@ -95,9 +94,6 @@
                             <button type="submit" class="btn btn-primary w-100">Change</button>
                         </form>
                     </div>
-                </c:if>
-
-
             </div>
         </div>
         <script>

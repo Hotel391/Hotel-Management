@@ -38,52 +38,57 @@ public class Login extends HttpServlet {
         }
 
         if ("login".equals(service) && state == null) {
-
             String submit = request.getParameter("submit");
+
             if (submit == null) {
                 request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            } else {
-
-                String username = request.getParameter("username");
-
-                String password = request.getParameter("password");
-
-                if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-                    request.setAttribute("error", "Please fill all information");
-                    request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-
-                } else if (CustomerAccountDAO.getInstance().checkLogin(username, password) != null) {
-                    CustomerAccount customerInfo = CustomerAccountDAO.getInstance().checkLogin(username, password);
-                    session.setAttribute("customerInfo", customerInfo);
-                    response.sendRedirect("customer/home");
-                } else if (EmployeeDAO.getInstance().getEmployeeLogin(username, password) != null) {
-                    Employee employeeInfo = EmployeeDAO.getInstance().getEmployeeLogin(username, password);
-                    System.out.println(employeeInfo.toString());
-                    session.setAttribute("employeeInfo", employeeInfo);
-                    switch (employeeInfo.getRole().getRoleId()) {
-                        case 0:
-                            response.sendRedirect("developerPage");
-                            break;
-                        case 1:
-
-//                            request.getRequestDispatcher("View/Admin/Dashboard.jsp").forward(request, response);
-                            response.sendRedirect("admin/dashboard");
-                            break;
-                        case 2:
-                            response.sendRedirect("receptionistPage");
-                            break;
-                        case 3:
-//                            request.getRequestDispatcher("View/Admin/ViewService.jsp").forward(request, response);
-                            break;
-                        default:
-                            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-                            break;
-                    }
-                } else {
-                    request.setAttribute("error", "Wrong username or password");
-                    request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-                }
+                return;
             }
+
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+
+            if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
+                request.setAttribute("error", "Please fill all information");
+                request.getRequestDispatcher("View/Login.jsp").forward(request, response);
+                return;
+            }
+
+            CustomerAccount customerInfo = CustomerAccountDAO.getInstance().checkLogin(username, password);
+            if (customerInfo != null) {
+                System.out.println("Info: " + customerInfo);
+                session.setAttribute("customerInfo", customerInfo);
+                response.sendRedirect("customer/home");
+                return;
+            }
+
+            Employee employeeInfo = EmployeeDAO.getInstance().getEmployeeLogin(username, password);
+            if (employeeInfo != null) {
+                System.out.println(employeeInfo);
+                session.setAttribute("employeeInfo", employeeInfo);
+                int roleId = employeeInfo.getRole().getRoleId();
+                switch (roleId) {
+                    case 0:
+                        response.sendRedirect("developerPage");
+                        break;
+                    case 1:
+                        response.sendRedirect("admin/dashboard");
+                        break;
+                    case 2:
+                        response.sendRedirect("receptionistPage");
+                        break;
+                    case 3:
+                        
+                        break;
+                    default:
+                        request.getRequestDispatcher("View/Login.jsp").forward(request, response);
+                        break;
+                }
+                return;
+            }
+
+            request.setAttribute("error", "Wrong username or password");
+            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
         }
 
         if ("loginGoogle".equals(state)) {

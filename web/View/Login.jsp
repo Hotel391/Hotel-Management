@@ -15,11 +15,18 @@
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
             rel="stylesheet"
             />
+
+        <!--bootstrap-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
         <!-- MDB -->
         <link
             href="https://cdn.jsdelivr.net/npm/mdb-ui-kit@9.0.0/css/mdb.min.css"
             rel="stylesheet"
             />
+
+
+        <!--custom style--> 
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/Authentication/Login.css"/>
     </head>
     <body>
@@ -78,7 +85,7 @@
 
                             <div class="d-flex justify-content-between align-items-center">
 
-                                <a href="#!" class="text-body">Forgot password?</a>
+                                <a class="link-danger link-offset-2 link-underline-opacity-0" href="forgotPassword" class="text-body">Forgot password?</a>
                             </div>
 
 
@@ -89,7 +96,7 @@
                                 <button  type="submit" class="btn btn-primary btn-lg"
                                          style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
                                 <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="register"
-                                                                                                  class="link-danger">Register</a></p>
+                                                                                                  class="link-danger link-offset-2 link-underline-opacity-0">Register</a></p>
                             </div>
 
                         </form>
@@ -123,11 +130,15 @@
                 <!-- Right -->
             </div>
         </section>
+
+        <!--bootstrap-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <!-- MDB -->
         <script
             type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/mdb-ui-kit@9.0.0/js/mdb.umd.min.js"
-        ></script>
+            >
+        </script>
     </body>
 
 </html>

@@ -36,9 +36,9 @@
 
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="visible-addon">@</span>
-                            <input type="text" name="userName" class="form-control" 
+                            <input type="text" name="username" class="form-control" 
                                    placeholder="Username" aria-label="Username" 
-                                   aria-describedby="visible-addon" value="${param.userName}">
+                                   aria-describedby="visible-addon" value="${param.username}">
                         </div>
 
                         <small class="text-danger" style="display: block; min-height: 1.2em;">

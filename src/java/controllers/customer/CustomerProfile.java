@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import models.Customer;
 import models.CustomerAccount;
+import utility.Encryption;
 import utility.Validation;
 
 @WebServlet(name = "CustomerProfile", urlPatterns = {"/customer/customerProfile"})
@@ -84,30 +85,41 @@ public class CustomerProfile extends HttpServlet {
             } else {
                 String newPassWord = request.getParameter("newPassWord");
                 String oldPass = request.getParameter("oldPass");
+                String confirmPW = request.getParameter("confirmPassWord");
+
+                String oldPassSh = Encryption.toSHA256(oldPass);
+                String newPassWordSh = Encryption.toSHA256(newPassWord);
 
                 if (oldPass != null) {
-                    if (!oldPass.equals(ca.getPassword())) {
+                    if (!oldPassSh.equals(ca.getPassword())) {
                         request.setAttribute("type", request.getParameter("type"));
                         request.setAttribute("oldPasswordError", "Mật khẩu cũ không đúng");
                         request.getRequestDispatcher("/View/Customer/UpdateProfile.jsp").forward(request, response);
                         return;
                     }
                 }
+
+                
+
                 boolean hasError = false;
                 hasError |= Validation.validateField(
                         request, "passwordError", newPassWord, "PASSWORD", "Password",
                         "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
                 );
-                if (newPassWord.equals(ca.getPassword())) {
+                if (newPassWordSh.equals(ca.getPassword())) {
                     hasError = true;
                     request.setAttribute("passwordError", "pass mới trùng với pass cũ");
+                }
+                if (!newPassWord.equals(confirmPW)) {
+                    hasError = true;
+                    request.setAttribute("confirmPasswordError", "Mật khẩu confirm không trùng với mật khẩu mới");
                 }
                 if (hasError) {
                     request.setAttribute("type", request.getParameter("type"));
                     request.getRequestDispatcher("/View/Customer/UpdateProfile.jsp").forward(request, response);
                     return;
                 }
-                dal.CustomerAccountDAO.getInstance().changePassword(newPassWord, username);
+                dal.CustomerAccountDAO.getInstance().changePassword(newPassWordSh, username);
                 response.sendRedirect(request.getContextPath() + "/customer/customerProfile?service=info&username=" + username);
             }
 
@@ -117,7 +129,6 @@ public class CustomerProfile extends HttpServlet {
             type = "update";
             if (submit == null) {
                 request.setAttribute("type", type);
-
                 request.setAttribute("customerAccount", ca);
                 request.getRequestDispatcher("/View/Customer/UpdateProfile.jsp").forward(request, response);
             } else {
@@ -129,16 +140,25 @@ public class CustomerProfile extends HttpServlet {
                 int genderValue = genderBoolean ? 1 : 0;
 
                 boolean hasError = false;
-                hasError |= Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Full Name", "Full name must be 2–100 characters, letters and spaces only.");
-                hasError |= Validation.validateField(request, "phoneError", phoneNumber, "PHONE_NUMBER", "Phone Number", "Phone number must start with 0 and have 10–11 digits.");
+                hasError |= Validation.validateField(request, "fullNameError",
+                        fullName, "FULLNAME", "Full Name",
+                        "Full name must be 2–100 characters, letters and spaces only.");
 
-                List<String> list = dal.CustomerDAO.getInstance().getAllPhone();
-                for (String phone : list) {
-                    if (phone != null && phone.equals(phoneNumber)) {
-                        request.setAttribute("phoneError", "Phone đã tồn tại");
-                        hasError = true;
-                        break;
+                if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
+                    hasError |= Validation.validateField(request, "phoneError",
+                            phoneNumber, "PHONE_NUMBER",
+                            "Phone Number",
+                            "Phone number must start with 0 and have 10–11 digits.");
+                    List<String> list = dal.CustomerDAO.getInstance().getAllPhone();
+                    for (String phone : list) {
+                        if (phone != null && phone.equals(phoneNumber)) {
+                            request.setAttribute("phoneError", "Phone đã tồn tại");
+                            hasError = true;
+                            break;
+                        }
                     }
+                } else {
+                    phoneNumber = null;
                 }
 
                 if (hasError) {

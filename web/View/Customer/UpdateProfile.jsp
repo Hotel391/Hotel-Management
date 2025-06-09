@@ -24,7 +24,7 @@
                 <jsp:include page="topNav.jsp" />
                 <div class="d-flex justify-content-center align-items-start mt-3" style="min-height: calc(100vh - 60px); padding-top: 10px;">
 
-                    <div class="card shadow text-dark" style="background-color: #fffff; width: 100%; max-width: 700px;">
+                    <div class="card shadow text-dark" style="background-color: #ffffff; width: 100%; max-width: 700px;">
 
                         <!--update info customer-->
                         <c:if test="${type == 'update'}">
@@ -53,7 +53,9 @@
                                                class="form-control" 
                                                name="phoneNumber" 
                                                value="${customerAccount.customer.phoneNumber}" >
-                                        
+                                        <c:if test="${not empty phoneError}">
+                                            <div class="text-danger">${phoneError}</div>
+                                        </c:if>
                                     </div>
 
                                     <div class="mb-3">
@@ -100,6 +102,11 @@
                                         <input type="password" class="form-control" name="newPassWord" value="${param.newPassWord}" required>
                                         <c:if test="${not empty passwordError}">
                                             <div class="text-danger">${passwordError}</div>
+                                        </c:if>
+                                        <label class="form-label">Confirm Password</label>
+                                        <input type="password" class="form-control" name="confirmPassWord" value="${param.confirmPassWord}" required>
+                                        <c:if test="${not empty confirmPasswordError}">
+                                            <div class="text-danger">${confirmPasswordError}</div>
                                         </c:if>
                                         <div class="d-flex gap-2">
                                             <button type="submit" class="btn btn-success">

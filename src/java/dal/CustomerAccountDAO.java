@@ -41,10 +41,14 @@ public class CustomerAccountDAO {
     //create a function to check login 
 
     public CustomerAccount checkLogin(String username, String password) {
-        String sql = "select * from CustomerAccount where Username=? and Password=?";
+        String sql = "select c.Email, ca.Username, ca.Password, ca.customerId \n"
+                + "from customer c join CustomerAccount ca\n"
+                + "on c.CustomerId = ca.CustomerId "
+                + "where (Username=? or email=?) and Password=?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
-            st.setString(2, Encryption.toSHA256(password));
+            st.setString(2, username);
+            st.setString(3, Encryption.toSHA256(password));
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
                 CustomerAccount ca = new CustomerAccount();
@@ -60,9 +64,8 @@ public class CustomerAccountDAO {
         }
         return null;
     }
-    
+
     //create function check account by email
-    
     public CustomerAccount checkAccountByEmail(String email) {
         String sql = "select ca.* from CustomerAccount ca join Customer c on ca.CustomerId = c.CustomerId where c.Email=?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -82,7 +85,6 @@ public class CustomerAccountDAO {
         }
         return null;
     }
-
 
     public void insertCustomerAccount(CustomerAccount customerAccount) {
         String sql = """

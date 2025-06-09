@@ -118,7 +118,7 @@ public class EmployeeDAO {
                 + "join Role r on r.RoleId=e.RoleId where Username=? and Password=?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
-            st.setString(2, Encryption.toSHA256(password));
+            st.setString(2, password);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
                 Employee e = new Employee();

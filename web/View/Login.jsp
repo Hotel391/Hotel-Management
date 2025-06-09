@@ -78,7 +78,7 @@
 
                             <div class="d-flex justify-content-between align-items-center">
 
-                                <a href="#!" class="text-body">Forgot password?</a>
+                                <a href="forgotPassword" class="text-body">Forgot password?</a>
                             </div>
 
 

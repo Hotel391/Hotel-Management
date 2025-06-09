@@ -35,7 +35,6 @@ public class DeveloperPage extends HttpServlet {
             request.getRequestDispatcher("View/Developer/InfoAdmin.jsp").forward(request, response);
         }
 
-
         if (service.equals("add")) {
             response.sendRedirect("View/Developer/AddManager.jsp");
         }
@@ -68,7 +67,7 @@ public class DeveloperPage extends HttpServlet {
             String confirmPW = request.getParameter("confirmPassword");
             Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(userName);
             boolean hasError = false;
-            
+
             String oldPass = request.getParameter("oldpassword");
             String oldPassSh = Encryption.toSHA256(oldPass);
             if (!oldPassSh.equals(em.getPassword())) {
@@ -88,11 +87,11 @@ public class DeveloperPage extends HttpServlet {
                 request.setAttribute("passwordError", "mật khẩu mới đang trùng với mật khẩu cũ");
             }
 
-            if(!confirmPW.equals(newPass)){
+            if (!confirmPW.equals(newPass)) {
                 hasError = true;
                 request.setAttribute("confirmPasswordError", "mật khẩu confirm không trùng với mật khẩu mới");
             }
-            
+
             if (hasError) {
                 request.setAttribute("type", "changepass");
                 request.getRequestDispatcher("View/Developer/InfoAdmin.jsp").forward(request, response);
@@ -103,44 +102,43 @@ public class DeveloperPage extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/developerPage?service=viewAll");
         }
 
-        if (!"add".equals(service)) {return;}
-            
-        //add new account manager
-            String password = request.getParameter("password");
-            boolean hasError = false;
-            
-
-            // Kiểm tra định dạng username và password
-            hasError |= Validation.validateField(
-                    request, "usernameError", userName, "USERNAME", "Username",
-                    "Username must be 5–20 characters, letters/numbers/underscores only."
-            );
-
-            hasError |= Validation.validateField(
-                    request, "passwordError", password, "PASSWORD", "Password",
-                    "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
-            );
-            
-            // Kiểm tra trùng username
-            List<Employee> employees = dal.EmployeeDAO.getInstance().getAllEmployee();
-            for (Employee employee : employees) {
-                if (employee.getUsername().equalsIgnoreCase(userName)) {
-                    request.setAttribute("usernameError", "Username already exists.");
-                    hasError = true;
-                    break;
-                }
-            }
-
-            if (hasError) {
-                request.getRequestDispatcher("View/Developer/AddManager.jsp").forward(request, response);
-                return;
-            }
-
-            // Nếu hợp lệ: tạo tài khoản
-            dal.AdminDao.getInstance().addNewAccountManager(userName, password);
-            response.sendRedirect("developerPage");
+        if (!"add".equals(service)) {
+            return;
         }
 
-    
+        //add new account manager
+        String password = request.getParameter("password");
+        boolean hasError = false;
+
+        // Kiểm tra định dạng username và password
+        hasError |= Validation.validateField(
+                request, "usernameError", userName, "USERNAME", "Username",
+                "Username must be 5–20 characters, letters/numbers/underscores only."
+        );
+
+        hasError |= Validation.validateField(
+                request, "passwordError", password, "PASSWORD", "Password",
+                "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
+        );
+
+        // Kiểm tra trùng username
+        List<Employee> employees = dal.EmployeeDAO.getInstance().getAllEmployee();
+        for (Employee employee : employees) {
+            if (employee.getUsername().equalsIgnoreCase(userName)) {
+                request.setAttribute("usernameError", "Username already exists.");
+                hasError = true;
+                break;
+            }
+        }
+
+        if (hasError) {
+            request.getRequestDispatcher("View/Developer/AddManager.jsp").forward(request, response);
+            return;
+        }
+
+        // Nếu hợp lệ: tạo tài khoản
+        dal.AdminDao.getInstance().addNewAccountManager(userName, password);
+        response.sendRedirect("developerPage");
+    }
 
 }

@@ -169,7 +169,7 @@ public class EmployeeDAO {
 
     public Employee getAccountAdmin(String username) {
         String sql = "SELECT Username, Password, RoleId FROM Employee "
-                + "WHERE Username COLLATE SQL_Latin1_General_CP1_CS_AS = ? and roleId =0";
+                + "WHERE Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? and roleId =0";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, username);
             ResultSet rs = ptm.executeQuery();

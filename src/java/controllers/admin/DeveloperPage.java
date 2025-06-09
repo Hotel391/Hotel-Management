@@ -40,7 +40,6 @@ public class DeveloperPage extends HttpServlet {
 
         if (service.equals("add")) {
             response.sendRedirect("View/Developer/AddManager.jsp");
-
         }
 
         if (service.equals("deleteManager")) {
@@ -68,6 +67,7 @@ public class DeveloperPage extends HttpServlet {
         if (service.equals("changePass")) {
             String newPass = request.getParameter("password");
             String newPassSh = Encryption.toSHA256(newPass);
+            String confirmPW = request.getParameter("confirmPassword");
             Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(userName);
             boolean hasError = false;
             
@@ -90,6 +90,11 @@ public class DeveloperPage extends HttpServlet {
                 request.setAttribute("passwordError", "mật khẩu mới đang trùng với mật khẩu cũ");
             }
 
+            if(!confirmPW.equals(newPass)){
+                hasError = true;
+                request.setAttribute("confirmPasswordError", "mật khẩu confirm không trùng với mật khẩu mới");
+            }
+            
             if (hasError) {
                 request.setAttribute("type", "changepass");
                 request.getRequestDispatcher("View/Developer/InfoAdmin.jsp").forward(request, response);

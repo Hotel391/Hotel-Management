@@ -231,21 +231,7 @@
         </div>
     </div>
 
-    <script>
-        function validatePasswordForm() {
-            var newPassword = document.getElementById("newPassword").value;
-            var confirmPassword = document.getElementById("confirmPassword").value;
-            if (newPassword !== confirmPassword) {
-                alert("New password and confirm password do not match!");
-                return false;
-            }
-            if (newPassword.length < 6) {
-                alert("Password must be at least 6 characters long!");
-                return false;
-            }
-            return true;
-        }
-    </script>
+    
 </body>
 </html>
 

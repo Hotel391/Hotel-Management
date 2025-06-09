@@ -18,6 +18,8 @@ public class Validation {
         regexMap.put("EMOJI",Pattern.compile("[\\uD83C-\\uDBFF\\uDC00-\\uDFFF]+"));
         regexMap.put("EMAIL",Pattern.compile("^[a-zA-Z\\d_]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$"));
         regexMap.put("PASSWORD",Pattern.compile("^(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}"));
+        regexMap.put("ADDRESS", Pattern.compile("^[\\p{L}\\d\\s,./-]{5,255}$"));
+
     }
 
     public static boolean checkFormatException(String input, String pattern){

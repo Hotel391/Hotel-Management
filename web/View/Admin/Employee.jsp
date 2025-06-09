@@ -76,7 +76,7 @@
                                         <th scope="col">Phone Number</th>
                                         <th scope="col">Email</th>
                                         <th scope="col">Role</th>
-                                        <th scope="col">Status</th>
+                                        <th scope="col">Floor</th>
                                         <th scope="col" class="text-center">Actions</th>
                                     </tr>
                                 </thead>
@@ -111,7 +111,8 @@
                     <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <form method="post" action="${pageContext.request.contextPath}/view/employees">
+                                <form method="post" action="${pageContext.request.contextPath}/view/admin/employees">
+                                    <input type="hidden" name="action" value="add" />
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -120,56 +121,47 @@
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label for="usernameAdd" class="form-label">Username</label>
-                                                <input type="text" id="usernameAdd" name="username" class="form-control" required />
+                                                <input type="text" id="usernameAdd" name="username" value="${fn:escapeXml(username)}" class="form-control" required />
+                                                <c:if test="${not empty usernameError}">
+                                                    <div class="text-danger">${usernameError}</div>
+                                                </c:if>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="passwordAdd" class="form-label">Password</label>
-                                                <input type="password" id="passwordAdd" name="password" class="form-control" required />
+                                                <input type="password" id="passwordAdd" name="password" value="" class="form-control" required />
+                                                <c:if test="${not empty passwordError}">
+                                                    <div class="text-danger">${passwordError}</div>
+                                                </c:if>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="fullNameAdd" class="form-label">Full Name</label>
-                                                <input type="text" id="fullNameAdd" name="fullName" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="addressAdd" class="form-label">Address</label>
-                                                <input type="text" id="addressAdd" name="address" class="form-control" required />
+                                                <input type="text" id="fullNameAdd" name="fullName" value="${fn:escapeXml(fullName)}" class="form-control" required />
+                                                <c:if test="${not empty fullNameError}">
+                                                    <div class="text-danger">${fullNameError}</div>
+                                                </c:if>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="phoneNumberAdd" class="form-label">Phone Number</label>
-                                                <input type="text" id="phoneNumberAdd" name="phoneNumber" class="form-control" required />
+                                                <input type="text" id="phoneNumberAdd" name="phoneNumber" value="${fn:escapeXml(phoneNumber)}" class="form-control" required />
+                                                <c:if test="${not empty phoneNumberError}">
+                                                    <div class="text-danger">${phoneNumberError}</div>
+                                                </c:if>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="emailAdd" class="form-label">Email</label>
-                                                <input type="email" id="emailAdd" name="email" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="genderAdd" class="form-label">Gender</label>
-                                                <select id="genderAdd" name="gender" class="form-select">
-                                                    <option value="true">Male</option>
-                                                    <option value="false">Female</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="cccdAdd" class="form-label">CCCD</label>
-                                                <input type="text" id="cccdAdd" name="cccd" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="dateOfBirthAdd" class="form-label">Date of Birth</label>
-                                                <input type="date" id="dateOfBirthAdd" name="dateOfBirth" class="form-control" required />
+                                                <input type="email" id="emailAdd" name="email" value="${fn:escapeXml(email)}" class="form-control" required />
+                                                <c:if test="${not empty emailError}">
+                                                    <div class="text-danger">${emailError}</div>
+                                                </c:if>
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="roleIdAdd" class="form-label">Role</label>
-                                                <select id="roleIdAdd" name="roleId" class="form-select" required>
+                                                <select id="roleIdAdd" name="roleId" class="form-select" required onchange="toggleFloorFieldAdd()">
                                                     <c:forEach var="role" items="${listRole}">
-                                                        <option value="${role.roleId}">${role.roleName}</option>
+                                                        <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
+                                                            <option value="${role.roleId}" ${roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
+                                                        </c:if>
                                                     </c:forEach>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="activateAdd" class="form-label">Status</label>
-                                                <select id="activateAdd" name="activate" class="form-select">
-                                                    <option value="true">Active</option>
-                                                    <option value="false">Inactive</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-6" id="floorFieldAdd" style="display:none;">
@@ -180,90 +172,6 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="submit" class="btn btn-success">Save</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Edit Employee Modal -->
-                    <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <form method="post" action="${pageContext.request.contextPath}/view/employees?action=update">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <input type="hidden" id="employeeIdEdit" name="employeeId" />
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label for="usernameEdit" class="form-label">Username</label>
-                                                <input type="text" id="usernameEdit" name="username" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="passwordEdit" class="form-label">Password</label>
-                                                <input type="password" id="passwordEdit" name="password" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="fullNameEdit" class="form-label">Full Name</label>
-                                                <input type="text" id="fullNameEdit" name="fullName" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="addressEdit" class="form-label">Address</label>
-                                                <input type="text" id="addressEdit" name="address" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="phoneNumberEdit" class="form-label">Phone Number</label>
-                                                <input type="text" id="phoneNumberEdit" name="phoneNumber" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="emailEdit" class="form-label">Email</label>
-                                                <input type="email" id="emailEdit" name="email" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="genderEdit" class="form-label">Gender</label>
-                                                <select id="genderEdit" name="gender" class="form-select">
-                                                    <option value="true">Male</option>
-                                                    <option value="false">Female</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="cccdEdit" class="form-label">CCCD</label>
-                                                <input type="text" id="cccdEdit" name="cccd" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="dateOfBirthEdit" class="form-label">Date of Birth</label>
-                                                <input type="date" id="dateOfBirthEdit" name="dateOfBirth" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="registrationDateEdit" class="form-label">Registration Date</label>
-                                                <input type="date" id="registrationDateEdit" name="registrationDate" class="form-control" required />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="roleIdEdit" class="form-label">Role</label>
-                                                <select id="roleIdEdit" name="roleId" class="form-select" required>
-                                                    <c:forEach var="role" items="${listRole}">
-                                                        <option value="${role.roleId}">${role.roleName}</option>
-                                                    </c:forEach>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="activateEdit" class="form-label">Status</label>
-                                                <select id="activateEdit" name="activate" class="form-select">
-                                                    <option value="true">Active</option>
-                                                    <option value="false">Inactive</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6" id="floorFieldEdit" style="display:none;">
-                                                <label for="floorEdit" class="form-label">Floor</label>
-                                                <input type="number" id="floorEdit" name="floor" class="form-control" min="1" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Update</button>
                                     </div>
                                 </form>
                             </div>
@@ -345,7 +253,7 @@
                     <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <form method="post" action="${pageContext.request.contextPath}/view/employees?action=delete">
+                                <form method="post" action="${pageContext.request.contextPath}/view/admin/employees?action=delete">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="deleteEmployeeModalLabel">Confirm Delete</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

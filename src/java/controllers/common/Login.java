@@ -42,7 +42,52 @@ public class Login extends HttpServlet {
 
             if (submit == null) {
                 request.getRequestDispatcher("View/Login.jsp").forward(request, response);
+
+            } else {
+
+                String username = request.getParameter("username");
+
+                String password = request.getParameter("password");
+
+                if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
+                    request.setAttribute("error", "Please fill all information");
+                    request.getRequestDispatcher("View/Login.jsp").forward(request, response);
+
+                } else if (CustomerAccountDAO.getInstance().checkLogin(username, password) != null) {
+                    CustomerAccount customerInfo = CustomerAccountDAO.getInstance().checkLogin(username, password);
+                    session.setAttribute("customerInfo", customerInfo);
+                    response.sendRedirect("customer/home");
+                } else if (EmployeeDAO.getInstance().getEmployeeLogin(username, password) != null) {
+                    Employee employeeInfo = EmployeeDAO.getInstance().getEmployeeLogin(username, password);
+                    System.out.println(employeeInfo.toString());
+                    session.setAttribute("employeeInfo", employeeInfo);
+                    switch (employeeInfo.getRole().getRoleId()) {
+                        case 0:
+                            response.sendRedirect("developerPage");
+                            break;
+                        case 1:
+
+//                            request.getRequestDispatcher("View/Admin/Dashboard.jsp").forward(request, response);
+                            response.sendRedirect("admin/dashboard");
+                            break;
+                        case 2:
+                            response.sendRedirect("receptionistPage");
+                            break;
+                        case 3:
+//                            request.getRequestDispatcher("View/Admin/ViewService.jsp").forward(request, response);
+                            response.sendRedirect("cleanerPage");
+                            break;
+                        default:
+                            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
+                            break;
+                    }
+                } else {
+                    request.setAttribute("error", "Wrong username or password");
+                    request.getRequestDispatcher("View/Login.jsp").forward(request, response);
+                }
+
                 return;
+
             }
 
             String username = request.getParameter("username");

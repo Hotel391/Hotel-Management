@@ -23,7 +23,7 @@
             <div class="resend-link">
                 <span id="resendWrapper">
                     Không nhận được email? 
-                    <a href="verifyEmail?email=${email}&resend=true"+${param.type eq 'reset'? "&type=reset":""}>Gửi lại</a>
+                    <a href="verifyEmail?email=${email}&resend=true${type eq 'reset' ? '&type=reset' : ''}">Gửi lại</a>
                 </span>
                 <span id="cooldown" style="display: none; color: gray;">
                     Bạn có thể gửi lại sau <span id="timer">60</span> giây

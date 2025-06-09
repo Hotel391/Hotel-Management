@@ -103,8 +103,8 @@ public class ReviewDAO {
         }
 
         List<Review> listReview = new Vector<>();
-        try {
-            PreparedStatement ptm = con.prepareStatement(sql);
+        try(PreparedStatement ptm = con.prepareStatement(sql);) {
+            
 
             if (hasFullName) {
                 ptm.setString(1, "%" + fullName + "%");
@@ -112,26 +112,27 @@ public class ReviewDAO {
             if (hasDate) {
                 ptm.setDate(2, new java.sql.Date(date.getTime()));
             }
-
-            ResultSet rs = ptm.executeQuery();
-            while (rs.next()) {
-                Booking b = new Booking();
-                BookingDetail bd = new BookingDetail();
-                b.setBookingId(rs.getInt(5));
-                bd.setBooking(b);
-                CustomerAccount acc = new CustomerAccount();
-                Customer cus = new Customer();
-                cus.setFullName(rs.getString(6));
-                acc.setCustomer(cus);
-                Review p = new Review(
-                        rs.getInt(1),
-                        rs.getInt(2),
-                        rs.getString(3),
-                        rs.getDate(4),
-                        bd,
-                        acc
-                );
-                listReview.add(p);
+            
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    Booking b = new Booking();
+                    BookingDetail bd = new BookingDetail();
+                    b.setBookingId(rs.getInt(5));
+                    bd.setBooking(b);
+                    CustomerAccount acc = new CustomerAccount();
+                    Customer cus = new Customer();
+                    cus.setFullName(rs.getString(6));
+                    acc.setCustomer(cus);
+                    Review p = new Review(
+                            rs.getInt(1),
+                            rs.getInt(2),
+                            rs.getString(3),
+                            rs.getDate(4),
+                            bd,
+                            acc
+                    );
+                    listReview.add(p);
+                }
             }
         } catch (SQLException ex) {
             ex.printStackTrace();

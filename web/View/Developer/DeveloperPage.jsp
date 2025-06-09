@@ -37,9 +37,7 @@
                             <table class="table table-bordered table-striped table-hover align-middle">
                                 <thead class="table-light">
                                     <tr>
-                                        <!--                                    <th>Employee ID</th>-->
                                         <th>Username</th>
-                                        <th>Password</th>
                                         <th>Registration Date</th>
                                         <th>Activate</th>
                                         <th>Role Name</th>
@@ -49,9 +47,7 @@
                                 <tbody>
                                     <c:forEach var="e" items="${requestScope.list}">
                                         <tr>
-    <!--                                        <td>${e.employeeId}</td>-->
                                             <td>${e.username}</td>
-                                            <td>${e.password}</td>
                                             <td>${e.registrationDate}</td>
                                             <td>
                                                 <c:choose>

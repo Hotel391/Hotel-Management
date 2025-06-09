@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import models.CustomerAccount;
 
 @WebServlet(name="Home", urlPatterns={"/customer/home"})
 public class Home extends HttpServlet {
@@ -14,8 +15,6 @@ public class Home extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
 
-//        HttpSession session = request.getSession();
-//        session.setAttribute("username", "tranthiff");
          
         request.getRequestDispatcher("/View/Customer/Home.jsp").forward(request, response);
         

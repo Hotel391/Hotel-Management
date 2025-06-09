@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import models.Employee;
+import utility.Encryption;
 import utility.Validation;
 
 @WebServlet(name = "DeveloperPage", urlPatterns = {"/developerPage"})
@@ -18,12 +19,12 @@ public class DeveloperPage extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String service = request.getParameter("service");
-        String submit = request.getParameter("submit");
 
         HttpSession session = request.getSession();
         Employee employeeInfo = (Employee) session.getAttribute("employeeInfo");
         String username = employeeInfo.getUsername();
-        
+        session.setAttribute("username", username);
+
         if (service == null) {
             service = "viewAll";
         }
@@ -31,22 +32,12 @@ public class DeveloperPage extends HttpServlet {
         if (service.equals("changePass")) {
             Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(username);
             request.setAttribute("employee", em);
-            request.setAttribute("type", "changepass");
             request.getRequestDispatcher("View/Developer/InfoAdmin.jsp").forward(request, response);
         }
 
-        if (service.equals("info")) {
-            Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(username);
-            System.out.println(em);
-
-            request.setAttribute("employee", em);
-            request.setAttribute("type", "info");
-            request.getRequestDispatcher("View/Developer/InfoAdmin.jsp").forward(request, response);
-        }
 
         if (service.equals("add")) {
             response.sendRedirect("View/Developer/AddManager.jsp");
-
         }
 
         if (service.equals("deleteManager")) {
@@ -69,15 +60,18 @@ public class DeveloperPage extends HttpServlet {
             throws ServletException, IOException {
 
         String service = request.getParameter("service");
-        String userName = request.getParameter("userName");
+        String userName = request.getParameter("username");
 
         if (service.equals("changePass")) {
             String newPass = request.getParameter("password");
+            String newPassSh = Encryption.toSHA256(newPass);
+            String confirmPW = request.getParameter("confirmPassword");
             Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(userName);
             boolean hasError = false;
-
+            
             String oldPass = request.getParameter("oldpassword");
-            if (!oldPass.equals(em.getPassword())) {
+            String oldPassSh = Encryption.toSHA256(oldPass);
+            if (!oldPassSh.equals(em.getPassword())) {
                 request.setAttribute("oldPasswordError", "Mật khẩu cũ không đúng");
                 request.setAttribute("type", "changepass");
                 request.getRequestDispatcher("View/Developer/InfoAdmin.jsp").forward(request, response);
@@ -89,26 +83,31 @@ public class DeveloperPage extends HttpServlet {
                     "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
             );
 
-            if (newPass.equals(em.getPassword())) {
+            if (newPassSh.equals(em.getPassword())) {
                 hasError = true;
                 request.setAttribute("passwordError", "mật khẩu mới đang trùng với mật khẩu cũ");
             }
 
+            if(!confirmPW.equals(newPass)){
+                hasError = true;
+                request.setAttribute("confirmPasswordError", "mật khẩu confirm không trùng với mật khẩu mới");
+            }
+            
             if (hasError) {
                 request.setAttribute("type", "changepass");
                 request.getRequestDispatcher("View/Developer/InfoAdmin.jsp").forward(request, response);
                 return;
             }
 
-            dal.EmployeeDAO.getInstance().updatePasswordAdminByUsername(userName, newPass);
-            response.sendRedirect(request.getContextPath() + "/developerPage?service=info");
+            dal.EmployeeDAO.getInstance().updatePasswordAdminByUsername(userName, newPassSh);
+            response.sendRedirect(request.getContextPath() + "/developerPage?service=viewAll");
         }
 
-        if ("add".equals(service)) {
-
+        if (!"add".equals(service)) {return;}
+            
+        //add new account manager
             String password = request.getParameter("password");
             boolean hasError = false;
-            // Kiểm tra trùng username
             
 
             // Kiểm tra định dạng username và password
@@ -122,6 +121,7 @@ public class DeveloperPage extends HttpServlet {
                     "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
             );
             
+            // Kiểm tra trùng username
             List<Employee> employees = dal.EmployeeDAO.getInstance().getAllEmployee();
             for (Employee employee : employees) {
                 if (employee.getUsername().equalsIgnoreCase(userName)) {
@@ -141,6 +141,6 @@ public class DeveloperPage extends HttpServlet {
             response.sendRedirect("developerPage");
         }
 
-    }
+    
 
 }

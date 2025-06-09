@@ -117,7 +117,6 @@ public class CustomerProfile extends HttpServlet {
             type = "update";
             if (submit == null) {
                 request.setAttribute("type", type);
-
                 request.setAttribute("customerAccount", ca);
                 request.getRequestDispatcher("/View/Customer/UpdateProfile.jsp").forward(request, response);
             } else {
@@ -129,16 +128,25 @@ public class CustomerProfile extends HttpServlet {
                 int genderValue = genderBoolean ? 1 : 0;
 
                 boolean hasError = false;
-                hasError |= Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Full Name", "Full name must be 2–100 characters, letters and spaces only.");
-                hasError |= Validation.validateField(request, "phoneError", phoneNumber, "PHONE_NUMBER", "Phone Number", "Phone number must start with 0 and have 10–11 digits.");
+                hasError |= Validation.validateField(request, "fullNameError",
+                        fullName, "FULLNAME", "Full Name",
+                        "Full name must be 2–100 characters, letters and spaces only.");
 
-                List<String> list = dal.CustomerDAO.getInstance().getAllPhone();
-                for (String phone : list) {
-                    if (phone != null && phone.equals(phoneNumber)) {
-                        request.setAttribute("phoneError", "Phone đã tồn tại");
-                        hasError = true;
-                        break;
+                if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
+                    hasError |= Validation.validateField(request, "phoneError",
+                            phoneNumber, "PHONE_NUMBER",
+                            "Phone Number",
+                            "Phone number must start with 0 and have 10–11 digits.");
+                    List<String> list = dal.CustomerDAO.getInstance().getAllPhone();
+                    for (String phone : list) {
+                        if (phone != null && phone.equals(phoneNumber)) {
+                            request.setAttribute("phoneError", "Phone đã tồn tại");
+                            hasError = true;
+                            break;
+                        }
                     }
+                }else{
+                    phoneNumber = null;
                 }
 
                 if (hasError) {

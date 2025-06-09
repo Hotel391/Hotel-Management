@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 import models.EmailVerificationToken;
+import utility.Email;
 
 public class EmailVerificationTokenDAO {
 
@@ -71,6 +73,26 @@ public class EmailVerificationTokenDAO {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public boolean checkExistedUsername(String username){
+        String sql="""
+                   select TokenId, ExpiryDate from EmailVerificationToken
+                   where Username=?""";
+        try(PreparedStatement st=con.prepareStatement(sql)) {
+            st.setString(1, username);
+            try(ResultSet rs=st.executeQuery()) {
+                if(rs.next()){
+                    if(Email.isExpireTime(rs.getTimestamp(2).toLocalDateTime())){
+                        deleteToken(rs.getInt(1));
+                        return false;
+                    }
+                    return true;
+                }
+            } 
+        } catch (SQLException e) {
+        }
+        return false;
     }
 
     public void insertToken(EmailVerificationToken token) {

@@ -59,4 +59,7 @@ public class RegisterService {
         return customerAccountDAO.getAllUsername().contains(username) ||
                 employeeDAO.getAllString("Username").contains(username);
     }
+    public boolean isUsernameExistInToken(String username){
+        return tokenDAO.checkExistedUsername(username);
+    }
 }

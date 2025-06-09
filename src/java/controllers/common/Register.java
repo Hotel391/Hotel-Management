@@ -49,8 +49,8 @@ public class Register extends HttpServlet {
         // verify Username
         String username = request.getParameter("username");
         boolean errorUsername = Validation.validateField(request, "errorUsername", username, "USERNAME", "Username",
-                "Username just contain alphabet and number");
-        if (!errorUsername && service.isUsernameExists(username)) {
+                "Username just contain alphabet and number or _");
+        if (!errorUsername && (service.isUsernameExists(username)|| service.isUsernameExistInToken(username))) {
             request.setAttribute("errorUsername", "Username is existed");
             errorUsername = true;
         }
@@ -91,10 +91,12 @@ public class Register extends HttpServlet {
         token.setGender(gender);
         token.setPassword(password);
         token.setUsername(username);
+        
         Email emailService = new Email();
         token.setToken(emailService.generateToken());
         token.setExpiryDate(emailService.expireDateTime());
         service.registerToken(token);
+        
         String linkConfirm = request.getScheme() + "://"
                 + request.getServerName() + ":"
                 + request.getServerPort()

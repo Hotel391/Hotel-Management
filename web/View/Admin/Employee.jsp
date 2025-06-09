@@ -111,7 +111,7 @@
                     <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <form method="post" action="${pageContext.request.contextPath}/view/employees">
+                                <form method="post" action="${pageContext.request.contextPath}/view/admin/employees">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -190,7 +190,7 @@
                     <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <form method="post" action="${pageContext.request.contextPath}/view/employees?action=update">
+                                <form method="post" action="${pageContext.request.contextPath}/view/admin/employees?action=update">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -345,7 +345,7 @@
                     <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <form method="post" action="${pageContext.request.contextPath}/view/employees?action=delete">
+                                <form method="post" action="${pageContext.request.contextPath}/view/admin/employees?action=delete">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="deleteEmployeeModalLabel">Confirm Delete</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

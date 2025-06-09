@@ -28,11 +28,15 @@ public class ManagerProfile extends HttpServlet {
 
         HttpSession session = request.getSession();
         Employee manager = (Employee) session.getAttribute("employeeInfo");
-        
-        System.out.println("info: " + manager.toString());
 
         if (manager == null) {
-            response.sendRedirect("/View/login.jsp");
+            response.sendRedirect("/View/Login.jsp");
+            return;
+        }
+
+
+        if (manager.getRole().getRoleId() != 1) {
+            request.getRequestDispatcher("/View/Login.jsp").forward(request, response);
             return;
         }
 
@@ -50,10 +54,16 @@ public class ManagerProfile extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        Employee manager = (Employee) session.getAttribute("loggedInUser");
+        Employee manager = (Employee) session.getAttribute("employeeInfo");
 
         if (manager == null) {
-            response.sendRedirect("/View/login.jsp");
+            response.sendRedirect("/View/Login.jsp");
+            return;
+        }
+
+
+        if (manager.getRole().getRoleId() != 1) {
+            request.getRequestDispatcher("/View/Login.jsp").forward(request, response);
             return;
         }
 
@@ -102,8 +112,8 @@ public class ManagerProfile extends HttpServlet {
                 manager.setPhoneNumber(phoneNumber);
 
                 employeeDAO.updateEmployee(manager);
-                session.setAttribute("loggedInUser", manager); // Update session data
-                response.sendRedirect(request.getContextPath() + "/view/admin/managerProfile");
+                session.setAttribute("employeeInfo", manager);
+                response.sendRedirect(request.getContextPath() + "/managerProfile");
                 return;
 
             } else if ("changepassword".equals(action)) {
@@ -119,7 +129,7 @@ public class ManagerProfile extends HttpServlet {
                     String encryptedNew = Encryption.toSHA256(newPassword);
                     employeeDAO.changePassword(manager.getEmployeeId(), encryptedNew);
                     manager.setPassword(encryptedNew);
-                    session.setAttribute("loggedInUser", manager); // update session
+                    session.setAttribute("employeeInfo", manager);
                     request.setAttribute("success", "Đổi mật khẩu thành công!");
                 }
             }

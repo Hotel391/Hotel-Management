@@ -1,4 +1,4 @@
-package controllers.receptionist;
+package controllers.cleaner;
 
 import dal.EmployeeDAO;
 import models.Employee;
@@ -12,8 +12,8 @@ import java.io.IOException;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "ReceptionistProfileServlet", urlPatterns = "/view/receptionist/receptionistProfile")
-public class ReceptionistProfile extends HttpServlet {
+@WebServlet(name = "CleanerProfileServlet", urlPatterns = "/cleanerProfile")
+public class cleanerProfile extends HttpServlet {
 
     private EmployeeDAO employeeDAO;
 
@@ -27,15 +27,14 @@ public class ReceptionistProfile extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        Employee receptionist = (Employee) session.getAttribute("employeeInfo");
+        Employee cleaner = (Employee) session.getAttribute("employeeInfo");
 
-        if (receptionist == null) {
+        if (cleaner == null) {
             response.sendRedirect("/View/Login.jsp");
             return;
         }
 
-
-        if (receptionist.getRole().getRoleId() != 2) {
+        if (cleaner.getRole().getRoleId() != 3) {
             request.getRequestDispatcher("/View/Login.jsp").forward(request, response);
             return;
         }
@@ -43,10 +42,10 @@ public class ReceptionistProfile extends HttpServlet {
         String action = request.getParameter("action");
         boolean isEditing = "updateprofile".equals(action);
 
-        request.setAttribute("receptionist", receptionist);
+        request.setAttribute("cleaner", cleaner);
         request.setAttribute("isEditing", isEditing);
 
-        request.getRequestDispatcher("/View/Receptionist/receptionistProfile.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Cleaner/cleanerProfile.jsp").forward(request, response);
     }
 
     @Override
@@ -54,15 +53,15 @@ public class ReceptionistProfile extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        Employee receptionist = (Employee) session.getAttribute("employeeInfo");
+        Employee cleaner = (Employee) session.getAttribute("employeeInfo");
 
-        if (receptionist == null) {
+        if (cleaner == null) {
             response.sendRedirect("/View/Login.jsp");
             return;
         }
 
-
-        if (receptionist.getRole().getRoleId() != 2) {
+        
+        if (cleaner.getRole().getRoleId() != 3) {
             request.getRequestDispatcher("/View/Login.jsp").forward(request, response);
             return;
         }
@@ -94,26 +93,26 @@ public class ReceptionistProfile extends HttpServlet {
                     hasError = true;
                 }
 
-                if (!username.equals(receptionist.getUsername()) && employeeDAO.getAllString("Username").contains(username)) {
+                if (!username.equals(cleaner.getUsername()) && employeeDAO.getAllString("Username").contains(username)) {
                     request.setAttribute("usernameError", "Tên đăng nhập đã tồn tại!");
                     hasError = true;
                 }
 
                 if (hasError) {
-                    request.setAttribute("receptionist", receptionist);
+                    request.setAttribute("cleaner", cleaner);
                     request.setAttribute("isEditing", true);
-                    request.getRequestDispatcher("/View/Receptionist/receptionistProfile.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Cleaner/cleanerProfile.jsp").forward(request, response);
                     return;
                 }
 
-                receptionist.setUsername(username);
-                receptionist.setFullName(fullName);
-                receptionist.setAddress(address);
-                receptionist.setPhoneNumber(phoneNumber);
+                cleaner.setUsername(username);
+                cleaner.setFullName(fullName);
+                cleaner.setAddress(address);
+                cleaner.setPhoneNumber(phoneNumber);
 
-                employeeDAO.updateEmployee(receptionist);
-                session.setAttribute("employeeInfo", receptionist);
-                response.sendRedirect(request.getContextPath() + "/view/receptionist/receptionistProfile");
+                employeeDAO.updateEmployee(cleaner);
+                session.setAttribute("employeeInfo", cleaner);
+                response.sendRedirect(request.getContextPath() + "/cleanerProfile");
                 return;
 
             } else if ("changepassword".equals(action)) {
@@ -122,7 +121,7 @@ public class ReceptionistProfile extends HttpServlet {
                 String confirmPassword = request.getParameter("confirmPassword");
 
                 String encryptedCurrent = Encryption.toSHA256(currentPassword);
-                if (!encryptedCurrent.equals(receptionist.getPassword())) {
+                if (!encryptedCurrent.equals(cleaner.getPassword())) {
                     request.setAttribute("error", "Mật khẩu hiện tại không đúng!");
                 } else if (!newPassword.equals(confirmPassword)) {
                     request.setAttribute("error", "Mật khẩu mới và xác nhận mật khẩu không khớp!");
@@ -130,9 +129,9 @@ public class ReceptionistProfile extends HttpServlet {
                     request.setAttribute("error", "Mật khẩu mới phải dài ít nhất 8 ký tự, chứa cả chữ, số và ký tự đặc biệt!");
                 } else {
                     String encryptedNew = Encryption.toSHA256(newPassword);
-                    employeeDAO.changePassword(receptionist.getEmployeeId(), encryptedNew);
-                    receptionist.setPassword(encryptedNew);
-                    session.setAttribute("employeeInfo", receptionist);
+                    employeeDAO.changePassword(cleaner.getEmployeeId(), encryptedNew);
+                    cleaner.setPassword(encryptedNew);
+                    session.setAttribute("employeeInfo", cleaner);
                     request.setAttribute("success", "Đổi mật khẩu thành công!");
                 }
             }

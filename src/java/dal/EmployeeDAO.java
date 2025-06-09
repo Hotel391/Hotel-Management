@@ -118,7 +118,7 @@ public class EmployeeDAO {
                 + "join Role r on r.RoleId=e.RoleId where Username=? and Password=?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
-            st.setString(2, Encryption.toSHA256(password));
+            st.setString(2,(password));
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
                 Employee e = new Employee();
@@ -299,7 +299,7 @@ public class EmployeeDAO {
         }
     }
 
-    // Cập nhật thông tin hồ sơ của nhân viên
+    
     public boolean updateEmployeeProfile(Employee employee) {
         String sql = "UPDATE Employee SET fullName = ?, address = ?, phoneNumber = ?, email = ? WHERE employeeId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -316,7 +316,7 @@ public class EmployeeDAO {
         return false;
     }
 
-// Đổi mật khẩu
+
     public boolean changePassword(int employeeId, String newEncryptedPassword) {
         String sql = "UPDATE Employee SET password = ? WHERE employeeId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {

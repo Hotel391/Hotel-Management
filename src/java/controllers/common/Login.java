@@ -74,6 +74,7 @@ public class Login extends HttpServlet {
                             break;
                         case 3:
 //                            request.getRequestDispatcher("View/Admin/ViewService.jsp").forward(request, response);
+                            response.sendRedirect("cleanerPage");
                             break;
                         default:
                             request.getRequestDispatcher("View/Login.jsp").forward(request, response);

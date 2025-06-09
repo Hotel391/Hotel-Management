@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import models.Customer;
 import models.CustomerAccount;
+import utility.Encryption;
 import utility.Validation;
 
 @WebServlet(name = "CustomerProfile", urlPatterns = {"/customer/customerProfile"})
@@ -84,30 +85,41 @@ public class CustomerProfile extends HttpServlet {
             } else {
                 String newPassWord = request.getParameter("newPassWord");
                 String oldPass = request.getParameter("oldPass");
+                String confirmPW = request.getParameter("confirmPassWord");
+
+                String oldPassSh = Encryption.toSHA256(oldPass);
+                String newPassWordSh = Encryption.toSHA256(newPassWord);
 
                 if (oldPass != null) {
-                    if (!oldPass.equals(ca.getPassword())) {
+                    if (!oldPassSh.equals(ca.getPassword())) {
                         request.setAttribute("type", request.getParameter("type"));
                         request.setAttribute("oldPasswordError", "Mật khẩu cũ không đúng");
                         request.getRequestDispatcher("/View/Customer/UpdateProfile.jsp").forward(request, response);
                         return;
                     }
                 }
+
+                
+
                 boolean hasError = false;
                 hasError |= Validation.validateField(
                         request, "passwordError", newPassWord, "PASSWORD", "Password",
                         "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
                 );
-                if (newPassWord.equals(ca.getPassword())) {
+                if (newPassWordSh.equals(ca.getPassword())) {
                     hasError = true;
                     request.setAttribute("passwordError", "pass mới trùng với pass cũ");
+                }
+                if (!newPassWord.equals(confirmPW)) {
+                    hasError = true;
+                    request.setAttribute("confirmPasswordError", "Mật khẩu confirm không trùng với mật khẩu mới");
                 }
                 if (hasError) {
                     request.setAttribute("type", request.getParameter("type"));
                     request.getRequestDispatcher("/View/Customer/UpdateProfile.jsp").forward(request, response);
                     return;
                 }
-                dal.CustomerAccountDAO.getInstance().changePassword(newPassWord, username);
+                dal.CustomerAccountDAO.getInstance().changePassword(newPassWordSh, username);
                 response.sendRedirect(request.getContextPath() + "/customer/customerProfile?service=info&username=" + username);
             }
 
@@ -145,7 +157,7 @@ public class CustomerProfile extends HttpServlet {
                             break;
                         }
                     }
-                }else{
+                } else {
                     phoneNumber = null;
                 }
 

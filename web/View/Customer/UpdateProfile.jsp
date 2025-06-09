@@ -103,6 +103,11 @@
                                         <c:if test="${not empty passwordError}">
                                             <div class="text-danger">${passwordError}</div>
                                         </c:if>
+                                        <label class="form-label">Confirm Password</label>
+                                        <input type="password" class="form-control" name="confirmPassWord" value="${param.confirmPassWord}" required>
+                                        <c:if test="${not empty confirmPasswordError}">
+                                            <div class="text-danger">${confirmPasswordError}</div>
+                                        </c:if>
                                         <div class="d-flex gap-2">
                                             <button type="submit" class="btn btn-success">
                                                 <i class="bi bi-save"></i> Save Changes

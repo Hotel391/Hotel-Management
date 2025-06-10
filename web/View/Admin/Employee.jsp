@@ -93,32 +93,34 @@
                                             <td><c:out value="${emp.cleanerFloor != null ? emp.cleanerFloor.floor : '-'}"/></td>
                                             <td>${emp.activate ? 'Active' : 'Inactive'}</td>
                                             <td class="text-center">
+                                                <%--
                                                 <button 
                                                     class="btn btn-sm btn-outline-info me-1" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#viewEmployeeModal"
                                                     onclick="openViewModal(
-                                                    ${emp.employeeId},'${emp.fullName}','${emp.username}','${emp.address}','${emp.phoneNumber}','${emp.email}',
-                                                    ${emp.gender},'${emp.CCCD}','${emp.dateOfBirth}','${emp.registrationDate}',${emp.activate},
-                                                    '${emp.role != null ? emp.role.roleName : ''}',
+                                                    ${emp.employeeId}, '${emp.fullName}', '${emp.username}', '${emp.address}', '${emp.phoneNumber}', '${emp.email}',
+                                                    ${emp.gender}, '${emp.CCCD}', '${emp.dateOfBirth}', '${emp.registrationDate}',${emp.activate},
+                                                                    '${emp.role != null ? emp.role.roleName : ''}',
                                                     ${emp.cleanerFloor != null ? emp.cleanerFloor.floor : 'null'}
                                                             )">
                                                     <i class="bi bi-eye"></i>
                                                 </button>
-
-                                                <button 
-                                                    class="btn btn-sm btn-outline-primary me-1" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#editEmployeeModal"
-                                                    onclick="openEditModal(
-                                                    ${emp.employeeId},'${emp.fullName}','${emp.username}','${emp.password}','${emp.address}',
-                                                    '${emp.phoneNumber}','${emp.email}',${emp.gender},'${emp.CCCD}','${emp.dateOfBirth}','${emp.registrationDate}',
-                                                    ${emp.activate},${emp.role != null ? emp.role.roleId : 0},
-                                                    ${emp.cleanerFloor != null ? emp.cleanerFloor.floor : 'null'}
-                                                            )">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-
+                                                --%>
+                                                <%--         
+                                            <button 
+                                                class="btn btn-sm btn-outline-primary me-1" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editEmployeeModal"
+                                                onclick="openEditModal(
+                                                ${emp.employeeId},'${emp.fullName}','${emp.username}','${emp.password}','${emp.address}',
+                                                '${emp.phoneNumber}','${emp.email}',${emp.gender},'${emp.CCCD}','${emp.dateOfBirth}','${emp.registrationDate}',
+                                                ${emp.activate},${emp.role != null ? emp.role.roleId : 0},
+                                                ${emp.cleanerFloor != null ? emp.cleanerFloor.floor : 'null'}
+                                                        )">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                                --%>
                                                 <button 
                                                     class="btn btn-sm btn-outline-danger" 
                                                     data-bs-toggle="modal" 
@@ -197,6 +199,7 @@
                     </div>
 
                     <!-- Edit Employee Modal -->
+
                     <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
@@ -351,6 +354,21 @@
                                                                 floorField.style.display = 'none';
                                                             }
                                                             toggleFloorFieldEdit();
+                                                        }
+                                                        function openViewModal(employeeId, fullName, username, address, phoneNumber, email, gender, cccd, dateOfBirth, registrationDate, activate, roleName, floor) {
+                                                            document.getElementById('employeeIdView').textContent = employeeId;
+                                                            document.getElementById('fullNameView').textContent = fullName || '-';
+                                                            document.getElementById('usernameView').textContent = username || '-';
+                                                            document.getElementById('addressView').textContent = address || '-';
+                                                            document.getElementById('phoneNumberView').textContent = phoneNumber || '-';
+                                                            document.getElementById('emailView').textContent = email || '-';
+                                                            document.getElementById('genderView').textContent = gender ? 'Male' : 'Female';
+                                                            document.getElementById('cccdView').textContent = cccd || '-';
+                                                            document.getElementById('dateOfBirthView').textContent = dateOfBirth || '-';
+                                                            document.getElementById('registrationDateView').textContent = registrationDate || '-';
+                                                            document.getElementById('activateView').textContent = activate ? 'Active' : 'Inactive';
+                                                            document.getElementById('roleView').textContent = roleName || '-';
+                                                            document.getElementById('floorView').textContent = floor !== 'null' ? floor : '-';
                                                         }
 
                                                         function openDeleteModal(employeeId) {

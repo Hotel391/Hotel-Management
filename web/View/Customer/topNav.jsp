@@ -6,18 +6,14 @@
         <img id="user-profile-button" src="${pageContext.request.contextPath}/Image/User.png" alt="User Profile">
         <div class="user-info">
 
-                <%--<c:if test="${not empty sessionScope.customerInfo}">
+                <c:if test="${not empty sessionScope.customerInfo}">
                     <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${sessionScope.customerInfo.username}" class="text-decoration-none text-reset">
                         <i class="bi bi-person-circle"></i> Profile
                     </a><br>
                     <a href="${pageContext.request.contextPath}/login?service=logout" class="text-decoration-none text-reset">
                         <i class="bi bi-box-arrow-right"></i>Logout</a>
-                </c:if>--%>
-                    <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${sessionScope.customerInfo.username}" class="text-decoration-none text-reset">
-                        <i class="bi bi-person-circle"></i> Profile
-                    </a><br>
-                    <a href="${pageContext.request.contextPath}/login?service=logout" class="text-decoration-none text-reset">
-                        <i class="bi bi-box-arrow-right"></i>Logout</a>
+                </c:if>
+                    
         </div>
     </div>
 </div>

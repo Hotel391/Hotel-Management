@@ -162,7 +162,7 @@ public class EmployeeController extends HttpServlet {
                 request.setAttribute("phoneNumber", phoneNumber);
                 request.setAttribute("email", email);
                 request.setAttribute("roleId", roleId);
-                request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
+                //request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
                 return null;
             }
 
@@ -193,7 +193,7 @@ public class EmployeeController extends HttpServlet {
             request.setAttribute("error", "An error occurred: " + e.getMessage());
             request.setAttribute("listRole", RoleDAO.getInstance().getAllRoles());
             request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
-
+            return null;
         }
     }
 }

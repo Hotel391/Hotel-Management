@@ -130,13 +130,16 @@ public class EmployeeDAO {
     }
 
     public Employee getEmployeeLogin(String username, String password) {
-        String sql = "select e.*, r.RoleName from Employee e\n"
-                + "join Role r on r.RoleId=e.RoleId where Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? "
-                + "and Password=?";
+        String sql = """
+                     select e.*, r.RoleName from Employee e
+                     join Role r on r.RoleId=e.RoleId where (Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? 
+                     or email COLLATE SQL_Latin1_General_CP1_CI_AS = ?) and Password=?""";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
+            
+            st.setString(2, username);
 
-            st.setString(2, Encryption.toSHA256(password));
+            st.setString(3, Encryption.toSHA256(password));
 
             ResultSet rs = st.executeQuery();
             if (rs.next()) {

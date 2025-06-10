@@ -92,19 +92,49 @@
                                     <input type="hidden" name="username" value="${customerAccount.username}"/>
                                     <div class="mb-3">
                                         <c:if test="${customerAccount.password != null}">
-                                            <label class="form-label">Old Password</label>
-                                            <input type="text" class="form-control" name="oldPass" value="${param.oldPass}" required>
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text" id="visible-addon2">
+                                                    <i class="bi bi-lock"></i>
+                                                </span>
+                                                <input type="password" name="oldPass" class="form-control" id="oldpasswordField"
+                                                       placeholder="Old Password" aria-label="Password"
+                                                       aria-describedby="visible-addon2" value="${param.oldpassword}">
+                                                <span class="input-group-text" onclick="oldtogglePassword()" style="cursor: pointer;">
+                                                    <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                                                </span>
+                                            </div>
+
                                             <c:if test="${not empty oldPasswordError}">
                                                 <div class="text-danger">${oldPasswordError}</div>
                                             </c:if>
                                         </c:if>
-                                        <label class="form-label">New Password</label>
-                                        <input type="password" class="form-control" name="newPassWord" value="${param.newPassWord}" required>
+
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text" id="visible-addon2">
+                                                <i class="bi bi-lock"></i>
+                                            </span>
+                                            <input type="password" name="newPassWord" class="form-control" id="passwordField"
+                                                   placeholder="New Password" aria-label="Password"
+                                                   aria-describedby="visible-addon2" value="${param.password}">
+                                            <span class="input-group-text" onclick="togglePassword()" style="cursor: pointer;">
+                                                <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                                            </span>
+                                        </div>
                                         <c:if test="${not empty passwordError}">
                                             <div class="text-danger">${passwordError}</div>
                                         </c:if>
-                                        <label class="form-label">Confirm Password</label>
-                                        <input type="password" class="form-control" name="confirmPassWord" value="${param.confirmPassWord}" required>
+
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text" id="visible-addon2">
+                                                <i class="bi bi-lock"></i>
+                                            </span>
+                                            <input type="password" name="confirmPassWord" class="form-control" id="confirmPasswordField"
+                                                   placeholder="Confirm Password" aria-label="Password"
+                                                   aria-describedby="visible-addon2" value="${param.confirmPassword}">
+                                            <span class="input-group-text" onclick="toggleConfirmPassword()" style="cursor: pointer;">
+                                                <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                                            </span>
+                                        </div>
                                         <c:if test="${not empty confirmPasswordError}">
                                             <div class="text-danger">${confirmPasswordError}</div>
                                         </c:if>
@@ -156,6 +186,54 @@
                 </div>
             </div>
         </div>
+
+        <script>
+
+            function oldtogglePassword() {
+                const oldpasswordField = document.getElementById("oldpasswordField");
+                const toggleIcon = document.getElementById("toggleIcon");
+
+                if (oldpasswordField.type === "password") {
+                    oldpasswordField.type = "text";
+                    toggleIcon.classList.remove("bi-eye-slash");
+                    toggleIcon.classList.add("bi-eye");
+                } else {
+                    oldpasswordField.type = "password";
+                    toggleIcon.classList.remove("bi-eye");
+                    toggleIcon.classList.add("bi-eye-slash");
+                }
+            }
+
+            function togglePassword() {
+                const passwordField = document.getElementById("passwordField");
+                const toggleIcon = document.getElementById("toggleIcon");
+
+                if (passwordField.type === "password") {
+                    passwordField.type = "text";
+                    toggleIcon.classList.remove("bi-eye-slash");
+                    toggleIcon.classList.add("bi-eye");
+                } else {
+                    passwordField.type = "password";
+                    toggleIcon.classList.remove("bi-eye");
+                    toggleIcon.classList.add("bi-eye-slash");
+                }
+            }
+
+            function toggleConfirmPassword() {
+                const confirmPasswordField = document.getElementById("confirmPasswordField");
+                const toggleIcon = document.getElementById("toggleIcon");
+
+                if (confirmPasswordField.type === "password") {
+                    confirmPasswordField.type = "text";
+                    toggleIcon.classList.remove("bi-eye-slash");
+                    toggleIcon.classList.add("bi-eye");
+                } else {
+                    confirmPasswordField.type = "password";
+                    toggleIcon.classList.remove("bi-eye");
+                    toggleIcon.classList.add("bi-eye-slash");
+                }
+            }
+        </script>
     </body>
     <%--script for dashbord--%>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>

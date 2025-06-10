@@ -21,6 +21,14 @@ public class CustomerProfile extends HttpServlet {
             throws ServletException, IOException {
         String service = request.getParameter("service");
         String submit = request.getParameter("submit");
+        HttpSession session = request.getSession();
+//        CustomerAccount caaa = (CustomerAccount) session.getAttribute("customerInfo");
+//        if(caaa == null){
+//            response.sendRedirect(request.getContextPath()+"/login?service=logout");
+//            return;
+//        }
+//        String username = caaa.getUsername();
+        
         String username = request.getParameter("username");
         String type;
         CustomerAccount ca = dal.CustomerDAO.getInstance().getCustomerAccount(username);
@@ -78,7 +86,6 @@ public class CustomerProfile extends HttpServlet {
                     return;
                 }
 
-                HttpSession session = request.getSession();
                 session.setAttribute("username", newUserName);
 
                 dal.CustomerAccountDAO.getInstance().changeUsername(newUserName, customerId);

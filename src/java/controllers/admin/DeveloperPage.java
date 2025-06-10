@@ -38,7 +38,7 @@ public class DeveloperPage extends HttpServlet {
         }
 
         if (service.equals("add")) {
-            response.sendRedirect("View/Developer/AddManager.jsp");
+            request.getRequestDispatcher("View/Developer/AddManager.jsp").forward(request, response);
         }
 
         if (service.equals("deleteManager")) {
@@ -147,7 +147,7 @@ public class DeveloperPage extends HttpServlet {
         }
 
         // Nếu hợp lệ: tạo tài khoản
-        dal.AdminDao.getInstance().addNewAccountManager(userName, password);
+        dal.AdminDao.getInstance().addNewAccountManager(userName, Encryption.toSHA256(password));
         response.sendRedirect("developerPage");
     }
 

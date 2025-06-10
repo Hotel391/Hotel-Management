@@ -33,7 +33,15 @@
                 <button type="submit" data-mdb-ripple-init class="btn btn-primary btn-block mb-4">
                     Reset
                 </button>
-
+                <div>
+                    Back to login: 
+                    <a href="login">
+                        <button  type="button" >
+                            Login
+                        </button>
+                    </a>
+                </div>
+                
             </form>
         </div>
     </body>

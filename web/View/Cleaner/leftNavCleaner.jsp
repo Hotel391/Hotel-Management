@@ -30,7 +30,7 @@
             </div>
         </div>
         <div class="nav-footer text-center">
-            <p>© 2023 Hotel Admin Dashboard</p>
+            <p>Hotel Admin Dashboard</p>
         </div>
     </div>
 </div>

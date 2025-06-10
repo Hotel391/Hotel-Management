@@ -102,14 +102,14 @@ public class BlockJsp implements Filter {
             FilterChain chain)
             throws IOException, ServletException {
         
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
-        String uri = req.getServletPath();
-        //chua dang nhap
-        if (uri.endsWith(".jsp")) {
-            res.sendRedirect(req.getContextPath() + "/customer/home");
-            return;
-        }
+//        HttpServletRequest req = (HttpServletRequest) request;
+//        HttpServletResponse res = (HttpServletResponse) response;
+//        String uri = req.getServletPath();
+//        //chua dang nhap
+//        if (uri.endsWith(".jsp")) {
+//            res.sendRedirect(req.getContextPath() + "/customer/home");
+//            return;
+//        }
         chain.doFilter(request, response);
     }
 

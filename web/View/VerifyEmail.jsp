@@ -3,6 +3,7 @@
     Created on : Jun 7, 2025, 9:57:58 PM
     Author     : TranTrungHieu
 --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -28,6 +29,10 @@
                 <span id="cooldown" style="display: none; color: gray;">
                     Bạn có thể gửi lại sau <span id="timer">60</span> giây
                 </span>
+            </div>
+            <div>
+                Quay trở về register
+                <a href="register">register</a>
             </div>
         </div>
     </body>

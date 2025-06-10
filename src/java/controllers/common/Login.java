@@ -62,7 +62,7 @@ public class Login extends HttpServlet {
                 return;
             }
 
-            String username = request.getParameter("username");
+            String username = request.getParameter("username").trim();
             String password = request.getParameter("password");
 
             if (username == null || password == null || username.isEmpty() || password.isEmpty()) {

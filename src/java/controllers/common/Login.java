@@ -96,8 +96,7 @@ public class Login extends HttpServlet {
                         response.sendRedirect("receptionistPage");
                         break;
                     case 3:
-                        // TODO: handle role 3 properly
-                        // response.sendRedirect("somePageForRole3");
+                        response.sendRedirect("CleanerPage");
                         break;
                     default:
                         request.getRequestDispatcher("View/Login.jsp").forward(request, response);

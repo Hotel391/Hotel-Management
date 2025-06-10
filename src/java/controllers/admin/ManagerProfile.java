@@ -29,16 +29,6 @@ public class ManagerProfile extends HttpServlet {
         HttpSession session = request.getSession();
         Employee manager = (Employee) session.getAttribute("employeeInfo");
 
-        if (manager == null) {
-            response.sendRedirect("View/Login.jsp");
-            return;
-        }
-
-
-        if (manager.getRole().getRoleId() != 1) {
-            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            return;
-        }
 
         String action = request.getParameter("action");
         boolean isEditing = "updateprofile".equals(action);
@@ -56,16 +46,6 @@ public class ManagerProfile extends HttpServlet {
         HttpSession session = request.getSession();
         Employee manager = (Employee) session.getAttribute("employeeInfo");
 
-        if (manager == null) {
-            response.sendRedirect("View/Login.jsp");
-            return;
-        }
-
-
-        if (manager.getRole().getRoleId() != 1) {
-            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            return;
-        }
 
         String action = request.getParameter("action");
 
@@ -94,7 +74,7 @@ public class ManagerProfile extends HttpServlet {
                     hasError = true;
                 }
 
-                if (!username.equals(manager.getUsername()) && employeeDAO.getAllString("Username").contains(username)) {
+                if (!username.equals(manager.getUsername()) && employeeDAO.isUsernameExisted(username)) {
                     request.setAttribute("usernameError", "Tên đăng nhập đã tồn tại!");
                     hasError = true;
                 }

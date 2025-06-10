@@ -29,16 +29,6 @@ public class cleanerProfile extends HttpServlet {
         HttpSession session = request.getSession();
         Employee cleaner = (Employee) session.getAttribute("employeeInfo");
 
-        if (cleaner == null) {
-            response.sendRedirect("View/Login.jsp");
-            return;
-        }
-
-        if (cleaner.getRole().getRoleId() != 3) {
-            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            return;
-        }
-
         String action = request.getParameter("action");
         boolean isEditing = "updateprofile".equals(action);
 
@@ -54,17 +44,6 @@ public class cleanerProfile extends HttpServlet {
 
         HttpSession session = request.getSession();
         Employee cleaner = (Employee) session.getAttribute("employeeInfo");
-
-        if (cleaner == null) {
-            response.sendRedirect("View/Login.jsp");
-            return;
-        }
-
-        
-        if (cleaner.getRole().getRoleId() != 3) {
-            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            return;
-        }
 
         String action = request.getParameter("action");
 

@@ -1,6 +1,5 @@
 package dal;
 
-import models.CleanerFloor;
 import models.Employee;
 import models.Role;
 import models.CleanerFloor;
@@ -9,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import utility.Encryption;
@@ -100,7 +98,7 @@ public class EmployeeDAO {
         }
         return listString;
     }
-    
+
     public boolean isUsernameExisted(String username) {
         String sql = "select Username from Employee where Username COLLATE SQL_Latin1_General_CP1_CI_AS =?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -116,7 +114,6 @@ public class EmployeeDAO {
         return false;
         //
     }
-
 
     public void updatePasswordAdminByUsername(String username, String newPassword) {
         String sql = "UPDATE Employee SET Password = ? WHERE Username COLLATE SQL_Latin1_General_CP1_CI_AS = ?";
@@ -349,6 +346,77 @@ public class EmployeeDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean isEmailExisted(String email, int excludeEmployeeId) {
+        String sql = "SELECT 1 FROM Employee WHERE Email = ? AND EmployeeId != ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, email);
+            st.setInt(2, excludeEmployeeId);
+            return st.executeQuery().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isPhoneExisted(String phone, int excludeEmployeeId) {
+        String sql = "SELECT 1 FROM Employee WHERE PhoneNumber = ? AND EmployeeId != ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, phone);
+            st.setInt(2, excludeEmployeeId);
+            return st.executeQuery().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public Employee getEmployeeById(int employeeId) {
+        String sql = "SELECT e.*, r.RoleName, cf.Floor "
+                + "FROM Employee e "
+                + "JOIN Role r ON r.RoleId = e.RoleId "
+                + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
+                + "WHERE e.EmployeeId = ?";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, employeeId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    Employee e = new Employee();
+                    e.setEmployeeId(rs.getInt("EmployeeId"));
+                    e.setUsername(rs.getString("Username"));
+                    e.setPassword(rs.getString("Password"));
+                    e.setFullName(rs.getString("FullName"));
+                    e.setAddress(rs.getString("Address"));
+                    e.setPhoneNumber(rs.getString("PhoneNumber"));
+                    e.setEmail(rs.getString("Email"));
+                    e.setGender(rs.getBoolean("Gender"));
+                    e.setCCCD(rs.getString("CCCD"));
+                    e.setDateOfBirth(rs.getDate("DateOfBirth"));
+                    e.setRegistrationDate(rs.getDate("RegistrationDate"));
+                    e.setActivate(rs.getBoolean("Activate"));
+
+                    Role r = new Role();
+                    r.setRoleId(rs.getInt("RoleId"));
+                    r.setRoleName(rs.getString("RoleName"));
+                    e.setRole(r);
+
+                    int floor = rs.getInt("Floor");
+                    if (!rs.wasNull()) {
+                        CleanerFloor cf = new CleanerFloor();
+                        cf.setEmployee(e);
+                        cf.setFloor(floor);
+                        e.setCleanerFloor(cf);
+                    }
+
+                    return e;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

@@ -78,7 +78,10 @@ public class Login extends HttpServlet {
                         response.sendRedirect("receptionistPage");
                         break;
                     case 3:
-                        response.sendRedirect("CleanerPage");
+
+
+                        response.sendRedirect("cleanerPage");
+
                         break;
                     default:
                         request.getRequestDispatcher("View/Login.jsp").forward(request, response);

@@ -212,4 +212,25 @@ public class CustomerDAO {
         }
         return list;
     }
+    
+    public boolean isEmailExisted(String email) {
+    String sql = "SELECT 1 FROM Customer WHERE Email = ?";
+    try (PreparedStatement st = con.prepareStatement(sql)) {
+        st.setString(1, email);
+        return st.executeQuery().next();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
+public boolean isPhoneExisted(String phone) {
+    String sql = "SELECT 1 FROM Customer WHERE PhoneNumber = ?";
+    try (PreparedStatement st = con.prepareStatement(sql)) {
+        st.setString(1, phone);
+        return st.executeQuery().next();
+    } catch (SQLException e) {
+    }
+    return false;
+}
 }

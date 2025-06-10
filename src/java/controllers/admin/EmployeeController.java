@@ -123,40 +123,35 @@ public class EmployeeController extends HttpServlet {
             
             System.out.println("roleId: " + roleId);
 
-            if (Validation.validateField(request, "usernameError", username, "USERNAME", "Username", "Tên đăng nhập không hợp lệ!")) {
-                hasError = true;
-            }
-            if (Validation.validateField(request, "passwordError", password, "PASSWORD", "Password", "Mật khẩu không hợp lệ!")) {
-                hasError = true;
-            }
-            if (Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Họ tên", "Họ tên không hợp lệ!")) {
-                hasError = true;
-            }
-            if (Validation.validateField(request, "phoneNumberError", phoneNumber, "PHONE_NUMBER", "Số điện thoại", "Số điện thoại không hợp lệ!")) {
-                hasError = true;
-            }
-            if (Validation.validateField(request, "emailError", email, "EMAIL", "Email", "Email không hợp lệ!")) {
-                hasError = true;
-            }
-            
+
+            hasError |= Validation.validateField(request, "usernameError", username, "USERNAME", "Username", null);
+            hasError |= Validation.validateField(request, "passwordError", password, "PASSWORD", "Password", null);
+            hasError |= Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Full Name", null);
+            hasError |= Validation.validateField(request, "phoneNumberError", phoneNumber, "PHONE_NUMBER", "Phone Number", null);
+            hasError |= Validation.validateField(request, "emailError", email, "EMAIL", "Email", null);
 
             EmployeeDAO employeeDAO = EmployeeDAO.getInstance();
-            CustomerAccountDAO customerDAO = CustomerAccountDAO.getInstance();
+            CustomerAccountDAO customerAccountDAO = CustomerAccountDAO.getInstance();
+            CustomerDAO customerDAO = CustomerDAO.getInstance();
+
 
             
             
             if (!hasError) {
-                if (employeeDAO.isUsernameExisted(username) || customerDAO.isUsernameExisted(username)) {
+
+                if (employeeDAO.isUsernameExisted(username) || customerAccountDAO.isUsernameExisted(username)) {
+
                     request.setAttribute("usernameError", "Tên đăng nhập đã tồn tại!");
                     hasError = true;
                 }
-                if (employeeDAO.getAllString("Email").contains(email)) {
+                if (employeeDAO.getAllString("Email").contains(email) || customerDAO.isEmailExisted(email)) {
                     request.setAttribute("emailError", "Email đã tồn tại!");
                     hasError = true;
                 }
-                if (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber)) {
+                if (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber) || customerDAO.isPhoneExisted(phoneNumber)) {
                     request.setAttribute("phoneNumberError", "Số điện thoại đã tồn tại!");
                     hasError = true;
+                } else {
                 }
             }
             
@@ -164,6 +159,9 @@ public class EmployeeController extends HttpServlet {
             
             System.out.println("role: " + role.getRoleName());
             
+
+            System.out.println("role: " + role.getRoleName());
+
             if (!hasError && role == null) {
                 request.setAttribute("error", "Invalid role selected.");
                 hasError = true;
@@ -186,7 +184,9 @@ public class EmployeeController extends HttpServlet {
                 request.setAttribute("listEmployee", employeeList);
 //                request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
                 System.out.println("1");
+
                 return  null;
+
             }
 
             emp.setUsername(username);
@@ -200,8 +200,12 @@ public class EmployeeController extends HttpServlet {
             
             System.out.println("Employ in create func: " + emp.toString());
 
-            Integer floor = request.getParameter("floor") != null && !request.getParameter("floor").isEmpty() ?
-                            Integer.parseInt(request.getParameter("floor")) : null;
+
+            System.out.println("Employ in create func: " + emp.toString());
+
+            Integer floor = request.getParameter("floor") != null && !request.getParameter("floor").isEmpty()
+                    ? Integer.parseInt(request.getParameter("floor")) : null;
+
             if (floor != null && role.getRoleName().equalsIgnoreCase("Cleaner")) {
                 CleanerFloor cf = new CleanerFloor();
                 cf.setFloor(floor);

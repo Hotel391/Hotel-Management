@@ -145,7 +145,17 @@
                         <div class="row mb-3">
                             <label class="col-sm-3 col-form-label">Email</label>
                             <div class="col-sm-9">
-                                <input type="email" name="email" value="${cleaner.email}" class="form-control readonly-field" readonly>
+                                <c:choose>
+                                    <c:when test="${isEditing}">
+                                        <input type="email" name="email" value="${cleaner.email}" class="form-control editable-field" required>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <input type="email" name="email" value="${cleaner.email}" class="form-control readonly-field" readonly>
+                                    </c:otherwise>
+                                </c:choose>
+                                <c:if test="${not empty emailError}">
+                                    <small class="text-danger">${emailError}</small>
+                                </c:if>
                             </div>
                         </div>
 

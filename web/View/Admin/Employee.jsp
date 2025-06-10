@@ -53,7 +53,9 @@
                                 <select name="roleId" class="form-select" onchange="this.form.submit()">
                                     <option value="">All Roles</option>
                                     <c:forEach var="role" items="${listRole}">
-                                        <option value="${role.roleId}" ${selectedRoleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
+                                        <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
+                                            <option value="${role.roleId}" ${selectedRoleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
+                                        </c:if>
                                     </c:forEach>
                                 </select>
                                 <select name="status" class="form-select" onchange="this.form.submit()">
@@ -84,25 +86,50 @@
                                 <tbody>
                                     <c:forEach var="emp" items="${listEmployee}">
                                         <tr>
-                                            <td>${fn:escapeXml(emp.fullName != null ? emp.fullName : '-')}</td>
-                                            <td>${fn:escapeXml(emp.phoneNumber != null ? emp.phoneNumber : '-')}</td>
-                                            <td>${fn:escapeXml(emp.email != null ? emp.email : '-')}</td>
-                                            <td>${emp.role != null ? fn:escapeXml(emp.role.roleName) : '-'}</td>
-                                            <td>${emp.cleanerFloor != null ? emp.cleanerFloor.floor : '-'}</td>
+                                            <td><c:out value="${emp.fullName}" default="-"/></td>
+                                            <td><c:out value="${emp.phoneNumber}" default="-"/></td>
+                                            <td><c:out value="${emp.email}" default="-"/></td>
+                                            <td><c:out value="${emp.role != null ? emp.role.roleName : '-'}"/></td>
+                                            <td><c:out value="${emp.cleanerFloor != null ? emp.cleanerFloor.floor : '-'}"/></td>
                                             <td>${emp.activate ? 'Active' : 'Inactive'}</td>
                                             <td class="text-center">
-                                                <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#viewEmployeeModal" onclick="openViewModal(${emp.employeeId}, '${fn:escapeXml(emp.fullName != null ? emp.fullName : '')}', '${fn:escapeXml(emp.username != null ? emp.username : '')}', '${fn:escapeXml(emp.address != null ? emp.address : '')}', '${fn:escapeXml(emp.phoneNumber != null ? emp.phoneNumber : '')}', '${fn:escapeXml(emp.email != null ? emp.email : '')}', ${emp.gender}, '${fn:escapeXml(emp.CCCD != null ? emp.CCCD : '')}', '${emp.dateOfBirth != null ? emp.dateOfBirth : ''}', '${emp.registrationDate != null ? emp.registrationDate : ''}', ${emp.activate}, '${emp.role != null ? fn:escapeXml(emp.role.roleName) : ''}', ${emp.cleanerFloor != null ? emp.cleanerFloor.floor : 'null'})">
+                                                <button 
+                                                    class="btn btn-sm btn-outline-info me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#viewEmployeeModal"
+                                                    onclick="openViewModal(
+                                                    ${emp.employeeId},'${emp.fullName}','${emp.username}','${emp.address}','${emp.phoneNumber}','${emp.email}',
+                                                    ${emp.gender},'${emp.CCCD}','${emp.dateOfBirth}','${emp.registrationDate}',${emp.activate},
+                                                    '${emp.role != null ? emp.role.roleName : ''}',
+                                                    ${emp.cleanerFloor != null ? emp.cleanerFloor.floor : 'null'}
+                                                            )">
                                                     <i class="bi bi-eye"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editEmployeeModal" onclick="openEditModal(${emp.employeeId}, '${fn:escapeXml(emp.fullName != null ? emp.fullName : '')}', '${fn:escapeXml(emp.username != null ? emp.username : '')}', '${fn:escapeXml(emp.password != null ? emp.password : '')}', '${fn:escapeXml(emp.address != null ? emp.address : '')}', '${fn:escapeXml(emp.phoneNumber != null ? emp.phoneNumber : '')}', '${fn:escapeXml(emp.email != null ? emp.email : '')}', ${emp.gender}, '${fn:escapeXml(emp.CCCD != null ? emp.CCCD : '')}', '${emp.dateOfBirth != null ? emp.dateOfBirth : ''}', '${emp.registrationDate != null ? emp.registrationDate : ''}', ${emp.activate}, ${emp.role != null ? emp.role.roleId : 0}, ${emp.cleanerFloor != null ? emp.cleanerFloor.floor : ''})">
+
+                                                <button 
+                                                    class="btn btn-sm btn-outline-primary me-1" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#editEmployeeModal"
+                                                    onclick="openEditModal(
+                                                    ${emp.employeeId},'${emp.fullName}','${emp.username}','${emp.password}','${emp.address}',
+                                                    '${emp.phoneNumber}','${emp.email}',${emp.gender},'${emp.CCCD}','${emp.dateOfBirth}','${emp.registrationDate}',
+                                                    ${emp.activate},${emp.role != null ? emp.role.roleId : 0},
+                                                    ${emp.cleanerFloor != null ? emp.cleanerFloor.floor : 'null'}
+                                                            )">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal" onclick="openDeleteModal(${emp.employeeId})">
+
+                                                <button 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteEmployeeModal" 
+                                                    onclick="openDeleteModal(${emp.employeeId})">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>
                                         </tr>
                                     </c:forEach>
+
                                 </tbody>
                             </table>
                         </div>
@@ -245,7 +272,7 @@
                                             </div>
                                             <div class="col-md-6" id="floorFieldEdit" style="display:none;">
                                                 <label for="floorEdit" class="form-label">Floor</label>
-                                                <input type="number" id="floorEdit" name="floor" value="${requestScope.emp.cleanerFloor != null ? requestScope.emp.cleanerFloor.floor : ''}" class="form-control" min="1" />
+                                                <input type="number" id="floorEdit" name="floor" value="${requestScope.emp.cleanerFloor != null ? requestScope.emp.cleanerFloor.floor : ''}" class="form-control" min="1" max ="5" />
                                             </div>
                                         </div>
                                     </div>
@@ -324,22 +351,6 @@
                                                                 floorField.style.display = 'none';
                                                             }
                                                             toggleFloorFieldEdit();
-                                                        }
-
-                                                        function openViewModal(employeeId, fullName, username, address, phoneNumber, email, gender, cccd, dateOfBirth, registrationDate, activate, roleName, floor) {
-                                                            document.getElementById('employeeIdView').textContent = employeeId;
-                                                            document.getElementById('fullNameView').textContent = fullName || '-';
-                                                            document.getElementById('usernameView').textContent = username || '-';
-                                                            document.getElementById('addressView').textContent = address || '-';
-                                                            document.getElementById('phoneNumberView').textContent = phoneNumber || '-';
-                                                            document.getElementById('emailView').textContent = email || '-';
-                                                            document.getElementById('genderView').textContent = gender ? 'Male' : 'Female';
-                                                            document.getElementById('cccdView').textContent = cccd || '-';
-                                                            document.getElementById('dateOfBirthView').textContent = dateOfBirth || '-';
-                                                            document.getElementById('registrationDateView').textContent = registrationDate || '-';
-                                                            document.getElementById('activateView').textContent = activate ? 'Active' : 'Inactive';
-                                                            document.getElementById('roleView').textContent = roleName || '-';
-                                                            document.getElementById('floorView').textContent = floor !== 'null' ? floor : '-';
                                                         }
 
                                                         function openDeleteModal(employeeId) {

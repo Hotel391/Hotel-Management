@@ -29,17 +29,6 @@ public class ReceptionistProfile extends HttpServlet {
         HttpSession session = request.getSession();
         Employee receptionist = (Employee) session.getAttribute("employeeInfo");
 
-        if (receptionist == null) {
-            response.sendRedirect("View/Login.jsp");
-            return;
-        }
-
-
-        if (receptionist.getRole().getRoleId() != 2) {
-            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            return;
-        }
-
         String action = request.getParameter("action");
         boolean isEditing = "updateprofile".equals(action);
 
@@ -55,17 +44,6 @@ public class ReceptionistProfile extends HttpServlet {
 
         HttpSession session = request.getSession();
         Employee receptionist = (Employee) session.getAttribute("employeeInfo");
-
-        if (receptionist == null) {
-            response.sendRedirect("View/Login.jsp");
-            return;
-        }
-
-
-        if (receptionist.getRole().getRoleId() != 2) {
-            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            return;
-        }
 
         String action = request.getParameter("action");
 

@@ -40,9 +40,8 @@ public class ServiceDAO {
                 + "      ,[Price]\n"
                 + "  FROM [HotelManagementDB].[dbo].[Service]";
         List<Service> listService = new Vector<>();
-        try(PreparedStatement ptm = con.prepareStatement(sql)) {
+        try(PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
             
-            ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
                 Service s = new Service(rs.getInt(1),
                         rs.getString(2),

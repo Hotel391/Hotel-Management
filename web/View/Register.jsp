@@ -37,35 +37,35 @@
                                 <form method="post" action="${pageContext.request.contextPath}/register">
                                     <!-- full name -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="text" name="fullname" class="form-control" value="${param.fullname}"/>
+                                        <input type="text" name="fullname" class="form-control" value="${param.fullname}" required/>
                                         <label class="form-label">Fullname</label>
                                         <div class="error-message">${errorFullname}</div>
                                     </div>
 
                                     <!-- Email input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="text" name="email" class="form-control" value="${param.email}"/>
+                                        <input type="text" name="email" class="form-control" value="${param.email}" required/>
                                         <label class="form-label">Email address</label>
                                         <div class="error-message">${errorEmail}</div>
                                     </div>
 
                                     <!-- Username input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="text" name="username" class="form-control" value="${param.username}"/>
+                                        <input type="text" name="username" class="form-control" value="${param.username}" required/>
                                         <label class="form-label">Username</label>
                                         <div class="error-message">${errorUsername}</div>
                                     </div>
 
                                     <!-- Password input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="password" name="password" class="form-control" value="${param.password}"/>
+                                        <input type="password" name="password" class="form-control" value="${param.password}" required/>
                                         <label class="form-label">Password</label>
                                         <div class="error-message">${errorPassword}</div>
                                     </div>
 
                                     <!-- Confirm Password input -->
                                     <div data-mdb-input-init class="form-outline mb-4">
-                                        <input name="confirmPassword" type="password" class="form-control" value="${param.confirmPassword}"/>
+                                        <input name="confirmPassword" type="password" class="form-control" value="${param.confirmPassword}" required/>
                                         <label class="form-label">Confirm Password</label>
                                         <div class="error-message">${errorConfirmPassword}</div>
                                     </div>

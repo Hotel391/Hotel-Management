@@ -3,7 +3,6 @@ package controllers.common;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;

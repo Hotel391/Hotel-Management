@@ -16,29 +16,34 @@ import utility.Validation;
  * @author HieuTT
  */
 public class ConfirmResetPassword extends HttpServlet {
+    private static final String LOGIN_PATH="login";
+    private static final String SUCCESS_FIELD="success";
+    private static final String EMAIL_FIELD = "email";
+    private static final String TOKEN_IDENTITY="tokenId";
+    private static final String ERROR_CONFIRM_FIELD = "errorConfirmPassword";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String token = request.getParameter("token");
         if (token == null || token.isEmpty()) {
-            response.sendRedirect("login");
+            response.sendRedirect(LOGIN_PATH);
             return;
         }
 
         RegisterService service = new RegisterService();
         EmailVerificationToken tokenObject = service.getTokenByToken(token);
         if (tokenObject == null) {
-            response.sendRedirect("login");
+            response.sendRedirect(LOGIN_PATH);
             return;
         }
 
         if (Email.isExpireTime(tokenObject.getExpiryDate().toLocalDateTime())) {
-            request.setAttribute("success", "false");
+            request.setAttribute(SUCCESS_FIELD, "false");
         } else {
-            request.setAttribute("email", tokenObject.getEmail());
-            request.setAttribute("success", "true");
-            request.setAttribute("tokenId", tokenObject.getTokenId());
+            request.setAttribute(EMAIL_FIELD, tokenObject.getEmail());
+            request.setAttribute(SUCCESS_FIELD, "true");
+            request.setAttribute(TOKEN_IDENTITY, tokenObject.getTokenId());
         }
 
         request.getRequestDispatcher("View/ConfirmResetPassword.jsp").forward(request, response);
@@ -47,11 +52,11 @@ public class ConfirmResetPassword extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("success", "true");
-        String email = request.getParameter("email");
-        request.setAttribute("email", email);
-        String tokenId = request.getParameter("tokenId");
-        request.setAttribute("tokenId", tokenId);
+        request.setAttribute(SUCCESS_FIELD, "true");
+        String email = request.getParameter(EMAIL_FIELD);
+        request.setAttribute(EMAIL_FIELD, email);
+        String tokenId = request.getParameter(TOKEN_IDENTITY);
+        request.setAttribute(TOKEN_IDENTITY, tokenId);
 
         //verify Password
         String password = request.getParameter("password");
@@ -65,7 +70,7 @@ public class ConfirmResetPassword extends HttpServlet {
         String confirmPassword = request.getParameter("confirmPassword");
         boolean errorConfirmPassword = isErrorConfirmPassword(request, confirmPassword, password);
         if (!errorConfirmPassword) {
-            request.removeAttribute("errorConfirmPassword");
+            request.removeAttribute(ERROR_CONFIRM_FIELD);
         }
 
         if (errorPassword || errorConfirmPassword) {
@@ -79,16 +84,16 @@ public class ConfirmResetPassword extends HttpServlet {
 
         service.deleteConfirmedToken(Integer.parseInt(tokenId));
 
-        response.sendRedirect("login");
+        response.sendRedirect(LOGIN_PATH);
     }
 
     private boolean isErrorConfirmPassword(HttpServletRequest request, String confirmPassword, String password) {
         if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            request.setAttribute("errorConfirmPassword", "Confirm password is required");
+            request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm password is required");
             return true;
         }
         if (!confirmPassword.equals(password)) {
-            request.setAttribute("errorConfirmPassword", "Confirm Password do not match Password");
+            request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm Password do not match Password");
             return true;
         }
         return false;

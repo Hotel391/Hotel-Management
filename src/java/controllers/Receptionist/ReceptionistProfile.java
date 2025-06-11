@@ -29,11 +29,6 @@ public class ReceptionistProfile extends HttpServlet {
         HttpSession session = request.getSession();
         Employee receptionist = (Employee) session.getAttribute("employeeInfo");
 
-        if (receptionist == null) {
-            response.sendRedirect("/View/login.jsp");
-            return;
-        }
-
         String action = request.getParameter("action");
         boolean isEditing = "updateprofile".equals(action);
 
@@ -48,12 +43,7 @@ public class ReceptionistProfile extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        Employee receptionist = (Employee) session.getAttribute("loggedInUser");
-
-        if (receptionist == null) {
-            response.sendRedirect("/View/login.jsp");
-            return;
-        }
+        Employee receptionist = (Employee) session.getAttribute("employeeInfo");
 
         String action = request.getParameter("action");
 
@@ -100,7 +90,7 @@ public class ReceptionistProfile extends HttpServlet {
                 receptionist.setPhoneNumber(phoneNumber);
 
                 employeeDAO.updateEmployee(receptionist);
-                session.setAttribute("loggedInUser", receptionist); 
+                session.setAttribute("employeeInfo", receptionist);
                 response.sendRedirect(request.getContextPath() + "/view/receptionist/receptionistProfile");
                 return;
 
@@ -120,7 +110,7 @@ public class ReceptionistProfile extends HttpServlet {
                     String encryptedNew = Encryption.toSHA256(newPassword);
                     employeeDAO.changePassword(receptionist.getEmployeeId(), encryptedNew);
                     receptionist.setPassword(encryptedNew);
-                    session.setAttribute("loggedInUser", receptionist); 
+                    session.setAttribute("employeeInfo", receptionist);
                     request.setAttribute("success", "Đổi mật khẩu thành công!");
                 }
             }

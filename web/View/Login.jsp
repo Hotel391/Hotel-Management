@@ -15,11 +15,18 @@
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
             rel="stylesheet"
             />
+
+        <!--bootstrap-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
         <!-- MDB -->
         <link
             href="https://cdn.jsdelivr.net/npm/mdb-ui-kit@9.0.0/css/mdb.min.css"
             rel="stylesheet"
             />
+
+
+        <!--custom style--> 
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/Authentication/Login.css"/>
     </head>
     <body>
@@ -31,7 +38,7 @@
                              class="img-fluid hotel-img" alt="Hotel image">
                     </div>
                     <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                        <form action="login" method="get">
+                        <form action="login" method="post">
                             <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
                                 <p class="lead fw-normal mb-0 me-3">Sign in with</p>
 
@@ -77,8 +84,7 @@
                             </c:if>
 
                             <div class="d-flex justify-content-between align-items-center">
-
-                                <a href="forgotPassword" class="text-body">Forgot password?</a>
+                                <a class="link-danger link-offset-2 link-underline-opacity-0" href="forgotPassword" class="text-body">Forgot password?</a>
                             </div>
 
 
@@ -86,10 +92,10 @@
                             <div class="text-center text-lg-start mt-4 pt-2">
                                 <input type="hidden" name="service" value="login">
                                 <input type="hidden" name="submit" value="submit">
-                                <button  type="submit" class="btn btn-primary btn-lg"
+                                <button type="submit" class="btn btn-primary btn-lg"
                                          style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
                                 <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a href="register"
-                                                                                                  class="link-danger">Register</a></p>
+                                                                                                  class="link-danger link-offset-2 link-underline-opacity-0">Register</a></p>
                             </div>
 
                         </form>
@@ -101,7 +107,7 @@
                 class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
                 <!-- Copyright -->
                 <div class="text-white mb-3 mb-md-0">
-                    Copyright © 2020. All rights reserved.
+                    All rights reserved.
                 </div>
                 <!-- Copyright -->
 
@@ -123,11 +129,15 @@
                 <!-- Right -->
             </div>
         </section>
+
+        <!--bootstrap-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         <!-- MDB -->
         <script
             type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/mdb-ui-kit@9.0.0/js/mdb.umd.min.js"
-        ></script>
+            >
+        </script>
     </body>
 
 </html>

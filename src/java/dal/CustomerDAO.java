@@ -127,10 +127,10 @@ public class CustomerDAO {
 
     //create function to search customer by customerID
 
-    public Customer getCustomerByCustomerID(int CustomerID) {
+    public Customer getCustomerByCustomerID(int customerID) {
         String sql = "select * from Customer where CustomerID = ?";
         try (PreparedStatement st = con.prepareStatement(sql);) {
-            st.setInt(1, CustomerID);
+            st.setInt(1, customerID);
             try (ResultSet rs = st.executeQuery();) {
                 if (rs.next()) {
                     return new Customer(rs.getInt(1),
@@ -199,5 +199,17 @@ public class CustomerDAO {
             e.printStackTrace();
         }
         return 0;
+    }
+    public List<String> getAllString(String columnName) {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT " + columnName + " FROM Customer";
+        try (PreparedStatement stmt = con.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(rs.getString(columnName));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

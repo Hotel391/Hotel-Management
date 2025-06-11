@@ -1,28 +1,45 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 package controllers.common;
 
 import dal.AccountGoogleDAO;
 import dal.CustomerAccountDAO;
+import dal.CustomerDAO;
 import dal.EmployeeDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import dal.CustomerDAO;
-import models.Customer;
-import java.util.Random;
 import models.AccountGoogle;
+import models.Customer;
 import models.CustomerAccount;
 import models.Employee;
 import models.Role;
 
+/**
+ *
+ * @author Hai Long
+ */
+@WebServlet(name = "Login", urlPatterns = {"/login"})
 public class Login extends HttpServlet {
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        response.setContentType("text/html;charset=UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
         HttpSession session = request.getSession(true);
@@ -38,52 +55,57 @@ public class Login extends HttpServlet {
         }
 
         if ("login".equals(service) && state == null) {
-
             String submit = request.getParameter("submit");
+
             if (submit == null) {
                 request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            } else {
-
-                String username = request.getParameter("username");
-
-                String password = request.getParameter("password");
-
-                if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-                    request.setAttribute("error", "Please fill all information");
-                    request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-
-                } else if (CustomerAccountDAO.getInstance().checkLogin(username, password) != null) {
-                    CustomerAccount customerInfo = CustomerAccountDAO.getInstance().checkLogin(username, password);
-                    session.setAttribute("customerInfo", customerInfo);
-                    response.sendRedirect("customer/home");
-                } else if (EmployeeDAO.getInstance().getEmployeeLogin(username, password) != null) {
-                    Employee employeeInfo = EmployeeDAO.getInstance().getEmployeeLogin(username, password);
-                    System.out.println(employeeInfo.toString());
-                    session.setAttribute("employeeInfo", employeeInfo);
-                    switch (employeeInfo.getRole().getRoleId()) {
-                        case 0:
-                            response.sendRedirect("developerPage");
-                            break;
-                        case 1:
-
-//                            request.getRequestDispatcher("View/Admin/Dashboard.jsp").forward(request, response);
-                            response.sendRedirect("admin/dashboard");
-                            break;
-                        case 2:
-                            response.sendRedirect("receptionistPage");
-                            break;
-                        case 3:
-//                            request.getRequestDispatcher("View/Admin/ViewService.jsp").forward(request, response);
-                            break;
-                        default:
-                            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-                            break;
-                    }
-                } else {
-                    request.setAttribute("error", "Wrong username or password");
-                    request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-                }
+                return;
             }
+
+            String username = request.getParameter("username").trim();
+            String password = request.getParameter("password");
+
+            if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
+                request.setAttribute("error", "Please fill all information");
+                request.getRequestDispatcher("View/Login.jsp").forward(request, response);
+                return;
+            }
+
+            CustomerAccount customerInfo = CustomerAccountDAO.getInstance().checkLogin(username, password);
+            if (customerInfo != null) {
+                System.out.println("Info: " + customerInfo);
+                session.setAttribute("customerInfo", customerInfo);
+                response.sendRedirect("customer/home");
+                return;
+            }
+
+            Employee employeeInfo = EmployeeDAO.getInstance().getEmployeeLogin(username, password);
+            if (employeeInfo != null) {
+                System.out.println(employeeInfo);
+                session.setAttribute("employeeInfo", employeeInfo);
+                int roleId = employeeInfo.getRole().getRoleId();
+                switch (roleId) {
+                    case 0:
+                        response.sendRedirect("developerPage");
+                        break;
+                    case 1:
+                        response.sendRedirect("admin/dashboard");
+                        break;
+                    case 2:
+                        response.sendRedirect("receptionistPage");
+                        break;
+                    case 3:
+                        response.sendRedirect("cleanerPage");
+                        break;
+                    default:
+                        request.getRequestDispatcher("View/Login.jsp").forward(request, response);
+                        break;
+                }
+                return;
+            }
+
+            request.setAttribute("error", "Wrong username or password");
+            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
         }
 
         if ("loginGoogle".equals(state)) {
@@ -93,7 +115,7 @@ public class Login extends HttpServlet {
 
             AccountGoogle userInfo = AccountGoogleDAO.getInstance().getUserInfo(accessToken);
 
-            if (CustomerDAO.getInstance().checkExistedEmail(userInfo.getEmail()) == false) {
+            if (!CustomerDAO.getInstance().checkExistedEmail(userInfo.getEmail())) {
                 Customer customerInfo = new Customer();
 
                 customerInfo.setFullName(userInfo.getName());
@@ -137,31 +159,49 @@ public class Login extends HttpServlet {
             session.invalidate();
             response.sendRedirect("login");
         }
-
     }
 
-    private String generateRandomString(int length) {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        StringBuilder result = new StringBuilder();
-        Random random = new Random();
-
-        for (int i = 0; i < length; i++) {
-            int index = random.nextInt(characters.length());
-            result.append(characters.charAt(index));
-        }
-
-        return result.toString();
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
     }
 
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        processRequest(request, response);
     }
 
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
     @Override
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
+    private String generateRandomString(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 
 }

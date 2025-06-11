@@ -1,6 +1,5 @@
 package dal;
 
-import models.CleanerFloor;
 import models.Employee;
 import models.Role;
 import models.CleanerFloor;
@@ -9,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import utility.Encryption;
 
@@ -30,11 +29,12 @@ public class EmployeeDAO {
     }
 
     public List<Employee> getAllEmployee() {
-        List<Employee> list = new ArrayList<>();
+        List<Employee> list = Collections.synchronizedList(new ArrayList<>());
         String sql = "SELECT e.*, r.RoleName, cf.Floor "
                 + "FROM Employee e "
                 + "JOIN Role r ON r.RoleId = e.RoleId "
-                + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId";
+                + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId where r.RoleId not in (0, 1)";
+
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 Employee e = new Employee();
@@ -66,7 +66,7 @@ public class EmployeeDAO {
                 list.add(e);
             }
         } catch (SQLException e) {
-            
+            e.printStackTrace();
         }
         return list;
     }
@@ -98,9 +98,6 @@ public class EmployeeDAO {
         }
         return listString;
     }
-<<<<<<< Updated upstream
-     public void updatePasswordAdminByUsername(String username,String newPassword) {
-=======
     
     public boolean isUsernameExisted(String username) {
         String sql = "select Username from Employee where Username COLLATE SQL_Latin1_General_CP1_CI_AS =?";
@@ -118,9 +115,9 @@ public class EmployeeDAO {
         //
     }
 
+
     public void updatePasswordAdminByUsername(String username, String newPassword) {
->>>>>>> Stashed changes
-        String sql = "UPDATE Employee SET Password = ? WHERE Username COLLATE SQL_Latin1_General_CP1_CS_AS = ?";
+        String sql = "UPDATE Employee SET Password = ? WHERE Username COLLATE SQL_Latin1_General_CP1_CI_AS = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, newPassword);
             ptm.setString(2, username);
@@ -129,19 +126,25 @@ public class EmployeeDAO {
             e.printStackTrace();
         }
     }
-     
-     public Employee getEmployeeLogin(String username, String password) {
-        String sql = "select e.*, r.RoleName from Employee e\n"
-                + "join Role r on r.RoleId=e.RoleId where Username=? and Password=?";
+
+    public Employee getEmployeeLogin(String username, String password) {
+        String sql = """
+                     select e.*, r.RoleName from Employee e
+                     join Role r on r.RoleId=e.RoleId where (Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? 
+                     or email COLLATE SQL_Latin1_General_CP1_CI_AS = ?) and Password=?""";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
-            st.setString(2, Encryption.toSHA256(password));
+            
+            st.setString(2, username);
+
+            st.setString(3, Encryption.toSHA256(password));
+
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
                 Employee e = new Employee();
                 e.setEmployeeId(rs.getInt("EmployeeId"));
                 e.setUsername(rs.getString("Username"));
-                e.setPassword(rs.getString("Password"));
+                e.setPassword(Encryption.toSHA256(password));
                 e.setFullName(rs.getString("FullName"));
                 e.setAddress(rs.getString("Address"));
                 e.setPhoneNumber(rs.getString("PhoneNumber"));
@@ -163,11 +166,11 @@ public class EmployeeDAO {
         }
         return null;
     }
-     
-      public Employee getAccountAdmin(String username) {
+
+    public Employee getAccountAdmin(String username) {
         String sql = "SELECT Username, Password, RoleId FROM Employee "
-                + "WHERE Username COLLATE SQL_Latin1_General_CP1_CS_AS = ? and roleId =0";
-        try (PreparedStatement ptm = con.prepareStatement(sql) ) {
+                + "WHERE Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? AND RoleId = 0";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, username);
             ResultSet rs = ptm.executeQuery();
             if (rs.next()) {
@@ -190,7 +193,9 @@ public class EmployeeDAO {
     public void addEmployee(Employee emp) {
         try {
             con.setAutoCommit(false);
-            String sqlEmployee = "INSERT INTO Employee (username, password, fullName, address, phoneNumber, email, gender, CCCD, dateOfBirth, registrationDate, activate, roleId) "
+            String sqlEmployee = "INSERT INTO Employee (username, password, fullName,"
+                    + " address, phoneNumber, email, gender, CCCD, dateOfBirth, "
+                    + "registrationDate, activate, roleId) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = con.prepareStatement(sqlEmployee, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, emp.getUsername());
@@ -240,7 +245,9 @@ public class EmployeeDAO {
     public void updateEmployee(Employee emp) {
         try {
             con.setAutoCommit(false);
-            String sqlEmployee = "UPDATE Employee SET username = ?, password = ?, fullName = ?, address = ?, phoneNumber = ?, email = ?, gender = ?, CCCD = ?, dateOfBirth = ?, registrationDate = ?, activate = ?, roleId = ? WHERE employeeId = ?";
+            String sqlEmployee = "UPDATE Employee SET username = ?, password = ?, "
+                    + "fullName = ?, address = ?, phoneNumber = ?, email = ?, gender = ?, CCCD = ?, "
+                    + "dateOfBirth = ?, registrationDate = ?, activate = ?, roleId = ? WHERE employeeId = ?";
             try (PreparedStatement stmt = con.prepareStatement(sqlEmployee)) {
                 stmt.setString(1, emp.getUsername());
                 stmt.setString(2, emp.getPassword());
@@ -316,7 +323,6 @@ public class EmployeeDAO {
         }
     }
 
-    // Cập nhật thông tin hồ sơ của nhân viên
     public boolean updateEmployeeProfile(Employee employee) {
         String sql = "UPDATE Employee SET fullName = ?, address = ?, phoneNumber = ?, email = ? WHERE employeeId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -333,7 +339,6 @@ public class EmployeeDAO {
         return false;
     }
 
-// Đổi mật khẩu
     public boolean changePassword(int employeeId, String newEncryptedPassword) {
         String sql = "UPDATE Employee SET password = ? WHERE employeeId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {

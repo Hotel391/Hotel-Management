@@ -10,8 +10,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 /**
  *
@@ -39,7 +40,7 @@ public class ServiceDAO {
                 + "      ,[ServiceName]\n"
                 + "      ,[Price]\n"
                 + "  FROM [HotelManagementDB].[dbo].[Service]";
-        List<Service> listService = new Vector<>();
+        List<Service> listService = Collections.synchronizedList(new ArrayList<>());
         try(PreparedStatement ptm = con.prepareStatement(sql)) {
             
             ResultSet rs = ptm.executeQuery();

@@ -38,7 +38,6 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Username</th>
-                                        <th>Password</th>
                                         <th>Registration Date</th>
                                         <th>Activate</th>
                                         <th>Role Name</th>
@@ -49,7 +48,6 @@
                                     <c:forEach var="e" items="${requestScope.list}">
                                         <tr>
                                             <td>${e.username}</td>
-                                            <td>${e.password}</td>
                                             <td>${e.registrationDate}</td>
                                             <td>
                                                 <c:choose>

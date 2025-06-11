@@ -17,7 +17,7 @@ public class BookingDetailDAO {
         }
         return instance;
     }
-    public int CheckinCount() {
+    public int checkinCount() {
         String sql = "SELECT COUNT(*) FROM BookingDetail";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {

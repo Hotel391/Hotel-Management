@@ -24,7 +24,7 @@ public class BookingDAO {
         con = new DBContext().connect;
     }
 
-    public int BookingCount() {
+    public int bookingCount() {
         String sql = "select count(*) from Booking";
 
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
@@ -36,7 +36,7 @@ public class BookingDAO {
         return 0;
     }
 
-    public int CheckoutCount() {
+    public int checkoutCount() {
         String sql = "select count(*) from Booking where PayDay is not null";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {

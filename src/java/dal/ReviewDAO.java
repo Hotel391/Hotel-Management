@@ -1,6 +1,5 @@
 package dal;
 
-
 import models.Booking;
 import models.BookingDetail;
 import models.Customer;
@@ -11,8 +10,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 public class ReviewDAO {
 
@@ -48,10 +48,8 @@ public class ReviewDAO {
                 + "    CustomerAccount ca ON r.Username = ca.Username\n"
                 + "JOIN \n"
                 + "    Customer c ON ca.CustomerId = c.CustomerId;";
-        List<Review> listReview = new Vector<>();
-        try {
-            PreparedStatement ptm = con.prepareStatement(sql);
-            ResultSet rs = ptm.executeQuery();
+        List<Review> listReview = Collections.synchronizedList(new ArrayList<>());
+        try (PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
             while (rs.next()) {
                 Booking b = new Booking();
                 BookingDetail bd = new BookingDetail();
@@ -102,9 +100,8 @@ public class ReviewDAO {
             sql += "WHERE r.[Date] = ?";
         }
 
-        List<Review> listReview = new Vector<>();
-        try(PreparedStatement ptm = con.prepareStatement(sql);) {
-            
+        List<Review> listReview = Collections.synchronizedList(new ArrayList<>());
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
 
             if (hasFullName) {
                 ptm.setString(1, "%" + fullName + "%");
@@ -112,7 +109,7 @@ public class ReviewDAO {
             if (hasDate) {
                 ptm.setDate(2, new java.sql.Date(date.getTime()));
             }
-            
+
             try (ResultSet rs = ptm.executeQuery()) {
                 while (rs.next()) {
                     Booking b = new Booking();

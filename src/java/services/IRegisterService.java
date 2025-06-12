@@ -1,5 +1,6 @@
 package services;
 
+import models.AccountUser;
 import models.Customer;
 import models.CustomerAccount;
 import models.EmailVerificationToken;
@@ -13,7 +14,7 @@ public interface IRegisterService {
 
     int insertCustomer(Customer customer);
 
-    void inssertCustomerAccount(CustomerAccount account);
+    void insertCustomerAccount(CustomerAccount account);
 
     EmailVerificationToken getTokenByEmail(String email);
 
@@ -30,4 +31,14 @@ public interface IRegisterService {
     boolean isUsernameExists(String username);
 
     boolean isUsernameExistInToken(String username);
+    
+    AccountUser getAccountByEmail(String email);
+
+    void resetPassword(String email, String newPassword);
+
+    int getCustomerIdByEmail(String email);
+
+    boolean isEmailExistsInCustomer(String email);
+
+    void updateCustomerInfo(int customerId, String fullName, boolean gender);
 }

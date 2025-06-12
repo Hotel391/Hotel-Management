@@ -94,7 +94,7 @@ public class Register extends HttpServlet {
 
     private boolean validateFullname(HttpServletRequest request, String input) {
         return Validation.validateField(request,
-                ERROR_PREFIX + FULLNAME_FIELD,
+                "errorFullname",
                 FULLNAME_FIELD,
                 input,
                 Function.identity(),
@@ -102,7 +102,7 @@ public class Register extends HttpServlet {
                         new ValidationRule<>(value -> value.length() >= 2 && value.length() <= 100,
                                 "Fullname must be 2-100 characters"),
                         new ValidationRule<>(value -> Validation.checkFormatException(value, "FULLNAME"),
-                                "Fullname must begin with letters"),
+                                "Fullname just contain letters"),
                         new ValidationRule<>(value -> Validation.checkFormatException(value, "FULLNAME_NO_DIGIT"),
                                 "Fullname must not contain digits"),
                         new ValidationRule<>(value -> !value.contains("  "),
@@ -111,12 +111,12 @@ public class Register extends HttpServlet {
 
     private boolean validateEmail(HttpServletRequest request, IRegisterService service, String input) {
         return Validation.validateField(request,
-                ERROR_PREFIX + EMAIL_FIELD,
+                "errorEmail",
                 EMAIL_FIELD,
                 input,
                 Function.identity(),
                 List.of(
-                        new ValidationRule<>(value -> Validation.checkFormatException(value, EMAIL_FIELD.toUpperCase()),
+                        new ValidationRule<>(value -> Validation.checkFormatException(value, "EMAIL"),
                                 "Email must be in the format: user@example.com"),
                         new ValidationRule<>(value -> !service.isEmailExists(value),
                                 "Email already exists")));
@@ -124,7 +124,7 @@ public class Register extends HttpServlet {
 
     private boolean validateUsername(HttpServletRequest request, IRegisterService service, String input) {
         return Validation.validateField(request,
-                ERROR_PREFIX + USERNAME_FIELD,
+                "errorUsername",
                 USERNAME_FIELD,
                 input,
                 Function.identity(),
@@ -134,7 +134,7 @@ public class Register extends HttpServlet {
                         new ValidationRule<>(value -> Validation.checkFormatException(value, "USERNAME_FIRST_CHAR"),
                                 "Username must start with a letter"),
                         new ValidationRule<>(
-                                value -> Validation.checkFormatException(value, USERNAME_FIELD.toUpperCase()),
+                                value -> Validation.checkFormatException(value, "USERNAME"),
                                 "Username just can contains letters, digits, and underscores"),
                         new ValidationRule<>(value -> !Validation.checkFormatException(value, "EMOJI"),
                                 "Username cannot contain emoji."),
@@ -146,14 +146,14 @@ public class Register extends HttpServlet {
 
     private boolean validatePassword(HttpServletRequest request, String input) {
         return Validation.validateField(request,
-                ERROR_PREFIX + PASSWORD_FIELD,
+                "errorPassword",
                 PASSWORD_FIELD,
                 input,
                 Function.identity(),
                 List.of(
                         new ValidationRule<>(value -> value.charAt(0) != ' ' && value.charAt(value.length() - 1) != ' ',
                                 "Password cannot start or end with space"),
-                        new ValidationRule<>(value -> Validation.checkFormatException(value, PASSWORD_FIELD.toUpperCase()),
+                        new ValidationRule<>(value -> Validation.checkFormatException(value, "PASSWORD"),
                                 "Password must contains 8 characters with lower, upper, special and digit")));
     }
 

@@ -16,20 +16,23 @@ import utility.Email;
  * @author TranTrungHieu
  */
 public class VerifyEmail extends HttpServlet {
+    private static final String EMAIL_FIELD="email";
+    private static final String REGISTER_URL="register";
+    private static final String RESET_STATUS="reset";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String type = request.getParameter("type");
-        String email = request.getParameter("email");
+        String email = request.getParameter(EMAIL_FIELD);
 
         if (email == null || email.isEmpty()) {
-            response.sendRedirect("register");
+            response.sendRedirect(REGISTER_URL);
             return;
         }
 
         request.setAttribute("type", type);
-        request.setAttribute("email", email);
+        request.setAttribute(EMAIL_FIELD, email);
         request.getRequestDispatcher("View/VerifyEmail.jsp").forward(request, response);
     }
 
@@ -37,31 +40,30 @@ public class VerifyEmail extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String type = request.getParameter("type");
-        String email = request.getParameter("email");
+        String email = request.getParameter(EMAIL_FIELD);
         String resend = request.getParameter("resend");
-
-        // Nếu không phải resend, chuyển về GET logic bình thường
+        //check valid resend
         if (!"true".equals(resend) || email == null || email.isEmpty()) {
             response.sendRedirect("verifyEmail?email=" + email + "&type=" + type);
             return;
         }
-
+        //initial service and token
         RegisterService service = new RegisterService();
         EmailVerificationToken token = service.getTokenByEmail(email);
-
-        if (token == null && !"reset".equals(type)) {
-            response.sendRedirect("register");
+        //check token
+        if (token == null && !RESET_STATUS.equals(type)) {
+            response.sendRedirect(REGISTER_URL);
             return;
         } else if (token == null) {
             response.sendRedirect("login");
             return;
         }
-
-        if ("reset".equals(type) && !service.isEmailExists(email)) {
+        //check reset password and exist email
+        if (RESET_STATUS.equals(type) && !service.isEmailExists(email)) {
             response.sendRedirect("login");
             return;
         }
-
+        
         Email emailService = new Email();
         if (Email.isExpireTime(token.getExpiryDate().toLocalDateTime())) {
             token.setExpiryDate(emailService.expireDateTime());
@@ -74,23 +76,25 @@ public class VerifyEmail extends HttpServlet {
                 + request.getServerPort()
                 + request.getContextPath();
 
-        resendEmail(request, token, List.of("register", "reset"), email, linkRaw, emailService);
+        resendEmail(request, token, List.of(REGISTER_URL, RESET_STATUS), email, linkRaw, emailService);
 
-        // ✅ Sau gửi xong, redirect về GET trang để JS cooldown hoạt động
         response.sendRedirect("verifyEmail?email=" + email + "&type=" + type + "&resend=true");
     }
 
     private void resendEmail(HttpServletRequest request, EmailVerificationToken token,
             List<String> method, String email, String linkRaw, Email emailService) {
         //reset password
+        String linkConfirm;
+        String type;
         if (!method.get(1).equals(request.getParameter("type"))) {
-            String linkConfirm = linkRaw + "/confirmEmail?token=" + token.getToken();
-            emailService.sendEmail(email, token.getUsername(), linkConfirm, method.get(0));
-            return;
+            linkConfirm = linkRaw + "/confirmEmail?token=" + token.getToken();
+            type= method.get(0);
+        } else{
+            linkConfirm=linkRaw + "/confirmResetPassword?token=" + token.getToken();
+            type= method.get(1);
         }
         //register account
-        String linkConfirm = linkRaw + "/confirmResetPassword?token=" + token.getToken();
-        emailService.sendEmail(email, email, linkConfirm, method.get(1));
+        emailService.sendEmail(email, token.getUsername(), linkConfirm, type);
 
     }
 

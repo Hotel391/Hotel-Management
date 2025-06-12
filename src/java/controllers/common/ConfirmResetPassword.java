@@ -5,11 +5,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.function.Function;
 import models.EmailVerificationToken;
 import services.RegisterService;
 import utility.Email;
 import utility.Encryption;
 import utility.Validation;
+import utility.ValidationRule;
 
 /**
  *
@@ -42,6 +45,7 @@ public class ConfirmResetPassword extends HttpServlet {
             request.setAttribute(SUCCESS_FIELD, "false");
         } else {
             request.setAttribute(EMAIL_FIELD, tokenObject.getEmail());
+            request.setAttribute("oldPassword", tokenObject.getPassword());
             request.setAttribute(SUCCESS_FIELD, "true");
             request.setAttribute(TOKEN_IDENTITY, tokenObject.getTokenId());
         }
@@ -60,44 +64,55 @@ public class ConfirmResetPassword extends HttpServlet {
 
         //verify Password
         String password = request.getParameter("password");
-        boolean errorPassword = Validation.validateField(request, "errorPassword", password, "PASSWORD", "Password",
-                "Password must contains 8 characters with lower, upper, special and digit");
-        if (!errorPassword) {
-            request.removeAttribute("errorPassword");
-        }
+        boolean errorPassword = validatePassword(request,password,request.getParameter("oldPassword"));
 
         //verify Confirm Password
         String confirmPassword = request.getParameter("confirmPassword");
         boolean errorConfirmPassword = isErrorConfirmPassword(request, confirmPassword, password);
-        if (!errorConfirmPassword) {
-            request.removeAttribute(ERROR_CONFIRM_FIELD);
-        }
 
         if (errorPassword || errorConfirmPassword) {
             request.getRequestDispatcher("View/ConfirmResetPassword.jsp").forward(request, response);
             return;
         }
         password = Encryption.toSHA256(password);
-        dal.CustomerAccountDAO.getInstance().resetPasswrod(email, password);
-
         RegisterService service = new RegisterService();
+        service.resetPassword(email, password);
 
         service.deleteConfirmedToken(Integer.parseInt(tokenId));
 
         response.sendRedirect(LOGIN_PATH);
     }
+    
+    private boolean validatePassword(HttpServletRequest request, String input, String oldPassword) {
+        return Validation.validateField(request,
+                "errorPassword",
+                "Password",
+                input,
+                Function.identity(),
+                List.of(
+                        new ValidationRule<>(value-> value.equals(oldPassword),
+                                "New password cannot be the same as old password"),
+                        new ValidationRule<>(value -> value.charAt(0) != ' ' && value.charAt(value.length() - 1) != ' ',
+                                "Password cannot start or end with space"),
+                        new ValidationRule<>(value -> Validation.checkFormatException(value, "PASSWORD"),
+                                "Password must contains 8 characters with lower, upper, special and digit")));
+    }
 
     private boolean isErrorConfirmPassword(HttpServletRequest request, String confirmPassword, String password) {
+        boolean errorConfirmPassword = false;
         if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
             request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm password is required");
-            return true;
-        }
-        if (!confirmPassword.equals(password)) {
+            errorConfirmPassword = true;
+        } else if (!confirmPassword.equals(password)) {
             request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm Password do not match Password");
-            return true;
+            errorConfirmPassword = true;
         }
-        return false;
+        if (!errorConfirmPassword) {
+            request.removeAttribute(ERROR_CONFIRM_FIELD);
+        }
+        return errorConfirmPassword;
     }
+
 
     @Override
     public String getServletInfo() {

@@ -1,6 +1,7 @@
 package dal;
 
 import models.Employee;
+import models.EmployeeAccount;
 import models.Role;
 import models.CleanerFloor;
 import java.sql.Connection;
@@ -352,4 +353,34 @@ public class EmployeeDAO {
         return false;
     }
 
+    public EmployeeAccount getAccountByEmail(String email) {
+        String sql = "SELECT Username, Password " +
+                     "FROM Employee " +
+                     "WHERE Email = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, email);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    EmployeeAccount account = new EmployeeAccount();
+                    account.setUsername(rs.getString("Username"));
+                    account.setPassword(rs.getString("Password"));
+                    return account;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void resetPassword(String email, String newPassword) {
+        String sql = "UPDATE Employee SET Password = ? WHERE Email = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setString(2, email);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

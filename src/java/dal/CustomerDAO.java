@@ -212,4 +212,29 @@ public class CustomerDAO {
         }
         return list;
     }
+    public int getCustomerIdByEmail(String email) {
+        String sql = "SELECT CustomerId FROM Customer WHERE Email = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, email);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("CustomerId");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public void updateCustomerInfo(int customerId, String fullName, boolean gender) {
+        String sql = "UPDATE Customer SET FullName = ?, Gender = ? WHERE CustomerId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, fullName);
+            st.setBoolean(2, gender);
+            st.setInt(3, customerId);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

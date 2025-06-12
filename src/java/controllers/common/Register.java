@@ -99,11 +99,14 @@ public class Register extends HttpServlet {
                 input,
                 Function.identity(),
                 List.of(
+                        new ValidationRule<>(value -> value.length() >= 2 && value.length() <= 100,
+                                "Fullname must be 2-100 characters"),
                         new ValidationRule<>(value -> Validation.checkFormatException(value, "FULLNAME"),
-                                "Fullname must be 2-100 characters and can contains letters and spaces"),
+                                "Fullname must begin with letters"),
+                        new ValidationRule<>(value -> Validation.checkFormatException(value, "FULLNAME_NO_DIGIT"),
+                                "Fullname must not contain digits"),
                         new ValidationRule<>(value -> !value.contains("  "),
-                                "Fullname cannot contain consecutive spaces")
-                ));
+                                "Fullname cannot contain consecutive spaces")));
     }
 
     private boolean validateEmail(HttpServletRequest request, IRegisterService service, String input) {
@@ -116,8 +119,7 @@ public class Register extends HttpServlet {
                         new ValidationRule<>(value -> Validation.checkFormatException(value, EMAIL_FIELD.toUpperCase()),
                                 "Email must be in the format: user@example.com"),
                         new ValidationRule<>(value -> !service.isEmailExists(value),
-                                "Email already exists")
-                ));
+                                "Email already exists")));
     }
 
     private boolean validateUsername(HttpServletRequest request, IRegisterService service, String input) {
@@ -127,11 +129,19 @@ public class Register extends HttpServlet {
                 input,
                 Function.identity(),
                 List.of(
-                        new ValidationRule<>(value -> Validation.checkFormatException(value, USERNAME_FIELD.toUpperCase()),
-                                "Username must be 2-20 characters and can contains letters, digits, and underscores"),
+                        new ValidationRule<>(value -> value.length() >= 6 && value.length() <= 20,
+                                "Username must be 6-20 characters"),
+                        new ValidationRule<>(value -> Validation.checkFormatException(value, "USERNAME_FIRST_CHAR"),
+                                "Username must start with a letter"),
+                        new ValidationRule<>(
+                                value -> Validation.checkFormatException(value, USERNAME_FIELD.toUpperCase()),
+                                "Username just can contains letters, digits, and underscores"),
+                        new ValidationRule<>(value -> !Validation.checkFormatException(value, "EMOJI"),
+                                "Username cannot contain emoji."),
+                        new ValidationRule<>(value -> Validation.checkFormatException(value, "FORBIDDEN_USERNAME"),
+                                "Username contains restricted words"),
                         new ValidationRule<>(value -> !service.isUsernameExists(value),
-                                "Username already exists")
-                ));
+                                "Username already exists")));
     }
 
     private boolean validatePassword(HttpServletRequest request, String input) {
@@ -141,9 +151,10 @@ public class Register extends HttpServlet {
                 input,
                 Function.identity(),
                 List.of(
+                        new ValidationRule<>(value -> value.charAt(0) != ' ' && value.charAt(value.length() - 1) != ' ',
+                                "Password cannot start or end with space"),
                         new ValidationRule<>(value -> Validation.checkFormatException(value, PASSWORD_FIELD.toUpperCase()),
-                                "Password must contains 8 characters with lower, upper, special and digit")
-                ));
+                                "Password must contains 8 characters with lower, upper, special and digit")));
     }
 
     private boolean isErrorConfirmPassword(HttpServletRequest request, String confirmPassword, String password) {

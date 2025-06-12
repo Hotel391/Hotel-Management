@@ -20,8 +20,10 @@
             rel="stylesheet"
             />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/Authentication/Register.css"/>
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/toggle-password.css"/>
     </head>
     <body>
+        <jsp:include page="TopNav.jsp"/>
         <!-- Section: Design Block -->
         <section class="text-center text-lg-start">
 
@@ -57,16 +59,18 @@
                                     </div>
 
                                     <!-- Password input -->
-                                    <div data-mdb-input-init class="form-outline mb-4">
-                                        <input type="password" name="password" class="form-control" value="${param.password}" required/>
+                                    <div  data-mdb-input-init class="form-outline mb-4 position-relative">
+                                        <input type="password" name="password" id="password" class="form-control" value="${param.password}" required />
                                         <label class="form-label">Password</label>
+                                        <i class="far fa-eye toggle-password" toggle="#password"></i>
                                         <div class="error-message">${errorPassword}</div>
                                     </div>
 
                                     <!-- Confirm Password input -->
-                                    <div data-mdb-input-init class="form-outline mb-4">
-                                        <input name="confirmPassword" type="password" class="form-control" value="${param.confirmPassword}" required/>
+                                    <div  data-mdb-input-init class="form-outline mb-4 position-relative">
+                                        <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" value="${param.confirmPassword}" required />
                                         <label class="form-label">Confirm Password</label>
+                                        <i class="far fa-eye toggle-password" toggle="#confirmPassword"></i>
                                         <div class="error-message">${errorConfirmPassword}</div>
                                     </div>
 
@@ -111,4 +115,5 @@
             src="https://cdn.jsdelivr.net/npm/mdb-ui-kit@9.0.0/js/mdb.umd.min.js"
         ></script>
     </body>
+    <script src="${pageContext.request.contextPath}/Js/toggle-password.js"></script>
 </html>

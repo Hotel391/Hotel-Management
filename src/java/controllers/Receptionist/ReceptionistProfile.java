@@ -12,7 +12,7 @@ import java.io.IOException;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "ReceptionistProfileServlet", urlPatterns = "/view/receptionist/receptionistProfile")
+@WebServlet(name = "ReceptionistProfileServlet", urlPatterns = "/receptionist/profile")
 public class ReceptionistProfile extends HttpServlet {
 
     private EmployeeDAO employeeDAO;

@@ -28,7 +28,7 @@
                 <!-- Email input -->
                 <div data-mdb-input-init class="form-outline mb-4">
                     <input type="email" name="email" class="form-control form-control-lg"
-                           placeholder="Enter a valid email address" require/>
+                           placeholder="Enter a valid email address" value="${param.email}" require/>
                     <label class="form-label">Email address</label>
                     <div class="error-message">${errorEmail}</div>
                 </div>

@@ -12,7 +12,7 @@ import models.Employee;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "DeveloperPage", urlPatterns = {"/developerPage"})
+@WebServlet(name = "DeveloperPage", urlPatterns = {"/developer/page"})
 public class DeveloperPage extends HttpServlet {
 
     private String linkInfoAdmin = "View/Developer/InfoAdmin.jsp";

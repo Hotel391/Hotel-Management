@@ -18,24 +18,25 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import models.Employee;
 
 /**
  *
  * @author HieuTT
  */
-@WebFilter(filterName = "BlockJsp", urlPatterns = {"/*"})
-public class BlockJsp implements Filter {
-    
+@WebFilter(filterName = "BlockJsp", urlPatterns = { "/*" })
+public class FilterNoURL implements Filter {
+
     private static final boolean debug = true;
 
-    // The filter configuration object we are associated with.  If
+    // The filter configuration object we are associated with. If
     // this value is null, this filter instance is not currently
-    // configured. 
+    // configured.
     private FilterConfig filterConfig = null;
-    
-    public BlockJsp() {
-    }    
-    
+
+    public FilterNoURL() {
+    }
+
     private void doBeforeProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
@@ -47,23 +48,23 @@ public class BlockJsp implements Filter {
         // For example, a logging filter might log items on the request object,
         // such as the parameters.
         /*
-	for (Enumeration en = request.getParameterNames(); en.hasMoreElements(); ) {
-	    String name = (String)en.nextElement();
-	    String values[] = request.getParameterValues(name);
-	    int n = values.length;
-	    StringBuffer buf = new StringBuffer();
-	    buf.append(name);
-	    buf.append("=");
-	    for(int i=0; i < n; i++) {
-	        buf.append(values[i]);
-	        if (i < n-1)
-	            buf.append(",");
-	    }
-	    log(buf.toString());
-	}
+         * for (Enumeration en = request.getParameterNames(); en.hasMoreElements(); ) {
+         * String name = (String)en.nextElement();
+         * String values[] = request.getParameterValues(name);
+         * int n = values.length;
+         * StringBuffer buf = new StringBuffer();
+         * buf.append(name);
+         * buf.append("=");
+         * for(int i=0; i < n; i++) {
+         * buf.append(values[i]);
+         * if (i < n-1)
+         * buf.append(",");
+         * }
+         * log(buf.toString());
+         * }
          */
-    }    
-    
+    }
+
     private void doAfterProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
@@ -73,43 +74,86 @@ public class BlockJsp implements Filter {
         // Write code here to process the request and/or response after
         // the rest of the filter chain is invoked.
         // For example, a logging filter might log the attributes on the
-        // request object after the request has been processed. 
+        // request object after the request has been processed.
         /*
-	for (Enumeration en = request.getAttributeNames(); en.hasMoreElements(); ) {
-	    String name = (String)en.nextElement();
-	    Object value = request.getAttribute(name);
-	    log("attribute: " + name + "=" + value.toString());
-
-	}
+         * for (Enumeration en = request.getAttributeNames(); en.hasMoreElements(); ) {
+         * String name = (String)en.nextElement();
+         * Object value = request.getAttribute(name);
+         * log("attribute: " + name + "=" + value.toString());
+         * 
+         * }
          */
         // For example, a filter might append something to the response.
         /*
-	PrintWriter respOut = new PrintWriter(response.getWriter());
-	respOut.println("<P><B>This has been appended by an intrusive filter.</B>");
+         * PrintWriter respOut = new PrintWriter(response.getWriter());
+         * respOut.println("<P><B>This has been appended by an intrusive filter.</B>");
          */
     }
 
     /**
      *
-     * @param request The servlet request we are processing
+     * @param request  The servlet request we are processing
      * @param response The servlet response we are creating
-     * @param chain The filter chain we are processing
+     * @param chain    The filter chain we are processing
      *
-     * @exception IOException if an input/output error occurs
+     * @exception IOException      if an input/output error occurs
      * @exception ServletException if a servlet error occurs
      */
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
-        
-//        HttpServletRequest req = (HttpServletRequest) request;
-//        HttpServletResponse res = (HttpServletResponse) response;
-//        String uri = req.getServletPath();
-//        //chua dang nhap
-//        if (uri.endsWith(".jsp")) {
-//            res.sendRedirect(req.getContextPath() + "/customer/home");
-//            return;
-//        }
+
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse res = (HttpServletResponse) response;
+        String uri = req.getServletPath();
+        // dang nhap
+        HttpSession sess = req.getSession(false);
+        if (uri.endsWith(".jsp")) {
+            if (sess == null) {
+                res.sendRedirect(req.getContextPath() + "/login");
+                return;
+            } else if (sess.getAttribute("customerInfo") != null) {
+                // da dang nhap, chuyen den trang home
+                res.sendRedirect(req.getContextPath() + "/home");
+                return;
+            } else {
+                Employee employee = (Employee) sess.getAttribute("employeeInfo");
+                int roleId=employee.getRole().getRoleId();
+                switch (roleId) {
+                    case 0:
+                        res.sendRedirect("developer/page");
+                        break;
+                    case 1:
+                        res.sendRedirect("admin/dashboard");
+                        break;
+                    case 2:
+                        res.sendRedirect("receptionist/page");
+                        break;
+                    case 3:
+                        res.sendRedirect("cleaner/page");
+                        break;
+                    default:
+                        break;
+                }
+                return;
+
+            }
+
+        }
+        if (sess == null && (uri.endsWith("cart") || uri.endsWith("checkout")
+                || uri.endsWith("payment") || uri.endsWith("confirmPayment") 
+                || uri.contains("customer"))) {
+            // neu chua dang nhap, chuyen den trang login
+            res.sendRedirect(req.getContextPath() + "/login");
+            return;
+        } else if (sess != null && sess.getAttribute("customerInfo") != null
+                && (uri.contains("admin") || uri.contains("receptionist")
+                || uri.contains("cleaner") || uri.contains("developer"))) {
+            // da dang nhap, chuyen den trang home
+            res.sendRedirect(req.getContextPath() + "/home");
+            return;
+            
+        }
         chain.doFilter(request, response);
     }
 
@@ -132,16 +176,16 @@ public class BlockJsp implements Filter {
     /**
      * Destroy method for this filter
      */
-    public void destroy() {        
+    public void destroy() {
     }
 
     /**
      * Init method for this filter
      */
-    public void init(FilterConfig filterConfig) {        
+    public void init(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
         if (filterConfig != null) {
-            if (debug) {                
+            if (debug) {
                 log("BlockJsp:Initializing filter");
             }
         }
@@ -160,20 +204,21 @@ public class BlockJsp implements Filter {
         sb.append(")");
         return (sb.toString());
     }
-    
+
     private void sendProcessingError(Throwable t, ServletResponse response) {
-        String stackTrace = getStackTrace(t);        
-        
+        String stackTrace = getStackTrace(t);
+
         if (stackTrace != null && !stackTrace.equals("")) {
             try {
                 response.setContentType("text/html");
-                try (PrintStream ps = new PrintStream(response.getOutputStream()); PrintWriter pw = new PrintWriter(ps)) {
-                    pw.print("<html>\n<head>\n<title>Error</title>\n</head>\n<body>\n"); //NOI18N
-                    
+                try (PrintStream ps = new PrintStream(response.getOutputStream());
+                        PrintWriter pw = new PrintWriter(ps)) {
+                    pw.print("<html>\n<head>\n<title>Error</title>\n</head>\n<body>\n"); // NOI18N
+
                     // PENDING! Localize this for next official release
                     pw.print("<h1>The resource did not process correctly</h1>\n<pre>\n");
                     pw.print(stackTrace);
-                    pw.print("</pre></body>\n</html>"); //NOI18N
+                    pw.print("</pre></body>\n</html>"); // NOI18N
                 }
                 response.getOutputStream().close();
             } catch (Exception ex) {
@@ -188,7 +233,7 @@ public class BlockJsp implements Filter {
             }
         }
     }
-    
+
     public static String getStackTrace(Throwable t) {
         String stackTrace = null;
         try {
@@ -202,9 +247,9 @@ public class BlockJsp implements Filter {
         }
         return stackTrace;
     }
-    
+
     public void log(String msg) {
-        filterConfig.getServletContext().log(msg);        
+        filterConfig.getServletContext().log(msg);
     }
-    
+
 }

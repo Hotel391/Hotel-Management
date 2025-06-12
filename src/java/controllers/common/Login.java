@@ -87,16 +87,16 @@ public class Login extends HttpServlet {
                 int roleId = employeeInfo.getRole().getRoleId();
                 switch (roleId) {
                     case 0:
-                        response.sendRedirect("developerPage");
+                        response.sendRedirect("developer/page");
                         break;
                     case 1:
                         response.sendRedirect("admin/dashboard");
                         break;
                     case 2:
-                        response.sendRedirect("receptionistPage");
+                        response.sendRedirect("receptionist/page");
                         break;
                     case 3:
-                        response.sendRedirect("cleanerPage");
+                        response.sendRedirect("cleaner/page");
                         break;
                     default:
                         request.getRequestDispatcher("View/Login.jsp").forward(request, response);

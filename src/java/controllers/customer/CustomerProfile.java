@@ -10,11 +10,10 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import models.Customer;
 import models.CustomerAccount;
-import models.Employee;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "CustomerProfile", urlPatterns = {"/customer/customerProfile"})
+@WebServlet(name = "CustomerProfile", urlPatterns = {"/customer/profile"})
 public class CustomerProfile extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)

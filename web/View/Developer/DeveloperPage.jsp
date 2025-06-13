@@ -61,7 +61,7 @@
                                             </td>
                                             <td>${e.role.roleName}</td>
                                             <td>
-                                                <a href="developerPage?service=deleteManager&employeeID=${e.employeeId}" 
+                                                <a href="${pageContext.request.contextPath}developer/page?service=deleteManager&employeeID=${e.employeeId}" 
                                                    onclick="return confirm('Are you sure to delete?');"
                                                    class="btn btn-sm btn-danger">
                                                     <i class="bi bi-trash-fill"></i>

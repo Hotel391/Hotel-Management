@@ -91,7 +91,7 @@ public class cleanerProfile extends HttpServlet {
 
                 employeeDAO.updateEmployee(cleaner);
                 session.setAttribute("employeeInfo", cleaner);
-                response.sendRedirect(request.getContextPath() + "/cleanerProfile");
+                response.sendRedirect(request.getContextPath() + "/cleaner/profile");
                 return;
 
             } else if ("changepassword".equals(action)) {

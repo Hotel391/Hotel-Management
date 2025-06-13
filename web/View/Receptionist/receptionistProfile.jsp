@@ -59,7 +59,7 @@
                 </c:if>
 
                 <!-- Profile Form -->
-                <form action="${pageContext.request.contextPath}/view/receptionist/receptionistProfile" method="post" id="profileForm">
+                <form action="${pageContext.request.contextPath}/receptionist/profile" method="post" id="profileForm">
                     <input type="hidden" name="employeeId" value="${receptionist.employeeId}">
 
                     <!-- Username -->
@@ -185,7 +185,7 @@
                     <!-- Action Buttons -->
                     <div class="btn-container d-flex justify-content-end gap-2">
                         <c:if test="${not isEditing}">
-                            <a href="${pageContext.request.contextPath}/view/receptionist/receptionistProfile?action=updateprofile" class="btn btn-primary">Update Profile</a>
+                            <a href="${pageContext.request.contextPath}/view/receptionist/profile?action=updateprofile" class="btn btn-primary">Update Profile</a>
                             <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#passwordModal">Change Password</button>
                         </c:if>
                         <c:if test="${isEditing}">
@@ -204,7 +204,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form action="${pageContext.request.contextPath}/view/receptionist/receptionistProfile" method="post" onsubmit="return validatePasswordForm()">
+                                <form action="${pageContext.request.contextPath}/receptionist/receptionistProfile" method="post" onsubmit="return validatePasswordForm()">
                                     <input type="hidden" name="employeeId" value="${receptionist.employeeId}">
                                     <div class="mb-3">
                                         <label class="form-label">Current Password</label>

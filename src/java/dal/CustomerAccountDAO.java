@@ -66,6 +66,26 @@ public class CustomerAccountDAO {
         }
         return null;
     }
+    public CustomerAccount getCustomerAccountById(int customerId) {
+    String sql = "SELECT c.Email, ca.Username, ca.Password, ca.CustomerId "
+               + "FROM customer c JOIN CustomerAccount ca ON c.CustomerId = ca.CustomerId "
+               + "WHERE ca.CustomerId = ?";
+    try (PreparedStatement st = con.prepareStatement(sql)) {
+        st.setInt(1, customerId);
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            CustomerAccount ca = new CustomerAccount();
+            ca.setUsername(rs.getString("Username"));
+            ca.setPassword(rs.getString("Password"));
+            Customer c = CustomerDAO.getInstance().getCustomerByCustomerID(customerId);
+            ca.setCustomer(c);
+            return ca;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
 
     //create function check account by email
     public CustomerAccount checkAccountByEmail(String email) {
@@ -102,7 +122,7 @@ public class CustomerAccountDAO {
         }
     }
 
-    public void resetPassword(String email, String password) {
+    public void resetPasswrod(String email, String password) {
         String sql = """
                    update CustomerAccount
                    set Password=?

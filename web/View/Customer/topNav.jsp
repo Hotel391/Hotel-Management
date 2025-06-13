@@ -7,7 +7,7 @@
         <div class="user-info">
 
                 <c:if test="${not empty sessionScope.customerInfo}">
-                <a href="${pageContext.request.contextPath}/customer/profile?service=info&username=${sessionScope.customerInfo.username}" class="text-decoration-none text-reset">
+                <a href="${pageContext.request.contextPath}/customerProfile?service=info&username=${sessionScope.customerInfo.username}" class="text-decoration-none text-reset">
                     <i class="bi bi-person-circle"></i> Profile
                 </a><br>
                 <a href="${pageContext.request.contextPath}/login?service=logout" class="text-decoration-none text-reset">

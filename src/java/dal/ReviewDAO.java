@@ -109,7 +109,6 @@ public class ReviewDAO {
             if (hasDate) {
                 ptm.setDate(2, new java.sql.Date(date.getTime()));
             }
-
             try (ResultSet rs = ptm.executeQuery()) {
                 while (rs.next()) {
                     Booking b = new Booking();

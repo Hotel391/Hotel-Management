@@ -91,7 +91,7 @@ public class ReceptionistProfile extends HttpServlet {
 
                 employeeDAO.updateEmployee(receptionist);
                 session.setAttribute("employeeInfo", receptionist);
-                response.sendRedirect(request.getContextPath() + "/view/receptionist/receptionistProfile");
+                response.sendRedirect(request.getContextPath() + "/receptionist/profile");
                 return;
 
             } else if ("changepassword".equals(action)) {

@@ -23,7 +23,6 @@ public class Register extends HttpServlet {
     private static final String PASSWORD_FIELD = "Password";
     private static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
     private static final String ERROR_CONFIRM_FIELD = "errorConfirmPassword";
-    private static final String ERROR_PREFIX = "error";
     private static final String VIEW_REGISTER = "View/Register.jsp";
     private static final String REGISTER_SUBJECT = "register";
     private static final String VERIFY_EMAIL_URL = "verifyEmail?email=";
@@ -103,8 +102,6 @@ public class Register extends HttpServlet {
                                 "Fullname must be 2-100 characters"),
                         new ValidationRule<>(value -> Validation.checkFormatException(value, "FULLNAME"),
                                 "Fullname just contain letters"),
-                        new ValidationRule<>(value -> Validation.checkFormatException(value, "FULLNAME_NO_DIGIT"),
-                                "Fullname must not contain digits"),
                         new ValidationRule<>(value -> !value.contains("  "),
                                 "Fullname cannot contain consecutive spaces")));
     }

@@ -64,7 +64,9 @@ public class ConfirmResetPassword extends HttpServlet {
 
         //verify Password
         String password = request.getParameter("password");
-        boolean errorPassword = validatePassword(request,password,request.getParameter("oldPassword"));
+        String oldPassword=request.getParameter("oldPassword");
+        request.setAttribute("oldPassword", oldPassword);
+        boolean errorPassword = validatePassword(request,password,oldPassword);
 
         //verify Confirm Password
         String confirmPassword = request.getParameter("confirmPassword");
@@ -90,7 +92,7 @@ public class ConfirmResetPassword extends HttpServlet {
                 input,
                 Function.identity(),
                 List.of(
-                        new ValidationRule<>(value-> value.equals(oldPassword),
+                        new ValidationRule<>(value-> !Encryption.toSHA256(value).equals(oldPassword),
                                 "New password cannot be the same as old password"),
                         new ValidationRule<>(value -> value.charAt(0) != ' ' && value.charAt(value.length() - 1) != ' ',
                                 "Password cannot start or end with space"),

@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.http.HttpResponse;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -119,26 +121,22 @@ public class FilterNoURL implements Filter {
             } else {
                 Employee employee = (Employee) sess.getAttribute("employeeInfo");
                 int roleId=employee.getRole().getRoleId();
-                switch (roleId) {
-                    case 0:
-                        res.sendRedirect("developer/page");
-                        break;
-                    case 1:
-                        res.sendRedirect("admin/dashboard");
-                        break;
-                    case 2:
-                        res.sendRedirect("receptionist/page");
-                        break;
-                    case 3:
-                        res.sendRedirect("cleaner/page");
-                        break;
-                    default:
-                        break;
-                }
+                redirectByRole(res,roleId);
                 return;
-
             }
-
+        }
+        if(uri.endsWith("login") || uri.endsWith("register")
+                || uri.endsWith("forgotPassword") || uri.endsWith("resetPassword")) {
+            // neu da dang nhap, chuyen den trang home
+            if (sess != null && sess.getAttribute("customerInfo") != null) {
+                res.sendRedirect(req.getContextPath() + "/home");
+                return;
+            } else if(sess!=null && sess.getAttribute("employeeInfo") != null) {
+                Employee employee = (Employee) sess.getAttribute("employeeInfo");
+                int roleId=employee.getRole().getRoleId();
+                redirectByRole(res,roleId);
+                return;
+            }
         }
         if (sess == null && (uri.endsWith("cart") || uri.endsWith("checkout")
                 || uri.endsWith("payment") || uri.endsWith("confirmPayment") 
@@ -154,7 +152,20 @@ public class FilterNoURL implements Filter {
             return;
             
         }
+
         chain.doFilter(request, response);
+    }
+
+    private void redirectByRole(HttpServletResponse res, int roleId) throws IOException{
+        switch (roleId) {
+            case 0 -> res.sendRedirect("developer/page");
+            case 1 -> res.sendRedirect("admin/dashboard");
+            case 2 -> res.sendRedirect("receptionist/page");
+            case 3 -> res.sendRedirect("cleaner/page");
+            default ->{
+                res.sendRedirect("home");
+            }
+        }
     }
 
     /**

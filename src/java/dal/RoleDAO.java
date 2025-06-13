@@ -32,7 +32,6 @@ public class RoleDAO {
                 list.add(role);
             }
         } catch (SQLException e) {
-            // Empty catch block to match EmployeeDAO
         }
         return list;
     }
@@ -50,7 +49,6 @@ public class RoleDAO {
                 }
             }
         } catch (SQLException e) {
-            // Empty catch block to match EmployeeDAO
         }
         return null;
     }
@@ -65,7 +63,6 @@ public class RoleDAO {
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            // Empty catch block to match EmployeeDAO
             return false;
         }
     }
@@ -81,7 +78,6 @@ public class RoleDAO {
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            // Empty catch block to match EmployeeDAO
             return false;
         }
     }
@@ -90,13 +86,12 @@ public class RoleDAO {
         if (roleId <= 0) {
             return false;
         }
-        // Check if role is referenced in Employee table
         String checkSql = "SELECT COUNT(*) FROM Employee WHERE roleId = ?";
         try (PreparedStatement checkStmt = con.prepareStatement(checkSql)) {
             checkStmt.setInt(1, roleId);
             try (ResultSet rs = checkStmt.executeQuery()) {
                 if (rs.next() && rs.getInt(1) > 0) {
-                    return false; // Role is in use
+                    return false; 
                 }
             }
         } catch (SQLException e) {
@@ -109,7 +104,6 @@ public class RoleDAO {
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            // Empty catch block to match EmployeeDAO
             return false;
         }
     }

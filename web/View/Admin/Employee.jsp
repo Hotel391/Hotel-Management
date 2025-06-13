@@ -1,4 +1,3 @@
-
 <%-- 
     Document   : Employee
     Created on : Jun 1, 2025, 11:47:00 AM
@@ -23,13 +22,11 @@
         <%--another in the following--%>
 
         <style>
-
             .search-input {
                 width: 450px !important;
             }
         </style>
     </head>
-
 
     <body>
         <div class="containerBox">
@@ -75,24 +72,26 @@
                             <table class="table align-middle">
                                 <thead class="table-light">
                                     <tr>
+                                        <th scope="col">Use Name</th>
                                         <th scope="col">Full Name</th>
                                         <th scope="col">Phone Number</th>
                                         <th scope="col">Email</th>
                                         <th scope="col">Role</th>
-                                        <th scope="col">Floor</th>
                                         <th scope="col" class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <c:forEach var="emp" items="${listEmployee}">
                                         <tr>
+                                            <td><c:out value="${emp.username}" default="-"/></td>
                                             <td><c:out value="${emp.fullName}" default="-"/></td>
                                             <td><c:out value="${emp.phoneNumber}" default="-"/></td>
                                             <td><c:out value="${emp.email}" default="-"/></td>
                                             <td><c:out value="${emp.role != null ? emp.role.roleName : '-'}"/></td>
-                                            <td><c:out value="${emp.cleanerFloor != null ? emp.cleanerFloor.floor : '-'}"/></td>
                                             <td>${emp.activate ? 'Active' : 'Inactive'}</td>
+
                                             <td class="text-center">
+<<<<<<< Updated upstream
                                                 <button 
                                                     class="btn btn-sm btn-outline-info me-1" 
                                                     data-bs-toggle="modal" 
@@ -125,13 +124,97 @@
                                                     data-bs-target="#deleteEmployeeModal" 
                                                     onclick="openDeleteModal(${emp.employeeId})">
                                                     <i class="bi bi-trash"></i>
+=======
+                                                <!-- View Employee Modal -->
+                                                <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#viewEmployeeModal_${emp.employeeId}">
+                                                    <i class="bi bi-eye"></i> View 
+                                                </button>
+
+                                                <!-- Edit Employee Modal -->
+                                                <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editEmployeeModal_${emp.employeeId}">
+                                                    <i class="bi bi-pencil"></i> Edit
+                                                </button>
+
+                                                <!-- Delete Employee Modal -->
+                                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal_${emp.employeeId}">
+                                                    <i class="bi bi-trash"></i> Delete
+>>>>>>> Stashed changes
                                                 </button>
                                             </td>
                                         </tr>
                                     </c:forEach>
-
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <form method="post" action="${pageContext.request.contextPath}/view/admin/employees">
+                                    <input type="hidden" name="action" value="add" />
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label for="usernameAdd" class="form-label">Username</label>
+                                                <input type="text" id="usernameAdd" name="username" value="${param.username}" class="form-control" required />
+                                                <c:if test="${not empty usernameError}">
+                                                    <div class="text-danger">${usernameError}</div>
+                                                </c:if>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="passwordAdd" class="form-label">Password</label>
+                                                <input type="password" id="passwordAdd" name="password" value="${param.password}" class="form-control" required />
+                                                <c:if test="${not empty passwordError}">
+                                                    <div class="text-danger">${passwordError}</div>
+                                                </c:if>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="fullNameAdd" class="form-label">Full Name</label>
+                                                <input type="text" id="fullNameAdd" name="fullName" value="${param.fullName}" class="form-control" required />
+                                                <c:if test="${not empty fullNameError}">
+                                                    <div class="text-danger">${fullNameError}</div>
+                                                </c:if>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="phoneNumberAdd" class="form-label">Phone Number</label>
+                                                <input type="text" id="phoneNumberAdd" name="phoneNumber" value="${param.phoneNumber}" class="form-control" required />
+                                                <c:if test="${not empty phoneNumberError}">
+                                                    <div class="text-danger">${phoneNumberError}</div>
+                                                </c:if>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="emailAdd" class="form-label">Email</label>
+                                                <input type="email" id="emailAdd" name="email" value="${param.email}" class="form-control" required />
+                                                <c:if test="${not empty emailError}">
+                                                    <div class="text-danger">${emailError}</div>
+                                                </c:if>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="roleIdAdd" class="form-label">Role</label>
+                                                <select id="roleIdAdd" name="roleId" class="form-select" required onchange="toggleFloorFieldAdd()">
+                                                    <c:forEach var="role" items="${listRole}">
+                                                        <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
+                                                            <option value="${role.roleId}" ${param.roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
+                                                        </c:if>
+                                                    </c:forEach>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6" id="floorFieldAdd" style="display:none;">
+                                                <label for="floorAdd" class="form-label">Floor</label>
+                                                <input type="number" id="floorAdd" name="floor" value="${param.floor}" class="form-control" min="1" max="6" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-success">Save</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
 
@@ -147,34 +230,46 @@
                                     </div>
                                     <div class="modal-body">
                                         <div class="row g-3">
+                                            <!-- Username -->
                                             <div class="col-md-6">
                                                 <label for="usernameAdd" class="form-label">Username</label>
                                                 <input type="text" id="usernameAdd" name="username" value="${param.username}" class="form-control" required />
-                                                <c:if test="${not empty usernameError}"><div class="text-danger">${usernameError}</div></c:if>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="passwordAdd" class="form-label">Password</label>
-                                                    <input type="password" id="passwordAdd" name="password" value="${param.password}" class="form-control" required />
-                                                <c:if test="${not empty passwordError}"><div class="text-danger">${passwordError}</div></c:if>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="fullNameAdd" class="form-label">Full Name</label>
-                                                    <input type="text" id="fullNameAdd" name="fullName" value="${param.fullName}" class="form-control" required />
-                                                <c:if test="${not empty fullNameError}"><div class="text-danger">${fullNameError}</div></c:if>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="phoneNumberAdd" class="form-label">Phone Number</label>
-                                                    <input type="text" id="phoneNumberAdd" name="phoneNumber" value="${param.phoneNumber}" class="form-control" required />
-                                                <c:if test="${not empty phoneNumberError}"><div class="text-danger">${phoneNumberError}</div></c:if>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="emailAdd" class="form-label">Email</label>
-                                                    <input type="email" id="emailAdd" name="email" value="${param.email}" class="form-control" required />
-                                                <c:if test="${not empty emailError}"><div class="text-danger">${emailError}</div></c:if>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <label for="roleIdAdd" class="form-label">Role</label>
-                                                    <select id="roleIdAdd" name="roleId" class="form-select" required onchange="toggleFloorFieldAdd()">
+                                                <c:if test="${not empty usernameError}">
+                                                    <div class="text-danger">${usernameError}</div>
+                                                </c:if>
+                                            </div>
+
+                                            <!-- Full Name -->
+                                            <div class="col-md-6">
+                                                <label for="fullNameAdd" class="form-label">Full Name</label>
+                                                <input type="text" id="fullNameAdd" name="fullName" value="${param.fullName}" class="form-control" required />
+                                                <c:if test="${not empty fullNameError}">
+                                                    <div class="text-danger">${fullNameError}</div>
+                                                </c:if>
+                                            </div>
+
+                                            <!-- Phone Number -->
+                                            <div class="col-md-6">
+                                                <label for="phoneNumberAdd" class="form-label">Phone Number</label>
+                                                <input type="text" id="phoneNumberAdd" name="phoneNumber" value="${param.phoneNumber}" class="form-control" required />
+                                                <c:if test="${not empty phoneNumberError}">
+                                                    <div class="text-danger">${phoneNumberError}</div>
+                                                </c:if>
+                                            </div>
+
+                                            <!-- Email -->
+                                            <div class="col-md-6">
+                                                <label for="emailAdd" class="form-label">Email</label>
+                                                <input type="email" id="emailAdd" name="email" value="${param.email}" class="form-control" required />
+                                                <c:if test="${not empty emailError}">
+                                                    <div class="text-danger">${emailError}</div>
+                                                </c:if>
+                                            </div>
+
+                                            <!-- Role -->
+                                            <div class="col-md-6">
+                                                <label for="roleIdAdd" class="form-label">Role</label>
+                                                <select id="roleIdAdd" name="roleId" class="form-select" required onchange="toggleFloorFieldAdd()">
                                                     <c:forEach var="role" items="${listRole}">
                                                         <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
                                                             <option value="${role.roleId}" ${param.roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
@@ -182,9 +277,11 @@
                                                     </c:forEach>
                                                 </select>
                                             </div>
+
+                                            <!-- Floor -->
                                             <div class="col-md-6" id="floorFieldAdd" style="display:none;">
                                                 <label for="floorAdd" class="form-label">Floor</label>
-                                                <input type="number" id="floorAdd" name="floor" value="${param.floor}" class="form-control" min="1" />
+                                                <input type="number" id="floorAdd" name="floor" value="${param.floor}" class="form-control" min="1" max="6" />
                                             </div>
                                         </div>
                                     </div>
@@ -197,6 +294,7 @@
                     </div>
 
                     <!-- Edit Employee Modal -->
+<<<<<<< Updated upstream
                     <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
@@ -214,121 +312,148 @@
                                                 <input type="text" id="usernameEdit" name="username" value="${requestScope.emp.username}" class="form-control" required />
                                                 <c:if test="${not empty usernameError}"><div class="text-danger">${usernameError}</div></c:if>
                                                 </div>
+=======
+                    <c:forEach var="emp" items="${listEmployee}">
+                        <div class="modal fade" id="editEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="editEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <form method="post" action="${pageContext.request.contextPath}/view/admin/employees">
+                                        <input type="hidden" name="action" value="update" />
+                                        <input type="hidden" name="employeeId" value="${emp.employeeId}" />
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editEmployeeModalLabel_${emp.employeeId}">Edit Employee - ${emp.fullName}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row g-3">
                                                 <div class="col-md-6">
-                                                    <label for="passwordEdit" class="form-label">Password</label>
-                                                    <input type="password" id="passwordEdit" name="password" value="${requestScope.emp.password}" class="form-control" required />
-                                                <c:if test="${not empty passwordError}"><div class="text-danger">${passwordError}</div></c:if>
+                                                    <label for="usernameEdit_${emp.employeeId}" class="form-label">Username</label>
+                                                    <input type="text" id="usernameEdit_${emp.employeeId}" name="username" value="${emp.username}" class="form-control" required />
                                                 </div>
+
+>>>>>>> Stashed changes
                                                 <div class="col-md-6">
-                                                    <label for="fullNameEdit" class="form-label">Full Name</label>
-                                                    <input type="text" id="fullNameEdit" name="fullName" value="${requestScope.emp.fullName}" class="form-control" required />
-                                                <c:if test="${not empty fullNameError}"><div class="text-danger">${fullNameError}</div></c:if>
+                                                    <label for="fullNameEdit_${emp.employeeId}" class="form-label">Full Name</label>
+                                                    <input type="text" id="fullNameEdit_${emp.employeeId}" name="fullName" value="${emp.fullName}" class="form-control" required />
                                                 </div>
+
                                                 <div class="col-md-6">
-                                                    <label for="phoneNumberEdit" class="form-label">Phone Number</label>
-                                                    <input type="text" id="phoneNumberEdit" name="phoneNumber" value="${requestScope.emp.phoneNumber}" class="form-control" required />
-                                                <c:if test="${not empty phoneNumberError}"><div class="text-danger">${phoneNumberError}</div></c:if>
+                                                    <label for="phoneNumberEdit_${emp.employeeId}" class="form-label">Phone Number</label>
+                                                    <input type="text" id="phoneNumberEdit_${emp.employeeId}" name="phoneNumber" value="${emp.phoneNumber}" class="form-control" required />
                                                 </div>
+
                                                 <div class="col-md-6">
-                                                    <label for="emailEdit" class="form-label">Email</label>
-                                                    <input type="email" id="emailEdit" name="email" value="${requestScope.emp.email}" class="form-control" required />
-                                                <c:if test="${not empty emailError}"><div class="text-danger">${emailError}</div></c:if>
+                                                    <label for="emailEdit_${emp.employeeId}" class="form-label">Email</label>
+                                                    <input type="email" id="emailEdit_${emp.employeeId}" name="email" value="${emp.email}" class="form-control" required />
                                                 </div>
+
                                                 <div class="col-md-6">
-                                                    <label for="roleIdEdit" class="form-label">Role</label>
-                                                    <select id="roleIdEdit" name="roleId" class="form-select" required onchange="toggleFloorFieldEdit()">
-                                                    <c:forEach var="role" items="${listRole}">
-                                                        <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
-                                                            <option value="${role.roleId}" ${requestScope.emp.role.roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
-                                                        </c:if>
-                                                    </c:forEach>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="genderEdit" class="form-label">Gender</label>
-                                                <select id="genderEdit" name="gender" class="form-select" required>
-                                                    <option value="true" ${requestScope.emp.gender ? 'selected' : ''}>Male</option>
-                                                    <option value="false" ${!requestScope.emp.gender ? 'selected' : ''}>Female</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="cccdEdit" class="form-label">CCCD</label>
-                                                <input type="text" id="cccdEdit" name="cccd" value="${requestScope.emp.CCCD}" class="form-control" />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="dateOfBirthEdit" class="form-label">Date of Birth</label>
-                                                <input type="date" id="dateOfBirthEdit" name="dateOfBirth" value="${requestScope.emp.dateOfBirth}" class="form-control" />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="registrationDateEdit" class="form-label">Registration Date</label>
-                                                <input type="date" id="registrationDateEdit" name="registrationDate" value="${requestScope.emp.registrationDate}" class="form-control" readonly />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="activateEdit" class="form-label">Status</label>
-                                                <select id="activateEdit" name="activate" class="form-select" required>
-                                                    <option value="true" ${requestScope.emp.activate ? 'selected' : ''}>Active</option>
-                                                    <option value="false" ${!requestScope.emp.activate ? 'selected' : ''}>Inactive</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6" id="floorFieldEdit" style="display:none;">
-                                                <label for="floorEdit" class="form-label">Floor</label>
-                                                <input type="number" id="floorEdit" name="floor" value="${requestScope.emp.cleanerFloor != null ? requestScope.emp.cleanerFloor.floor : ''}" class="form-control" min="1" max ="5" />
+                                                    <label for="roleIdEdit_${emp.employeeId}" class="form-label">Role</label>
+                                                    <select id="roleIdEdit_${emp.employeeId}" name="roleId" class="form-select" required onchange="toggleFloorFieldEdit(${emp.employeeId})">
+                                                        <c:forEach var="role" items="${listRole}">
+                                                            <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
+                                                                <option value="${role.roleId}" ${emp.role.roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
+                                                            </c:if>
+                                                        </c:forEach>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-md-6" id="floorFieldEdit_${emp.employeeId}" style="display:${emp.role.roleName == 'Cleaner' ? 'block' : 'none'};">
+                                                    <label for="floorEdit_${emp.employeeId}" class="form-label">Floor</label>
+                                                    <input type="number" id="floorEdit_${emp.employeeId}" name="floor" value="${emp.cleanerFloor != null ? emp.cleanerFloor.floor : ''}" class="form-control" min="1" max="6" />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                                    </div>
-                                </form>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-success">Update</button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </c:forEach>
+                
 
-                    <!-- Delete Employee Modal -->
-                    <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form method="post" action="${pageContext.request.contextPath}/view/admin/employees?action=delete">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteEmployeeModalLabel">Confirm Delete</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Are you sure you want to delete this employee? (ID: <span id="employeeIdDelete"></span>)
-                                        <input type="hidden" id="employeeIdDeleteInput" name="employeeId" />
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </div>
-                                </form>
-                            </div>
+        <!-- View Employee Modal -->
+        <c:forEach var="emp" items="${listEmployee}">
+            <div class="modal fade" id="viewEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="viewEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="viewEmployeeModalLabel_${emp.employeeId}">Employee Details - ${emp.fullName}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li><strong>Full Name:</strong> ${emp.fullName}</li>
+                                <li><strong>Username:</strong> ${emp.username}</li>
+                                <li><strong>Phone Number:</strong> ${emp.phoneNumber}</li>
+                                <li><strong>Email:</strong> ${emp.email}</li>
+                                <li><strong>Role:</strong> ${emp.role != null ? emp.role.roleName : '-'}</li>
+                                <li><strong>Floor:</strong> ${emp.cleanerFloor != null ? emp.cleanerFloor.floor : '-'}</li>
+                                <li><strong>Status:</strong> ${emp.activate ? 'Active' : 'Inactive'}</li>
+                                <li><strong>CCCD:</strong> ${emp.CCCD}</li>
+                                <li><strong>Date of Birth:</strong> ${emp.dateOfBirth}</li>
+                                <li><strong>Registration Date:</strong> ${emp.registrationDate}</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>          
+        </c:forEach>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <%--script for dashboard--%>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
-        <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
-        <%--another in following--%>
-        <script>
+        <!-- Delete Employee Modal -->
+        <c:forEach var="emp" items="${listEmployee}">
+            <div class="modal fade" id="deleteEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" action="${pageContext.request.contextPath}/view/admin/employees?action=delete">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteEmployeeModalLabel_${emp.employeeId}">Confirm Delete</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete this employee? (Username: <span id="employeeIdDelete_${emp.employeeId}">${emp.username}</span>)
+                                <input type="hidden" name="employeeId" value="${emp.employeeId}" />
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </c:forEach>
+
+    </div>
+</div>
+</div>          
+</div>  
+
+
+
+<%--script for dashboard--%>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
+<script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
+<%--another in following--%>
+<script>
                                                         function toggleFloorFieldAdd() {
-                                                            const roleId = document.getElementById('roleIdAdd').value;
                                                             const roleName = document.querySelector('#roleIdAdd option:checked').text;
                                                             const floorField = document.getElementById('floorFieldAdd');
                                                             floorField.style.display = roleName.toLowerCase() === 'cleaner' ? 'block' : 'none';
                                                         }
 
-                                                        function toggleFloorFieldEdit() {
-                                                            const roleId = document.getElementById('roleIdEdit').value;
-                                                            const roleName = document.querySelector('#roleIdEdit option:checked').text;
-                                                            const floorField = document.getElementById('floorFieldEdit');
+                                                        function toggleFloorFieldEdit(employeeId) {
+                                                            const roleName = document.querySelector(`#roleIdEdit_${employeeId} option:checked`).text;
+                                                            const floorField = document.getElementById(`floorFieldEdit_${employeeId}`);
                                                             floorField.style.display = roleName.toLowerCase() === 'cleaner' ? 'block' : 'none';
                                                         }
+<<<<<<< Updated upstream
 
                                                         function openEditModal(employeeId, fullName, username, password, address, phoneNumber, email, gender, cccd, dateOfBirth, registrationDate, activate, roleId, floor) {
                                                             document.getElementById('employeeIdEdit').value = employeeId;
@@ -363,4 +488,8 @@
                                                         toggleFloorFieldAdd();
         </script>
     </body>
+=======
+</script>
+</body>
+>>>>>>> Stashed changes
 </html>

@@ -37,7 +37,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#">Management Employee</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/admin/employees">Management Employee</a>
                             </li>
                         </ul>
 
@@ -45,22 +45,10 @@
                             <div class="d-flex gap-2">
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">+ Add Employee</button>
                             </div>
-                            <form method="get" action="${pageContext.request.contextPath}/view/employees" class="d-flex gap-2">
-                                <input type="text" name="search" value="${search}" class="form-control search-input" placeholder="Search" />
-                                <select name="roleId" class="form-select" onchange="this.form.submit()">
-                                    <option value="">All Roles</option>
-                                    <c:forEach var="role" items="${listRole}">
-                                        <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
-                                            <option value="${role.roleId}" ${selectedRoleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
-                                        </c:if>
-                                    </c:forEach>
-                                </select>
-                                <select name="status" class="form-select" onchange="this.form.submit()">
-                                    <option value="">All Status</option>
-                                    <option value="true" ${selectedStatus == true ? 'selected' : ''}>Active</option>
-                                    <option value="false" ${selectedStatus == false ? 'selected' : ''}>Inactive</option>
-                                </select>
-                                <button type="submit" class="btn btn-primary">Filter</button>
+                            <form method="get" action="${pageContext.request.contextPath}/admin/employees" class="d-flex gap-2">
+                                <input type="text" name="key" value="${key}" class="form-control search-input" placeholder="Search" />
+
+
                             </form>
                         </div>
 
@@ -88,23 +76,29 @@
                                             <td><c:out value="${emp.phoneNumber}" default="-"/></td>
                                             <td><c:out value="${emp.email}" default="-"/></td>
                                             <td><c:out value="${emp.role != null ? emp.role.roleName : '-'}"/></td>
-                                            <td>${emp.activate ? 'Active' : 'Inactive'}</td>
+                                            <td><!-- Active/Inactive Employee Action -->
+                                                <form method="post" action="${pageContext.request.contextPath}/admin/employees?action=toggleStatus">
+                                                    <input type="hidden" name="employeeId" value="${emp.employeeId}" />
+                                                    <button type="submit" class="btn btn-sm ${emp.activate ? 'btn-outline-danger' : 'btn-outline-success'}">
+                                                        ${emp.activate ? 'activate' : 'Inactive'}
+                                                    </button>
+                                                </form></td>
 
                                             <td class="text-center">
 
                                                 <!-- View Employee Modal -->
                                                 <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#viewEmployeeModal_${emp.employeeId}">
-                                                    <i class="bi bi-eye"></i> View 
+                                                    View 
                                                 </button>
 
                                                 <!-- Edit Employee Modal -->
                                                 <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editEmployeeModal_${emp.employeeId}">
-                                                    <i class="bi bi-pencil"></i> Edit
+                                                     Edit
                                                 </button>
 
                                                 <!-- Delete Employee Modal -->
                                                 <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal_${emp.employeeId}">
-                                                    <i class="bi bi-trash"></i> Delete
+                                                     Delete
 
                                                 </button>
                                             </td>
@@ -115,13 +109,11 @@
                         </div>
                     </div>
 
-
-
-                    <<!-- Add Employee Modal -->
+                    <!-- Add Employee Modal -->
                     <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <form method="post" action="${pageContext.request.contextPath}/view/admin/employees">
+                                <form method="post" action="${pageContext.request.contextPath}/admin/employees">
                                     <input type="hidden" name="action" value="add" />
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
@@ -183,15 +175,12 @@
                         </div>
                     </div>
 
-
-
-
                     <!-- Edit Employee Modal -->
                     <c:forEach var="emp" items="${listEmployee}">
                         <div class="modal fade" id="editEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="editEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
-                                    <form method="post" action="${pageContext.request.contextPath}/view/admin/employees">
+                                    <form method="post" action="${pageContext.request.contextPath}/admin/employees">
                                         <input type="hidden" name="action" value="update" />
                                         <input type="hidden" name="employeeId" value="${emp.employeeId}" />
                                         <div class="modal-header">
@@ -205,7 +194,7 @@
                                                     <ul>
                                                         <c:forEach var="error" items="${errorMessages}">
                                                             <li>${error}</li>
-                                                        </c:forEach>
+                                                            </c:forEach>
                                                     </ul>
                                                 </div>
                                             </c:if>
@@ -246,6 +235,7 @@
                                                     <label for="floorEdit_${emp.employeeId}" class="form-label">Floor</label>
                                                     <input type="number" id="floorEdit_${emp.employeeId}" name="floor" value="${emp.cleanerFloor != null ? emp.cleanerFloor.floor : ''}" class="form-control" min="1" max="6" />
                                                 </div>
+
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -256,8 +246,6 @@
                             </div>
                         </div>
                     </c:forEach>
-
-
 
                     <!-- View Employee Modal -->
                     <c:forEach var="emp" items="${listEmployee}">
@@ -295,7 +283,7 @@
                         <div class="modal fade" id="deleteEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <form method="post" action="${pageContext.request.contextPath}/view/admin/employees?action=delete">
+                                    <form method="post" action="${pageContext.request.contextPath}/admin/employees?action=delete">
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="deleteEmployeeModalLabel_${emp.employeeId}">Confirm Delete</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -314,19 +302,62 @@
                         </div>
                     </c:forEach>
 
+                    <nav aria-label="Pagination">
+                        <ul class="pagination pagination-danger">
+                            <c:choose>
+                                <c:when test="${key != null && !key.isEmpty()}">
+                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                        <a href="?page=${currentPage - 1}&key=${key}" class="page-link">Previous</a>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                        <a href="?page=${currentPage - 1}" class="page-link">Previous</a>
+                                    </li>
+                                </c:otherwise>
+                            </c:choose>
+                            <c:forEach var="i" begin="1" end="${endPage}">
+                                <c:choose>
+                                    <c:when test="${key != null && !key.isEmpty()}">
+                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                            <a class="page-link" href="?page=${i}&key=${key}">${i}</a>
+                                        </li>
+
+                                    </c:when>
+                                    <c:otherwise>
+                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                            <a class="page-link" href="?page=${i}">${i}</a>
+                                        </li>
+                                    </c:otherwise>
+                                </c:choose>
+
+                            </c:forEach>
+                            <c:choose>
+                                <c:when test="${key != null && !key.isEmpty()}">
+
+                                    <li class="page-item ${currentPage == endPage ? 'disabled' : ''}">
+                                        <a href="?page=${currentPage + 1}&key=${key}" class="page-link">Next</a>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li class="page-item ${currentPage == endPage ? 'disabled' : ''}">
+                                        <a href="?page=${currentPage + 1}" class="page-link">Next</a>
+                                    </li>
+                                </c:otherwise>
+                            </c:choose>
+                        </ul>
+                    </nav>
+
                 </div>
             </div>
         </div>          
-    </div>  
 
-
-
-    <%--script for dashboard--%>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
-    <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
-    <%--another in following--%>
-    <script>
+        <%--script for dashboard--%>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
+        <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
+        <%--another in following--%>
+        <script>
                                                         function toggleFloorFieldAdd() {
                                                             const roleName = document.querySelector('#roleIdAdd option:checked').text;
                                                             const floorField = document.getElementById('floorFieldAdd');
@@ -334,13 +365,16 @@
                                                         }
 
                                                         function toggleFloorFieldEdit(employeeId) {
-                                                            const roleName = document.querySelector(`#roleIdEdit_${employeeId} option:checked`).text;
+                                                            const roleSelect = document.querySelector(`#roleIdEdit_${employeeId}`);
+                                                            const roleName = roleSelect.options[roleSelect.selectedIndex].text;
                                                             const floorField = document.getElementById(`floorFieldEdit_${employeeId}`);
-                                                            floorField.style.display = roleName.toLowerCase() === 'cleaner' ? 'block' : 'none';
+                                                            if (roleName.toLowerCase() === 'cleaner') {
+                                                                floorField.style.display = 'block';
+                                                            } else {
+                                                                floorField.style.display = 'none';
+                                                            }
                                                         }
-                                                        function openEditModal(employeeId) {
-                                                            toggleFloorFieldEdit(employeeId);
 
-    </script>
-</body>
+        </script>
+    </body>
 </html>

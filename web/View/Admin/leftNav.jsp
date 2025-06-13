@@ -13,9 +13,9 @@
                         <span><i class="bi bi-speedometer2"></i></span>Dashboard
                     </a>
                 </li>
-                <li><a href="${pageContext.request.contextPath}/view/admin/roles">
+                <li><a href="${pageContext.request.contextPath}/admin/roles">
                         <span><i class="bi bi-person-badge"></i></span>Role</a></li>
-                <li><a href="${pageContext.request.contextPath}/view/admin/employees">
+                <li><a href="${pageContext.request.contextPath}/admin/employees">
                         <span><i class="bi bi-person"></i></span>Employee</a></li>
                 <li><a href="#">
                         <span><i class="bi bi-person-fill"></i></span></i>Customer</a></li>

@@ -12,7 +12,7 @@ import models.Role;
 
 
 
-@WebServlet(name = "Roles", urlPatterns = {"/view/admin/roles"})
+@WebServlet(name = "Roles", urlPatterns = {"/admin/roles"})
 public class Roles extends HttpServlet {
 
     @Override
@@ -87,7 +87,7 @@ public class Roles extends HttpServlet {
             request.setAttribute("error", error);
             doGet(request, response);
         } else {
-            response.sendRedirect(request.getContextPath() + "/view/admin/roles");
+            response.sendRedirect(request.getContextPath() + "/admin/roles");
         }
     }
 

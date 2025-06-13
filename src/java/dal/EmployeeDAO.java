@@ -419,4 +419,129 @@ public class EmployeeDAO {
         return null;
     }
 
+    public void updateEmployeeStatus(int employeeId, boolean status) {
+        String sql = "UPDATE Employee SET activate = ? WHERE employeeId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, status ? 1 : 0);
+            ps.setInt(2, employeeId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Employee> searchEmployee(String key) {
+        String sql = "SELECT e.*, r.RoleName, cf.Floor "
+                + "FROM Employee e "
+                + "JOIN Role r ON r.RoleId = e.RoleId "
+                + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
+                + "WHERE e.Username LIKE ? OR e.FullName LIKE ? OR e.PhoneNumber LIKE ? OR e.Email LIKE ? "
+                + "ORDER BY e.EmployeeId";
+
+        List<Employee> list = new Vector<>();
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            String searchKey = "%" + key + "%";  
+            st.setString(1, searchKey);
+            st.setString(2, searchKey);
+            st.setString(3, searchKey);  
+            st.setString(4, searchKey);  
+
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Employee e = new Employee();
+                    e.setEmployeeId(rs.getInt("EmployeeId"));
+                    e.setUsername(rs.getString("Username"));
+                    e.setPassword(rs.getString("Password"));
+                    e.setFullName(rs.getString("FullName"));
+                    e.setPhoneNumber(rs.getString("PhoneNumber"));
+                    e.setEmail(rs.getString("Email"));
+                    e.setGender(rs.getBoolean("Gender"));
+                    e.setCCCD(rs.getString("CCCD"));
+                    e.setDateOfBirth(rs.getDate("dateOfBirth"));
+                    e.setRegistrationDate(rs.getDate("registrationDate"));
+                    e.setActivate(rs.getBoolean("activate"));
+
+                    Role r = new Role(rs.getInt("RoleId"));
+                    r.setRoleName(rs.getString("RoleName"));
+                    e.setRole(r);
+
+                    int floor = rs.getInt("Floor");
+                    if (!rs.wasNull()) {
+                        CleanerFloor cf = new CleanerFloor();
+                        cf.setEmployee(e);
+                        cf.setFloor(floor);
+                        e.setCleanerFloor(cf);
+                    }
+                    list.add(e);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Employee> employeePagination(int index, String key) {
+    List<Employee> list = new Vector<>();
+    String sql = "SELECT e.*, r.RoleName, cf.Floor "
+            + "FROM Employee e "
+            + "JOIN Role r ON r.RoleId = e.RoleId "
+            + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
+            + "WHERE r.RoleId NOT IN (0, 1)";  // Lọc các role (trừ 0, 1)
+
+    if (key != null && !key.isEmpty()) {
+        sql += " AND (e.Username LIKE ? OR e.FullName LIKE ? OR e.PhoneNumber LIKE ? OR e.Email LIKE ?)";
+    }
+
+    sql += " ORDER BY e.EmployeeId OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY"; 
+
+    try (PreparedStatement st = con.prepareStatement(sql)) {
+        int parameterIndex = 1;
+
+        if (key != null && !key.isEmpty()) {
+            String searchKey = "%" + key + "%";
+            st.setString(parameterIndex++, searchKey); 
+            st.setString(parameterIndex++, searchKey);  
+            st.setString(parameterIndex++, searchKey);  
+            st.setString(parameterIndex++, searchKey);  
+        }
+
+        st.setInt(parameterIndex++, (index - 1) * 5);  
+
+        try (ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                Employee e = new Employee();
+                e.setEmployeeId(rs.getInt("EmployeeId"));
+                e.setUsername(rs.getString("Username"));
+                e.setPassword(rs.getString("Password"));
+                e.setFullName(rs.getString("FullName"));
+                e.setPhoneNumber(rs.getString("PhoneNumber"));
+                e.setEmail(rs.getString("Email"));
+                e.setGender(rs.getBoolean("Gender"));
+                e.setCCCD(rs.getString("CCCD"));
+                e.setDateOfBirth(rs.getDate("dateOfBirth"));
+                e.setRegistrationDate(rs.getDate("registrationDate"));
+                e.setActivate(rs.getBoolean("activate"));
+
+                Role r = new Role(rs.getInt("RoleId"));
+                r.setRoleName(rs.getString("RoleName"));
+                e.setRole(r);
+
+                int floor = rs.getInt("Floor");
+                if (!rs.wasNull()) {
+                    CleanerFloor cf = new CleanerFloor();
+                    cf.setEmployee(e);
+                    cf.setFloor(floor);
+                    e.setCleanerFloor(cf);
+                }
+                list.add(e);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return list;
+}
+
+
 }

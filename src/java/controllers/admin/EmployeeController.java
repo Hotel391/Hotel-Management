@@ -18,20 +18,42 @@ import models.Role;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "EmployeeController", urlPatterns = {"/view/admin/employees"})
+@WebServlet(name = "EmployeeController", urlPatterns = {"/admin/employees"})
 public class EmployeeController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Employee> employeeList = EmployeeDAO.getInstance().getAllEmployee();
         List<Role> roleList = RoleDAO.getInstance().getAllRoles();
-
-        request.setAttribute("listEmployee", employeeList);
         request.setAttribute("listRole", roleList);
-        if (employeeList.isEmpty()) {
-            request.setAttribute("error", "No employees found.");
+
+        String key = request.getParameter("key");
+        String roleId = request.getParameter("roleId");
+        String status = request.getParameter("status");
+
+        int employeeTotal;
+        if (key != null && !key.trim().isEmpty()) {
+            employeeTotal = EmployeeDAO.getInstance().searchEmployee(key).size();
+        } else {
+            employeeTotal = EmployeeDAO.getInstance().countEmployee();
         }
+
+        int endPage = employeeTotal / 5;
+        if (employeeTotal % 5 != 0) {
+            endPage++;
+        }
+
+        request.setAttribute("endPage", endPage);
+
+        int currentPage = Integer.parseInt(request.getParameter("page") == null ? "1" : request.getParameter("page"));
+
+        List<Employee> employeeList = EmployeeDAO.getInstance().employeePagination(currentPage, key);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("listEmployee", employeeList);
+        request.setAttribute("key", key);
+        request.setAttribute("roleId", roleId);
+        request.setAttribute("status", status);
+
         request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
     }
 
@@ -72,6 +94,9 @@ public class EmployeeController extends HttpServlet {
                         int employeeId = Integer.parseInt(request.getParameter("employeeId"));
                         EmployeeDAO.getInstance().deleteEmployee(employeeId);
                         break;
+                    case "toggleStatus":
+                        toggleEmployeeStatus(request, response);
+                        break;
                     default:
                         error = "Invalid action.";
                 }
@@ -84,32 +109,31 @@ public class EmployeeController extends HttpServlet {
             request.setAttribute("error", error);
             doGet(request, response);
         } else {
-            response.sendRedirect(request.getContextPath() + "/view/admin/employees");
+            response.sendRedirect(request.getContextPath() + "/admin/employees");
         }
     }
 
     private Employee addEmployee(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         boolean hasError = false;
-        List<Employee> employeeList = EmployeeDAO.getInstance().getAllEmployee();
         Employee emp = new Employee();
 
         try {
             String username = request.getParameter("username");
-            String password = request.getParameter("password");  
+            String password = request.getParameter("password");
             String fullName = request.getParameter("fullName");
             String phoneNumber = request.getParameter("phoneNumber");
             String email = request.getParameter("email");
             int roleId = Integer.parseInt(request.getParameter("roleId"));
 
-            hasError = validateEmployeeInput(request, username, fullName, phoneNumber, email, roleId, hasError);
+            hasError = validateAddEmployeeInput(request, username, password, fullName, phoneNumber, email, roleId, hasError);
 
             if (hasError) {
-                return null;  
+                return null;
             }
 
             emp.setUsername(username);
-            emp.setPassword(Encryption.toSHA256(password)); 
+            emp.setPassword(Encryption.toSHA256(password));
             emp.setFullName(fullName);
             emp.setPhoneNumber(phoneNumber);
             emp.setEmail(email);
@@ -117,8 +141,18 @@ public class EmployeeController extends HttpServlet {
             emp.setActivate(true);
             emp.setRole(RoleDAO.getInstance().getRoleById(roleId));
 
-            Integer floor = request.getParameter("floor") != null && !request.getParameter("floor").isEmpty()
-                    ? Integer.parseInt(request.getParameter("floor")) : null;
+            String floorStr = request.getParameter("floor");
+            Integer floor = null;
+
+            if (floorStr != null && !floorStr.isEmpty()) {
+                try {
+                    floor = Integer.parseInt(floorStr);
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "Invalid floor number.");
+                    hasError = true;
+                }
+            }
+
             if (floor != null && "Cleaner".equalsIgnoreCase(emp.getRole().getRoleName())) {
                 CleanerFloor cf = new CleanerFloor();
                 cf.setFloor(floor);
@@ -152,10 +186,10 @@ public class EmployeeController extends HttpServlet {
             String email = request.getParameter("email");
             int roleId = Integer.parseInt(request.getParameter("roleId"));
 
-            hasError = validateEmployeeInput(request, username, fullName, phoneNumber, email, roleId, hasError);
+            hasError = validateEditEmployeeInput(request, username, fullName, phoneNumber, email, roleId, emp.getEmployeeId(), hasError);
 
             if (hasError) {
-                return null; 
+                return null;
             }
 
             emp.setUsername(username);
@@ -165,10 +199,21 @@ public class EmployeeController extends HttpServlet {
 
             emp.setRole(RoleDAO.getInstance().getRoleById(roleId));
 
+            // Handle floor for Cleaner role
+            String floorStr = request.getParameter("floor");
+            Integer floor = null;
+
+            if (floorStr != null && !floorStr.isEmpty()) {
+                try {
+                    floor = Integer.parseInt(floorStr);
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "Invalid floor number.");
+                    hasError = true;
+                }
+            }
+
             if ("Cleaner".equalsIgnoreCase(emp.getRole().getRoleName())) {
-                String floorStr = request.getParameter("floor");
-                if (floorStr != null && !floorStr.isEmpty()) {
-                    Integer floor = Integer.parseInt(floorStr);
+                if (floor != null) {
                     CleanerFloor cleanerFloor = new CleanerFloor();
                     cleanerFloor.setFloor(floor);
                     emp.setCleanerFloor(cleanerFloor);
@@ -184,9 +229,54 @@ public class EmployeeController extends HttpServlet {
         }
     }
 
-    private boolean validateEmployeeInput(HttpServletRequest request, String username, String fullName, String phoneNumber,
-            String email, int roleId, boolean hasError) {
+    private boolean validateAddEmployeeInput(HttpServletRequest request, String username, String password,
+            String fullName, String phoneNumber, String email, int roleId, boolean hasError) {
+        List<String> errorMessages = new ArrayList<>();
 
+        if (Validation.validateField(request, "usernameError", username, "USERNAME", "Username", "Tên đăng nhập không hợp lệ!")) {
+            errorMessages.add("Tên đăng nhập không hợp lệ!");
+        }
+        if (Validation.validateField(request, "passwordError", password, "PASSWORD", "Password", "Mật khẩu không hợp lệ!")) {
+            errorMessages.add("Mật khẩu không hợp lệ!");
+        }
+        if (Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Họ tên", "Họ tên không hợp lệ!")) {
+            errorMessages.add("Họ tên không hợp lệ!");
+        }
+        if (Validation.validateField(request, "phoneNumberError", phoneNumber, "PHONE_NUMBER", "Số điện thoại", "Số điện thoại không hợp lệ!")) {
+            errorMessages.add("Số điện thoại không hợp lệ!");
+        }
+        if (Validation.validateField(request, "emailError", email, "EMAIL", "Email", "Email không hợp lệ!")) {
+            errorMessages.add("Email không hợp lệ!");
+        }
+
+        EmployeeDAO employeeDAO = EmployeeDAO.getInstance();
+        CustomerAccountDAO customerDAO = CustomerAccountDAO.getInstance();
+
+        if (employeeDAO.isUsernameExisted(username) || customerDAO.isUsernameExisted(username)) {
+            errorMessages.add("Tên đăng nhập đã tồn tại!");
+        }
+        if (employeeDAO.getAllString("Email").contains(email)) {
+            errorMessages.add("Email đã tồn tại!");
+        }
+        if (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber)) {
+            errorMessages.add("Số điện thoại đã tồn tại!");
+        }
+
+        Role role = RoleDAO.getInstance().getRoleById(roleId);
+        if (role == null) {
+            errorMessages.add("Vai trò không hợp lệ!");
+        }
+
+        if (!errorMessages.isEmpty()) {
+            request.setAttribute("errorMessages", errorMessages);
+            hasError = true;
+        }
+
+        return hasError;
+    }
+
+    private boolean validateEditEmployeeInput(HttpServletRequest request, String username, String fullName,
+            String phoneNumber, String email, int roleId, int employeeId, boolean hasError) {
         List<String> errorMessages = new ArrayList<>();
 
         if (Validation.validateField(request, "usernameError", username, "USERNAME", "Username", "Tên đăng nhập không hợp lệ!")) {
@@ -205,18 +295,14 @@ public class EmployeeController extends HttpServlet {
         EmployeeDAO employeeDAO = EmployeeDAO.getInstance();
         CustomerAccountDAO customerDAO = CustomerAccountDAO.getInstance();
 
-        String existingUsername = employeeDAO.getEmployeeById(Integer.parseInt(request.getParameter("employeeId"))).getUsername();
-        if (!username.equals(existingUsername) && (employeeDAO.isUsernameExisted(username) || customerDAO.isUsernameExisted(username))) {
+        Employee existingEmployee = employeeDAO.getEmployeeById(employeeId);
+        if (!username.equals(existingEmployee.getUsername()) && (employeeDAO.isUsernameExisted(username) || customerDAO.isUsernameExisted(username))) {
             errorMessages.add("Tên đăng nhập đã tồn tại!");
         }
-
-        String existingEmail = employeeDAO.getEmployeeById(Integer.parseInt(request.getParameter("employeeId"))).getEmail();
-        if (!email.equals(existingEmail) && employeeDAO.getAllString("Email").contains(email)) {
+        if (!email.equals(existingEmployee.getEmail()) && employeeDAO.getAllString("Email").contains(email)) {
             errorMessages.add("Email đã tồn tại!");
         }
-
-        String existingPhone = employeeDAO.getEmployeeById(Integer.parseInt(request.getParameter("employeeId"))).getPhoneNumber();
-        if (!phoneNumber.equals(existingPhone) && employeeDAO.getAllString("PhoneNumber").contains(phoneNumber)) {
+        if (!phoneNumber.equals(existingEmployee.getPhoneNumber()) && employeeDAO.getAllString("PhoneNumber").contains(phoneNumber)) {
             errorMessages.add("Số điện thoại đã tồn tại!");
         }
 
@@ -231,6 +317,21 @@ public class EmployeeController extends HttpServlet {
         }
 
         return hasError;
+    }
+
+    private void toggleEmployeeStatus(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            int employeeId = Integer.parseInt(request.getParameter("employeeId"));
+            Employee employee = EmployeeDAO.getInstance().getEmployeeById(employeeId);
+            if (employee != null) {
+                boolean currentStatus = employee.isActivate();
+                employee.setActivate(!currentStatus);
+                EmployeeDAO.getInstance().updateEmployeeStatus(employee.getEmployeeId(), employee.isActivate());
+            }
+        } catch (Exception e) {
+            request.setAttribute("error", "An error occurred while updating employee status: " + e.getMessage());
+            doGet(request, response);
+        }
     }
 
 }

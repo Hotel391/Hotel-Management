@@ -11,7 +11,6 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>View review</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/cssAdmin/ViewReview.css">
         <%--style for dashbord--%>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
@@ -30,61 +29,93 @@
                 <c:set var="title" value="Dashboard" scope="request"/>
                 <jsp:include page="topNav.jsp" />
 
-                <div class="form-wrapper">
-                    <form action="review" method="post">
-                        <div class="form-container">
-                            <input type="text" name="fullName" value="${param.fullName}" placeholder="Enter fullName">
+                <div class="main-content">
+                    <div class="container-fluid p-4">
+                        <ul class="nav nav-tabs mb-3">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">List review</a>
+                            </li>
+                        </ul>
 
-                            <input type="date" name="date" value="${param.date}">
-
-                            <input type="submit" name="submit" value="search">
-                            <input type="reset" name="reset" value="reset">
-
-                            <input type="hidden" name="choose" value="listReview">
+                        <!--search-->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <form method="post" action="${pageContext.request.contextPath}/admin/review" class="d-flex gap-2">
+                                <input type="text" name="fullName"  
+                                       class="form-control search-input" placeholder="Enter fullName"/>
+                                <input type="date" class="form-control search-input" name="date" class="form-date" >
+                                <div class="form-group d-flex gap-2">
+                                    <button type="submit" name="submit" class="btn btn-primary">Search</button>
+                                    <button type="reset" name="reset" class="btn btn-secondary">Reset</button>
+                                </div>
+                                <input type="hidden" name="choose" value="listReview"> 
+                            </form>
                         </div>
-                    </form>
+
+                        <!--table review-->
+                        <div class="table-container">
+                            <table class="table align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">OrderID</th>
+                                        <th scope="col">Full Name</th>
+                                        <th scope="col">Evaluate</th>
+                                        <th scope="col">Feedback</th>
+                                        <th scope="col">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="r" items="${requestScope.list}">
+                                        <tr>
+                                            <td>${r.bookingDetail.booking.bookingId}</td>
+                                            <td>${r.customerAccount.customer.fullName}</td>
+                                            <td>
+                                                <c:forEach var="i" begin="1" end="${r.rating}">
+                                                    <span style="color: orange">&#9733;</span>
+                                                </c:forEach>
+                                            </td>
+                                            <td >
+                                                <button class="btn btn-sm btn-outline-info me-1"
+                                                        data-feedback="${r.feedBack}"
+                                                        onclick="viewFeedback(this.getAttribute('data-feedback'))">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </td>
+                                            <td>${r.date}</td>
+                                        </tr>
+                                    </c:forEach>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!--view feedback model-->
+                        <div class="modal fade" id="viewFeedbackModal" tabindex="-1" aria-labelledby="viewFeedbackModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Feedback Detail</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p id="viewfeedback">No feedback</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
                 </div>
 
-
-                <div class="room-table-container">
-                    <table class="room-table">
-                        <thead>
-                            <tr>
-                                <th class="col-orderid">OrderID</th>
-                                <th class="col-name">Full Name</th>
-                                <th class="col-rating">Evaluate</th>
-                                <th class="col-feedback">Feedback</th>
-                                <th class="col-date">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            <c:forEach var="r" items="${requestScope.list}">
-                                <tr>
-                                    <td class="col-orderid">${r.bookingDetail.booking.bookingId}</td>
-                                    <td class="col-name">${r.customerAccount.customer.fullName}</td>
-                                    <td class="col-rating">
-                                        <c:forEach var="i" begin="1" end="${r.rating}">
-                                            <span class="star">&#9733;</span>
-                                        </c:forEach>
-                                    </td>
-                                    <td class="col-feedback">
-                                        <button type="button" class="viewFeedback" onclick="showFeedback('${r.feedBack}')">View</button>
-                                    </td>
-                                    <td class="col-date">${r.date}</td>
-                                </tr>
-                            </c:forEach>
-
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
         <script>
-            function showFeedback(feedback) {
-                alert("Feedback: " + feedback);
+            function viewFeedback(feedback) {
+                document.getElementById('viewfeedback').innerText = feedback;
+                new bootstrap.Modal(document.getElementById('viewFeedbackModal')).show();
             }
         </script>
+
     </body>
     <%--script for dashbord--%>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>

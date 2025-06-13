@@ -17,7 +17,7 @@ public class AdminRoom extends HttpServlet {
     private String roomNumberr = "roomNumber";
     private String typeRoom = "typeRoom";
     private String typeRoomIdd = "typeRoomId";
-    
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -27,10 +27,7 @@ public class AdminRoom extends HttpServlet {
             choose = "viewAll";
         }
         String submit = request.getParameter(submitt);
-        List<TypeRoom> tr = null;
-        if (choose.equals(insertRoom) || choose.equals(updateRoom)) {
-            tr = dal.RoomDAO.getInstance().getAllTypeRoom();
-        }
+        List<TypeRoom> tr = dal.RoomDAO.getInstance().getAllTypeRoom();
 
         if (choose.equals("deleteRoom")) {
             String roomNumberStr = request.getParameter(roomNumberr);
@@ -39,29 +36,10 @@ public class AdminRoom extends HttpServlet {
             response.sendRedirect("room");
         }
 
-        //forward sang InsertRoom.jsp
-        if (choose.equals(insertRoom)) {
-            if (submit == null) {
-                request.setAttribute(typeRoom, tr);
-                request.getRequestDispatcher("/View/Admin/InsertRoom.jsp").forward(request, response);
-            }
-        }
-
-        //forward sang UpdateRoom.jsp
-        if (choose.equals(updateRoom)) {
-            if (submit == null) {
-                String roomNumber = request.getParameter(roomNumberr);
-                String typeRoomId = request.getParameter(typeRoomIdd);
-                request.setAttribute(roomNumberr, roomNumber);
-                request.setAttribute(typeRoomIdd, typeRoomId);
-                request.setAttribute(typeRoom, tr);
-                request.getRequestDispatcher("/View/Admin/UpdateRoom.jsp").forward(request, response);
-            }
-        }
-
         //view list room
         if (choose.equals("viewAll")) {
             List<Room> r = dal.RoomDAO.getInstance().getAllRoom();
+            request.setAttribute(typeRoom, tr);
             request.setAttribute("listR", r);
             request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
         }
@@ -73,6 +51,9 @@ public class AdminRoom extends HttpServlet {
         String choose = request.getParameter("choose");
         String roomNumberStr = request.getParameter(roomNumberr);
         String typeRoomIdStr = request.getParameter(typeRoomIdd);
+        List<TypeRoom> tr = dal.RoomDAO.getInstance().getAllTypeRoom();
+        List<Room> r = dal.RoomDAO.getInstance().getAllRoom();
+
         //update room
         if (choose.equals(updateRoom)) {
             String submit = request.getParameter(submitt);
@@ -100,9 +81,6 @@ public class AdminRoom extends HttpServlet {
 
                 request.setAttribute(roomNumberr, roomNumberStr);
 
-                List<TypeRoom> tr = dal.RoomDAO.getInstance().getAllTypeRoom();
-                request.setAttribute(typeRoom, tr);
-
                 try {
                     typeRoomId = Integer.parseInt(typeRoomIdStr);
                     roomNumber = Integer.parseInt(roomNumberStr);
@@ -111,11 +89,14 @@ public class AdminRoom extends HttpServlet {
                         haveError = true;
                     }
                 } catch (NumberFormatException e) {
+
+                    request.setAttribute(typeRoom, tr);
+                    request.setAttribute("listR", r);
                     request.setAttribute("error", "Room Number must be a positive integer.");
                     haveError = true;
                 }
                 if (haveError) {
-                    request.getRequestDispatcher("/View/Admin/InsertRoom.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
                     return;
                 }
                 dal.RoomDAO.getInstance().insertRoom(roomNumber, typeRoomId);

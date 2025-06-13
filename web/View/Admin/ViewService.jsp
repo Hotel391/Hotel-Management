@@ -11,7 +11,6 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>View service</title>
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/cssAdmin/ViewService.css">
         <%--style for dashbord--%>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
@@ -30,35 +29,214 @@
                 <c:set var="title" value="Dashboard" scope="request"/>
                 <jsp:include page="topNav.jsp" />
 
-                <div class="link-insert"><a href="service?choose=insertService">Insert new service</a></div>
-                <div class="room-table-container">
-                    <h2>List service</h2>
-                    <table class="room-table">
-                        <thead>
-                            <tr>
-                                <th>ServiceID</th>
-                                <th>Service name</th>
-                                <th>Price</th>
-                                <th>Update</th>
-                                <th>Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="s" items="${requestScope.listS}">
-                                <tr>
-                                    <td>${s.serviceId}</td>
-                                    <td>${s.serviceName}</td>
-                                    <td>${s.price}</td>
-                                    <td><a href="service?choose=updateService&serviceId=${s.serviceId}&serviceName=${s.serviceName}&price=${s.price}">Update</a></td>
-                                    <td><a href="service?choose=deleteService&serviceId=${s.serviceId}" onclick="return confirm('Are you sure to delete?');">Delete</a></td>
-                                </tr>
-                            </c:forEach>
+                <div class="main-content">
+                    <div class="container-fluid p-4">
+                        <ul class="nav nav-tabs mb-3">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#">Management service</a>
+                            </li>
+                        </ul>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">+ Add New Service</button>
+                            </div>
+                        </div>
 
-                        </tbody>
-                    </table>
+                        <div class="table-container">
+                            <table class="table align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">ServiceID</th>
+                                        <th scope="col">Service name</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Update</th>
+                                        <th scope="col">Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="s" items="${requestScope.listS}">
+                                        <tr>
+                                            <td>${s.serviceId}</td>
+                                            <td>${s.serviceName}</td>
+                                            <td>${s.price}</td>
+                                            <td>
+                                                <button 
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#updateServiceModal"
+                                                    data-service-id="${s.serviceId}"
+                                                    data-service-name="${s.serviceName}"
+                                                    data-service-price="${s.price}">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button
+                                                    class="btn btn-danger"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteServiceModal"
+                                                    data-service-id="${s.serviceId}"
+                                                    data-service-name="${s.serviceName}">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>  
+
+                                        </tr>
+                                    </c:forEach>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+                    <!-- Delete Service Modal -->
+                    <div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-labelledby="deleteServiceModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="get" action="${pageContext.request.contextPath}/admin/service?choose=deleteService">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteServiceModalLabel">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete this service?<br>
+                                        <strong>ID:</strong> <span id="serviceIdDisplay"></span><br>
+                                        <strong>Name:</strong> <span id="serviceNameDisplay"></span>
+                                        <input type="hidden" id="serviceIdDeleteInput" name="serviceId" />
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <input type="hidden" name="choose" value="deleteService"/>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Update Service Modal -->
+                    <div class="modal fade" id="updateServiceModal" tabindex="-1" aria-labelledby="updateServiceModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="${pageContext.request.contextPath}/admin/service?choose=updateService" method="post">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="updateServiceModalLabel">Update Service</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <!-- Service ID -->
+                                        <div class="mb-3">
+                                            <label for="serviceId" class="form-label">Service ID</label>
+                                            <input type="text" class="form-control" id="serviceId" name="serviceId" readonly>
+                                        </div>
+
+                                        <!-- Service Name -->
+                                        <div class="mb-3">
+                                            <label for="serviceName" class="form-label">Service Name</label>
+                                            <input type="text" class="form-control" id="serviceName" name="serviceName" required>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <div class="mb-3">
+                                            <label for="price" class="form-label">Price (VND)</label>
+                                            <input type="number" class="form-control" id="price" name="price" required min="0">
+                                        </div>
+                                        <c:if test="${not empty requestScope.priceUpdateError}">
+                                            <div style="color: red;">${requestScope.priceUpdateError}</div>
+                                        </c:if>    
+                                        <c:if test="${not empty requestScope.priceUpdateError}">
+                                            <div style="color: red;">${requestScope.priceUpdateError}</div>
+                                        </c:if>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-success" value="submit" name="submit">Update</button>
+                                        <input type="reset" name="reset" value="Reset"/>
+                                        <input type="hidden" name="choose" value="updateService"/>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Add Service Modal -->
+                    <div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/admin/service?choose=insertService" novalidate>
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addRoleModalLabel">Add New Service</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="roomNumberer" class="form-label">Service Name</label>
+                                            <input type="text" id="newServiceNameAdd" name="serviceNameAdd" class="form-control" value="${param.serviceNameAdd}" required="">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="roomTypeSelect" class="form-label">Price</label>
+                                            <input type="text" name="priceServiceAdd" class="form-control"  value="${param.priceService}" required="">
+                                        </div>
+                                        <c:if test="${not empty requestScope.nameAddError}">
+                                            <div style="color: red;">${requestScope.nameAddError}</div>
+                                        </c:if>    
+                                        <c:if test="${not empty requestScope.priceAddError}">
+                                            <div style="color: red;">${requestScope.priceAddError}</div>
+                                        </c:if>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <input type="submit" name="submit" class="btn btn-success" value="Add new service"/>
+                                        <input type="reset" name="reset" value="Reset"/>
+                                        <input type="hidden" name="choose" value="insertService"/>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
+
+
             </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                //update service
+                const updateServiceModal = document.getElementById('updateServiceModal');
+                if (updateServiceModal) {
+                    updateServiceModal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+                        const serviceId = button.getAttribute('data-service-id');
+                        const serviceName = button.getAttribute('data-service-name');
+                        const price = button.getAttribute('data-service-price');
+
+                        document.getElementById('serviceId').value = serviceId;
+                        document.getElementById('serviceName').value = serviceName;
+                        document.getElementById('price').value = price;
+                    });
+                }
+
+                //delete service
+                const deleteServiceModal = document.getElementById('deleteServiceModal');
+                if (deleteServiceModal) {
+                    deleteServiceModal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget;
+                        const serviceId = button.getAttribute('data-service-id');
+                        document.getElementById('serviceIdDeleteInput').value = serviceId;
+                        document.getElementById('serviceIdDisplay').textContent = serviceId;
+                    });
+                }
+            });
+        </script>
+
     </body>
     <%--script for dashbord--%>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>

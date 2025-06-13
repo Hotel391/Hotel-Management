@@ -28,7 +28,7 @@ public class CustomerAccountDAO {
 
     public List<String> getAllUsername() {
         List<String> listUsername = new ArrayList<>();
-        String sql = "select Username from CustomerAccount";
+        String sql = "select Username from CustomerAccount ";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 listUsername.add(rs.getString(1));
@@ -44,7 +44,9 @@ public class CustomerAccountDAO {
         String sql = "select c.Email, ca.Username, ca.Password, ca.customerId \n"
                 + "from customer c join CustomerAccount ca\n"
                 + "on c.CustomerId = ca.CustomerId "
-                + "where (Username=? or email=?) and Password=?";
+                + "where (Username COLLATE SQL_Latin1_General_CP1_CI_AS =? or "
+                + "email COLLATE SQL_Latin1_General_CP1_CI_AS =?) and Password=?";
+
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
             st.setString(2, username);
@@ -64,6 +66,27 @@ public class CustomerAccountDAO {
         }
         return null;
     }
+    public CustomerAccount getCustomerAccountById(int customerId) {
+    String sql = "SELECT c.Email, ca.Username, ca.Password, ca.CustomerId "
+               + "FROM customer c JOIN CustomerAccount ca ON c.CustomerId = ca.CustomerId "
+               + "WHERE ca.CustomerId = ?";
+    try (PreparedStatement st = con.prepareStatement(sql)) {
+        st.setInt(1, customerId);
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            CustomerAccount ca = new CustomerAccount();
+            ca.setUsername(rs.getString("Username"));
+            ca.setPassword(rs.getString("Password"));
+            Customer c = CustomerDAO.getInstance().getCustomerByCustomerID(customerId);
+            ca.setCustomer(c);
+            return ca;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
 
     //create function check account by email
     public CustomerAccount checkAccountByEmail(String email) {
@@ -117,7 +140,7 @@ public class CustomerAccountDAO {
     //check existed by username
 
     public boolean isUsernameExisted(String username) {
-        String sql = "select * from CustomerAccount where Username=?";
+        String sql = "select Username from CustomerAccount where Username COLLATE SQL_Latin1_General_CP1_CI_AS =? ";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
             ResultSet rs = st.executeQuery();

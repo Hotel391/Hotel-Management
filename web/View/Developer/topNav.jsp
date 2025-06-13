@@ -7,7 +7,7 @@
         <div class="user-info" style="width: 180px">
             <a href="${pageContext.request.contextPath}/developerPage?service=changePass&username=${sessionScope.username}" class="text-decoration-none text-reset">
                 <i class="bi bi-person-circle"></i>ChangePassword</a><br>
-            <a href="login?service=logout" class="text-decoration-none text-reset">
+            <a href="${pageContext.request.contextPath}/login?service=logout" class="text-decoration-none text-reset">
                 <i class="bi bi-box-arrow-right"></i>Logout</a>
         </div>
     </div>

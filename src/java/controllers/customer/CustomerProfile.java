@@ -14,22 +14,15 @@ import models.Employee;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "CustomerProfile", urlPatterns = {"/customer/customerProfile"})
+@WebServlet(name = "CustomerProfile", urlPatterns = {"/customerProfile"})
 public class CustomerProfile extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String service = request.getParameter("service");
         String submit = request.getParameter("submit");
-        HttpSession session = request.getSession();
-//        CustomerAccount caaa = (CustomerAccount) session.getAttribute("customerInfo");
-//        if(caaa == null){
-//            response.sendRedirect(request.getContextPath()+"/login?service=logout");
-//            return;
-//        }
-//        String username = caaa.getUsername();
-        
         String username = request.getParameter("username");
+        HttpSession session = request.getSession();
         String type;
         CustomerAccount ca = dal.CustomerDAO.getInstance().getCustomerAccount(username);
 
@@ -70,11 +63,11 @@ public class CustomerProfile extends HttpServlet {
                         break;
                     }
                 }
-                
+
                 List<String> employees = dal.AdminDao.getInstance().getAllUsernames();
                 for (String un : employees) {
-                    if (un.equalsIgnoreCase(username)) {
-                        request.setAttribute("usernameError", "Username already exists.");
+                    if (un.equalsIgnoreCase(newUserName)) {
+                        request.setAttribute("usernameError", "username này đã tồn tại");
                         hasError = true;
                         break;
                     }
@@ -86,10 +79,12 @@ public class CustomerProfile extends HttpServlet {
                     return;
                 }
 
-                session.setAttribute("username", newUserName);
+                // Cập nhật lại customerInfo trong session
+                CustomerAccount updatedAccount = dal.CustomerAccountDAO.getInstance().getCustomerAccountById(customerId);
+                session.setAttribute("customerInfo", updatedAccount);
 
                 dal.CustomerAccountDAO.getInstance().changeUsername(newUserName, customerId);
-                response.sendRedirect(request.getContextPath() + "/customer/customerProfile?service=info&username=" + newUserName);
+                response.sendRedirect(request.getContextPath() + "/customerProfile?service=info&username=" + newUserName);
             }
         }
 
@@ -136,7 +131,7 @@ public class CustomerProfile extends HttpServlet {
                     return;
                 }
                 dal.CustomerAccountDAO.getInstance().changePassword(newPassWordSh, username);
-                response.sendRedirect(request.getContextPath() + "/customer/customerProfile?service=info&username=" + username);
+                response.sendRedirect(request.getContextPath() + "/customerProfile?service=info&username=" + username);
             }
 
         }
@@ -191,7 +186,7 @@ public class CustomerProfile extends HttpServlet {
                     return;
                 }
                 dal.CustomerDAO.getInstance().updateCustomerInfo(username, fullName, phoneNumber, genderValue);
-                response.sendRedirect(request.getContextPath() + "/customer/customerProfile?service=info&username=" + username);
+                response.sendRedirect(request.getContextPath() + "/customerProfile?service=info&username=" + username);
                 return;
             }
         }

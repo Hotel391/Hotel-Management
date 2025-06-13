@@ -200,4 +200,16 @@ public class CustomerDAO {
         }
         return 0;
     }
+    public List<String> getAllString(String columnName) {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT " + columnName + " FROM Customer";
+        try (PreparedStatement stmt = con.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(rs.getString(columnName));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

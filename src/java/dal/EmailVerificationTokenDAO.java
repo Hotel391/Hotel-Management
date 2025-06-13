@@ -76,7 +76,7 @@ public class EmailVerificationTokenDAO {
     public boolean checkExistedUsername(String username){
         String sql="""
                    select TokenId, ExpiryDate from EmailVerificationToken
-                   where Username=?""";
+                   where Username COLLATE SQL_Latin1_General_CP1_CI_AS =?""";
         try(PreparedStatement st=con.prepareStatement(sql)) {
             st.setString(1, username);
             try(ResultSet rs=st.executeQuery()) {

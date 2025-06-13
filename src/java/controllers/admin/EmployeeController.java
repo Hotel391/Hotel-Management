@@ -1,7 +1,9 @@
 package controllers.admin;
 
+import dal.CustomerAccountDAO;
 import dal.EmployeeDAO;
 import dal.RoleDAO;
+import dal.CustomerDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,6 +16,7 @@ import models.CleanerFloor;
 import models.Employee;
 import models.Role;
 import utility.Encryption;
+import utility.Validation;
 
 @WebServlet(name = "EmployeeController", urlPatterns = {"/view/admin/employees"})
 public class EmployeeController extends HttpServlet {
@@ -44,7 +47,7 @@ public class EmployeeController extends HttpServlet {
             } else {
                 switch (action) {
                     case "add":
-                        Employee newEmp = createEmployee(request, true);
+                        Employee newEmp = createEmployee(request, response, true);
                         if (newEmp != null) {
                             EmployeeDAO.getInstance().addEmployee(newEmp);
                         } else {
@@ -55,11 +58,14 @@ public class EmployeeController extends HttpServlet {
                         }
                         break;
                     case "update":
-                        Employee updateEmp = createEmployee(request, false);
+                        Employee updateEmp = createEmployee(request, response, false);
                         if (updateEmp != null) {
                             EmployeeDAO.getInstance().updateEmployee(updateEmp);
                         } else {
-                            error = "Invalid employee data.";
+                            error = (String) request.getAttribute("error");
+                            if (error == null) {
+                                error = "Invalid employee data.";
+                            }
                         }
                         break;
                     case "delete":
@@ -82,10 +88,21 @@ public class EmployeeController extends HttpServlet {
         }
     }
 
-    private Employee createEmployee(HttpServletRequest request, boolean isAdd) {
+    private Employee createEmployee(HttpServletRequest request, HttpServletResponse response, boolean isAdd)
+            throws ServletException, IOException {
+        boolean hasError = false;
+        List<Employee> employeeList = EmployeeDAO.getInstance().getAllEmployee();
         try {
             Employee emp = new Employee();
-            if (!isAdd) emp.setEmployeeId(Integer.parseInt(request.getParameter("employeeId")));
+            if (!isAdd) {
+                String employeeIdStr = request.getParameter("employeeId");
+                if (employeeIdStr == null || employeeIdStr.trim().isEmpty()) {
+                    request.setAttribute("error", "Employee ID is required for update.");
+                    hasError = true;
+                } else {
+                    emp.setEmployeeId(Integer.parseInt(employeeIdStr));
+                }
+            }
 
             String username = request.getParameter("username");
             String password = request.getParameter("password");
@@ -94,33 +111,82 @@ public class EmployeeController extends HttpServlet {
             String email = request.getParameter("email");
             int roleId = Integer.parseInt(request.getParameter("roleId"));
             
-            if (username == null || username.isEmpty() || password == null || password.isEmpty() ||
-                fullName == null || fullName.isEmpty() || phoneNumber == null || phoneNumber.isEmpty() ||
-                email == null || email.isEmpty()) {
-                return null;
-            }
-            Role role = RoleDAO.getInstance().getRoleById(roleId);
-            if (role == null) {
-                return null;
-            }
+            System.out.println("username: " + username);
+            
+            System.out.println("password: " + password);
+            
+            System.out.println("fullName: " + fullName);
+            
+            System.out.println("phoneNumber: " + phoneNumber);
+            
+            System.out.println("email: " + email);
+            
+            System.out.println("roleId: " + roleId);
 
-            String roleName = role.getRoleName();
-            if (!"Receptionist".equalsIgnoreCase(roleName) && !"Cleaner".equalsIgnoreCase(roleName)) {
-                return null;
+            if (Validation.validateField(request, "usernameError", username, "USERNAME", "Username", "Tên đăng nhập không hợp lệ!")) {
+                hasError = true;
             }
+            if (Validation.validateField(request, "passwordError", password, "PASSWORD", "Password", "Mật khẩu không hợp lệ!")) {
+                hasError = true;
+            }
+            if (Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Họ tên", "Họ tên không hợp lệ!")) {
+                hasError = true;
+            }
+            if (Validation.validateField(request, "phoneNumberError", phoneNumber, "PHONE_NUMBER", "Số điện thoại", "Số điện thoại không hợp lệ!")) {
+                hasError = true;
+            }
+            if (Validation.validateField(request, "emailError", email, "EMAIL", "Email", "Email không hợp lệ!")) {
+                hasError = true;
+            }
+            
 
             EmployeeDAO employeeDAO = EmployeeDAO.getInstance();
-            if (employeeDAO.getAllString("Username").contains(username)) {
-                request.setAttribute("error", "Username already exists.");
-                return null;
+            CustomerAccountDAO customerDAO = CustomerAccountDAO.getInstance();
+
+            
+            
+            if (!hasError) {
+                if (employeeDAO.isUsernameExisted(username) || customerDAO.isUsernameExisted(username)) {
+                    request.setAttribute("usernameError", "Tên đăng nhập đã tồn tại!");
+                    hasError = true;
+                }
+                if (employeeDAO.getAllString("Email").contains(email)) {
+                    request.setAttribute("emailError", "Email đã tồn tại!");
+                    hasError = true;
+                }
+                if (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber)) {
+                    request.setAttribute("phoneNumberError", "Số điện thoại đã tồn tại!");
+                    hasError = true;
+                }
             }
-            if (employeeDAO.getAllString("Email").contains(email)) {
-                request.setAttribute("error", "Email already exists.");
-                return null;
+            
+            Role role = RoleDAO.getInstance().getRoleById(roleId);
+            
+            System.out.println("role: " + role.getRoleName());
+            
+            if (!hasError && role == null) {
+                request.setAttribute("error", "Invalid role selected.");
+                hasError = true;
+            } else if (!hasError) {
+                String roleName = role.getRoleName();
+                if (!"Receptionist".equalsIgnoreCase(roleName) && !"Cleaner".equalsIgnoreCase(roleName)) {
+                    request.setAttribute("error", "Only Receptionist and Cleaner roles are allowed.");
+                    hasError = true;
+                }
+                System.out.println(hasError);
             }
-            if (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber)) {
-                request.setAttribute("error", "Phone number already exists.");
-                return null;
+            
+            if (hasError) {
+                request.setAttribute("listRole", RoleDAO.getInstance().getAllRoles());
+                request.setAttribute("username", username);
+                request.setAttribute("fullName", fullName);
+                request.setAttribute("phoneNumber", phoneNumber);
+                request.setAttribute("email", email);
+                request.setAttribute("roleId", roleId);
+                request.setAttribute("listEmployee", employeeList);
+//                request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
+                System.out.println("1");
+                return  null;
             }
 
             emp.setUsername(username);
@@ -131,6 +197,8 @@ public class EmployeeController extends HttpServlet {
             emp.setRegistrationDate(new Date(System.currentTimeMillis()));
             emp.setActivate(true);
             emp.setRole(role);
+            
+            System.out.println("Employ in create func: " + emp.toString());
 
             Integer floor = request.getParameter("floor") != null && !request.getParameter("floor").isEmpty() ?
                             Integer.parseInt(request.getParameter("floor")) : null;
@@ -139,9 +207,18 @@ public class EmployeeController extends HttpServlet {
                 cf.setFloor(floor);
                 emp.setCleanerFloor(cf);
             }
+            
 
             return emp;
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Invalid role ID or employee ID.");
+            request.setAttribute("listRole", RoleDAO.getInstance().getAllRoles());
+            request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
+            return null;
         } catch (Exception e) {
+            request.setAttribute("error", "An error occurred: " + e.getMessage());
+            request.setAttribute("listRole", RoleDAO.getInstance().getAllRoles());
+            request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
             return null;
         }
     }

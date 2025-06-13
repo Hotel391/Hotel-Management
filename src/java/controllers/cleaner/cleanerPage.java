@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author win
  */
-@WebServlet(name="cleanerPage", urlPatterns={"/cleanerPage"})
+@WebServlet(name="cleanerPage", urlPatterns={"/cleaner/page"})
 public class cleanerPage extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

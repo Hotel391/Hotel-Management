@@ -12,7 +12,7 @@ import java.io.IOException;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "CleanerProfileServlet", urlPatterns = "/cleanerProfile")
+@WebServlet(name = "CleanerProfileServlet", urlPatterns = "/cleaner/profile")
 public class cleanerProfile extends HttpServlet {
 
     private EmployeeDAO employeeDAO;
@@ -29,16 +29,6 @@ public class cleanerProfile extends HttpServlet {
         HttpSession session = request.getSession();
         Employee cleaner = (Employee) session.getAttribute("employeeInfo");
 
-        if (cleaner == null) {
-            response.sendRedirect("View/Login.jsp");
-            return;
-        }
-
-        if (cleaner.getRole().getRoleId() != 3) {
-            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            return;
-        }
-
         String action = request.getParameter("action");
         boolean isEditing = "updateprofile".equals(action);
 
@@ -54,17 +44,6 @@ public class cleanerProfile extends HttpServlet {
 
         HttpSession session = request.getSession();
         Employee cleaner = (Employee) session.getAttribute("employeeInfo");
-
-        if (cleaner == null) {
-            response.sendRedirect("View/Login.jsp");
-            return;
-        }
-
-        
-        if (cleaner.getRole().getRoleId() != 3) {
-            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            return;
-        }
 
         String action = request.getParameter("action");
 
@@ -112,7 +91,7 @@ public class cleanerProfile extends HttpServlet {
 
                 employeeDAO.updateEmployee(cleaner);
                 session.setAttribute("employeeInfo", cleaner);
-                response.sendRedirect(request.getContextPath() + "/cleanerProfile");
+                response.sendRedirect(request.getContextPath() + "/cleaner/profile");
                 return;
 
             } else if ("changepassword".equals(action)) {

@@ -56,8 +56,8 @@ public class RegisterService {
                 || employeeDAO.getAllString("Email").contains(email);
     }
     public boolean isUsernameExists(String username){
-        return customerAccountDAO.getAllUsername().contains(username) ||
-                employeeDAO.getAllString("Username").contains(username);
+        return customerAccountDAO.isUsernameExisted(username) ||
+                employeeDAO.isUsernameExisted(username);
     }
     public boolean isUsernameExistInToken(String username){
         return tokenDAO.checkExistedUsername(username);

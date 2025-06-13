@@ -20,7 +20,7 @@
         <div class="containerBox">
             <jsp:include page="leftNav.jsp" />
             <div class="right-section">
-                <c:set var="title" value="Home Page" scope="request"/>
+                <c:set var="title" value="Customer Page" scope="request"/>
                 <jsp:include page="topNav.jsp" />
               
             </div>

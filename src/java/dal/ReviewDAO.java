@@ -49,9 +49,9 @@ public class ReviewDAO {
                 + "JOIN \n"
                 + "    Customer c ON ca.CustomerId = c.CustomerId;";
         List<Review> listReview = new Vector<>();
-        try ( PreparedStatement ptm = con.prepareStatement(sql);
+        try (PreparedStatement ptm = con.prepareStatement(sql);
             ResultSet rs = ptm.executeQuery()) {
-           
+            
             while (rs.next()) {
                 Booking b = new Booking();
                 BookingDetail bd = new BookingDetail();

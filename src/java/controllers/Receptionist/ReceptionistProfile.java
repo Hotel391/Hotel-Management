@@ -12,7 +12,7 @@ import java.io.IOException;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "ReceptionistProfileServlet", urlPatterns = "/view/receptionist/receptionistProfile")
+@WebServlet(name = "ReceptionistProfileServlet", urlPatterns = "/receptionist/profile")
 public class ReceptionistProfile extends HttpServlet {
 
     private EmployeeDAO employeeDAO;
@@ -29,17 +29,6 @@ public class ReceptionistProfile extends HttpServlet {
         HttpSession session = request.getSession();
         Employee receptionist = (Employee) session.getAttribute("employeeInfo");
 
-        if (receptionist == null) {
-            response.sendRedirect("View/Login.jsp");
-            return;
-        }
-
-
-        if (receptionist.getRole().getRoleId() != 2) {
-            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            return;
-        }
-
         String action = request.getParameter("action");
         boolean isEditing = "updateprofile".equals(action);
 
@@ -55,17 +44,6 @@ public class ReceptionistProfile extends HttpServlet {
 
         HttpSession session = request.getSession();
         Employee receptionist = (Employee) session.getAttribute("employeeInfo");
-
-        if (receptionist == null) {
-            response.sendRedirect("View/Login.jsp");
-            return;
-        }
-
-
-        if (receptionist.getRole().getRoleId() != 2) {
-            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
-            return;
-        }
 
         String action = request.getParameter("action");
 
@@ -113,7 +91,7 @@ public class ReceptionistProfile extends HttpServlet {
 
                 employeeDAO.updateEmployee(receptionist);
                 session.setAttribute("employeeInfo", receptionist);
-                response.sendRedirect(request.getContextPath() + "/view/receptionist/receptionistProfile");
+                response.sendRedirect(request.getContextPath() + "/receptionist/profile");
                 return;
 
             } else if ("changepassword".equals(action)) {

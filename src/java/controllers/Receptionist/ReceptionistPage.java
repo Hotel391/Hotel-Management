@@ -6,7 +6,6 @@
 package controllers.receptionist;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author win
  */
-@WebServlet("/receptionistPage")
+@WebServlet(name = "ReceptionistPage", urlPatterns = "/receptionist/page")
 public class ReceptionistPage extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

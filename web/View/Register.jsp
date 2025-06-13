@@ -82,12 +82,11 @@
 
                                     <!-- Register buttons -->
                                     <div class="text-center">
-                                        <span>Or sign up with:</span>
-                                        <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:9999/fptHotel/login&response_type=code
-                                           &client_id=200776812058-qrg1li14uugvdeb351am8g4savbpjnvo.apps.googleusercontent.com&approval_prompt=force&state=loginGoogle">
+                                        <span>Or return to login: </span>
+                                        <a href="login">
                                             <button  type="button" data-mdb-ripple-init 
                                                      class="btn btn-link btn-floating mx-1 margin-buttom">
-                                                <i class="fab fa-google"></i>
+                                                Login
                                             </button>
                                         </a>
 

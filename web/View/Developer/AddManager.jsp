@@ -25,13 +25,13 @@
 
                 <!-- Nút Back -->
                 <div class="d-flex justify-content-end px-4 mt-3">
-                    <a href="${pageContext.request.contextPath}/developerPage" class="btn btn-outline-secondary">
+                    <a href="${pageContext.request.contextPath}/developer/page" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left"></i> Back
                     </a>
                 </div>
 
                 <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
-                    <form action="${pageContext.request.contextPath}/developerPage" method="post" class="w-50">
+                    <form action="${pageContext.request.contextPath}/developer/page" method="post" class="w-50">
                         <input type="hidden" name="service" value="add">
 
                         <div class="input-group mb-3">

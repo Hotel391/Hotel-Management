@@ -71,7 +71,7 @@
                                         <button type="submit" class="btn btn-success">
                                             <i class="bi bi-save"></i> Save Changes
                                         </button>
-                                        <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
+                                        <a href="${pageContext.request.contextPath}/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
                                             <i class="bi bi-arrow-left-circle"></i> Cancel
                                         </a>
                                     </div>
@@ -142,7 +142,7 @@
                                             <button type="submit" class="btn btn-success">
                                                 <i class="bi bi-save"></i> Save Changes
                                             </button>
-                                            <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
+                                            <a href="${pageContext.request.contextPath}/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
                                                 <i class="bi bi-arrow-left-circle"></i> Cancel
                                             </a>
                                         </div>
@@ -173,7 +173,7 @@
                                             <button type="submit" class="btn btn-success">
                                                 <i class="bi bi-save"></i> Save Changes
                                             </button>
-                                            <a href="${pageContext.request.contextPath}/customer/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
+                                            <a href="${pageContext.request.contextPath}/customerProfile?service=info&username=${customerAccount.username}" class="btn btn-secondary">
                                                 <i class="bi bi-arrow-left-circle"></i> Cancel
                                             </a>
                                         </div>
@@ -186,7 +186,6 @@
                 </div>
             </div>
         </div>
-
         <script>
 
             function oldtogglePassword() {

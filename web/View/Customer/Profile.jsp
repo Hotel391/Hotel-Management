@@ -55,19 +55,19 @@
 
                             <!--back home,update profile-->
                             <div class="mt-4 d-flex gap-2">
-                                <a href="${pageContext.request.contextPath}/customer/home" class="btn btn-secondary">
+                                <a href="${pageContext.request.contextPath}/home" class="btn btn-secondary">
                                     <i class="bi bi-arrow-left-circle"></i> Back to Home
                                 </a>
 
-                                <a href="${pageContext.request.contextPath}/customer/customerProfile?service=update&username=${customerAccount.username}" class="btn btn-primary">
+                                <a href="${pageContext.request.contextPath}/customerProfile?service=update&username=${customerAccount.username}" class="btn btn-primary">
                                     <i class="bi bi-pencil-square"></i> Update Profile
                                 </a>
 
-                                <a href="${pageContext.request.contextPath}/customer/customerProfile?service=changePass&username=${customerAccount.username}" class="btn btn-warning">
+                                <a href="${pageContext.request.contextPath}/customerProfile?service=changePass&username=${customerAccount.username}" class="btn btn-warning">
                                     <i class="bi bi-key"></i> Change Password
                                 </a>
 
-                                <a href="${pageContext.request.contextPath}/customer/customerProfile?service=changeUserName&username=${customerAccount.username}" class="btn btn-primary">
+                                <a href="${pageContext.request.contextPath}/customerProfile?service=changeUserName&username=${customerAccount.username}" class="btn btn-primary">
                                     <i class="bi bi-pencil-square"></i> Change username
                                 </a>
                             </div>

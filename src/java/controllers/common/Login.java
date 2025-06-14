@@ -21,6 +21,7 @@ import models.Customer;
 import models.CustomerAccount;
 import models.Employee;
 import models.Role;
+import utility.Validation;
 
 /**
  *
@@ -104,8 +105,11 @@ public class Login extends HttpServlet {
                 }
                 return;
             }
-
-            request.setAttribute("error", "Wrong username or password");
+            if (Validation.checkFormatException(username, "EMAIL")) {
+                request.setAttribute("error", "Wrong email or password");
+            } else {
+                request.setAttribute("error", "Wrong username or password");
+            }
             request.getRequestDispatcher("View/Login.jsp").forward(request, response);
         }
 

@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import models.TypeRoom;
 
 /**
  *
@@ -101,6 +102,27 @@ public class ServiceDAO {
         } catch (SQLException ex) {
             ex.getStackTrace();
         }
+    }
+    
+     public List<Service> getServicesNotInTypeRoom(TypeRoom typeRoom) {
+        List<Service> services = new ArrayList<>();
+        String sql = "SELECT * FROM Service WHERE ServiceId NOT IN (SELECT ServiceId FROM RoomNService WHERE TypeId = ?)";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, typeRoom.getTypeId());
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Service service = new Service();
+                    service.setServiceId(rs.getInt("ServiceId"));
+                    service.setServiceName(rs.getString("ServiceName"));
+                    service.setPrice(rs.getInt("Price"));
+                    services.add(service);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return services;
     }
 
 }

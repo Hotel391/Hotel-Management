@@ -35,7 +35,7 @@ public class EmployeeDAO {
                 + "FROM Employee e "
                 + "JOIN Role r ON r.RoleId = e.RoleId "
                 + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
-                + "WHERE r.RoleId NOT IN (0, 1)";  // Lọc bỏ các RoleId 0 và 1
+                + "WHERE r.RoleId NOT IN (0, 1)";  
 
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
@@ -410,7 +410,6 @@ public class EmployeeDAO {
                     r.setRoleName(rs.getString("RoleName"));
                     e.setRole(r);
 
-                    // Lấy thông tin từ bảng CleanerFloor
                     int startFloor = rs.getInt("StartFloor");
                     int endFloor = rs.getInt("EndFloor");
                     if (!rs.wasNull()) {
@@ -500,7 +499,7 @@ public class EmployeeDAO {
                 + "FROM Employee e "
                 + "JOIN Role r ON r.RoleId = e.RoleId "
                 + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
-                + "WHERE r.RoleId NOT IN (0, 1)";  // Lọc các role (trừ 0, 1)
+                + "WHERE r.RoleId NOT IN (0, 1)";  
 
     if (key != null && !key.isEmpty()) {
         sql += " AND (e.Username LIKE ? OR e.FullName LIKE ? OR e.PhoneNumber LIKE ? OR e.Email LIKE ?)";
@@ -519,7 +518,7 @@ public class EmployeeDAO {
             st.setString(parameterIndex++, searchKey);
         }
 
-        st.setInt(parameterIndex++, (index - 1) * 5);  // Pagination logic
+        st.setInt(parameterIndex++, (index - 1) * 5); 
 
         try (ResultSet rs = st.executeQuery()) {
             while (rs.next()) {

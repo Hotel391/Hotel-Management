@@ -37,23 +37,27 @@
                             </li>
                         </ul>
 
-                        <!--search-->
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <form method="post" action="${pageContext.request.contextPath}/admin/review" class="d-flex gap-2">
-                                <input type="text" name="fullName"  
-                                       class="form-control search-input" placeholder="Enter fullName"/>
-                                <input type="date" class="form-control search-input" name="date" class="form-date" >
-                                <div class="form-group d-flex gap-2">
-                                    <button type="submit" name="submit" class="btn btn-primary">Search</button>
-                                    <button type="reset" name="reset" class="btn btn-secondary">Reset</button>
-                                </div>
-                                <input type="hidden" name="choose" value="listReview"> 
-                            </form>
+                            <div class="d-flex gap-2"></div>
+
+                            <!--search-->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <form method="post" action="${pageContext.request.contextPath}/admin/review" class="d-flex gap-2">
+                                    <input type="text" name="fullName"  
+                                           class="form-control search-input" placeholder="Enter fullName"/>
+                                    <input type="date" class="form-control search-input" name="date" class="form-date" >
+                                    <div class="form-group d-flex gap-2">
+                                        <button type="submit" name="submit" class="btn btn-primary">Search</button>
+                                        <button type="reset" name="reset" class="btn btn-secondary">Reset</button>
+                                    </div>
+                                    <input type="hidden" name="choose" value="listReview"> 
+                                </form>
+                            </div>
                         </div>
 
                         <!--table review-->
                         <div class="table-container">
-                            <table class="table align-middle">
+                            <table class="table align-middle bg-white">
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col">OrderID</th>
@@ -64,6 +68,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <c:if test="${empty requestScope.list}">
+                                        <tr>
+                                            <td colspan="6" class="text-center">Không tìm thấy review.</td>
+                                        </tr>
+                                    </c:if>
                                     <c:forEach var="r" items="${requestScope.list}">
                                         <tr>
                                             <td>${r.bookingDetail.booking.bookingId}</td>
@@ -102,8 +111,6 @@
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
 

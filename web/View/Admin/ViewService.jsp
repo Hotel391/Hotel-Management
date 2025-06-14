@@ -43,14 +43,15 @@
                         </div>
 
                         <div class="table-container">
-                            <table class="table align-middle">
+                            <table class="table align-middle bg-white">
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col">ServiceID</th>
                                         <th scope="col">Service name</th>
                                         <th scope="col">Price</th>
-                                        <th scope="col">Update</th>
-                                        <th scope="col">Delete</th>
+                                        <th scope="col">Action</th>
+<!--                                        <th scope="col">Update</th>
+                                        <th scope="col">Delete</th>-->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,8 +70,7 @@
                                                     data-service-price="${s.price}">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
-                                            </td>
-                                            <td>
+             
                                                 <button
                                                     class="btn btn-danger"
                                                     data-bs-toggle="modal"
@@ -130,22 +130,25 @@
                                         <!-- Service ID -->
                                         <div class="mb-3">
                                             <label for="serviceId" class="form-label">Service ID</label>
-                                            <input type="text" class="form-control" id="serviceId" name="serviceId" readonly>
+                                            <input type="text" class="form-control" id="serviceId" name="serviceId" readonly
+                                                   value="${param.serviceId}" />
                                         </div>
 
                                         <!-- Service Name -->
                                         <div class="mb-3">
                                             <label for="serviceName" class="form-label">Service Name</label>
-                                            <input type="text" class="form-control" id="serviceName" name="serviceName" required>
+                                            <input type="text" class="form-control" id="serviceName" name="serviceName" required
+                                                   value="${param.serviceName}" />
                                         </div>
 
                                         <!-- Price -->
                                         <div class="mb-3">
                                             <label for="price" class="form-label">Price (VND)</label>
-                                            <input type="number" class="form-control" id="price" name="price" required min="0">
+                                            <input type="number" class="form-control" id="price" name="price" required min="0"
+                                                   value="${param.price}" />
                                         </div>
-                                        <c:if test="${not empty requestScope.priceUpdateError}">
-                                            <div style="color: red;">${requestScope.priceUpdateError}</div>
+                                        <c:if test="${not empty requestScope.serviceNameUpdateError}">
+                                            <div style="color: red;">${requestScope.serviceNameUpdateError}</div>
                                         </c:if>    
                                         <c:if test="${not empty requestScope.priceUpdateError}">
                                             <div style="color: red;">${requestScope.priceUpdateError}</div>
@@ -161,6 +164,18 @@
                             </div>
                         </div>
                     </div>
+                    <c:if test="${not empty requestScope.priceUpdateError or not empty requestScope.serviceNameUpdateError}">
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                const updateModalEl = document.getElementById("updateServiceModal");
+                                if (updateModalEl) {
+                                    const modal = new bootstrap.Modal(updateModalEl);
+                                    modal.show();
+                                }
+                            });
+                        </script>
+                    </c:if>
+
 
 
 
@@ -181,7 +196,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label for="roomTypeSelect" class="form-label">Price</label>
-                                            <input type="text" name="priceServiceAdd" class="form-control"  value="${param.priceService}" required="">
+                                            <input type="text" name="priceServiceAdd" class="form-control"  value="${param.priceServiceAdd}" required="">
                                         </div>
                                         <c:if test="${not empty requestScope.nameAddError}">
                                             <div style="color: red;">${requestScope.nameAddError}</div>
@@ -200,11 +215,15 @@
                             </div>
                         </div>
                     </div>
-
+                    <c:if test="${not empty requestScope.nameAddError or not empty requestScope.priceAddError}">
+                        <script>
+                            window.addEventListener("DOMContentLoaded", function () {
+                                var addModal = new bootstrap.Modal(document.getElementById("addServiceModal"));
+                                addModal.show();
+                            });
+                        </script>
+                    </c:if>
                 </div>
-
-
-
             </div>
         </div>
         <script>

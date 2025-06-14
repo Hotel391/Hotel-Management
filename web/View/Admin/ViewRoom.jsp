@@ -37,23 +37,54 @@
                             </li>
                         </ul>
                         <div class="d-flex justify-content-between align-items-center mb-3">
+
+                            <!--form add new room-->
                             <div class="d-flex gap-2">
-                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addRoomModal">+ Add New room</button>
+                                <button class="btn btn-success" data-bs-toggle="modal" 
+                                        data-bs-target="#addRoomModal">+ Add New room</button>
                             </div>
+
+                            <!--form search-->
+                            <form method="post" action="${pageContext.request.contextPath}/admin/room?choose=search" class="d-flex gap-2">
+                                <input type="number" name="roomNumber"" 
+                                       class="form-control search-input" placeholder="Room number" min="0" />
+
+                                <select id="roomTypeSelect" name="typeRoomId" class="form-select">
+                                    <option value="">-- All room types --</option> <!-- All rooms -->
+                                    <c:forEach var="type" items="${requestScope.typeRoom}">
+                                        <option value="${type.typeId}"
+                                                <c:if test="${param.typeRoomId == type.typeId}">selected</c:if>>
+                                            ${type.typeId} - ${type.typeName}
+                                        </option>
+                                    </c:forEach>
+                                </select>
+
+                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <input type="reset" name="reset" value="Reset"/>
+                                <input type="hidden" name="choose" value="search">
+                            </form>
                         </div>
+
+                        <!--table list room-->
                         <div class="table-container">
-                            <table class="table align-middle">
+                            <table class="table align-middle bg-white">
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col">Room number</th>
                                         <th scope="col">Room type</th>
                                         <th scope="col">Price</th>
                                         <th scope="col">Service</th>
-                                        <th scope="col">Update</th>
-                                        <th scope="col">Delete</th>
+                                        <th scope="col">Action</th>
+                                        <!--<th scope="col">Update</th>
+                                        <th scope="col">Delete</th>-->
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <c:if test="${empty requestScope.listR}">
+                                        <tr>
+                                            <td colspan="6" class="text-center">Không tìm thấy phòng.</td>
+                                        </tr>
+                                    </c:if>
                                     <c:forEach var="room" items="${requestScope.listR}">
                                         <tr>
                                             <td class="room-id">${room.roomNumber}</td>
@@ -77,10 +108,10 @@
                                                         data-room-number="${room.roomNumber}"
                                                         data-type-room-id="${room.typeRoom.typeId}">
                                                     <i class="bi bi-pencil"></i> </button>
-                                            </td>
-                                            <td>
+                                            
+                                            
                                                 <button type="button"
-                                                        class="btn btn-danger"
+                                                        class="btn btn-sm btn-danger"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#deleteRoomModal"
                                                         data-room-number="${room.roomNumber}">
@@ -134,6 +165,18 @@
                                 </form>
                             </div>
                         </div>
+                        <c:if test="${not empty requestScope.error}">
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    const addRoomModalEl = document.getElementById("addRoomModal");
+                                    if (addRoomModalEl) {
+                                        const addRoomModal = new bootstrap.Modal(addRoomModalEl);
+                                        addRoomModal.show();
+                                    }
+                                });
+                            </script>
+                        </c:if>
+
                     </div>
 
                     <!--update room-->

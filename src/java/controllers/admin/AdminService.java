@@ -98,7 +98,7 @@ public class AdminService extends HttpServlet {
                 boolean haveError = false;
                 
                 if (serviceName == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
-                    request.setAttribute("priceUpdateError", "Service name must only contain letters, digits, and a single space between words.");
+                    request.setAttribute("serviceNameUpdateError", "Service name must only contain letters, digits, and a single space between words.");
                     haveError = true;
                 }
 

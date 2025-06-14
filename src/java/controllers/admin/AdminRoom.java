@@ -33,8 +33,10 @@ public class AdminRoom extends HttpServlet {
             String roomNumberStr = request.getParameter(roomNumberr);
             int roomNumber = Integer.parseInt(roomNumberStr);
             dal.RoomDAO.getInstance().deleteRoom(roomNumber);
-            response.sendRedirect("room");
+            response.sendRedirect(request.getContextPath() + "/admin/room");
         }
+
+        
 
         //view list room
         if (choose.equals("viewAll")) {
@@ -69,6 +71,33 @@ public class AdminRoom extends HttpServlet {
                 dal.RoomDAO.getInstance().updateRoom(typeRoomID, roomNumber);
             }
         }
+        
+        
+        if (choose.equals("search")) {
+            roomNumberStr = request.getParameter(roomNumberr);
+            typeRoomIdStr = request.getParameter(typeRoomIdd);
+
+            Integer roomNumber = null;
+            Integer typeRoomId = null;
+
+            try {
+                if (roomNumberStr != null && !roomNumberStr.trim().isEmpty()) {
+                    roomNumber = Integer.valueOf(roomNumberStr);
+                }
+                if (typeRoomIdStr != null && !typeRoomIdStr.trim().isEmpty()) {
+                    typeRoomId = Integer.valueOf(typeRoomIdStr);
+                }
+            } catch (NumberFormatException e) {
+                // Optional: set error message or logging
+            }
+
+            List<Room> rr = dal.RoomDAO.getInstance().searchAllRoom(roomNumber, typeRoomId);
+
+            request.setAttribute(typeRoom, tr);
+            request.setAttribute("listR", rr);
+            request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
+            return;
+        }
 
         //insert new room
         if (choose.equals(insertRoom)) {
@@ -89,19 +118,18 @@ public class AdminRoom extends HttpServlet {
                         haveError = true;
                     }
                 } catch (NumberFormatException e) {
-
-                    request.setAttribute(typeRoom, tr);
-                    request.setAttribute("listR", r);
                     request.setAttribute("error", "Room Number must be a positive integer.");
                     haveError = true;
                 }
                 if (haveError) {
+                    request.setAttribute(typeRoom, tr);
+                    request.setAttribute("listR", r);
                     request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
                     return;
                 }
                 dal.RoomDAO.getInstance().insertRoom(roomNumber, typeRoomId);
             }
         }
-        response.sendRedirect("room");
+        response.sendRedirect(request.getContextPath() + "/admin/room");
     }
 }

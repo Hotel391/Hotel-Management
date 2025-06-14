@@ -26,15 +26,15 @@ public class RoomDAO {
     private RoomDAO() {
         con = new DBContext().connect;
     }
-    
-    public int RoomCount(){
-        String sql="select count(*) from Room";
-        
-        try(PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()){
-            if(rs.next()){
+
+    public int RoomCount() {
+        String sql = "select count(*) from Room";
+
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
                 return rs.getInt(1);
             }
-        } catch(SQLException e){
+        } catch (SQLException e) {
         }
         return 0;
     }
@@ -49,9 +49,8 @@ public class RoomDAO {
                      \tCONVERT(DATE, GETDATE()) >= bd.StartDate\r
                            and CONVERT(DATE, GETDATE()) < bd.EndDate\r
                      )\r
-                     """
-        ;
-        
+                     """;
+
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -60,6 +59,7 @@ public class RoomDAO {
         }
         return 0;
     }
+
     public int RoomBookedCount() {
         String sql = """
                      SELECT COUNT(*) \r
@@ -70,9 +70,8 @@ public class RoomDAO {
                      \tCONVERT(DATE, GETDATE()) >= bd.StartDate\r
                            and CONVERT(DATE, GETDATE()) < bd.EndDate\r
                      )\r
-                     """
-        ;
-        
+                     """;
+
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -142,6 +141,84 @@ public class RoomDAO {
         return listRoom;
     }
 
+    public List<Room> searchAllRoom(Integer roomNumber, Integer typeRoomId) {
+        List<Room> listRoom = new Vector<>();
+
+        StringBuilder sql = new StringBuilder("SELECT r.RoomNumber, r.isCleaner, "
+                + "tr.TypeId, tr.TypeName, tr.Description, tr.Price, "
+                + "s.ServiceId, s.ServiceName, s.Price AS ServicePrice, rns.quantity "
+                + "FROM Room r "
+                + "JOIN TypeRoom tr ON r.TypeId = tr.TypeId "
+                + "LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId "
+                + "LEFT JOIN [Service] s ON rns.ServiceId = s.ServiceId "
+                + "WHERE 1=1 ");
+
+        if (roomNumber != null) {
+            sql.append("AND r.RoomNumber = ? ");
+        }
+        if (typeRoomId != null) {
+            sql.append("AND tr.TypeId = ? ");
+        }
+
+        sql.append("ORDER BY r.RoomNumber");
+
+        try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
+            int index = 1;
+            if (roomNumber != null) {
+                ptm.setInt(index++, roomNumber);
+            }
+            if (typeRoomId != null) {
+                ptm.setInt(index++, typeRoomId);
+            }
+
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    int rNumber = rs.getInt("RoomNumber");
+                    Room foundRoom = null;
+
+                    // Tìm xem Room đã tồn tại trong list chưa
+                    for (Room r : listRoom) {
+                        if (r.getRoomNumber() == rNumber) {
+                            foundRoom = r;
+                            break;
+                        }
+                    }
+
+                    if (foundRoom == null) {
+                        TypeRoom typeRoom = new TypeRoom();
+                        typeRoom.setTypeId(rs.getInt("TypeId"));
+                        typeRoom.setTypeName(rs.getString("TypeName"));
+                        typeRoom.setDescription(rs.getString("Description"));
+                        typeRoom.setPrice(rs.getInt("Price"));
+
+                        foundRoom = new Room(rNumber, rs.getBoolean("isCleaner"), typeRoom);
+                        listRoom.add(foundRoom);
+                    }
+
+                    int serviceId = rs.getInt("ServiceId");
+                    if (!rs.wasNull()) {
+                        Service service = new Service();
+                        service.setServiceId(serviceId);
+                        service.setServiceName(rs.getString("ServiceName"));
+                        service.setPrice(rs.getInt("ServicePrice"));
+
+                        RoomNService rns = new RoomNService();
+                        rns.setService(service);
+                        rns.setQuantity(rs.getInt("quantity"));
+                        rns.setTypeRoom(foundRoom.getTypeRoom());
+
+                        foundRoom.getTypeRoom().addRoomNService(rns);
+                    }
+                }
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return listRoom;
+    }
+
     public void updateRoom(int typeRoomID, int roomNumber) {
         String sql = "UPDATE [dbo].[Room]\n"
                 + "   SET [TypeId] = ?\n"
@@ -163,7 +240,7 @@ public class RoomDAO {
                 + "     VALUES(?, ?)";
         int n = 0;
         try (PreparedStatement ptm = con.prepareStatement(sql);) {
-            
+
             ptm.setInt(1, roomNumber);
             ptm.setInt(2, typeRoom);
             n = ptm.executeUpdate();
@@ -177,7 +254,7 @@ public class RoomDAO {
         String sql = "DELETE FROM [dbo].[Room]\n"
                 + "      WHERE RoomNumber =?";
 
-        try (PreparedStatement ptm = con.prepareStatement(sql);) {        
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
             ptm.setInt(1, roomNumber);
             ptm.executeUpdate();
         } catch (SQLException ex) {
@@ -189,8 +266,8 @@ public class RoomDAO {
         List<TypeRoom> listTypeRoom = new Vector<>();
 
         String sql = "SELECT [TypeId]\n"
-                + "      ,[Description]\n"
                 + "      ,[TypeName]\n"
+                + "      ,[Description]\n"
                 + "      ,[Price]\n"
                 + "  FROM [HotelManagementDB].[dbo].[TypeRoom]";
 

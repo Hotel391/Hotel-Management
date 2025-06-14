@@ -76,13 +76,13 @@ public class BookingDAO {
         }
         return result;
     }
-    
+
     public Map<String, BigInteger> totalMoneyInYears(int startYear, int endYear) {
-        String sql = "SELECT YEAR(PayDay) AS Year, SUM(TotalPrice) AS totalMoney " +
-                     "FROM Booking " +
-                     "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'" +
-                     "GROUP BY YEAR(PayDay) " +
-                     "ORDER BY Year";
+        String sql = "SELECT YEAR(PayDay) AS Year, SUM(TotalPrice) AS totalMoney "
+                + "FROM Booking "
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "GROUP BY YEAR(PayDay) "
+                + "ORDER BY Year";
 
         Map<String, BigInteger> result = new HashMap<>();
 
@@ -102,17 +102,17 @@ public class BookingDAO {
     }
 
     public Map<String, BigInteger> totalMoneyInQuarters(int startYear, int startQuarter, int endYear, int endQuarter) {
-        String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(QUARTER, PayDay) AS Quarter, SUM(TotalPrice) AS totalMoney " +
-                     "FROM Booking " +
-                     "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'" +
-                     "GROUP BY YEAR(PayDay), DATEPART(QUARTER, PayDay) " +
-                     "ORDER BY Year, Quarter";
+        String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(QUARTER, PayDay) AS Quarter, SUM(TotalPrice) AS totalMoney "
+                + "FROM Booking "
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "GROUP BY YEAR(PayDay), DATEPART(QUARTER, PayDay) "
+                + "ORDER BY Year, Quarter";
 
         Map<String, BigInteger> result = new HashMap<>();
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setString(1, startYear + "-" + String.format("%02d", startQuarter*3-2) + "-01");
-            st.setString(2, (endYear + 1) + "-" + String.format("%02d", endQuarter*3) + "-01");
+            st.setString(1, startYear + "-" + String.format("%02d", startQuarter * 3 - 2) + "-01");
+            st.setString(2, getFirstDateOfNextQuarter(endYear, endQuarter));
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     String key = rs.getInt("Year") + "-Q" + rs.getInt("Quarter");
@@ -126,17 +126,24 @@ public class BookingDAO {
     }
 
     public Map<String, BigInteger> totalMoneyInMonths(int startYear, int startMonth, int endYear, int endMonth) {
-        String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(Month, PayDay) AS Month, SUM(TotalPrice) AS totalMoney " +
-                     "FROM Booking " +
-                     "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'" +
-                     "GROUP BY YEAR(PayDay), DATEPART(Month, PayDay) " +
-                     "ORDER BY Year, Month";
+        String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(Month, PayDay) AS Month, SUM(TotalPrice) AS totalMoney "
+                + "FROM Booking "
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "GROUP BY YEAR(PayDay), DATEPART(Month, PayDay) "
+                + "ORDER BY Year, Month";
 
         Map<String, BigInteger> result = new HashMap<>();
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, startYear + "-" + String.format("%02d", startMonth) + "-01");
-            st.setString(2, endYear + "-" + String.format("%02d", endMonth+1) + "-01");
+            // Tính tháng tiếp theo của endMonth
+            int nextMonth = endMonth + 1;
+            int nextYear = endYear;
+            if (nextMonth > 12) {
+                nextMonth = 1;
+                nextYear++;
+            }
+            st.setString(2, nextYear + "-" + String.format("%02d", nextMonth) + "-01");
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     String key = rs.getInt("Year") + "-" + String.format("%02d", rs.getInt("Month"));
@@ -147,5 +154,13 @@ public class BookingDAO {
         } catch (SQLException e) {
         }
         return result;
+    }
+
+    private String getFirstDateOfNextQuarter(int year, int quarter) {
+        if (quarter == 4) {
+            return (year + 1) + "-01-01";
+        } else {
+            return year + "-" + String.format("%02d", quarter * 3 + 1) + "-01";
+        }
     }
 }

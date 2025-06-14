@@ -205,9 +205,37 @@ public class RoomDAO {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
         }
 
         return listTypeRoom;
+    }
+
+    public List<Room> getAllNotAvailableRoomOfCleaner(int startFloor, int endFloor, int startIndex){
+        List<Room> listRoom = Collections.synchronizedList(new ArrayList<>());
+
+        String sql = """
+                     SELECT RoomNumber FROM Room
+                     WHERE isCleaner = 0 AND RoomNumber > ? AND RoomNumber < ?
+                     ORDER BY RoomNumber
+                     OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY
+                     """;
+
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, startFloor * 1000);
+            ptm.setInt(2, (endFloor + 1) * 1000);
+            ptm.setInt(3, (startIndex-1)*5);
+            ResultSet rs = ptm.executeQuery();
+
+            while (rs.next()) {
+                int roomNumber = rs.getInt("RoomNumber");
+                Room room = new Room();
+                room.setRoomNumber(roomNumber);
+                listRoom.add(room);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return listRoom;
     }
 }

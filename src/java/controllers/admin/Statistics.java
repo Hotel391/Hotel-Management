@@ -44,57 +44,71 @@ public class Statistics extends HttpServlet {
         int startQuarter = Integer.parseInt(request.getParameter(START_QUARTER_FIELD));
         int endQuarter = Integer.parseInt(request.getParameter(END_QUARTER_FIELD));
 
-        List<String> label = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
         Map<String, BigInteger> dataRaw = new HashMap<>();
 
         switch (typeX) {
             case "year" -> {
-                int start = startYear;
-                int end = endYear;
-                for (int i = start; i <= end; i++) {
-                    label.add(String.valueOf(i));
-                }
+                labels = generateYearLabels(startYear, endYear);
                 dataRaw = dal.BookingDAO.getInstance().totalMoneyInYears(startYear, endYear);
             }
             case "month" -> {
-                int yearStart = startYear;
-                int yearEnd = endYear;
-                for (int year = yearStart; year <= yearEnd; year++) {
-                    int monthFrom = (year == yearStart) ? startMonth : 1;
-                    int monthTo = (year == yearEnd) ? endMonth : 12;
-                    for (int month = monthFrom; month <= monthTo; month++) {
-                        label.add(year + "-" + String.format("%02d", month));
-                    }
-                }
+                labels = generateMonthLabels(startYear, startMonth, endYear, endMonth);
                 dataRaw = dal.BookingDAO.getInstance().totalMoneyInMonths(startYear, startMonth, endYear, endMonth);
             }
             case "quarter" -> {
-                int yearStart = startYear;
-                int yearEnd = endYear;
-                for (int year = yearStart; year <= yearEnd; year++) {
-                    int quarterFrom = (year == yearStart) ? startQuarter : 1;
-                    int quarterTo = (year == yearEnd) ? endQuarter : 4;
-                    for (int quarter = quarterFrom; quarter <= quarterTo; quarter++) {
-                        label.add(year + "-Q" + quarter);
-                    }
-                }
+                labels = generateQuarterLabels(startYear, startQuarter, endYear, endQuarter);
                 dataRaw = dal.BookingDAO.getInstance().totalMoneyInQuarters(startYear, startQuarter, endYear, endQuarter);
             }
             default -> {
                 //
             }
         }
-        request.setAttribute("labels", label);
-        List<BigInteger> data = new ArrayList<>();
-        for (String l : label) {
-            BigInteger value = dataRaw.getOrDefault(l, BigInteger.ZERO);
-            data.add(value);
-        }
+        request.setAttribute("labels", labels);
+        List<BigInteger> data = getDataFromRaw(dataRaw, labels);
 
         request.setAttribute("data", data);
-        System.out.println("Label: " + label);
-        System.out.println("Data: " + data);
         request.getRequestDispatcher("/View/Admin/Statistics.jsp").forward(request, response);
+    }
+
+    private List<String> generateYearLabels(int start, int end) {
+        List<String> labels = new ArrayList<>();
+        for (int i = start; i <= end; i++) {
+            labels.add(String.valueOf(i));
+        }
+        return labels;
+    }
+
+    private List<String> generateMonthLabels(int startYear, int startMonth, int endYear, int endMonth) {
+        List<String> labels = new ArrayList<>();
+        for (int year = startYear; year <= endYear; year++) {
+            int fromMonth = (year == startYear) ? startMonth : 1;
+            int toMonth = (year == endYear) ? endMonth : 12;
+            for (int month = fromMonth; month <= toMonth; month++) {
+                labels.add(year + "-" + String.format("%02d", month));
+            }
+        }
+        return labels;
+    }
+
+    private List<String> generateQuarterLabels(int startYear, int startQuarter, int endYear, int endQuarter) {
+        List<String> labels = new ArrayList<>();
+        for (int year = startYear; year <= endYear; year++) {
+            int fromQuarter = (year == startYear) ? startQuarter : 1;
+            int toQuarter = (year == endYear) ? endQuarter : 4;
+            for (int quarter = fromQuarter; quarter <= toQuarter; quarter++) {
+                labels.add(year + "-Q" + quarter);
+            }
+        }
+        return labels;
+    }
+
+    private List<BigInteger> getDataFromRaw(Map<String, BigInteger> dataRaw, List<String> labels) {
+        List<BigInteger> data = new ArrayList<>();
+        for (String label : labels) {
+            data.add(dataRaw.getOrDefault(label, BigInteger.ZERO));
+        }
+        return data;
     }
 
     @Override

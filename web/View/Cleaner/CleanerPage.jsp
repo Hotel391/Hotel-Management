@@ -27,7 +27,9 @@
             <div class="right-section">
                 <c:set var="title" value="Cleaner Page" scope="request"/>
                 <jsp:include page="topNavCleaner.jsp" />
-                
+                <div class="main-content">
+                    
+                </div>
             </div>
         </div>        
 

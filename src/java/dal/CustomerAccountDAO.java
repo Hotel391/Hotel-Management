@@ -122,7 +122,7 @@ public class CustomerAccountDAO {
         }
     }
 
-    public void resetPasswrod(String email, String password) {
+    public void resetPassword(String email, String password) {
         String sql = """
                    update CustomerAccount
                    set Password=?

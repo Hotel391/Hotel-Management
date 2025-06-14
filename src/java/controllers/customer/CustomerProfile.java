@@ -13,7 +13,7 @@ import models.CustomerAccount;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "CustomerProfile", urlPatterns = {"/customer/profile"})
+@WebServlet(name = "CustomerProfile", urlPatterns = {"/customerProfile"})
 public class CustomerProfile extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -67,15 +67,6 @@ public class CustomerProfile extends HttpServlet {
                 for (String un : employees) {
                     if (un.equalsIgnoreCase(username)) {
                         request.setAttribute("usernameError", "Username already exists.");
-                        hasError = true;
-                        break;
-                    }
-                }
-
-                List<String> employees = dal.AdminDao.getInstance().getAllUsernames();
-                for (String un : employees) {
-                    if (un.equalsIgnoreCase(newUserName)) {
-                        request.setAttribute("usernameError", "username này đã tồn tại");
                         hasError = true;
                         break;
                     }

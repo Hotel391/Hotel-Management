@@ -22,18 +22,20 @@ public class AdminService extends HttpServlet {
         if (choose == null) {
             choose = "ViewAllService";
         }
+        String pageStr = request.getParameter("page");
+        List<Service> list = dal.ServiceDAO.getInstance().getAllService();
 
         if (choose.equals("deleteService")) {
             String serviceIdStr = request.getParameter(serviceIdd);
             int serviceId = Integer.parseInt(serviceIdStr);
             dal.ServiceDAO.getInstance().deleteService(serviceId);
-            response.sendRedirect(serviceServlet);
+            paginateServiceList(request, list, pageStr);
+            response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr);
         }
 
         //list all service
         if (choose.equals("ViewAllService")) {
-            List<Service> list = dal.ServiceDAO.getInstance().getAllService();
-            request.setAttribute("listS", list);
+            paginateServiceList(request, list, pageStr);
             request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
         }
     }
@@ -44,12 +46,21 @@ public class AdminService extends HttpServlet {
 
         String choose = request.getParameter("choose");
         List<Service> list = dal.ServiceDAO.getInstance().getAllService();
+        String pageStr = request.getParameter("page");
+        if (pageStr != null) {
+            request.setAttribute("page", pageStr);
+        }
+
+        if (choose.equals("search")) {
+            paginateServiceList(request, list, pageStr);
+            request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
+        }
 
         //insert new service
         if (choose.equals("insertService")) {
             String submit = request.getParameter(submitt);
             if (submit != null) {
-                String serviceName = request.getParameter(serviceNamee+"Add");
+                String serviceName = request.getParameter(serviceNamee + "Add");
                 String priceStr = request.getParameter("priceServiceAdd");
                 int price = 0;
                 boolean haveError = false;
@@ -75,13 +86,13 @@ public class AdminService extends HttpServlet {
                 }
 
                 if (haveError) {
-                    request.setAttribute("listS", list);
+                    paginateServiceList(request, list, pageStr);
                     request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
                     return;
                 }
 
                 dal.ServiceDAO.getInstance().insertService(serviceName, price);
-                response.sendRedirect(serviceServlet);
+                response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr);
 
             }
         }
@@ -96,33 +107,61 @@ public class AdminService extends HttpServlet {
                 int serviceId = 0;
                 int price = 0;
                 boolean haveError = false;
-                
+
                 if (serviceName == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
                     request.setAttribute("serviceNameUpdateError", "Service name must only contain letters, digits, and a single space between words.");
                     haveError = true;
                 }
 
-                
                 try {
                     serviceId = Integer.parseInt(serviceIdStr);
                     price = Integer.parseInt(priceStr);
                 } catch (Exception e) {
                     haveError = true;
                     request.setAttribute("priceUpdateError", "Price must be integer number");
-                    
+
                 }
-                
+
                 if (haveError) {
-                    request.setAttribute("listS", list);
+                    paginateServiceList(request, list, pageStr);
                     request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
                     return;
                 }
 
-
                 Service s = new Service(serviceId, serviceName, price);
                 dal.ServiceDAO.getInstance().updateService(s);
-                response.sendRedirect(serviceServlet);
+                response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr);
             }
+
         }
     }
+
+    private void paginateServiceList(HttpServletRequest request, List<Service> fullList, String pageStr) {
+        int page = 1;
+        try {
+            if (pageStr != null) {
+                page = Integer.parseInt(pageStr);
+            }
+        } catch (NumberFormatException e) {
+            // giữ page = 1 nếu sai định dạng
+        }
+
+        int recordsPerPage = 5;
+        int totalRecords = fullList.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+
+        // Giảm page nếu vượt quá số trang thực tế
+        if (page > totalPages && totalPages > 0) {
+            page = totalPages;
+        }
+
+        int start = (page - 1) * recordsPerPage;
+        int end = Math.min(start + recordsPerPage, totalRecords);
+        List<Service> paginatedList = fullList.subList(start, end);
+
+        request.setAttribute("listS", paginatedList);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+    }
+
 }

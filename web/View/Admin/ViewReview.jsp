@@ -95,6 +95,63 @@
 
                                 </tbody>
                             </table>
+                            <!-- Nút phân trang -->
+                            <div class="pagination-container mt-3 text-center">
+                                <c:if test="${totalPages > 1}">
+                                    <nav>
+                                        <ul class="pagination justify-content-center">
+
+                                            <!-- Nút << về trang đầu -->
+                                            <c:if test="${currentPage > 1}">
+                                                <li class="page-item">
+                                                    <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
+                                                        <input type="hidden" name="submit" value="search"/>
+                                                        <input type="hidden" name="page" value="1"/>
+                                                        <button type="submit" class="page-link">&laquo;</button>
+                                                    </form>
+                                                </li>
+                                            </c:if>
+
+                                            <!-- Dấu ... trước -->
+                                            <c:if test="${currentPage > 3}">
+                                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                            </c:if>
+
+                                            <!-- Các nút trang -->
+                                            <c:forEach var="i" begin="1" end="${totalPages}">
+                                                <c:if test="${i >= currentPage - 2 && i <= currentPage + 2}">
+                                                    <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                        <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
+                                                            <input type="hidden" name="submit" value="search"/>
+                                                            <input type="hidden" name="page" value="${i}"/>
+                                                            <button type="submit" class="page-link">${i}</button>
+                                                        </form>
+                                                    </li>
+                                                </c:if>
+                                            </c:forEach>
+
+                                            <!-- Dấu ... sau -->
+                                            <c:if test="${currentPage < totalPages - 2}">
+                                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                                            </c:if>
+
+                                            <!-- Nút >> đến trang cuối -->
+                                            <c:if test="${currentPage < totalPages}">
+                                                <li class="page-item">
+                                                    <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
+                                                        <input type="hidden" name="submit" value="search"/>
+                                                        <input type="hidden" name="page" value="${totalPages}"/>
+                                                        <button type="submit" class="page-link">&raquo;</button>
+                                                    </form>
+                                                </li>
+                                            </c:if>
+
+                                        </ul>
+                                    </nav>
+                                </c:if>
+                            </div>
+
+
                         </div>
 
                         <!--view feedback model-->

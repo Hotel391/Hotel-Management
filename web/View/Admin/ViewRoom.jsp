@@ -108,8 +108,8 @@
                                                         data-room-number="${room.roomNumber}"
                                                         data-type-room-id="${room.typeRoom.typeId}">
                                                     <i class="bi bi-pencil"></i> </button>
-                                            
-                                            
+
+
                                                 <button type="button"
                                                         class="btn btn-sm btn-danger"
                                                         data-bs-toggle="modal"
@@ -124,6 +124,25 @@
                                 </tbody>
                             </table>
                         </div>
+                        <!-- Nút phân trang -->
+                        <div class="pagination-container mt-3 text-center">
+                            <c:if test="${totalPages > 1}">
+                                <nav>
+                                    <ul class="pagination justify-content-center">
+                                        <c:forEach begin="1" end="${totalPages}" var="i">
+                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                <form action="${pageContext.request.contextPath}/admin/room" method="post" style="display:inline;">
+                                                    <input type="hidden" name="choose" value="search"/>
+                                                    <input type="hidden" name="page" value="${i}"/>
+                                                    <button type="submit" class="page-link">${i}</button>
+                                                </form>
+                                            </li>
+                                        </c:forEach>
+                                    </ul>
+                                </nav>
+                            </c:if>
+                        </div>
+
                     </div>
 
 
@@ -160,23 +179,17 @@
                                         <input type="submit" name="submit" class="btn btn-success" value="Add Room"/>
                                         <input type="reset" name="reset" value="Reset"/>
                                         <input type="hidden" name="choose" value="insertRoom"/>
+                                        <input type="hidden" name="page" value="${currentPage}" />
                                     </div>
 
                                 </form>
                             </div>
                         </div>
-                        <c:if test="${not empty requestScope.error}">
-                            <script>
-                                document.addEventListener("DOMContentLoaded", function () {
-                                    const addRoomModalEl = document.getElementById("addRoomModal");
-                                    if (addRoomModalEl) {
-                                        const addRoomModal = new bootstrap.Modal(addRoomModalEl);
-                                        addRoomModal.show();
-                                    }
-                                });
-                            </script>
-                        </c:if>
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
 
+                            });
+                        </script>
                     </div>
 
                     <!--update room-->
@@ -212,6 +225,7 @@
                                     <div class="modal-footer">
                                         <input type="submit" name="submit" class="btn btn-success" value="Update Room"/>
                                         <input type="hidden" name="choose" value="updateRoom"/>
+                                        <input type="hidden" name="page" value="${currentPage}" />
                                     </div>
                                 </form>
 
@@ -242,6 +256,7 @@
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                         <input type="hidden" name="choose" value="deleteRoom"/>
+                                        <input type="hidden" name="page" value="${currentPage}" />
                                     </div>
                                 </form>
                             </div>
@@ -291,6 +306,35 @@
                         if (roomNumberInput)
                             roomNumberInput.value = roomNumber;
                     });
+                }
+
+
+                // ADD ROOM MODAL
+                const addRoomModalEl = document.getElementById("addRoomModal");
+                if (addRoomModalEl) {
+                    // Khi modal bị đóng (ấn nút X hoặc click nền)
+                    addRoomModalEl.addEventListener('hidden.bs.modal', function () {
+                        // 1. Xóa các thông báo lỗi (theo style)
+                        const errorEls = addRoomModalEl.querySelectorAll("div[style='color: red;']");
+                        errorEls.forEach(el => el.remove());
+
+                        // 2. Xóa dữ liệu input qua ID
+                        const roomNumberInput = document.getElementById("newRoomNumber");
+                        if (roomNumberInput)
+                            roomNumberInput.value = "";
+
+                        // 3. Reset dropdown về option đầu tiên (nếu muốn)
+                        const roomTypeSelect = document.getElementById("roomTypeSelect");
+                        if (roomTypeSelect)
+                            roomTypeSelect.selectedIndex = 0;
+                    });
+
+                    // Nếu có lỗi từ server thì hiển thị lại modal (chỉ khi server render ra requestScope.error)
+                    const shouldShowModal = ${not empty requestScope.error};
+                    if (shouldShowModal) {
+                        const modal = new bootstrap.Modal(addRoomModalEl);
+                        modal.show();
+                    }
                 }
             });
         </script>

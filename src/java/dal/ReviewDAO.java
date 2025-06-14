@@ -1,6 +1,5 @@
 package dal;
 
-
 import models.Booking;
 import models.BookingDetail;
 import models.Customer;
@@ -47,11 +46,11 @@ public class ReviewDAO {
                 + "JOIN \n"
                 + "    CustomerAccount ca ON r.Username = ca.Username\n"
                 + "JOIN \n"
-                + "    Customer c ON ca.CustomerId = c.CustomerId;";
+                + "    Customer c ON ca.CustomerId = c.CustomerId\n"
+                + "ORDER BY r.[Date] DESC;";
         List<Review> listReview = new Vector<>();
-        try (PreparedStatement ptm = con.prepareStatement(sql);
-            ResultSet rs = ptm.executeQuery()) {
-            
+        try (PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
+
             while (rs.next()) {
                 Booking b = new Booking();
                 BookingDetail bd = new BookingDetail();
@@ -101,10 +100,11 @@ public class ReviewDAO {
         } else if (hasDate) {
             sql += "WHERE r.[Date] = ?";
         }
+        
+        sql += "ORDER BY r.[Date] DESC;";
 
         List<Review> listReview = new Vector<>();
-        try(PreparedStatement ptm = con.prepareStatement(sql);) {
-            
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
 
             if (hasFullName) {
                 ptm.setString(1, "%" + fullName + "%");
@@ -112,7 +112,7 @@ public class ReviewDAO {
             if (hasDate) {
                 ptm.setDate(2, new java.sql.Date(date.getTime()));
             }
-            
+
             try (ResultSet rs = ptm.executeQuery()) {
                 while (rs.next()) {
                     Booking b = new Booking();

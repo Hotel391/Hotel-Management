@@ -28,7 +28,7 @@
                     <div style="margin: 20px">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h3 style="color: orange; margin: 0;">All Manager Accounts</h3>
-                            <a href="developerPage?service=add" class="btn btn-primary">
+                            <a href="${pageContext.request.contextPath}/developer/page?service=add" class="btn btn-primary">
                                 Add New Account Manager <i class="bi bi-person-add"></i>
                             </a>
                         </div>

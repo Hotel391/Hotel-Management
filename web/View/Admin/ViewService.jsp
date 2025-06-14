@@ -42,6 +42,7 @@
                             </div>
                         </div>
 
+                        <!--Danh sách service-->
                         <div class="table-container">
                             <table class="table align-middle bg-white">
                                 <thead class="table-light">
@@ -50,8 +51,8 @@
                                         <th scope="col">Service name</th>
                                         <th scope="col">Price</th>
                                         <th scope="col">Action</th>
-<!--                                        <th scope="col">Update</th>
-                                        <th scope="col">Delete</th>-->
+                                        <!--                                        <th scope="col">Update</th>
+                                                                                <th scope="col">Delete</th>-->
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -70,7 +71,7 @@
                                                     data-service-price="${s.price}">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
-             
+
                                                 <button
                                                     class="btn btn-danger"
                                                     data-bs-toggle="modal"
@@ -86,6 +87,23 @@
 
                                 </tbody>
                             </table>
+                            <!-- Nút phân trang -->
+                            <div class="d-flex justify-content-center mt-3">
+                                <nav>
+                                    <ul class="pagination">
+                                        <c:forEach begin="1" end="${totalPages}" var="i">
+                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                <form action="${pageContext.request.contextPath}/admin/service" method="post">
+                                                    <input type="hidden" name="choose" value="search">
+                                                    <button class="page-link">${i}</button>
+                                                    <input type="hidden" name="page" value="${i}" />
+                                                </form>
+                                            </li>
+                                        </c:forEach>
+                                    </ul>
+                                </nav>
+                            </div>
+
                         </div>
                     </div>
 
@@ -109,6 +127,8 @@
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                         <input type="hidden" name="choose" value="deleteService"/>
+                                        <input type="hidden" name="page" value="${currentPage}" />
+
                                     </div>
                                 </form>
                             </div>
@@ -159,24 +179,12 @@
                                         <button type="submit" class="btn btn-success" value="submit" name="submit">Update</button>
                                         <input type="reset" name="reset" value="Reset"/>
                                         <input type="hidden" name="choose" value="updateService"/>
+                                        <input type="hidden" name="page" value="${currentPage}" />
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
-                    <c:if test="${not empty requestScope.priceUpdateError or not empty requestScope.serviceNameUpdateError}">
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
-                                const updateModalEl = document.getElementById("updateServiceModal");
-                                if (updateModalEl) {
-                                    const modal = new bootstrap.Modal(updateModalEl);
-                                    modal.show();
-                                }
-                            });
-                        </script>
-                    </c:if>
-
-
 
 
                     <!-- Add Service Modal -->
@@ -196,7 +204,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label for="roomTypeSelect" class="form-label">Price</label>
-                                            <input type="text" name="priceServiceAdd" class="form-control"  value="${param.priceServiceAdd}" required="">
+                                            <input type="text" id="newServicePriceAdd" name="priceServiceAdd" class="form-control"  value="${param.priceServiceAdd}" required="">
                                         </div>
                                         <c:if test="${not empty requestScope.nameAddError}">
                                             <div style="color: red;">${requestScope.nameAddError}</div>
@@ -209,29 +217,26 @@
                                         <input type="submit" name="submit" class="btn btn-success" value="Add new service"/>
                                         <input type="reset" name="reset" value="Reset"/>
                                         <input type="hidden" name="choose" value="insertService"/>
+                                        <input type="hidden" name="page" value="${currentPage}" />
+
                                     </div>
 
                                 </form>
                             </div>
                         </div>
                     </div>
-                    <c:if test="${not empty requestScope.nameAddError or not empty requestScope.priceAddError}">
-                        <script>
-                            window.addEventListener("DOMContentLoaded", function () {
-                                var addModal = new bootstrap.Modal(document.getElementById("addServiceModal"));
-                                addModal.show();
-                            });
-                        </script>
-                    </c:if>
+
                 </div>
             </div>
         </div>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                //update service
-                const updateServiceModal = document.getElementById('updateServiceModal');
-                if (updateServiceModal) {
-                    updateServiceModal.addEventListener('show.bs.modal', function (event) {
+                // --- UPDATE MODAL ---
+                const updateModalEl = document.getElementById("updateServiceModal");
+
+                if (updateModalEl) {
+                    // Khi modal mở ra: set dữ liệu
+                    updateModalEl.addEventListener('show.bs.modal', function (event) {
                         const button = event.relatedTarget;
                         const serviceId = button.getAttribute('data-service-id');
                         const serviceName = button.getAttribute('data-service-name');
@@ -241,9 +246,22 @@
                         document.getElementById('serviceName').value = serviceName;
                         document.getElementById('price').value = price;
                     });
+
+                    // Khi modal đóng lại: xóa lỗi
+                    updateModalEl.addEventListener('hidden.bs.modal', function () {
+                        const errorElements = updateModalEl.querySelectorAll("div[style='color: red;']");
+                        errorElements.forEach(el => el.remove());
+                    });
+
+                    // Nếu có lỗi từ server, mở modal ra
+                    const shouldShowModal = ${not empty requestScope.priceUpdateError or not empty requestScope.serviceNameUpdateError};
+                    if (shouldShowModal) {
+                        const modal = new bootstrap.Modal(updateModalEl);
+                        modal.show();
+                    }
                 }
 
-                //delete service
+                // --- DELETE MODAL ---
                 const deleteServiceModal = document.getElementById('deleteServiceModal');
                 if (deleteServiceModal) {
                     deleteServiceModal.addEventListener('show.bs.modal', function (event) {
@@ -252,6 +270,29 @@
                         document.getElementById('serviceIdDeleteInput').value = serviceId;
                         document.getElementById('serviceIdDisplay').textContent = serviceId;
                     });
+                }
+
+
+                // --- ADD MODAL ---
+                const addModalEl = document.getElementById("addServiceModal");
+                if (addModalEl) {
+                    // Khi modal đóng (click X hoặc click nền)
+                    addModalEl.addEventListener('hidden.bs.modal', function () {
+                        // Xóa lỗi
+                        const errorElements = addModalEl.querySelectorAll("div[style='color: red;']");
+                        errorElements.forEach(el => el.remove());
+
+                        // Xóa giá trị input (ghi đè giá trị param trên giao diện)
+                        document.getElementById("newServiceNameAdd").value = "";
+                        document.getElementById("newServicePriceAdd").value = "";
+                    });
+
+                    // Hiển thị modal nếu có lỗi (giá trị do server render)
+                    const shouldShowModal = ${not empty requestScope.nameAddError or not empty requestScope.priceAddError};
+                    if (shouldShowModal) {
+                        const modal = new bootstrap.Modal(addModalEl);
+                        modal.show();
+                    }
                 }
             });
         </script>

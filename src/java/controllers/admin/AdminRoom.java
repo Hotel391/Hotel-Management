@@ -17,6 +17,7 @@ public class AdminRoom extends HttpServlet {
     private String roomNumberr = "roomNumber";
     private String typeRoom = "typeRoom";
     private String typeRoomIdd = "typeRoomId";
+    private String pagee = "page";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -26,6 +27,10 @@ public class AdminRoom extends HttpServlet {
         if (choose == null) {
             choose = "viewAll";
         }
+        String pageStr = request.getParameter(pagee);
+        if (pageStr == null || pageStr.isEmpty()) {
+            pageStr = "1";
+        }
         String submit = request.getParameter(submitt);
         List<TypeRoom> tr = dal.RoomDAO.getInstance().getAllTypeRoom();
 
@@ -33,16 +38,14 @@ public class AdminRoom extends HttpServlet {
             String roomNumberStr = request.getParameter(roomNumberr);
             int roomNumber = Integer.parseInt(roomNumberStr);
             dal.RoomDAO.getInstance().deleteRoom(roomNumber);
-            response.sendRedirect(request.getContextPath() + "/admin/room");
+            response.sendRedirect(request.getContextPath() + "/admin/room?choose=viewAll&page=" + pageStr);
         }
-
-        
 
         //view list room
         if (choose.equals("viewAll")) {
             List<Room> r = dal.RoomDAO.getInstance().getAllRoom();
+            paginateRoomList(request, r);
             request.setAttribute(typeRoom, tr);
-            request.setAttribute("listR", r);
             request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
         }
     }
@@ -55,6 +58,10 @@ public class AdminRoom extends HttpServlet {
         String typeRoomIdStr = request.getParameter(typeRoomIdd);
         List<TypeRoom> tr = dal.RoomDAO.getInstance().getAllTypeRoom();
         List<Room> r = dal.RoomDAO.getInstance().getAllRoom();
+        String pageStr = request.getParameter(pagee);
+        if (pageStr == null || pageStr.isEmpty()) {
+            pageStr = "1";
+        }
 
         //update room
         if (choose.equals(updateRoom)) {
@@ -71,8 +78,8 @@ public class AdminRoom extends HttpServlet {
                 dal.RoomDAO.getInstance().updateRoom(typeRoomID, roomNumber);
             }
         }
-        
-        
+
+        //search
         if (choose.equals("search")) {
             roomNumberStr = request.getParameter(roomNumberr);
             typeRoomIdStr = request.getParameter(typeRoomIdd);
@@ -92,9 +99,8 @@ public class AdminRoom extends HttpServlet {
             }
 
             List<Room> rr = dal.RoomDAO.getInstance().searchAllRoom(roomNumber, typeRoomId);
-
+            paginateRoomList(request, rr);
             request.setAttribute(typeRoom, tr);
-            request.setAttribute("listR", rr);
             request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
             return;
         }
@@ -123,13 +129,37 @@ public class AdminRoom extends HttpServlet {
                 }
                 if (haveError) {
                     request.setAttribute(typeRoom, tr);
-                    request.setAttribute("listR", r);
+                    paginateRoomList(request, r);
                     request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
                     return;
                 }
                 dal.RoomDAO.getInstance().insertRoom(roomNumber, typeRoomId);
             }
         }
-        response.sendRedirect(request.getContextPath() + "/admin/room");
+        response.sendRedirect(request.getContextPath() + "/admin/room?choose=viewAll&page=" + pageStr);
     }
+
+    private void paginateRoomList(HttpServletRequest request, List<Room> fullList) {
+        String pageStr = request.getParameter(pagee);
+        int page = pageStr != null ? Integer.parseInt(pageStr) : 1;
+        int recordsPerPage = 5;
+
+        int totalRecords = fullList.size();
+        int totalPages = (int) Math.ceil(totalRecords * 1.0 / recordsPerPage);
+
+        // Giảm page nếu vượt quá số trang thực tế
+        if (page > totalPages && totalPages > 0) {
+            page = totalPages;
+        }
+
+        int start = (page - 1) * recordsPerPage;
+        int end = Math.min(start + recordsPerPage, totalRecords);
+        List<Room> paginatedList = fullList.subList(start, end);
+
+        request.setAttribute("listR", paginatedList);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+
+    }
+
 }

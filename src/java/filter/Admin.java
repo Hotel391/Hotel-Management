@@ -103,42 +103,42 @@ public class Admin implements Filter {
             FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
-        HttpSession session = req.getSession(false);
-
-        if (session == null) {
-            res.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-
-        if (session.getAttribute("employeeInfo") != null) {
-            Employee employee = (Employee) session.getAttribute("employeeInfo");
-            int roleId = employee.getRole().getRoleId();
-            if (roleId == 1) {
+//        HttpServletRequest req = (HttpServletRequest) request;
+//        HttpServletResponse res = (HttpServletResponse) response;
+//        HttpSession session = req.getSession(false);
+//
+//        if (session == null) {
+//            res.sendRedirect(req.getContextPath() + "/login");
+//            return;
+//        }
+//
+//        if (session.getAttribute("employeeInfo") != null) {
+//            Employee employee = (Employee) session.getAttribute("employeeInfo");
+//            int roleId = employee.getRole().getRoleId();
+//            if (roleId == 1) {
                 chain.doFilter(request, response);
-                return;
-            } else {
-                switch (roleId) {
-                    case 0:
-                        res.sendRedirect(req.getContextPath() + "/developer/page");
-                        return;
-                    case 2:
-                        res.sendRedirect(req.getContextPath() + "/receptionist/page");
-                        return;
-                    case 3:
-                        res.sendRedirect(req.getContextPath() + "/cleaner/page");
-                        return;
-                    default:
-                        throw new AssertionError();
-                }
-            }
-        } else if (session.getAttribute("customerInfo") != null) {
-            res.sendRedirect(req.getContextPath() + "/home");
-            return;
-        }
-
-        res.sendRedirect(req.getContextPath() + "/login");
+//                return;
+//            } else {
+//                switch (roleId) {
+//                    case 0:
+//                        res.sendRedirect(req.getContextPath() + "/developer/page");
+//                        return;
+//                    case 2:
+//                        res.sendRedirect(req.getContextPath() + "/receptionist/page");
+//                        return;
+//                    case 3:
+//                        res.sendRedirect(req.getContextPath() + "/cleaner/page");
+//                        return;
+//                    default:
+//                        throw new AssertionError();
+//                }
+//            }
+//        } else if (session.getAttribute("customerInfo") != null) {
+//            res.sendRedirect(req.getContextPath() + "/home");
+//            return;
+//        }
+//
+//        res.sendRedirect(req.getContextPath() + "/login");
 
     }
 

@@ -66,6 +66,7 @@ public class CustomerAccountDAO {
         }
         return null;
     }
+
     public CustomerAccount getCustomerAccountById(int customerId) {
     String sql = "SELECT c.Email, ca.Username, ca.Password, ca.CustomerId "
                + "FROM customer c JOIN CustomerAccount ca ON c.CustomerId = ca.CustomerId "

@@ -1,46 +1,28 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controllers.common;
 
 import dal.AccountGoogleDAO;
 import dal.CustomerAccountDAO;
-import dal.CustomerDAO;
 import dal.EmployeeDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import dal.CustomerDAO;
+import models.Customer;
 import java.util.Random;
 import models.AccountGoogle;
-import models.Customer;
 import models.CustomerAccount;
 import models.Employee;
 import models.Role;
 
-/**
- *
- * @author Hai Long
- */
-@WebServlet(name = "Login", urlPatterns = {"/login"})
 public class Login extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
+
         response.setContentType("text/html;charset=UTF-8");
 
         HttpSession session = request.getSession(true);
@@ -63,7 +45,7 @@ public class Login extends HttpServlet {
                 return;
             }
 
-            String username = request.getParameter("username").trim();
+            String username = request.getParameter("username");
             String password = request.getParameter("password");
 
             if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
@@ -87,16 +69,19 @@ public class Login extends HttpServlet {
                 int roleId = employeeInfo.getRole().getRoleId();
                 switch (roleId) {
                     case 0:
-                        response.sendRedirect("developer/page");
+                        response.sendRedirect("developerPage");
                         break;
                     case 1:
                         response.sendRedirect("admin/dashboard");
                         break;
                     case 2:
-                        response.sendRedirect("receptionist/page");
+                        response.sendRedirect("receptionistPage");
                         break;
                     case 3:
-                        response.sendRedirect("cleaner/page");
+
+
+                        response.sendRedirect("cleanerPage");
+
                         break;
                     default:
                         request.getRequestDispatcher("View/Login.jsp").forward(request, response);
@@ -116,7 +101,7 @@ public class Login extends HttpServlet {
 
             AccountGoogle userInfo = AccountGoogleDAO.getInstance().getUserInfo(accessToken);
 
-            if (!CustomerDAO.getInstance().checkExistedEmail(userInfo.getEmail())) {
+            if (CustomerDAO.getInstance().checkExistedEmail(userInfo.getEmail()) == false) {
                 Customer customerInfo = new Customer();
 
                 customerInfo.setFullName(userInfo.getName());
@@ -160,24 +145,8 @@ public class Login extends HttpServlet {
             session.invalidate();
             response.sendRedirect("login");
         }
-    }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
     }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 
     private String generateRandomString(int length) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -191,5 +160,16 @@ public class Login extends HttpServlet {
 
         return result.toString();
     }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
 
 }

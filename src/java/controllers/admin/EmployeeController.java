@@ -126,6 +126,13 @@ public class EmployeeController extends HttpServlet {
             String email = request.getParameter("email");
             int roleId = Integer.parseInt(request.getParameter("roleId"));
 
+            request.setAttribute("username", username);
+            request.setAttribute("password", password);
+            request.setAttribute("fullName", fullName);
+            request.setAttribute("phoneNumber", phoneNumber);
+            request.setAttribute("email", email);
+            request.setAttribute("roleId", roleId);
+
             hasError = validateAddEmployeeInput(request, username, password, fullName, phoneNumber, email, roleId, hasError);
 
             if (hasError) {
@@ -141,26 +148,52 @@ public class EmployeeController extends HttpServlet {
             emp.setActivate(true);
             emp.setRole(RoleDAO.getInstance().getRoleById(roleId));
 
-            String floorStr = request.getParameter("floor");
-            Integer floor = null;
+            String startFloorStr = request.getParameter("startFloor");
+            String endFloorStr = request.getParameter("endFloor");
+            Integer startFloor = null;
+            Integer endFloor = null;
 
-            if (floorStr != null && !floorStr.isEmpty()) {
+            if (startFloorStr != null && !startFloorStr.isEmpty()) {
                 try {
-                    floor = Integer.parseInt(floorStr);
+                    startFloor = Integer.valueOf(startFloorStr);
                 } catch (NumberFormatException e) {
-                    request.setAttribute("error", "Invalid floor number.");
+                    request.setAttribute("error", "Invalid start floor number.");
                     hasError = true;
                 }
             }
 
-            if (floor != null && "Cleaner".equalsIgnoreCase(emp.getRole().getRoleName())) {
-                CleanerFloor cf = new CleanerFloor();
-                cf.setFloor(floor);
-                emp.setCleanerFloor(cf);
+            if (endFloorStr != null && !endFloorStr.isEmpty()) {
+                try {
+                    endFloor = Integer.valueOf(endFloorStr);
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "Invalid end floor number.");
+                    hasError = true;
+                }
+            }
+
+            if (startFloor != null && endFloor != null && startFloor >= endFloor) {
+                request.setAttribute("error", "Start floor must be less than end floor.");
+                hasError = true;
+            }
+
+            if ("Cleaner".equalsIgnoreCase(emp.getRole().getRoleName())) {
+                if (startFloor != null && endFloor != null) {
+                    CleanerFloor cf = new CleanerFloor();
+                    cf.setStartFloor(startFloor);
+                    cf.setEndFloor(endFloor);
+                    emp.setCleanerFloor(cf);
+                } else {
+                    request.setAttribute("error", "Start floor and End floor must be provided for Cleaner role.");
+                    hasError = true;
+                }
+            }
+
+            if (hasError) {
+                return null;
             }
 
             return emp;
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             request.setAttribute("error", "An error occurred: " + e.getMessage());
             return null;
         }
@@ -186,6 +219,12 @@ public class EmployeeController extends HttpServlet {
             String email = request.getParameter("email");
             int roleId = Integer.parseInt(request.getParameter("roleId"));
 
+            request.setAttribute("username", username);
+            request.setAttribute("fullName", fullName);
+            request.setAttribute("phoneNumber", phoneNumber);
+            request.setAttribute("email", email);
+            request.setAttribute("roleId", roleId);
+
             hasError = validateEditEmployeeInput(request, username, fullName, phoneNumber, email, roleId, emp.getEmployeeId(), hasError);
 
             if (hasError) {
@@ -196,34 +235,56 @@ public class EmployeeController extends HttpServlet {
             emp.setFullName(fullName);
             emp.setPhoneNumber(phoneNumber);
             emp.setEmail(email);
-
             emp.setRole(RoleDAO.getInstance().getRoleById(roleId));
+            
+            Employee existingEmployee = EmployeeDAO.getInstance().getEmployeeById(emp.getEmployeeId());
+            emp.setActivate(existingEmployee.isActivate());
 
-            // Handle floor for Cleaner role
-            String floorStr = request.getParameter("floor");
-            Integer floor = null;
+            String startFloorStr = request.getParameter("startFloor");
+            String endFloorStr = request.getParameter("endFloor");
+            Integer startFloor = null;
+            Integer endFloor = null;
 
-            if (floorStr != null && !floorStr.isEmpty()) {
+            if (startFloorStr != null && !startFloorStr.isEmpty()) {
                 try {
-                    floor = Integer.parseInt(floorStr);
+                    startFloor = Integer.valueOf(startFloorStr);
                 } catch (NumberFormatException e) {
-                    request.setAttribute("error", "Invalid floor number.");
+                    request.setAttribute("error", "Invalid start floor number.");
                     hasError = true;
                 }
             }
 
+            if (endFloorStr != null && !endFloorStr.isEmpty()) {
+                try {
+                    endFloor = Integer.valueOf(endFloorStr);
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "Invalid end floor number.");
+                    hasError = true;
+                }
+            }
+
+            if (startFloor != null && endFloor != null && startFloor >= endFloor) {
+                request.setAttribute("error", "Start floor must be less than end floor.");
+                hasError = true;
+            }
+
             if ("Cleaner".equalsIgnoreCase(emp.getRole().getRoleName())) {
-                if (floor != null) {
+                if (startFloor != null && endFloor != null) {
                     CleanerFloor cleanerFloor = new CleanerFloor();
-                    cleanerFloor.setFloor(floor);
+                    cleanerFloor.setStartFloor(startFloor);
+                    cleanerFloor.setEndFloor(endFloor);
                     emp.setCleanerFloor(cleanerFloor);
                 } else {
                     emp.setCleanerFloor(null);
                 }
             }
 
+            if (hasError) {
+                return null;
+            }
+
             return emp;
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             request.setAttribute("error", "An error occurred: " + e.getMessage());
             return null;
         }
@@ -328,7 +389,7 @@ public class EmployeeController extends HttpServlet {
                 employee.setActivate(!currentStatus);
                 EmployeeDAO.getInstance().updateEmployeeStatus(employee.getEmployeeId(), employee.isActivate());
             }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             request.setAttribute("error", "An error occurred while updating employee status: " + e.getMessage());
             doGet(request, response);
         }

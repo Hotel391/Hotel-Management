@@ -82,7 +82,8 @@
                                                     <button type="submit" class="btn btn-sm ${emp.activate ? 'btn-outline-danger' : 'btn-outline-success'}">
                                                         ${emp.activate ? 'activate' : 'Inactive'}
                                                     </button>
-                                                </form></td>
+                                                </form>
+                                            </td>
 
                                             <td class="text-center">
 
@@ -93,12 +94,12 @@
 
                                                 <!-- Edit Employee Modal -->
                                                 <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editEmployeeModal_${emp.employeeId}">
-                                                     Edit
+                                                    Edit
                                                 </button>
 
                                                 <!-- Delete Employee Modal -->
                                                 <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal_${emp.employeeId}">
-                                                     Delete
+                                                    Delete
 
                                                 </button>
                                             </td>
@@ -109,7 +110,6 @@
                         </div>
                     </div>
 
-                    <!-- Add Employee Modal -->
                     <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
@@ -133,23 +133,23 @@
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label for="usernameAdd" class="form-label">Username</label>
-                                                <input type="text" id="usernameAdd" name="username" value="${param.username}" class="form-control" required />
+                                                <input type="text" id="usernameAdd" name="username" value="${param.username != null ? param.username : ''}" class="form-control" required />
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="passwordAdd" class="form-label">Password</label>
-                                                <input type="password" id="passwordAdd" name="password" value="${param.password}" class="form-control" required />
+                                                <input type="password" id="passwordAdd" name="password" value="${param.password != null ? param.password : ''}" class="form-control" required />
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="fullNameAdd" class="form-label">Full Name</label>
-                                                <input type="text" id="fullNameAdd" name="fullName" value="${param.fullName}" class="form-control" required />
+                                                <input type="text" id="fullNameAdd" name="fullName" value="${param.fullName != null ? param.fullName : ''}" class="form-control" required />
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="phoneNumberAdd" class="form-label">Phone Number</label>
-                                                <input type="text" id="phoneNumberAdd" name="phoneNumber" value="${param.phoneNumber}" class="form-control" required />
+                                                <input type="text" id="phoneNumberAdd" name="phoneNumber" value="${param.phoneNumber != null ? param.phoneNumber : ''}" class="form-control" required />
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="emailAdd" class="form-label">Email</label>
-                                                <input type="email" id="emailAdd" name="email" value="${param.email}" class="form-control" required />
+                                                <input type="email" id="emailAdd" name="email" value="${param.email != null ? param.email : ''}" class="form-control" required />
                                             </div>
                                             <div class="col-md-6">
                                                 <label for="roleIdAdd" class="form-label">Role</label>
@@ -161,9 +161,14 @@
                                                     </c:forEach>
                                                 </select>
                                             </div>
-                                            <div class="col-md-6" id="floorFieldAdd" style="display:none;">
-                                                <label for="floorAdd" class="form-label">Floor</label>
-                                                <input type="number" id="floorAdd" name="floor" value="${param.floor}" class="form-control" min="1" max="6" />
+
+                                            <!-- Start/End Floor for Cleaner -->
+                                            <div class="col-md-6" id="floorFieldAdd" style="display:${param.roleId == 'Cleaner' ? 'block' : 'none'};">
+                                                <label for="startFloor" class="form-label">Start Floor</label>
+                                                <input type="number" id="startFloor" name="startFloor" value="${param.startFloor != null ? param.startFloor : ''}" class="form-control" min="1" max="6" />
+
+                                                <label for="endFloor" class="form-label">End Floor</label>
+                                                <input type="number" id="endFloor" name="endFloor" value="${param.endFloor != null ? param.endFloor : ''}" class="form-control" min="1" max="6" />
                                             </div>
                                         </div>
                                     </div>
@@ -175,7 +180,6 @@
                         </div>
                     </div>
 
-                    <!-- Edit Employee Modal -->
                     <c:forEach var="emp" items="${listEmployee}">
                         <div class="modal fade" id="editEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="editEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
@@ -202,38 +206,43 @@
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label for="usernameEdit_${emp.employeeId}" class="form-label">Username</label>
-                                                    <input type="text" id="usernameEdit_${emp.employeeId}" name="username" value="${emp.username}" class="form-control" required />
+                                                    <input type="text" id="usernameEdit_${emp.employeeId}" name="username" value="${param.username != null ? param.username : emp.username}" class="form-control" required />
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <label for="fullNameEdit_${emp.employeeId}" class="form-label">Full Name</label>
-                                                    <input type="text" id="fullNameEdit_${emp.employeeId}" name="fullName" value="${emp.fullName}" class="form-control" required />
+                                                    <input type="text" id="fullNameEdit_${emp.employeeId}" name="fullName" value="${param.fullName != null ? param.fullName : emp.fullName}" class="form-control" required />
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <label for="phoneNumberEdit_${emp.employeeId}" class="form-label">Phone Number</label>
-                                                    <input type="text" id="phoneNumberEdit_${emp.employeeId}" name="phoneNumber" value="${emp.phoneNumber}" class="form-control" required />
+                                                    <input type="text" id="phoneNumberEdit_${emp.employeeId}" name="phoneNumber" value="${param.phoneNumber != null ? param.phoneNumber : emp.phoneNumber}" class="form-control" required />
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <label for="emailEdit_${emp.employeeId}" class="form-label">Email</label>
-                                                    <input type="email" id="emailEdit_${emp.employeeId}" name="email" value="${emp.email}" class="form-control" required />
+                                                    <input type="email" id="emailEdit_${emp.employeeId}" name="email" value="${param.email != null ? param.email : emp.email}" class="form-control" required />
                                                 </div>
 
+                                                <!-- Role Selector -->
                                                 <div class="col-md-6">
                                                     <label for="roleIdEdit_${emp.employeeId}" class="form-label">Role</label>
                                                     <select id="roleIdEdit_${emp.employeeId}" name="roleId" class="form-select" required onchange="toggleFloorFieldEdit(${emp.employeeId})">
                                                         <c:forEach var="role" items="${listRole}">
                                                             <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
-                                                                <option value="${role.roleId}" ${emp.role.roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
+                                                                <option value="${role.roleId}" ${param.roleId == role.roleId || emp.role.roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
                                                             </c:if>
                                                         </c:forEach>
                                                     </select>
                                                 </div>
 
-                                                <div class="col-md-6" id="floorFieldEdit_${emp.employeeId}" style="display:${emp.role.roleName == 'Cleaner' ? 'block' : 'none'};">
-                                                    <label for="floorEdit_${emp.employeeId}" class="form-label">Floor</label>
-                                                    <input type="number" id="floorEdit_${emp.employeeId}" name="floor" value="${emp.cleanerFloor != null ? emp.cleanerFloor.floor : ''}" class="form-control" min="1" max="6" />
+                                                <!-- Start/End Floor for Cleaner -->
+                                                <div class="col-md-6" id="floorFieldEdit_${emp.employeeId}" style="display:${emp.role.roleName == 'Cleaner' || param.roleId == 'Cleaner' ? 'block' : 'none'};">
+                                                    <label for="startFloorEdit_${emp.employeeId}" class="form-label">Start Floor</label>
+                                                    <input type="number" id="startFloorEdit_${emp.employeeId}" name="startFloor" value="${param.startFloor != null ? param.startFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.startFloor : '')}" class="form-control" min="1" max="6" />
+
+                                                    <label for="endFloorEdit_${emp.employeeId}" class="form-label">End Floor</label>
+                                                    <input type="number" id="endFloorEdit_${emp.employeeId}" name="endFloor" value="${param.endFloor != null ? param.endFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.endFloor : '')}" class="form-control" min="1" max="6" />
                                                 </div>
 
                                             </div>
@@ -247,7 +256,7 @@
                         </div>
                     </c:forEach>
 
-                    <!-- View Employee Modal -->
+
                     <c:forEach var="emp" items="${listEmployee}">
                         <div class="modal fade" id="viewEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="viewEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
@@ -263,7 +272,13 @@
                                             <li><strong>Phone Number:</strong> ${emp.phoneNumber}</li>
                                             <li><strong>Email:</strong> ${emp.email}</li>
                                             <li><strong>Role:</strong> ${emp.role != null ? emp.role.roleName : '-'}</li>
-                                            <li><strong>Floor:</strong> ${emp.cleanerFloor != null ? emp.cleanerFloor.floor : '-'}</li>
+
+                                            <!-- Display floor information if the role is 'Cleaner' -->
+                                            <c:if test="${emp.role != null && emp.role.roleName == 'Cleaner'}">
+                                                <li><strong>Start Floor:</strong> ${emp.cleanerFloor != null ? emp.cleanerFloor.startFloor : '-'}</li>
+                                                <li><strong>End Floor:</strong> ${emp.cleanerFloor != null ? emp.cleanerFloor.endFloor : '-'}</li>
+                                                </c:if>
+
                                             <li><strong>Status:</strong> ${emp.activate ? 'Active' : 'Inactive'}</li>
                                             <li><strong>CCCD:</strong> ${emp.CCCD}</li>
                                             <li><strong>Date of Birth:</strong> ${emp.dateOfBirth}</li>
@@ -278,7 +293,7 @@
                         </div>
                     </c:forEach>
 
-                    <!-- Delete Employee Modal -->
+
                     <c:forEach var="emp" items="${listEmployee}">
                         <div class="modal fade" id="deleteEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
                             <div class="modal-dialog">
@@ -301,6 +316,7 @@
                             </div>
                         </div>
                     </c:forEach>
+
 
                     <nav aria-label="Pagination">
                         <ul class="pagination pagination-danger">

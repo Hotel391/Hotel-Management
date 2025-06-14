@@ -14,7 +14,6 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -24,7 +23,7 @@ import models.Employee;
  *
  * @author Tuan'sPC
  */
-@WebFilter(filterName = "Admin", urlPatterns = {"/admin/*"})
+//@WebFilter(filterName = "Admin", urlPatterns = {"/admin/*"})
 public class Admin implements Filter {
 
     private static final boolean debug = true;

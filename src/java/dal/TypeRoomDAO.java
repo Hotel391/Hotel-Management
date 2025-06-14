@@ -42,6 +42,20 @@ public class TypeRoomDAO {
         return typeRooms;
     }
 
+    public List<String> getAllTypeRoomName() {
+        String sql = "select TypeName from TypeRoom";
+        List<String> typeRooms = Collections.synchronizedList(new ArrayList<>());
+
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                typeRooms.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return typeRooms;
+    }
+
     public List<TypeRoom> getAllTypeRoom() {
         List<TypeRoom> list = Collections.synchronizedList(new ArrayList<>());
         String sql = "select typeId, typeName, Description, price from TypeRoom";

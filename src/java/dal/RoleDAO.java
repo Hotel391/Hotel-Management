@@ -25,7 +25,7 @@ public class RoleDAO {
 
     public List<Role> getAllRoles() {
         List<Role> list = new ArrayList<>();
-        String sql = "SELECT roleId, roleName FROM Role";
+        String sql = "SELECT roleId, roleName FROM Role where RoleId not in (0, 1)";
         try (PreparedStatement stmt = con.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Role role = new Role(rs.getInt("roleId"), rs.getString("roleName"));

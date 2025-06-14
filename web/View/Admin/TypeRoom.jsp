@@ -33,8 +33,62 @@
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex gap-2">
-                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">Add Type Room</button>
+                                <button onclick="resetFormData()" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">Add Type Room</button>
                             </div>
+                            <!-- Modal -->
+                            <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModal" aria-hidden="true">
+                                <form action="${pageContext.request.contextPath}/admin/types" method="post">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row g-3">
+                                                    <div class="col md-6">
+                                                        <label for="typeName" class="form-label">Type room's name</label>
+                                                        <input class="form-control" 
+                                                               value="${param.typeName}" 
+                                                               type="text" 
+                                                               name="typeName"
+                                                               required>
+                                                        <c:if test="${not empty nameError}">
+                                                            <p class="alert alert-danger">${nameError}</p>
+                                                        </c:if>
+                                                        <c:if test="${not empty nameExistedError}">
+                                                            <p class="alert alert-danger">${nameExistedError}</p>
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="col md-6">
+                                                        <label for="price" class="form-label">Type room's price</label>
+                                                        <input class="form-control" value="${param.price}" type="text" name="price" required>
+                                                        <c:if test="${not empty priceError}">
+                                                            <p class="alert alert-danger">${priceError}</p>
+                                                        </c:if>
+                                                    </div>
+
+                                                </div>
+                                                <div class="row g-3">
+                                                    <label for="typeName" class="form-label">Type room's description</label>
+                                                    <textarea  class="form-control" name="typeDesc" rows="4">
+                                                        ${param.typesDesc}
+                                                    </textarea>
+                                                </div>
+                                                <c:if test="${not empty addSuccess}">
+                                                    <p class="alert alert-success">${addSuccess}</p>
+                                                </c:if>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="hidden" name="service" value="addTypeRoom">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Save changes</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
                             <form method="get" action="${pageContext.request.contextPath}/admin/types" class="d-flex gap-2">
                                 <input type="text" name="key" value="${param.key}" class="form-control search-input" placeholder="Search" />
 
@@ -105,7 +159,7 @@
                                                 <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#serviceModal_${trl.typeId}">
                                                     <i class="bi bi-eye"></i> View 
                                                 </button>
-                                                <form action="${pageContext.request.contextPath}/admin/types">
+                                                <form action="${pageContext.request.contextPath}/admin/types" method="post">
                                                     <div class="modal fade services-modal" id="serviceModal_${trl.typeId}" tabindex="-1" aria-labelledby="servicesModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog modal-dialog-scrollable modal-lg">
                                                             <div class="modal-content">
@@ -212,7 +266,7 @@
                                             </td>
                                             <td>
                                                 <!-- Edit Employee Modal -->
-                                                <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editTypeRoomModal_${trl.typeId}">
+                                                <button onclick="resetFormData(${trl.typeId})" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editTypeRoomModal_${trl.typeId}">
                                                     <i class="bi bi-pencil"></i> Edit
                                                 </button>
 
@@ -234,7 +288,8 @@
                                                                             <input spellcheck="false" 
                                                                                    type="text" 
                                                                                    id="typeRoomEdit_${trl.typeId}" 
-                                                                                   name="typeName" 
+                                                                                   name="typeName"
+                                                                                   data-original-id="${trl.typeId}"
                                                                                    data-original-value="${trl.typeName}"
                                                                                    value="${param.typeName != null ? param.typeName : trl.typeName}" 
                                                                                    class="form-control" required />
@@ -283,10 +338,29 @@
                                             </td>
                                             <td>
                                                 <!-- Delete Employee Modal -->
-                                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteEmployeeModal_${emp.employeeId}">
+                                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_${trl.typeId}">
                                                     <i class="bi bi-trash"></i> Delete
 
                                                 </button>
+                                                <div class="modal fade" id="deleteModal_${trl.typeId}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Are you sure to delete</h1>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <p alert alert-primary>Bạn có chắc muốn xóa ${trl.typeName}</p>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                <input type="hidden" name="typeId" value="${trl.typeId}">
+                                                                <input type="hidden" name="service" value="deleleTypeRoom">
+                                                                <button type="button" class="btn btn-primary">Delete</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -406,29 +480,40 @@
                             element.remove();
                         });
                     }
-
-                    var modal = document.getElementById('editTypeRoomModal_' + typeId);
-                    var form = modal.querySelector('form');
-                    if (form) {
-
-                        var typeNameInput = form.querySelector('input[name="typeName"]');
-                        
-                        var priceInput = form.querySelector('input[name="price"]');
-                        
-                        console.log(typeNameInput.value);
-
-                        if (typeNameInput) {
-
-                            typeNameInput.value = typeNameInput.getAttribute('data-original-value');
-                            console.log(typeNameInput.value);
-                        }
-
-                        if (priceInput) {
-                            priceInput.value = priceInput.getAttribute('data-original-value');
-                        }
-                    }
                 }
                 ;
+
+                function resetFormData(typeId) {
+
+                    setTimeout(function () {
+                        var modal = document.getElementById('editTypeRoomModal_' + typeId);
+                        var form = modal.querySelector('form');
+
+                        if (form) {
+
+                            var typeNameInput = form.querySelector('input[name="typeName"]');
+                            if (typeNameInput) {
+                                var originalTypeName = typeNameInput.getAttribute('data-original-value');
+                                typeNameInput.value = originalTypeName;
+                                console.log('Reset type name to original:', originalTypeName);
+                            }
+
+
+                            var priceInput = form.querySelector('input[name="price"]');
+                            if (priceInput) {
+                                var originalPrice = priceInput.getAttribute('data-original-value');
+                                priceInput.value = originalPrice;
+                                console.log('Reset price to original:', originalPrice);
+                            }
+
+
+                            var messageElements = modal.querySelectorAll('.modal-body p.alert');
+                            messageElements.forEach(function (element) {
+                                element.remove();
+                            });
+                        }
+                    }, 100);
+                }
             </script>
         </c:if>
         <c:if test="${not empty showModalService}">
@@ -460,25 +545,63 @@
                             element.remove();
                         });
                     }
+                }
+                ;
+            </script>
+        </c:if>
+        <c:if test="${not empty showModalAdd}">
+            <script>
 
-                    var modal = document.getElementById('editTypeRoomModal_' + typeId);
-                    var form = modal.querySelector('form');
-                    if (form) {
+                window.addEventListener('load', function () {
+                    var modal = new bootstrap.Modal(document.getElementById('addModal'));
+                    modal.show();
+                <c:if test="${not empty addSuccess}">
+                    setTimeout(function () {
 
-                        var typeNameInput = form.querySelector('input[name="typeName"]');
-                        var priceInput = form.querySelector('input[name="price"]');
+                        clearMessage();
 
-                        if (typeNameInput) {
 
-                            typeNameInput.value = typeNameInput.getAttribute('data-original-value') || '';
-                        }
+                        modal.hide();
+                    }, 2000);
+                </c:if>
 
-                        if (priceInput) {
-                            priceInput.value = priceInput.getAttribute('data-original-value') || '';
-                        }
+
+                });
+
+                function clearMessage() {
+                    // Ẩn message trong modal
+                    var messageElement = document.querySelectorAll('#addModal .modal-body p');
+                    console.log(messageElement);
+                    // Hoặc xóa hoàn toàn
+                    if (messageElement) {
+                        messageElement.forEach(function (element) {
+                            element.remove();
+                        });
                     }
                 }
                 ;
+
+                function resetFormData() {
+
+                    setTimeout(function () {
+                        var modal = document.getElementById('addModal');
+                        var form = modal.querySelector('form');
+
+                        if (form) {
+
+                            var typeNameInput = form.querySelector('input[name="typeName"]');
+                            if (typeNameInput) {
+                                typeNameInput.value = '';
+                            }
+
+
+                            var priceInput = form.querySelector('input[name="price"]');
+                            if (priceInput) {
+                                priceInput.value = '';
+                            }
+                        }
+                    }, 100);
+                }
             </script>
         </c:if>
 

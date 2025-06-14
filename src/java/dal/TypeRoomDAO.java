@@ -48,6 +48,44 @@ public class TypeRoomDAO {
         }
         return typeRooms;
     }
+    
+    //insert type room with type name, price, desc and parameter is TypeRoom Object
+    
+    public void insertTypeRoom(TypeRoom typeRoom) {
+        String sql = "INSERT INTO TypeRoom(TypeName, Description, Price) VALUES(?, ?, ?)";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, typeRoom.getTypeName());
+            st.setString(2, typeRoom.getDescription());
+            st.setInt(3, typeRoom.getPrice());
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    
+    //get type name by name
+    
+    public TypeRoom getTypeRoomByName(String typeName) {
+        String sql = "select TypeId, TypeName, Description, Price from TypeRoom where TypeName = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, typeName);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt(1));
+                    typeRoom.setTypeName(rs.getString(2));
+                    typeRoom.setDescription(rs.getString(3));
+                    typeRoom.setPrice(rs.getInt(4));
+                    return typeRoom;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
 
 //    public List<TypeRoom> getAllTypeRoom() {
 //        List<TypeRoom> list = Collections.synchronizedList(new ArrayList<>());

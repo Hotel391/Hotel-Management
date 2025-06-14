@@ -30,6 +30,57 @@ public class TypeRoomServlet extends HttpServlet {
         if ("view".equals(service)) {
             showTypeRoom(request, response);
         }
+        
+        if("addTypeRoom".equals(service)){
+            System.out.println("123");
+            String name = request.getParameter("typeName").trim();
+            String price_raw = request.getParameter("price").trim();
+            String description = request.getParameter("typeDesc").trim();
+            
+            System.out.println("desc: " + description);
+
+            boolean check = false;
+
+            if (Validation.validateField(request, "nameError", name, "TYPE_ROOM_NAME_BASIC",
+                    "Type Name", "Chỉ bao gồm chữ cái")) {
+                check = true;
+                System.out.println("lỗi");
+            }
+
+            if (Validation.validateField(request, "priceError", price_raw, "ROOM_PRICE_INT",
+                    "Price", "Chỉ bao gồm chữ số")) {
+                check = true;
+            }
+
+            if (TypeRoomDAO.getInstance().getTypeRoomByName(name) != null) {
+                check = true;
+                request.setAttribute("name", name);
+                request.setAttribute("price", price_raw);
+                request.setAttribute("description", description);
+                request.setAttribute("nameExistedError", "Tên loại phòng đã tồn tại");
+            }
+
+            if (!check) {
+
+                int price = Integer.parseInt(price_raw);
+                TypeRoom typeRoom = new TypeRoom();
+                typeRoom.setDescription(description);
+                typeRoom.setPrice(price);
+                typeRoom.setTypeName(name);
+
+                TypeRoomDAO.getInstance().insertTypeRoom(typeRoom);
+
+                request.setAttribute("addSuccess", "Thêm loại phòng thành công");
+
+            } else {
+                request.setAttribute("name", name);
+                request.setAttribute("price", price_raw);
+                request.setAttribute("description", description);
+                
+            }
+            request.setAttribute("showModalAdd", "show");
+            showTypeRoom(request, response);
+        }
 
         if ("updatePriceName".equals(service)) {
 
@@ -62,6 +113,8 @@ public class TypeRoomServlet extends HttpServlet {
             if (TypeRoomDAO.getInstance().getTypeRoomByNameAndPrice(typeName, price) != null) {
                 check = true;
                 System.out.println(check);
+                request.setAttribute("typeName", typeName);
+                request.setAttribute("price", priceRaw);
                 request.setAttribute("noChangeError", "Không có gì thay đổi");
             }
 
@@ -156,6 +209,10 @@ public class TypeRoomServlet extends HttpServlet {
             }
             request.setAttribute("typeId", typeId);
             showTypeRoom(request, response);
+        }
+        
+        if("deleleTypeRoom".equals(service)){
+            
         }
 
     }

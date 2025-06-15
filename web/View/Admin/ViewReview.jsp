@@ -33,7 +33,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#">List review</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/admin/review">List review</a>
                             </li>
                         </ul>
 

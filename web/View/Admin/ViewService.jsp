@@ -33,7 +33,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#">Management service</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/admin/service">Management service</a>
                             </li>
                         </ul>
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -51,8 +51,6 @@
                                         <th scope="col">Service name</th>
                                         <th scope="col">Price</th>
                                         <th scope="col">Action</th>
-                                        <!--                                        <th scope="col">Update</th>
-                                                                                <th scope="col">Delete</th>-->
                                     </tr>
                                 </thead>
                                 <tbody>

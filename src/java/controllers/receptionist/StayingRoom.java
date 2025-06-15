@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import models.Room;
+import websocket.RoomStatusSocket;
 
 /**
  *
@@ -15,7 +16,7 @@ import models.Room;
  */
 @WebServlet(name = "StayingRoom", urlPatterns = { "/receptionist/stayingRoom" })
 public class StayingRoom extends HttpServlet {
-    private static final int NUMBER_OF_ROWS = 4;
+    private static final int NUMBER_OF_ROWS = 8;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -68,7 +69,9 @@ public class StayingRoom extends HttpServlet {
             throws ServletException, IOException {
         String roomNumber = request.getParameter("roomNumber");
         boolean isCleaner = Boolean.parseBoolean(request.getParameter("status"));
-        dal.RoomDAO.getInstance().updateRoomStatus(Integer.parseInt(roomNumber), !isCleaner);
+        int roomId=Integer.parseInt(roomNumber);
+        dal.RoomDAO.getInstance().updateRoomStatus(roomId, !isCleaner);
+        RoomStatusSocket.broadcast("{\"roomId\":" + roomId+"}");
 
         StringBuilder linkForward = new StringBuilder(request.getContextPath() + "/receptionist/stayingRoom");
         String pageStr = request.getParameter("page");   

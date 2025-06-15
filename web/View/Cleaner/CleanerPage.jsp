@@ -116,6 +116,13 @@
                 alert('Vui lòng chọn ít nhất 1 phòng để đánh dấu đã dọn.');
             }
         });
+        const socket = new WebSocket("ws://" + location.host + "${pageContext.request.contextPath}/roomStatus");
 
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            if (${startFloor * 1000} < data.roomId && data.roomId <= ${ (endFloor + 1) * 1000 }) {
+                location.reload();
+            }
+        };
     </script>
 </html>

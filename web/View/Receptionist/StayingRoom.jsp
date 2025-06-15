@@ -107,4 +107,36 @@
     <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
     <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
     <%--another in following--%>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const socket = new WebSocket("ws://" + location.host + "${pageContext.request.contextPath}/roomStatus");
+
+            socket.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                const row = document.getElementById("room-" + data.roomId);
+
+                if (!row) {
+                    return;
+                }
+
+                const badge = row.querySelector('.badge');
+                const button = row.querySelector('form button');
+                const statusInput = row.querySelector('input[name="status"]');
+
+                if (data.status === true) {
+                    badge.className = 'badge bg-success';
+                    badge.textContent = 'Bình thường';
+                    button.className = 'btn btn-sm btn-warning';
+                    button.textContent = 'Đổi trạng thái';
+                    statusInput.value = 'true';
+                } else {
+                    badge.className = 'badge bg-warning text-dark';
+                    badge.textContent = 'Cần dọn';
+                    button.className = 'btn btn-sm btn-success';
+                    button.textContent = 'Đổi trạng thái';
+                    statusInput.value = 'false';
+                }
+            };
+        });
+    </script>
 </html>

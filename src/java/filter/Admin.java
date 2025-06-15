@@ -24,7 +24,7 @@ import models.Employee;
  *
  * @author Tuan'sPC
  */
-//@WebFilter(filterName = "Admin", urlPatterns = {"/admin/*"})
+@WebFilter(filterName = "Admin", urlPatterns = {"/admin/*"})
 public class Admin implements Filter {
 
     private static final boolean debug = true;

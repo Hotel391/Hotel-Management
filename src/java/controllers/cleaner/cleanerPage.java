@@ -12,6 +12,7 @@ import models.CleanerFloor;
 
 import models.Employee;
 import models.Room;
+import websocket.RoomStatusSocket;
 
 /**
  *
@@ -20,7 +21,7 @@ import models.Room;
 @WebServlet(name = "CleanerPage", urlPatterns = {"/cleaner/page"})
 public class CleanerPage extends HttpServlet {
 
-    private static final int NUMBER_OF_ROOMS_PER_PAGE = 7;
+    private static final int NUMBER_OF_ROOMS_PER_PAGE = 5;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -36,6 +37,8 @@ public class CleanerPage extends HttpServlet {
             return;
         }
         CleanerFloor cleanerFloor = dal.EmployeeDAO.getInstance().getCleanerFloorByEmployeeId(emp.getEmployeeId());
+        request.setAttribute("startFloor", cleanerFloor.getStartFloor());
+        request.setAttribute("endFloor", cleanerFloor.getEndFloor());
         String pageStr = request.getParameter("page");
         int page = 1;
         if (pageStr != null && !pageStr.isEmpty()) {
@@ -58,7 +61,9 @@ public class CleanerPage extends HttpServlet {
             throws ServletException, IOException {
         String[] roomNumbers = request.getParameterValues("roomIds");
         for (String roomNumber : roomNumbers) {
-            dal.RoomDAO.getInstance().updateRoomStatus(Integer.parseInt(roomNumber), Room.STATUS_CLEANING);
+            int roomId = Integer.parseInt(roomNumber);
+            dal.RoomDAO.getInstance().updateRoomStatus(roomId, Room.STATUS_CLEANING);
+            RoomStatusSocket.broadcast("{\"roomId\":" + roomId + ",\"status\":true}");
         }
         String pageStr = request.getParameter("currentPage");
         int page = 1;

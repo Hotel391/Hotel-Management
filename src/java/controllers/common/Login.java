@@ -50,8 +50,6 @@ public class Login extends HttpServlet {
 
         String state = request.getParameter("state");
 
-        System.out.println("state: " + state);
-
         if (service == null) {
             service = "login";
         }

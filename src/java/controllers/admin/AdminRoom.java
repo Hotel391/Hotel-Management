@@ -34,11 +34,44 @@ public class AdminRoom extends HttpServlet {
         String submit = request.getParameter(submitt);
         List<TypeRoom> tr = dal.RoomDAO.getInstance().getAllTypeRoom();
 
+        //search
+        if (choose.equals("search")) {
+            String roomNumberStr = request.getParameter(roomNumberr);
+            String typeRoomIdStr = request.getParameter(typeRoomIdd);
+
+            Integer roomNumber = null;
+            Integer typeRoomId = null;
+
+            try {
+                if (roomNumberStr != null && !roomNumberStr.trim().isEmpty()) {
+                    roomNumber = Integer.valueOf(roomNumberStr);
+                }
+                if (typeRoomIdStr != null && !typeRoomIdStr.trim().isEmpty()) {
+                    typeRoomId = Integer.valueOf(typeRoomIdStr);
+                }
+            } catch (NumberFormatException e) {
+                // Optional: set error message or logging
+            }
+
+            List<Room> rr = dal.RoomDAO.getInstance().searchAllRoom(roomNumber, typeRoomId);
+            paginateRoomList(request, rr);
+            request.setAttribute(typeRoom, tr);
+            request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
+            return;
+        }
+        
         if (choose.equals("deleteRoom")) {
             String roomNumberStr = request.getParameter(roomNumberr);
+            String typeRoomIdStr = request.getParameter(typeRoomIdd);
             int roomNumber = Integer.parseInt(roomNumberStr);
             dal.RoomDAO.getInstance().deleteRoom(roomNumber);
-            response.sendRedirect(request.getContextPath() + "/admin/room?choose=viewAll&page=" + pageStr);
+            String redirectUrl = String.format("%s/admin/room?choose=search&page=%s&typeRoomId=%s&success=true&action=delete",
+                        request.getContextPath(),
+                        pageStr,
+                        typeRoomIdStr != null ? typeRoomIdStr : ""
+                );
+                response.sendRedirect(redirectUrl);
+                return;
         }
 
         //view list room
@@ -76,34 +109,20 @@ public class AdminRoom extends HttpServlet {
                     request.setAttribute("errorMessage", "Lỗi định dạng số phòng hoặc loại phòng.");
                 }
                 dal.RoomDAO.getInstance().updateRoom(typeRoomID, roomNumber);
+                
+                 // redirect giữ lại filter sau khi thêm
+                String redirectUrl = String.format("%s/admin/room?choose=search&page=%s&typeRoomId=%s&success=true&action=update",
+                        request.getContextPath(),
+                        pageStr,
+                        typeRoomIdStr != null ? typeRoomIdStr : ""
+                );
+                response.sendRedirect(redirectUrl);
+                return;
+                
             }
         }
 
-        //search
-        if (choose.equals("search")) {
-            roomNumberStr = request.getParameter(roomNumberr);
-            typeRoomIdStr = request.getParameter(typeRoomIdd);
-
-            Integer roomNumber = null;
-            Integer typeRoomId = null;
-
-            try {
-                if (roomNumberStr != null && !roomNumberStr.trim().isEmpty()) {
-                    roomNumber = Integer.valueOf(roomNumberStr);
-                }
-                if (typeRoomIdStr != null && !typeRoomIdStr.trim().isEmpty()) {
-                    typeRoomId = Integer.valueOf(typeRoomIdStr);
-                }
-            } catch (NumberFormatException e) {
-                // Optional: set error message or logging
-            }
-
-            List<Room> rr = dal.RoomDAO.getInstance().searchAllRoom(roomNumber, typeRoomId);
-            paginateRoomList(request, rr);
-            request.setAttribute(typeRoom, tr);
-            request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
-            return;
-        }
+        
 
         //insert new room
         if (choose.equals(insertRoom)) {
@@ -113,8 +132,6 @@ public class AdminRoom extends HttpServlet {
                 boolean haveError = false;
                 int roomNumber = 0;
                 int typeRoomId = 0;
-
-                request.setAttribute(roomNumberr, roomNumberStr);
 
                 try {
                     typeRoomId = Integer.parseInt(typeRoomIdStr);
@@ -127,22 +144,34 @@ public class AdminRoom extends HttpServlet {
                     request.setAttribute("error", "Room Number must be a positive integer.");
                     haveError = true;
                 }
+
                 if (haveError) {
                     request.setAttribute(typeRoom, tr);
                     paginateRoomList(request, r);
                     request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
                     return;
                 }
+
+                // insert thành công
                 dal.RoomDAO.getInstance().insertRoom(roomNumber, typeRoomId);
+
+                // redirect giữ lại filter sau khi thêm
+                String redirectUrl = String.format("%s/admin/room?choose=search&page=%s&typeRoomId=%s&success=true&action=add",
+                        request.getContextPath(),
+                        pageStr,
+                        typeRoomIdStr != null ? typeRoomIdStr : ""
+                );
+                response.sendRedirect(redirectUrl);
+                return;
             }
         }
-        response.sendRedirect(request.getContextPath() + "/admin/room?choose=viewAll&page=" + pageStr);
+
     }
 
     private void paginateRoomList(HttpServletRequest request, List<Room> fullList) {
         String pageStr = request.getParameter(pagee);
         int page = pageStr != null ? Integer.parseInt(pageStr) : 1;
-        int recordsPerPage = 5;
+        int recordsPerPage = 8;
 
         int totalRecords = fullList.size();
         int totalPages = (int) Math.ceil(totalRecords * 1.0 / recordsPerPage);

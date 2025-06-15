@@ -36,6 +36,20 @@
                                 <a class="nav-link active" href="${pageContext.request.contextPath}/admin/service">Management service</a>
                             </li>
                         </ul>
+
+                        <!--thông báo thành công-->
+                        <c:if test="${param.success == 'true'}">
+                            <div id="successAlert" class="alert alert-success alert-dismissible fade show mt-3 mx-auto text-center" role="alert" style="width: fit-content;">
+                                <c:choose>
+                                    <c:when test="${param.action == 'add'}">Thêm dịch vụ thành công!</c:when>
+                                    <c:when test="${param.action == 'update'}">Cập nhật dịch vụ thành công!</c:when>
+                                    <c:when test="${param.action == 'delete'}">Xóa dịch vụ thành công!</c:when>
+                                    <c:otherwise>Thao tác thành công!</c:otherwise>
+                                </c:choose>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </c:if>
+
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex gap-2">
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">+ Add New Service</button>
@@ -229,6 +243,27 @@
         </div>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+                
+                //thông báo thành công
+                const alertBox = document.getElementById("successAlert");
+                if (alertBox) {
+                    setTimeout(() => {
+                        // Bootstrap fade out (optional)
+                        alertBox.classList.remove("show");
+                        alertBox.classList.add("fade");
+                        // Xóa phần tử khỏi DOM sau khi fade
+                        setTimeout(() => alertBox.remove(), 500);
+
+                        // Xoá param khỏi URL
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete("success");
+                        url.searchParams.delete("action");
+                        window.history.replaceState({}, document.title, url.toString());
+                    }, 3000); // Hiển thị 3s
+                }
+
+
+
                 // --- UPDATE MODAL ---
                 const updateModalEl = document.getElementById("updateServiceModal");
 

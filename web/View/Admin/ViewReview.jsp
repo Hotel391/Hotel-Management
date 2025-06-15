@@ -40,18 +40,21 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex gap-2"></div>
 
-                            <!--search-->
+                            <!-- SEARCH FORM -->
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <form method="post" action="${pageContext.request.contextPath}/admin/review" class="d-flex gap-2">
-                                    <input type="text" name="fullName"  
-                                           class="form-control search-input" placeholder="Enter fullName"/>
-                                    <input type="date" class="form-control search-input" name="date" class="form-date" >
+                                    <input type="text" name="fullName" class="form-control search-input" placeholder="Enter fullName"/>
+                                    <input type="date" name="date" class="form-control search-input" />
+
+                                    <!-- Đây là dòng quan trọng để doPost nhận action -->
+                                    <input type="hidden" name="action" value="search"/>
+
                                     <div class="form-group d-flex gap-2">
-                                        <button type="submit" name="submit" class="btn btn-primary">Search</button>
-                                        <button type="reset" name="reset" class="btn btn-secondary">Reset</button>
+                                        <button type="submit" class="btn btn-primary">Search</button>
+                                        <button type="reset" class="btn btn-secondary">Reset</button>
                                     </div>
-                                    <input type="hidden" name="choose" value="listReview"> 
                                 </form>
+
                             </div>
                         </div>
 
@@ -101,11 +104,13 @@
                                     <nav>
                                         <ul class="pagination justify-content-center">
 
-                                            <!-- Nút << về trang đầu -->
+                                            <!-- First Page -->
                                             <c:if test="${currentPage > 1}">
                                                 <li class="page-item">
                                                     <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
-                                                        <input type="hidden" name="submit" value="search"/>
+                                                        <input type="hidden" name="action" value="search"/>
+                                                        <input type="hidden" name="fullName" value="${param.fullName}"/>
+                                                        <input type="hidden" name="date" value="${param.date}"/>
                                                         <input type="hidden" name="page" value="1"/>
                                                         <button type="submit" class="page-link">&laquo;</button>
                                                     </form>
@@ -115,14 +120,16 @@
                                             <!-- Dấu ... trước -->
                                             <c:if test="${currentPage > 3}">
                                                 <li class="page-item disabled"><span class="page-link">...</span></li>
-                                            </c:if>
+                                                </c:if>
 
                                             <!-- Các nút trang -->
                                             <c:forEach var="i" begin="1" end="${totalPages}">
                                                 <c:if test="${i >= currentPage - 2 && i <= currentPage + 2}">
                                                     <li class="page-item ${i == currentPage ? 'active' : ''}">
                                                         <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
-                                                            <input type="hidden" name="submit" value="search"/>
+                                                            <input type="hidden" name="action" value="search"/>
+                                                            <input type="hidden" name="fullName" value="${param.fullName}"/>
+                                                            <input type="hidden" name="date" value="${param.date}"/>
                                                             <input type="hidden" name="page" value="${i}"/>
                                                             <button type="submit" class="page-link">${i}</button>
                                                         </form>
@@ -133,13 +140,15 @@
                                             <!-- Dấu ... sau -->
                                             <c:if test="${currentPage < totalPages - 2}">
                                                 <li class="page-item disabled"><span class="page-link">...</span></li>
-                                            </c:if>
+                                                </c:if>
 
-                                            <!-- Nút >> đến trang cuối -->
+                                            <!-- Last Page -->
                                             <c:if test="${currentPage < totalPages}">
                                                 <li class="page-item">
                                                     <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
-                                                        <input type="hidden" name="submit" value="search"/>
+                                                        <input type="hidden" name="action" value="search"/>
+                                                        <input type="hidden" name="fullName" value="${param.fullName}"/>
+                                                        <input type="hidden" name="date" value="${param.date}"/>
                                                         <input type="hidden" name="page" value="${totalPages}"/>
                                                         <button type="submit" class="page-link">&raquo;</button>
                                                     </form>

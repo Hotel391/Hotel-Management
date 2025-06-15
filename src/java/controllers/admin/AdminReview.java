@@ -23,8 +23,11 @@ public class AdminReview extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String submit = request.getParameter("submit");
-        if (submit != null) {
+        System.out.println("== doPost was called ==");
+        System.out.println("action = " + request.getParameter("action"));
+
+        String action = request.getParameter("action");
+        if ("search".equals(action)) {
             String fullname = request.getParameter("fullName");
             String dateStr = request.getParameter("date");
             Date date = null;
@@ -33,9 +36,21 @@ public class AdminReview extends HttpServlet {
             }
 
             List<Review> filteredList = dal.ReviewDAO.getInstance().searchReview(fullname, date);
+
+            for (Review r : filteredList) {
+                System.out.println("Review ID: " + r.getReviewId()
+                        + ", Name: " + r.getCustomerAccount().getCustomer().getFullName()
+                        + ", Rating: " + r.getRating()
+                        + ", Date: " + r.getDate());
+            }
+
             paginateReviewList(request, filteredList);
 
+            request.setAttribute("fullName", fullname);
+            request.setAttribute("date", dateStr);
             request.getRequestDispatcher("/View/Admin/ViewReview.jsp").forward(request, response);
+        } else {
+            doGet(request, response); // fallback nếu không có action thì load lại toàn bộ
         }
     }
 

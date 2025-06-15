@@ -73,6 +73,30 @@ public class ReviewDAO {
         }
         return listReview;
     }
+//    
+//    <!--search-->
+//                            <div class="d-flex justify-content-between align-items-center mb-3">
+//                                <form method="post" action="${pageContext.request.contextPath}/admin/review" class="d-flex gap-2">
+//
+//                                    <input type="text" name="fullName" class="form-control search-input" placeholder="Enter fullName" />
+//
+//                                    <!-- Nhập ngày -->
+//                                    <input type="number" name="day" min="1" max="31" class="form-control" placeholder="Day" />
+//
+//                                    <!-- Nhập tháng -->
+//                                    <input type="number" name="month" min="1" max="12" class="form-control" placeholder="Month" />
+//
+//                                    <!-- Nhập năm -->
+//                                    <input type="number" name="year" min="1900" max="2100" class="form-control" placeholder="Year" />
+//
+//                                    <div class="form-group d-flex gap-2">
+//                                        <button type="submit" name="submit" class="btn btn-primary">Search</button>
+//                                        <button type="reset" name="reset" class="btn btn-secondary">Reset</button>
+//                                    </div>
+//
+//                                    <input type="hidden" name="choose" value="listReview"> 
+//                                </form>
+//                            </div>
 
     public List<Review> searchReview(String fullName, Date date) {
         String sql = "SELECT \n"
@@ -101,16 +125,16 @@ public class ReviewDAO {
             sql += "WHERE r.[Date] = ?";
         }
         
-        sql += "ORDER BY r.[Date] DESC;";
+        sql += " ORDER BY r.[Date] DESC;";
 
         List<Review> listReview = new Vector<>();
         try (PreparedStatement ptm = con.prepareStatement(sql);) {
-
+             int paramIndex = 1;
             if (hasFullName) {
-                ptm.setString(1, "%" + fullName + "%");
+                ptm.setString(paramIndex++, "%" + fullName + "%");
             }
             if (hasDate) {
-                ptm.setDate(2, new java.sql.Date(date.getTime()));
+                ptm.setDate(paramIndex++, new java.sql.Date(date.getTime()));
             }
 
             try (ResultSet rs = ptm.executeQuery()) {

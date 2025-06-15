@@ -36,6 +36,20 @@
                                 <a class="nav-link active" href="${pageContext.request.contextPath}/admin/room">Management Room</a>
                             </li>
                         </ul>
+
+                        <!--thông báo thành công-->
+                        <c:if test="${param.success == 'true'}">
+                            <div id="roomSuccessAlert" class="alert alert-success alert-dismissible fade show text-center mx-auto mt-3" role="alert" style="width: fit-content;">
+                                <c:choose>
+                                    <c:when test="${param.action == 'add'}">Thêm phòng thành công!</c:when>
+                                    <c:when test="${param.action == 'update'}">Cập nhật phòng thành công!</c:when>
+                                    <c:when test="${param.action == 'delete'}">Xóa phòng thành công!</c:when>
+                                    <c:otherwise>Thao tác thành công!</c:otherwise>
+                                </c:choose>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </c:if>
+
                         <div class="d-flex justify-content-between align-items-center mb-3">
 
                             <!--form add new room-->
@@ -45,7 +59,7 @@
                             </div>
 
                             <!--form search-->
-                            <form method="post" action="${pageContext.request.contextPath}/admin/room?choose=search" class="d-flex gap-2">
+                            <form method="get" action="${pageContext.request.contextPath}/admin/room?choose=search" class="d-flex gap-2">
                                 <input type="number" name="roomNumber"" 
                                        class="form-control search-input" placeholder="Room number" min="0" />
 
@@ -129,13 +143,20 @@
                                     <ul class="pagination justify-content-center">
                                         <c:forEach begin="1" end="${totalPages}" var="i">
                                             <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <form action="${pageContext.request.contextPath}/admin/room" method="post" style="display:inline;">
+                                                <form action="${pageContext.request.contextPath}/admin/room" method="get" style="display:inline;">
                                                     <input type="hidden" name="choose" value="search"/>
                                                     <input type="hidden" name="page" value="${i}"/>
+                                                    <c:if test="${not empty param.roomNumber}">
+                                                        <input type="hidden" name="roomNumber" value="${param.roomNumber}"/>
+                                                    </c:if>
+                                                    <c:if test="${not empty param.typeRoomId}">
+                                                        <input type="hidden" name="typeRoomId" value="${param.typeRoomId}"/>
+                                                    </c:if>
                                                     <button type="submit" class="page-link">${i}</button>
                                                 </form>
                                             </li>
                                         </c:forEach>
+
                                     </ul>
                                 </nav>
                             </c:if>
@@ -178,16 +199,15 @@
                                         <input type="reset" name="reset" value="Reset"/>
                                         <input type="hidden" name="choose" value="insertRoom"/>
                                         <input type="hidden" name="page" value="${currentPage}" />
+                                        <input type="hidden" name="roomNumber" value="${param.roomNumber}" />
+                                        <input type="hidden" name="typeRoomId" value="${param.typeRoomId}" />
+
                                     </div>
 
                                 </form>
                             </div>
                         </div>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", function () {
 
-                            });
-                        </script>
                     </div>
 
                     <!--update room-->
@@ -224,6 +244,8 @@
                                         <input type="submit" name="submit" class="btn btn-success" value="Update Room"/>
                                         <input type="hidden" name="choose" value="updateRoom"/>
                                         <input type="hidden" name="page" value="${currentPage}" />
+                                        <input type="hidden" name="roomNumber" value="${param.roomNumber}" />
+                                        <input type="hidden" name="typeRoomId" value="${param.typeRoomId}" />
                                     </div>
                                 </form>
 
@@ -255,6 +277,8 @@
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                         <input type="hidden" name="choose" value="deleteRoom"/>
                                         <input type="hidden" name="page" value="${currentPage}" />
+                                        <input type="hidden" name="roomNumber" value="${param.roomNumber}" />
+                                        <input type="hidden" name="typeRoomId" value="${param.typeRoomId}" />
                                     </div>
                                 </form>
                             </div>
@@ -266,6 +290,23 @@
         </div>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+
+                //THÔNG BÁO THÀNH CÔNG
+                const alertBox = document.getElementById("roomSuccessAlert");
+                if (alertBox) {
+                    setTimeout(() => {
+                        alertBox.classList.remove("show");
+                        alertBox.classList.add("fade");
+                        setTimeout(() => alertBox.remove(), 500);
+
+                        // Xoá tham số URL
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete("success");
+                        url.searchParams.delete("action");
+                        window.history.replaceState({}, document.title, url.toString());
+                    }, 3000);
+                }
+
                 // UPDATE ROOM MODAL
                 const updateRoomModal = document.getElementById('updateRoomModal');
                 if (updateRoomModal) {

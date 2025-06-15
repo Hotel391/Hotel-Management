@@ -37,10 +37,6 @@ public class DeveloperPage extends HttpServlet {
             request.getRequestDispatcher(linkInfoAdmin).forward(request, response);
         }
 
-        if (service.equals("add")) {
-            request.getRequestDispatcher("/View/Developer/AddManager.jsp").forward(request, response);
-        }
-
         if (service.equals("deleteManager")) {
             int employeeID = Integer.parseInt(request.getParameter("employeeID"));
             dal.AdminDao.getInstance().deleteManagerAccount(employeeID);
@@ -112,14 +108,19 @@ public class DeveloperPage extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/developer/page?service=viewAll");
     }
 
-    private void handleAddNewAccount(HttpServletRequest request, HttpServletResponse response, String userName)
+    private void handleAddNewAccount(HttpServletRequest request, HttpServletResponse response, String userNameManager)
             throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+        Employee employeeInfo = (Employee) session.getAttribute("employeeInfo");
+        String usernameAdmin = employeeInfo.getUsername();
+        
         String password = request.getParameter("password");
         String passwordSh = Encryption.toSHA256(password);
         boolean hasError = false;
 
         hasError |= Validation.validateField(
-                request, "usernameError", userName, "USERNAME", "Username",
+                request, "usernameError", userNameManager, "USERNAME", "Username",
                 "Username must be 5–20 characters, letters/numbers/underscores only."
         );
         hasError |= Validation.validateField(
@@ -127,31 +128,35 @@ public class DeveloperPage extends HttpServlet {
                 "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
         );
 
-        if (isUsernameTaken(userName)) {
+        if (isUsernameTaken(userNameManager)) {
             hasError = true;
             request.setAttribute("usernameError", "Username already exists.");
         }
 
         if (hasError) {
-            request.getRequestDispatcher("/View/Developer/AddManager.jsp").forward(request, response);
+            Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(usernameAdmin);
+            List<Employee> list = dal.AdminDao.getInstance().getAllEmployee();
+            request.setAttribute("list", list);
+            request.setAttribute("adminAccount", em);
+            request.getRequestDispatcher("/View/Developer/DeveloperPage.jsp").forward(request, response);
             return;
         }
 
-        dal.AdminDao.getInstance().addNewAccountManager(userName, passwordSh);
+        dal.AdminDao.getInstance().addNewAccountManager(userNameManager, passwordSh);
         response.sendRedirect(request.getContextPath() + "/developer/page?service=viewAll");
     }
 
-    private boolean isUsernameTaken(String userName) {
+    private boolean isUsernameTaken(String userNameManager) {
         List<String> employees = dal.AdminDao.getInstance().getAllUsernames();
         for (String username : employees) {
-            if (username.equalsIgnoreCase(userName)) {
+            if (username.equalsIgnoreCase(userNameManager)) {
                 return true;
             }
         }
 
         List<String> customerAccount = dal.CustomerAccountDAO.getInstance().getAllUsername();
         for (String usernameca : customerAccount) {
-            if (usernameca.equalsIgnoreCase(userName)) {
+            if (usernameca.equalsIgnoreCase(userNameManager)) {
                 return true;
             }
         }

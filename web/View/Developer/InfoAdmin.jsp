@@ -44,7 +44,7 @@
                                        placeholder="Old Password" aria-label="Password"
                                        aria-describedby="visible-addon2" value="${param.oldpassword}">
                                 <span class="input-group-text" onclick="oldtogglePassword()" style="cursor: pointer;">
-                                    <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                                    <i class="bi bi-eye-slash" id="toggleOldIcon"></i>
                                 </span>
                             </div>
                             <small class="text-danger" style="display: block; min-height: 1.2em;">
@@ -80,7 +80,7 @@
                                        placeholder="Confirm Password" aria-label="Password"
                                        aria-describedby="visible-addon2" value="${param.confirmPassword}">
                                 <span class="input-group-text" onclick="toggleConfirmPassword()" style="cursor: pointer;">
-                                    <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                                    <i class="bi bi-eye-slash" id="toggleConfirmIcon"></i>
                                 </span>
                             </div>
 
@@ -100,7 +100,7 @@
 
             function oldtogglePassword() {
                 const oldpasswordField = document.getElementById("oldpasswordField");
-                const toggleIcon = document.getElementById("toggleIcon");
+                const toggleIcon = document.getElementById("toggleOldIcon");
 
                 if (oldpasswordField.type === "password") {
                     oldpasswordField.type = "text";
@@ -130,7 +130,7 @@
             
             function toggleConfirmPassword() {
                 const confirmPasswordField = document.getElementById("confirmPasswordField");
-                const toggleIcon = document.getElementById("toggleIcon");
+                const toggleIcon = document.getElementById("toggleConfirmIcon");
 
                 if (confirmPasswordField.type === "password") {
                     confirmPasswordField.type = "text";

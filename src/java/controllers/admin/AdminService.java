@@ -30,7 +30,7 @@ public class AdminService extends HttpServlet {
             int serviceId = Integer.parseInt(serviceIdStr);
             dal.ServiceDAO.getInstance().deleteService(serviceId);
             paginateServiceList(request, list, pageStr);
-            response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr);
+            response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr + "&action=delete&success=true");
         }
 
         //list all service
@@ -92,7 +92,7 @@ public class AdminService extends HttpServlet {
                 }
 
                 dal.ServiceDAO.getInstance().insertService(serviceName, price);
-                response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr);
+                response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr + "&action=add&success=true");
 
             }
         }
@@ -130,7 +130,7 @@ public class AdminService extends HttpServlet {
 
                 Service s = new Service(serviceId, serviceName, price);
                 dal.ServiceDAO.getInstance().updateService(s);
-                response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr);
+                response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr + "&action=update&success=true");
             }
 
         }

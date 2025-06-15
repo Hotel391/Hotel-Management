@@ -27,15 +27,15 @@ public class RoomDAO {
     private RoomDAO() {
         con = new DBContext().connect;
     }
-    
-    public int roomCount(){
-        String sql="select count(*) from Room";
-        
-        try(PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()){
-            if(rs.next()){
+
+    public int roomCount() {
+        String sql = "select count(*) from Room";
+
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
                 return rs.getInt(1);
             }
-        } catch(SQLException e){
+        } catch (SQLException e) {
         }
         return 0;
     }
@@ -50,9 +50,8 @@ public class RoomDAO {
                      \tCONVERT(DATE, GETDATE()) >= bd.StartDate\r
                            and CONVERT(DATE, GETDATE()) < bd.EndDate\r
                      )\r
-                     """
-        ;
-        
+                     """;
+
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -61,6 +60,7 @@ public class RoomDAO {
         }
         return 0;
     }
+
     public int roomBookedCount() {
         String sql = """
                      SELECT COUNT(*) \r
@@ -71,9 +71,8 @@ public class RoomDAO {
                      \tCONVERT(DATE, GETDATE()) >= bd.StartDate\r
                            and CONVERT(DATE, GETDATE()) < bd.EndDate\r
                      )\r
-                     """
-        ;
-        
+                     """;
+
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -164,7 +163,7 @@ public class RoomDAO {
                 + "     VALUES(?, ?)";
         int n = 0;
         try (PreparedStatement ptm = con.prepareStatement(sql);) {
-            
+
             ptm.setInt(1, roomNumber);
             ptm.setInt(2, typeRoom);
             n = ptm.executeUpdate();
@@ -178,7 +177,7 @@ public class RoomDAO {
         String sql = "DELETE FROM [dbo].[Room]\n"
                 + "      WHERE RoomNumber =?";
 
-        try (PreparedStatement ptm = con.prepareStatement(sql);) {        
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
             ptm.setInt(1, roomNumber);
             ptm.executeUpdate();
         } catch (SQLException ex) {
@@ -210,32 +209,133 @@ public class RoomDAO {
         return listTypeRoom;
     }
 
-    public List<Room> getAllNotAvailableRoomOfCleaner(int startFloor, int endFloor, int startIndex){
+    public List<Room> getAllNotAvailableRoomOfCleaner(int startFloor, int endFloor, int startIndex, int numberRow) {
         List<Room> listRoom = Collections.synchronizedList(new ArrayList<>());
 
+        String sql = String.format("""
+                        SELECT RoomNumber FROM Room
+                        WHERE isCleaner = 0 AND RoomNumber > ? AND RoomNumber < ?
+                        ORDER BY RoomNumber
+                        OFFSET ? ROWS FETCH NEXT %d ROWS ONLY
+                        """, numberRow);
+
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, startFloor * 1000);
+            ptm.setInt(2, (endFloor + 1) * 1000);
+            ptm.setInt(3, (startIndex - 1) * numberRow);
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    int roomNumber = rs.getInt("RoomNumber");
+                    Room room = new Room();
+                    room.setRoomNumber(roomNumber);
+                    listRoom.add(room);
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return listRoom;
+    }
+
+    public int getTotalNotAvailableRoomOfCleaner(int startFloor, int endFloor) {
         String sql = """
-                     SELECT RoomNumber FROM Room
+                     SELECT COUNT(RoomNumber) FROM Room
                      WHERE isCleaner = 0 AND RoomNumber > ? AND RoomNumber < ?
-                     ORDER BY RoomNumber
-                     OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY
                      """;
 
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, startFloor * 1000);
             ptm.setInt(2, (endFloor + 1) * 1000);
-            ptm.setInt(3, (startIndex-1)*5);
-            ResultSet rs = ptm.executeQuery();
-
-            while (rs.next()) {
-                int roomNumber = rs.getInt("RoomNumber");
-                Room room = new Room();
-                room.setRoomNumber(roomNumber);
-                listRoom.add(room);
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
+        } catch (SQLException e) {
+            //
         }
-        catch (SQLException e) {
+        return 0;
+    }
+
+    public void updateRoomStatus(int roomNumber, boolean status) {
+        String sql = "UPDATE Room SET isCleaner = ? WHERE RoomNumber = ?";
+
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setBoolean(1, status);
+            ptm.setInt(2, roomNumber);
+            ptm.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return listRoom;
+    }
+
+    public List<Room> getStayingRooms(int numberRow, int pageIndex, String search) {
+        List<Room> stayingRooms = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("""
+            select r.RoomNumber, r.isCleaner, tr.TypeName, tr.Price from Room r
+            join BookingDetail bd on bd.RoomNumber=r.RoomNumber
+            join TypeRoom tr on tr.TypeId=r.TypeId
+            WHERE bd.StartDate<= CAST(GETDATE() AS DATE) and bd.EndDate>=CAST(GETDATE() AS DATE)
+        """);
+
+        if (search != null && !search.isEmpty()) {
+            sql.append(" AND r.RoomNumber LIKE ?");
+        }
+
+        sql.append(" ORDER BY r.RoomNumber OFFSET ? ROWS FETCH NEXT %d ROWS ONLY".formatted(numberRow));
+
+        try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (search != null && !search.isEmpty()) {
+                ptm.setString(paramIndex++, "%" + search + "%");
+            }
+            ptm.setInt(paramIndex, (pageIndex - 1) * numberRow);
+
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    int roomNumber = rs.getInt("RoomNumber");
+                    boolean isCleaner = rs.getBoolean("isCleaner");
+                    String typeName = rs.getString("TypeName");
+                    int price = rs.getInt("Price");
+
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeName(typeName);
+                    typeRoom.setPrice(price);
+
+                    Room room = new Room(roomNumber, isCleaner, typeRoom);
+                    stayingRooms.add(room);
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return stayingRooms;
+    }
+    
+    public int getTotalStayingRooms(String search) {
+        String sql = """
+                    select COUNT(*) from Room r
+                    join BookingDetail bd on bd.RoomNumber=r.RoomNumber
+                    join TypeRoom tr on tr.TypeId=r.TypeId
+                    WHERE bd.StartDate<= CAST(GETDATE() AS DATE) and bd.EndDate>=CAST(GETDATE() AS DATE)
+                     """;
+
+        if (search != null && !search.isEmpty()) {
+            sql += " AND r.RoomNumber LIKE ?";
+        }
+
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            if (search != null && !search.isEmpty()) {
+                ptm.setString(1, "%" + search + "%");
+            }
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return 0;
     }
 }

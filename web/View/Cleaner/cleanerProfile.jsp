@@ -66,7 +66,7 @@
                     </c:if>
 
                     <!-- Profile Form -->
-                    <form action="${pageContext.request.contextPath}/cleanerProfile" method="post" id="profileForm">
+                    <form action="${pageContext.request.contextPath}/cleaner/profile" method="post" id="profileForm">
                         <input type="hidden" name="employeeId" value="${cleaner.employeeId}">
 
                         <!-- Username -->
@@ -202,12 +202,12 @@
                         <!-- Action Buttons -->
                         <div class="btn-container d-flex justify-content-end gap-2">
                             <c:if test="${not isEditing}">
-                                <a href="${pageContext.request.contextPath}/cleanerProfile?action=updateprofile" class="btn btn-primary">Update Profile</a>
+                                <a href="${pageContext.request.contextPath}/cleaner/profile?action=updateprofile" class="btn btn-primary">Update Profile</a>
                                 <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#passwordModal">Change Password</button>
                             </c:if>
                             <c:if test="${isEditing}">
                                 <button type="submit" name="action" value="updateprofile" class="btn btn-success">Save</button>
-                                <a href="${pageContext.request.contextPath}/cleanerProfile" class="btn btn-secondary">Cancel</a>
+                                <a href="${pageContext.request.contextPath}/cleaner/profile" class="btn btn-secondary">Cancel</a>
                             </c:if>
                         </div>
                     </form>

@@ -9,10 +9,7 @@
         <meta charset="UTF-8">
         <title>Cleaner Page</title>
         <%--style for dashboard--%>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-              rel="stylesheet"
-              integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-              crossorigin="anonymous">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet"
               href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/navDashboardStyle.css" />
@@ -77,8 +74,26 @@
                         </table>
                         <div class="d-flex justify-content-between align-items-center">
                             <button type="submit" class="btn btn-success">Đánh dấu đã dọn</button>
-                            <nav>
-                                ssss
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination mb-0">
+                                    <c:if test="${currentPage > 1}">
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=${currentPage - 1}">Previous</a>
+                                        </li>
+                                    </c:if>
+
+                                    <c:forEach var="i" begin="1" end="${totalPages}">
+                                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                            <a class="page-link" href="?page=${i}">${i}</a>
+                                        </li>
+                                    </c:forEach>
+
+                                    <c:if test="${currentPage < totalPages}">
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=${currentPage + 1}">Next</a>
+                                        </li>
+                                    </c:if>
+                                </ul>
                             </nav>
                         </div>
                     </form>
@@ -92,5 +107,15 @@
     <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
     <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
     <%--another in following--%>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('cleanForm').addEventListener('submit', function (e) {
+            const checkboxes = document.querySelectorAll('input[name="roomIds"]:checked');
+            if (checkboxes.length === 0) {
+                e.preventDefault();
+                alert('Vui lòng chọn ít nhất 1 phòng để đánh dấu đã dọn.');
+            }
+        });
 
+    </script>
 </html>

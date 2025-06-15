@@ -4,6 +4,8 @@ import java.sql.Date;
 import models.CleanerFloor;
 
 public class Employee {
+    public static final int ROLE_CLEANER = 3;
+
     private int employeeId;
     private String username;
     private String password;

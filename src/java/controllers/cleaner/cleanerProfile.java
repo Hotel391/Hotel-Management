@@ -14,7 +14,7 @@ import java.io.IOException;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "CleanerProfileServlet", urlPatterns = "/cleanerProfile")
+@WebServlet(name = "cleanerProfile", urlPatterns = "/cleaner/profile")
 public class cleanerProfile extends HttpServlet {
 
     private EmployeeDAO employeeDAO;

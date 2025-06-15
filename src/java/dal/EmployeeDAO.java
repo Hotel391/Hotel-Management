@@ -592,4 +592,21 @@ public class EmployeeDAO {
         return list;
     }
 
+    public CleanerFloor getCleanerFloorByEmployeeId(int employeeId) {
+        String sql = "SELECT StartFloor, EndFloor FROM CleanerFloor WHERE EmployeeId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, employeeId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    CleanerFloor cf = new CleanerFloor();
+                    cf.setStartFloor(rs.getInt("StartFloor"));
+                    cf.setEndFloor(rs.getInt("EndFloor"));
+                    return cf;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

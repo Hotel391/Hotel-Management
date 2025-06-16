@@ -117,7 +117,7 @@
                                             <td><c:out value="${trl.price}" default="-"/></td>
                                             <td class="viewTypeRoom">
                                                 <!-- View typeroom Modal -->
-                                                <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#viewTypeRoomModal_${trl.typeId}">
+                                                <button onclick="clearMessage(${trl.typeId})" class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#viewTypeRoomModal_${trl.typeId}">
                                                     <i class="bi bi-eye"></i> View 
                                                 </button>
                                                 <!--modal view typeroom-->
@@ -146,7 +146,7 @@
                                                                     <input type="hidden" name="key" value="${key}"}>
                                                                     <input type="hidden" name="service" value="updateDesc">
                                                                     <button type="submit" class="btn btn-success">Update Description</button>
-                                                                    <button onclick="clearMessage(${trl.typeId})" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                                 </div>
                                                             </form>
                                                         </div>
@@ -438,17 +438,7 @@
 
                                                                         });
 
-                                                                        function clearMessage(typeId) {
-                                                                            // Ẩn message trong modal
-                                                                            var messageElement = document.querySelectorAll('#viewTypeRoomModal_' + typeId + ' .modal-body p');
 
-                                                                            if (messageElement) {
-                                                                                messageElement.forEach(function (element) {
-                                                                                    element.remove();
-                                                                                });
-                                                                            }
-                                                                        }
-                                                                        ;
             </script>
         </c:if>
         <c:if test="${not empty showModalEdit}">
@@ -483,37 +473,7 @@
                 }
                 ;
 
-                function resetFormData(typeId) {
 
-                    setTimeout(function () {
-                        var modal = document.getElementById('editTypeRoomModal_' + typeId);
-                        var form = modal.querySelector('form');
-
-                        if (form) {
-
-                            var typeNameInput = form.querySelector('input[name="typeName"]');
-                            if (typeNameInput) {
-                                var originalTypeName = typeNameInput.getAttribute('data-original-value');
-                                typeNameInput.value = originalTypeName;
-                                console.log('Reset type name to original:', originalTypeName);
-                            }
-
-
-                            var priceInput = form.querySelector('input[name="price"]');
-                            if (priceInput) {
-                                var originalPrice = priceInput.getAttribute('data-original-value');
-                                priceInput.value = originalPrice;
-                                console.log('Reset price to original:', originalPrice);
-                            }
-
-
-                            var messageElements = modal.querySelectorAll('.modal-body p.alert');
-                            messageElements.forEach(function (element) {
-                                element.remove();
-                            });
-                        }
-                    }, 100);
-                }
             </script>
         </c:if>
         <c:if test="${not empty showModalService}">
@@ -581,29 +541,77 @@
                 }
                 ;
 
-                function resetFormData() {
 
-                    setTimeout(function () {
-                        var modal = document.getElementById('addModal');
-                        var form = modal.querySelector('form');
-
-                        if (form) {
-
-                            var typeNameInput = form.querySelector('input[name="typeName"]');
-                            if (typeNameInput) {
-                                typeNameInput.value = '';
-                            }
-
-
-                            var priceInput = form.querySelector('input[name="price"]');
-                            if (priceInput) {
-                                priceInput.value = '';
-                            }
-                        }
-                    }, 100);
-                }
             </script>
         </c:if>
+        <script>
+            function resetFormData() {
+
+                setTimeout(function () {
+                    var modal = document.getElementById('addModal');
+                    var form = modal.querySelector('form');
+
+                    if (form) {
+
+                        var typeNameInput = form.querySelector('input[name="typeName"]');
+                        if (typeNameInput) {
+                            typeNameInput.value = '';
+                        }
+
+
+                        var priceInput = form.querySelector('input[name="price"]');
+                        if (priceInput) {
+                            priceInput.value = '';
+                        }
+                    }
+                }, 100);
+            }
+
+            function resetFormData(typeId) {
+
+                setTimeout(function () {
+                    var modal = document.getElementById('editTypeRoomModal_' + typeId);
+                    var form = modal.querySelector('form');
+
+                    if (form) {
+
+                        var typeNameInput = form.querySelector('input[name="typeName"]');
+                        if (typeNameInput) {
+                            var originalTypeName = typeNameInput.getAttribute('data-original-value');
+                            typeNameInput.value = originalTypeName;
+                            console.log('Reset type name to original:', originalTypeName);
+                        }
+
+
+                        var priceInput = form.querySelector('input[name="price"]');
+                        if (priceInput) {
+                            var originalPrice = priceInput.getAttribute('data-original-value');
+                            priceInput.value = originalPrice;
+                            console.log('Reset price to original:', originalPrice);
+                        }
+
+
+                        var messageElements = modal.querySelectorAll('.modal-body p.alert');
+                        messageElements.forEach(function (element) {
+                            element.remove();
+                        });
+                    }
+                }, 100);
+            }
+            function clearMessage(typeId) {
+                // Ẩn message trong modal
+                var messageElement = document.querySelectorAll('#viewTypeRoomModal_' + typeId + ' .modal-body p');
+
+
+                if (messageElement) {
+                    messageElement.forEach(function (element) {
+                        console.log(element.value);
+                        element.remove();
+                    });
+                }
+            }
+            ;
+        </script>
 
     </body>
 </html>

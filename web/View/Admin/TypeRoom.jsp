@@ -81,9 +81,6 @@
                                         </td>
                                         <td><button type="button" class="btn btn-danger">Update</button></td>
                                         <td><button type="button" class="btn btn-danger">Delete</button></td>
-
-
-
                                     </tr>
                                 </c:forEach>
                             </tbody>

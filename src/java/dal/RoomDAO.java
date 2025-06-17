@@ -272,7 +272,7 @@ public class RoomDAO {
     public List<Room> getStayingRooms(int numberRow, int pageIndex, String search) {
         List<Room> stayingRooms = new ArrayList<>();
         StringBuilder sql = new StringBuilder("""
-            select r.RoomNumber, r.isCleaner, tr.TypeName, tr.Price from Room r
+            select r.RoomNumber, r.isCleaner,r.TypeId, tr.TypeName, tr.Price from Room r
             join BookingDetail bd on bd.RoomNumber=r.RoomNumber
             join TypeRoom tr on tr.TypeId=r.TypeId
             WHERE bd.StartDate<= CAST(GETDATE() AS DATE) and bd.EndDate>=CAST(GETDATE() AS DATE)
@@ -295,10 +295,12 @@ public class RoomDAO {
                 while (rs.next()) {
                     int roomNumber = rs.getInt("RoomNumber");
                     boolean isCleaner = rs.getBoolean("isCleaner");
+                    int typeId= rs.getInt("TypeId");
                     String typeName = rs.getString("TypeName");
                     int price = rs.getInt("Price");
 
                     TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(typeId);
                     typeRoom.setTypeName(typeName);
                     typeRoom.setPrice(price);
 

@@ -44,7 +44,7 @@
                                 <th>Giá</th>
                                 <th>Trạng thái</th>
                                 <th>Action</th>
-                                <th>View</th>
+                                <th>Service</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -70,10 +70,64 @@
                                             </button>
                                         </form>
                                     </td>
+                                    <td>
+                                        <a href="stayingRoom?action=view&roomNumber=${room.roomNumber}&totalPages=${totalPages}&page=${currentPage}&search=${param.search}&oldSearch=${oldSearch}" 
+                                           class="btn btn-sm btn-outline-info me-1">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    </td>
                                 </tr>
                             </c:forEach>
                         </tbody>
                     </table>
+                    <c:if test="${action eq 'view'}">
+                        <div class="modal fade" id="serviceModal" tabindex="-1" aria-modal="true" role="dialog">
+                            <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">
+                                            Dịch vụ phòng ${param.roomNumber}
+                                        </h5>
+                                        <a href="stayingRoom?page=${currentPage}&search=${param.search}&oldSearch=${oldSearch}" class="btn-close"></a>
+                                    </div>
+                                    <div class="modal-body">
+                                        <h6>Dịch vụ hiện tại:</h6>
+                                        <c:choose>
+                                            <c:when test="${empty services}">
+                                                <p>Không có dịch vụ.</p>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <ul>
+                                                    <c:forEach var="s" items="${services}">
+                                                        <li>${s.service.serviceName} - ${s.service.price} VNĐ</li>
+                                                        </c:forEach>
+                                                </ul>
+                                            </c:otherwise>
+                                        </c:choose>
+
+                                        <h6 class="mt-3">Dịch vụ khác:</h6>
+                                        <c:choose>
+                                            <c:when test="${empty otherServices}">
+                                                <p>Không còn dịch vụ khác.</p>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <ul>
+                                                    <c:forEach var="s" items="${otherServices}">
+                                                        <li>${s.serviceName} - ${s.price} VNĐ</li>
+                                                        </c:forEach>
+                                                </ul>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Đóng
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:if>
                     <div class="d-flex justify-content-between align-items-center">
                         <span></span>
                         <nav aria-label="Page navigation">
@@ -107,6 +161,16 @@
     <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
     <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
     <%--another in following--%>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    <c:if test="${action eq 'view'}">
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
+                modal.show();
+            });
+        </script>
+    </c:if>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const socket = new WebSocket("ws://" + location.host + "${pageContext.request.contextPath}/roomStatus");

@@ -43,15 +43,32 @@
                             <!-- SEARCH FORM -->
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <form method="post" action="${pageContext.request.contextPath}/admin/review" class="d-flex gap-2">
-                                    <input type="text" name="fullName" class="form-control search-input" placeholder="Enter fullName"/>
-                                    <input type="date" name="date" class="form-control search-input" />
+                                    <!--<input type="text" name="fullName" class="form-control search-input" placeholder="Enter fullName"/>-->
 
-                                    <!-- Đây là dòng quan trọng để doPost nhận action -->
+                                    <div class="form-group">
+                                        <label for="starFilter" class="form-label">Tìm kiếm theo sao</label>
+                                        <select id="starFilter" name="starFilter" class="form-select" style="color: orange">
+                                            <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733; (5 sao)</option>
+                                            <option value="4">&#9733;&#9733;&#9733;&#9733; (4 sao)</option>
+                                            <option value="3">&#9733;&#9733;&#9733; (3 sao)</option>
+                                            <option value="2">&#9733;&#9733; (2 sao)</option>
+                                            <option value="1">&#9733; (1 sao)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Date filter -->
+                                    <div class="form-group">
+                                        <label for="date" class="form-label">Ngày</label>
+                                        <input type="date" name="date" id="date" class="form-control" />
+                                    </div>
+
+                                    <!-- Hidden action -->
                                     <input type="hidden" name="action" value="search"/>
 
-                                    <div class="form-group d-flex gap-2">
+                                    <!-- Buttons -->
+                                    <div class="form-group d-flex gap-2 align-items-end">
                                         <button type="submit" class="btn btn-primary">Search</button>
-                                        <button type="reset" class="btn btn-secondary">Reset</button>
+                                        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/review">Reset</a>
                                     </div>
                                 </form>
 
@@ -109,7 +126,7 @@
                                                 <li class="page-item">
                                                     <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
                                                         <input type="hidden" name="action" value="search"/>
-                                                        <input type="hidden" name="fullName" value="${param.fullName}"/>
+                                                        <input type="hidden" name="starFilter" value="${param.starFilter}"/>
                                                         <input type="hidden" name="date" value="${param.date}"/>
                                                         <input type="hidden" name="page" value="1"/>
                                                         <button type="submit" class="page-link">&laquo;</button>
@@ -128,7 +145,7 @@
                                                     <li class="page-item ${i == currentPage ? 'active' : ''}">
                                                         <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
                                                             <input type="hidden" name="action" value="search"/>
-                                                            <input type="hidden" name="fullName" value="${param.fullName}"/>
+                                                            <input type="hidden" name="starFilter" value="${param.starFilter}"/>
                                                             <input type="hidden" name="date" value="${param.date}"/>
                                                             <input type="hidden" name="page" value="${i}"/>
                                                             <button type="submit" class="page-link">${i}</button>
@@ -147,7 +164,7 @@
                                                 <li class="page-item">
                                                     <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
                                                         <input type="hidden" name="action" value="search"/>
-                                                        <input type="hidden" name="fullName" value="${param.fullName}"/>
+                                                        <input type="hidden" name="starFilter" value="${param.starFilter}"/>
                                                         <input type="hidden" name="date" value="${param.date}"/>
                                                         <input type="hidden" name="page" value="${totalPages}"/>
                                                         <button type="submit" class="page-link">&raquo;</button>

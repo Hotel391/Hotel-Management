@@ -25,7 +25,7 @@ import org.apache.http.HttpRequest;
  *
  * @author Tuan'sPC
  */
-@WebFilter(filterName = "Developer", urlPatterns = {"/developer/*"})
+//@WebFilter(filterName = "Developer", urlPatterns = {"/developer/*"})
 public class Developer implements Filter {
 
     private static final boolean debug = true;

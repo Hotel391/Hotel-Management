@@ -4,6 +4,7 @@ public class Service {
 
     private int serviceId;
     private String serviceName;
+    private boolean isActive;
     private int price;
 
     public Service() {
@@ -15,6 +16,23 @@ public class Service {
         this.price = price;
     }
 
+    public Service(int serviceId, String serviceName, boolean isActive, int price) {
+        this.serviceId = serviceId;
+        this.serviceName = serviceName;
+        this.isActive = isActive;
+        this.price = price;
+    }
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+    
+    
+    
     public int getServiceId() {
         return serviceId;
     }

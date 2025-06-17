@@ -43,12 +43,20 @@
                                 <c:choose>
                                     <c:when test="${param.action == 'add'}">Thêm dịch vụ thành công!</c:when>
                                     <c:when test="${param.action == 'update'}">Cập nhật dịch vụ thành công!</c:when>
-                                    <c:when test="${param.action == 'delete'}">Xóa dịch vụ thành công!</c:when>
+                                    <c:when test="${param.action == 'isActive'}">Đổi trạng thái dịch vụ thành công!</c:when>
                                     <c:otherwise>Thao tác thành công!</c:otherwise>
                                 </c:choose>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         </c:if>
+                        <!-- Thông báo lỗi -->
+                        <c:if test="${not empty requestScope.canNotUpdate || not empty requestScope.canNotDelete}">
+                            <div id="errorAlert" class="alert alert-danger alert-dismissible fade show mt-3 mx-auto text-center" role="alert" style="width: fit-content;">
+                                <c:out value="${requestScope.canNotUpdate}" default="${requestScope.canNotDelete}" />
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </c:if>
+
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex gap-2">
@@ -61,18 +69,25 @@
                             <table class="table align-middle bg-white">
                                 <thead class="table-light">
                                     <tr>
-                                        <th scope="col">ServiceID</th>
-                                        <th scope="col">Service name</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Action</th>
+                                        <th scope="col">Tên dịch vụ</th>
+                                        <th scope="col">Giá</th>
+                                        <th scope="col">Trạng thái</th>
+                                        <th scope="col">Cập nhật</th>
+                                        <th scope="col">Xóa</th>
+                                        <th scope="col">Chuyển trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <c:forEach var="s" items="${requestScope.listS}">
                                         <tr>
-                                            <td>${s.serviceId}</td>
                                             <td>${s.serviceName}</td>
                                             <td>${s.price}</td>
+                                            <td>
+                                                <span class="${s.isActive ? 'bg-success text-white px-2 py-1 rounded' : 'bg-danger text-white px-2 py-1 rounded'}">
+                                                    ${s.isActive ? 'Dịch vụ đang mở' : 'Dịch vụ đang đóng'}
+                                                </span>
+                                            </td>
+
                                             <td>
                                                 <button 
                                                     class="btn btn-sm btn-outline-primary"
@@ -83,7 +98,8 @@
                                                     data-service-price="${s.price}">
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
-
+                                            </td> 
+                                            <td>
                                                 <button
                                                     class="btn btn-danger"
                                                     data-bs-toggle="modal"
@@ -93,6 +109,16 @@
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>  
+
+                                            <td><form method="post" action="${pageContext.request.contextPath}/admin/service" style="display:inline;">
+                                                    <input type="hidden" name="serviceId" value="${s.serviceId}" />
+                                                    <input type="hidden" name="choose" value="toggleStatus">
+                                                    <input type="hidden" name="page" value="${currentPage}" />
+                                                    <button type="submit" class="btn btn-sm ${s.isActive ? 'btn-warning' : 'btn-success'}" title="Chuyển trạng thái">
+                                                        <i class="bi bi-power"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
 
                                         </tr>
                                     </c:forEach>
@@ -120,34 +146,6 @@
                     </div>
 
 
-                    <!-- Delete Service Modal -->
-                    <div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-labelledby="deleteServiceModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form method="get" action="${pageContext.request.contextPath}/admin/service?choose=deleteService">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteServiceModalLabel">Confirm Delete</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Are you sure you want to delete this service?<br>
-                                        <strong>ID:</strong> <span id="serviceIdDisplay"></span><br>
-                                        <strong>Name:</strong> <span id="serviceNameDisplay"></span>
-                                        <input type="hidden" id="serviceIdDeleteInput" name="serviceId" />
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                        <input type="hidden" name="choose" value="deleteService"/>
-                                        <input type="hidden" name="page" value="${currentPage}" />
-
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-
                     <!-- Update Service Modal -->
                     <div class="modal fade" id="updateServiceModal" tabindex="-1" aria-labelledby="updateServiceModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -161,8 +159,8 @@
                                     <div class="modal-body">
                                         <!-- Service ID -->
                                         <div class="mb-3">
-                                            <label for="serviceId" class="form-label">Service ID</label>
-                                            <input type="text" class="form-control" id="serviceId" name="serviceId" readonly
+                                            <!--<label for="serviceId" class="form-label">Service ID</label>-->
+                                            <input type="hidden" class="form-control" id="serviceId" name="serviceId" readonly
                                                    value="${param.serviceId}" />
                                         </div>
 
@@ -216,7 +214,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label for="roomTypeSelect" class="form-label">Price</label>
-                                            <input type="text" id="newServicePriceAdd" name="priceServiceAdd" class="form-control"  value="${param.priceServiceAdd}" required="">
+                                            <input type="number" id="newServicePriceAdd" name="priceServiceAdd" class="form-control"  value="${param.priceServiceAdd}" min="0" required="">
                                         </div>
                                         <c:if test="${not empty requestScope.nameAddError}">
                                             <div style="color: red;">${requestScope.nameAddError}</div>
@@ -238,12 +236,39 @@
                         </div>
                     </div>
 
+                    <!-- Delete Service Modal -->
+                    <div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-labelledby="deleteServiceModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="get" action="${pageContext.request.contextPath}/admin/service?choose=deleteService">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteServiceModalLabel">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete this service?<br>
+                                        <!--<strong>ID:</strong> <span id="serviceIdDisplay"></span><br>-->
+                                        <strong>Name:</strong> <span id="serviceNameDisplay"></span>
+                                        <input type="hidden" id="serviceIdDeleteInput" name="serviceId" />
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <input type="hidden" name="choose" value="deleteService"/>
+                                        <input type="hidden" name="page" value="${currentPage}" />
+
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                
+
                 //thông báo thành công
                 const alertBox = document.getElementById("successAlert");
                 if (alertBox) {
@@ -262,7 +287,15 @@
                     }, 3000); // Hiển thị 3s
                 }
 
-
+                //thông báo lỗi
+                const errorAlertBox = document.getElementById("errorAlert");
+                if (errorAlertBox) {
+                    setTimeout(() => {
+                        errorAlertBox.classList.remove("show");
+                        errorAlertBox.classList.add("fade");
+                        setTimeout(() => errorAlertBox.remove(), 500);
+                    }, 3000);
+                }
 
                 // --- UPDATE MODAL ---
                 const updateModalEl = document.getElementById("updateServiceModal");
@@ -300,7 +333,9 @@
                     deleteServiceModal.addEventListener('show.bs.modal', function (event) {
                         const button = event.relatedTarget;
                         const serviceId = button.getAttribute('data-service-id');
+                        const serviceName = button.getAttribute('data-service-name');
                         document.getElementById('serviceIdDeleteInput').value = serviceId;
+                        document.getElementById('serviceNameDisplay').textContent = serviceName;
                         document.getElementById('serviceIdDisplay').textContent = serviceId;
                     });
                 }

@@ -73,32 +73,8 @@ public class ReviewDAO {
         }
         return listReview;
     }
-//    
-//    <!--search-->
-//                            <div class="d-flex justify-content-between align-items-center mb-3">
-//                                <form method="post" action="${pageContext.request.contextPath}/admin/review" class="d-flex gap-2">
-//
-//                                    <input type="text" name="fullName" class="form-control search-input" placeholder="Enter fullName" />
-//
-//                                    <!-- Nhập ngày -->
-//                                    <input type="number" name="day" min="1" max="31" class="form-control" placeholder="Day" />
-//
-//                                    <!-- Nhập tháng -->
-//                                    <input type="number" name="month" min="1" max="12" class="form-control" placeholder="Month" />
-//
-//                                    <!-- Nhập năm -->
-//                                    <input type="number" name="year" min="1900" max="2100" class="form-control" placeholder="Year" />
-//
-//                                    <div class="form-group d-flex gap-2">
-//                                        <button type="submit" name="submit" class="btn btn-primary">Search</button>
-//                                        <button type="reset" name="reset" class="btn btn-secondary">Reset</button>
-//                                    </div>
-//
-//                                    <input type="hidden" name="choose" value="listReview"> 
-//                                </form>
-//                            </div>
 
-    public List<Review> searchReview(String fullName, Date date) {
+    public List<Review> searchReview(Integer start, Date date) {
         String sql = "SELECT \n"
                 + "    r.ReviewId,\n"
                 + "    r.Rating,\n"
@@ -113,14 +89,14 @@ public class ReviewDAO {
                 + "JOIN CustomerAccount ca ON r.Username = ca.Username\n"
                 + "JOIN Customer c ON ca.CustomerId = c.CustomerId\n";
 
-        boolean hasFullName = fullName != null && !fullName.trim().isEmpty();
+        boolean hasStart = start != null;
         boolean hasDate = date != null;
 
         // Thêm điều kiện WHERE để search
-        if (hasFullName && hasDate) {
-            sql += "WHERE c.FullName LIKE ? AND r.[Date] = ?";
-        } else if (hasFullName) {
-            sql += "WHERE c.FullName LIKE ?";
+        if (hasStart && hasDate) {
+            sql += "WHERE r.Rating = ? AND r.[Date] = ?";
+        } else if (hasStart) {
+            sql += "WHERE r.Rating = ?";
         } else if (hasDate) {
             sql += "WHERE r.[Date] = ?";
         }
@@ -130,8 +106,8 @@ public class ReviewDAO {
         List<Review> listReview = new Vector<>();
         try (PreparedStatement ptm = con.prepareStatement(sql);) {
              int paramIndex = 1;
-            if (hasFullName) {
-                ptm.setString(paramIndex++, "%" + fullName + "%");
+            if (hasStart) {
+                ptm.setInt(paramIndex++, start);
             }
             if (hasDate) {
                 ptm.setDate(paramIndex++, new java.sql.Date(date.getTime()));

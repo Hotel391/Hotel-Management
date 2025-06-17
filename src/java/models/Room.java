@@ -4,6 +4,7 @@ public class Room {
 
     private int roomNumber;
     private boolean isCleaner;
+    private boolean isActive;
     private TypeRoom typeRoom;
     
 
@@ -14,6 +15,21 @@ public class Room {
         this.roomNumber = roomNumber;
         this.isCleaner = isCleaner;
         this.typeRoom = typeRoom;
+    }
+    
+    public Room(int roomNumber, boolean isCleaner, boolean isActive, TypeRoom typeRoom) {
+        this.roomNumber = roomNumber;
+        this.isCleaner = isCleaner;
+        this.isActive = isActive;
+        this.typeRoom = typeRoom;
+    }
+
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
     public int getRoomNumber() {

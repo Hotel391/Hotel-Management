@@ -84,7 +84,7 @@ public class RoomDAO {
     public List<Room> getAllRoom() {
         List<Room> listRoom = new Vector<>();
 
-        String sql = "SELECT r.RoomNumber, r.isCleaner, "
+        String sql = "SELECT r.RoomNumber, r.isCleaner, r.IsActive,"
                 + "tr.TypeId, tr.TypeName, tr.Description, tr.Price, "
                 + "s.ServiceId, s.ServiceName, s.Price AS ServicePrice, rns.quantity "
                 + "FROM Room r "
@@ -114,7 +114,8 @@ public class RoomDAO {
                     typeRoom.setDescription(rs.getString("Description"));
                     typeRoom.setPrice(rs.getInt("Price"));
 
-                    foundRoom = new Room(roomNumber, rs.getBoolean("isCleaner"), typeRoom);
+                    foundRoom = new Room(roomNumber, rs.getBoolean("isCleaner"),
+                            rs.getBoolean("IsActive"), typeRoom);
                     listRoom.add(foundRoom);
                 }
 
@@ -141,10 +142,10 @@ public class RoomDAO {
         return listRoom;
     }
 
-    public List<Room> searchAllRoom(Integer roomNumber, Integer typeRoomId) {
+    public List<Room> searchAllRoom(String roomNumber, Integer typeRoomId) {
         List<Room> listRoom = new Vector<>();
 
-        StringBuilder sql = new StringBuilder("SELECT r.RoomNumber, r.isCleaner, "
+        StringBuilder sql = new StringBuilder("SELECT r.RoomNumber, r.isCleaner, r.IsActive, "
                 + "tr.TypeId, tr.TypeName, tr.Description, tr.Price, "
                 + "s.ServiceId, s.ServiceName, s.Price AS ServicePrice, rns.quantity "
                 + "FROM Room r "
@@ -154,7 +155,7 @@ public class RoomDAO {
                 + "WHERE 1=1 ");
 
         if (roomNumber != null) {
-            sql.append("AND r.RoomNumber = ? ");
+            sql.append("AND r.RoomNumber like ? ");
         }
         if (typeRoomId != null) {
             sql.append("AND tr.TypeId = ? ");
@@ -165,7 +166,7 @@ public class RoomDAO {
         try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
             int index = 1;
             if (roomNumber != null) {
-                ptm.setInt(index++, roomNumber);
+                ptm.setString(index++, "%" + roomNumber + "%");
             }
             if (typeRoomId != null) {
                 ptm.setInt(index++, typeRoomId);
@@ -191,7 +192,8 @@ public class RoomDAO {
                         typeRoom.setDescription(rs.getString("Description"));
                         typeRoom.setPrice(rs.getInt("Price"));
 
-                        foundRoom = new Room(rNumber, rs.getBoolean("isCleaner"), typeRoom);
+                        foundRoom = new Room(rNumber, rs.getBoolean("isCleaner"),
+                                rs.getBoolean("IsActive"), typeRoom);
                         listRoom.add(foundRoom);
                     }
 
@@ -219,14 +221,16 @@ public class RoomDAO {
         return listRoom;
     }
 
-    public void updateRoom(int typeRoomID, int roomNumber) {
+    public void updateRoom(int typeRoomID, int roomNumber, boolean isActive) {
         String sql = "UPDATE [dbo].[Room]\n"
                 + "   SET [TypeId] = ?\n"
+                + "   ,[IsActive] = ?\n"
                 + " WHERE [RoomNumber] =?";
 
         try (PreparedStatement ptm = con.prepareStatement(sql);) {
             ptm.setInt(1, typeRoomID);
-            ptm.setInt(2, roomNumber);
+            ptm.setBoolean(2, isActive);
+            ptm.setInt(3, roomNumber);
             ptm.executeUpdate();
         } catch (SQLException ex) {
             ex.getStackTrace();
@@ -259,6 +263,22 @@ public class RoomDAO {
             ptm.executeUpdate();
         } catch (SQLException ex) {
             ex.getStackTrace();
+        }
+    }
+
+    public void changeIsActiveRoom(int roomNumber, String isActiveStr) {
+        String sql = "UPDATE [dbo].[Room] SET [IsActive] = ? WHERE RoomNumber = ?";
+
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            // Chuyển String sang boolean rồi đảo ngược
+            boolean currentIsActive = "1".equals(isActiveStr) || "true".equalsIgnoreCase(isActiveStr);
+            boolean newIsActive = !currentIsActive;
+
+            ptm.setBoolean(1, newIsActive);
+            ptm.setInt(2, roomNumber);
+            ptm.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 

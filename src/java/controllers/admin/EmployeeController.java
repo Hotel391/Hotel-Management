@@ -46,6 +46,9 @@ public class EmployeeController extends HttpServlet {
         request.setAttribute("endPage", endPage);
 
         int currentPage = Integer.parseInt(request.getParameter("page") == null ? "1" : request.getParameter("page"));
+        if (currentPage > endPage) {
+            currentPage = endPage;
+        }
 
         List<Employee> employeeList = EmployeeDAO.getInstance().employeePagination(currentPage, key);
         request.setAttribute("currentPage", currentPage);
@@ -61,56 +64,76 @@ public class EmployeeController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
-        String error = null;
+        String page = request.getParameter("page");
+        String key = request.getParameter("key");
 
         try {
-            if (action == null || action.isEmpty()) {
-                error = "Invalid action.";
-            } else {
-                switch (action) {
-                    case "add":
-                        Employee newEmp = addEmployee(request, response);
-                        if (newEmp != null) {
-                            EmployeeDAO.getInstance().addEmployee(newEmp);
-                        } else {
-                            error = (String) request.getAttribute("error");
-                            if (error == null) {
-                                error = "Invalid employee data.";
-                            }
-                        }
-                        break;
-                    case "update":
-                        Employee updateEmp = editEmployee(request, response);
-                        if (updateEmp != null) {
-                            EmployeeDAO.getInstance().updateEmployee(updateEmp);
-                        } else {
-                            error = (String) request.getAttribute("error");
-                            if (error == null) {
-                                error = "Invalid employee data.";
-                            }
-                        }
-                        break;
-                    case "delete":
-                        int employeeId = Integer.parseInt(request.getParameter("employeeId"));
+            switch (action) {
+                case "add":
+                    Employee newEmp = addEmployee(request, response);
+                    if (newEmp != null) {
+                        EmployeeDAO.getInstance().addEmployee(newEmp);
+                    } else {
+                        request.setAttribute("showAddModal", true);
+                        doGet(request, response);
+                        return;
+                    }
+                    break;
+                case "update":
+                    Employee updateEmp = editEmployee(request, response);
+                    if (updateEmp != null) {
+                        EmployeeDAO.getInstance().updateEmployee(updateEmp);
+                    } else {
+                        request.setAttribute("showEditModalId", request.getParameter("employeeId"));
+                        doGet(request, response);
+                        return;
+                    }
+                    break;
+
+                case "delete":
+                    int employeeId = Integer.parseInt(request.getParameter("employeeId"));
+                    if (EmployeeDAO.getInstance().getEmployeeById(employeeId).isActivate() == false) {
                         EmployeeDAO.getInstance().deleteEmployee(employeeId);
-                        break;
-                    case "toggleStatus":
-                        toggleEmployeeStatus(request, response);
-                        break;
-                    default:
-                        error = "Invalid action.";
-                }
+                        request.getSession().setAttribute("success", "Employee deleted successfully.");
+                    } else {
+                        request.setAttribute("error", "Không xóa nhân viên đang hoạt động!");
+                    }
+
+                    break;
+                case "toggleStatus":
+                    int empId = Integer.parseInt(request.getParameter("employeeId"));
+                    Employee emp = EmployeeDAO.getInstance().getEmployeeById(empId);
+                    if (emp != null) {
+                        boolean newStatus = !emp.isActivate();
+                        EmployeeDAO.getInstance().updateEmployeeStatus(empId, newStatus);
+                        request.getSession().setAttribute("success", "Employee status updated.");
+                    }
+                    break;
+                default:
+                    request.setAttribute("error", "Invalid action.");
+                    doGet(request, response);
+                    return;
             }
-        } catch (NumberFormatException e) {
-            error = "Error: " + e.getMessage();
+        } catch (Exception e) {
+            request.setAttribute("error", "Error: " + e.getMessage());
+            doGet(request, response);
+            return;
         }
 
-        if (error != null) {
-            request.setAttribute("error", error);
-            doGet(request, response);
-        } else {
-            response.sendRedirect(request.getContextPath() + "/admin/employees");
+        String redirectUrl = request.getContextPath() + "/admin/employees";
+        if (page != null || key != null) {
+            redirectUrl += "?";
+            if (page != null) {
+                redirectUrl += "page=" + page;
+            }
+            if (page != null && key != null) {
+                redirectUrl += "&";
+            }
+            if (key != null) {
+                redirectUrl += "key=" + key;
+            }
         }
+        response.sendRedirect(redirectUrl);
     }
 
     private Employee addEmployee(HttpServletRequest request, HttpServletResponse response)
@@ -236,7 +259,7 @@ public class EmployeeController extends HttpServlet {
             emp.setPhoneNumber(phoneNumber);
             emp.setEmail(email);
             emp.setRole(RoleDAO.getInstance().getRoleById(roleId));
-            
+
             Employee existingEmployee = EmployeeDAO.getInstance().getEmployeeById(emp.getEmployeeId());
             emp.setActivate(existingEmployee.isActivate());
 
@@ -380,19 +403,7 @@ public class EmployeeController extends HttpServlet {
         return hasError;
     }
 
-    private void toggleEmployeeStatus(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            int employeeId = Integer.parseInt(request.getParameter("employeeId"));
-            Employee employee = EmployeeDAO.getInstance().getEmployeeById(employeeId);
-            if (employee != null) {
-                boolean currentStatus = employee.isActivate();
-                employee.setActivate(!currentStatus);
-                EmployeeDAO.getInstance().updateEmployeeStatus(employee.getEmployeeId(), employee.isActivate());
-            }
-        } catch (NumberFormatException e) {
-            request.setAttribute("error", "An error occurred while updating employee status: " + e.getMessage());
-            doGet(request, response);
-        }
-    }
+
+   
 
 }

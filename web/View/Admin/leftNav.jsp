@@ -17,7 +17,7 @@
                         <span><i class="bi bi-person-badge"></i></span>Role</a></li>
                 <li><a href="${pageContext.request.contextPath}/admin/employees">
                         <span><i class="bi bi-person"></i></span>Employee</a></li>
-                <li><a href="#">
+                <li><a href="${pageContext.request.contextPath}/admin/customers">
                         <span><i class="bi bi-person-fill"></i></span></i>Customer</a></li>
                 <li><a href="#">
                         <span><i class="bi bi-0-circle"></i></span>Review</a></li>

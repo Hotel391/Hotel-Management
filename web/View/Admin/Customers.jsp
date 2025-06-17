@@ -68,29 +68,23 @@
                                                         ${customer.activate ? 'Activate' : 'Deactivate'}
                                                     </button>
                                                 </form>
-
                                             </td>
-
                                             <td class="text-center">
-                                                <!-- View Customer Details Button -->
+
+
                                                 <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#viewCustomerModal_${customer.customerId}">
-                                                    <i class="bi bi-eye"></i> View Details
+                                                    <i class="bi bi-eye"></i> Xem thông tin
                                                 </button>
 
-                                                <!-- View Customer Booked -->
-                                                <a href="${pageContext.request.contextPath}/admin/customers/viewBooked?id=${customer.customerId}" class="btn btn-sm btn-outline-primary me-1">
-                                                    <i class="bi bi-list"></i> View Booked
+                                                <a href="${pageContext.request.contextPath}/admin/customers/viewBooked?customerId=${customer.customerId}" class="btn btn-sm btn-outline-primary me-1">
+                                                    <i class="bi bi-list"></i> Phòng đã đặt
                                                 </a>
 
-                                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="##deleteCustomerModal_${customer.customerId}">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
                                             </td>
                                         </tr>
                                     </c:forEach>
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
 
@@ -106,9 +100,10 @@
                                     <div class="modal-body">
                                         <ul>
                                             <li><strong>Full Name:</strong> ${customer.fullName}</li>
-                                            <li><strong>Username:</strong> ${customer.customerAccount.username}</li> <!-- Display username -->
+                                            <li><strong>Username:</strong> ${customer.customerAccount.username}</li> 
                                             <li><strong>Phone Number:</strong> ${customer.phoneNumber}</li>
                                             <li><strong>Email:</strong> ${customer.email}</li>
+                                            <li><strong>Gender:</strong> ${customer.gender ? 'Male' : 'Female'}</li>
                                             <li><strong>CCCD:</strong> ${customer.CCCD}</li>
                                             <li><strong>Status:</strong> ${customer.activate ? 'Active' : 'Inactive'}</li>
                                             <li><strong>Role:</strong> ${customer.role != null ? customer.role.roleName : '-'}</li>
@@ -170,8 +165,10 @@
             </div>
         </div>
 
+        <%--script for dashboard--%>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
         <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
+        <%--another in following--%>
     </body>
 </html>

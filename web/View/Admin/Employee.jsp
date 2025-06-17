@@ -79,6 +79,9 @@
                                             <td><!-- Active/Inactive Employee Action -->
                                                 <form method="post" action="${pageContext.request.contextPath}/admin/employees?action=toggleStatus">
                                                     <input type="hidden" name="employeeId" value="${emp.employeeId}" />
+                                                    <input type="hidden" name="page" value="${currentPage}" />
+                                                    <input type="hidden" name="key" value="${key}" />
+
                                                     <button type="submit" class="btn btn-sm ${emp.activate ? 'btn-outline-danger' : 'btn-outline-success'}">
                                                         ${emp.activate ? 'activate' : 'Inactive'}
                                                     </button>
@@ -110,17 +113,19 @@
                         </div>
                     </div>
 
+                    <!-- Add Employee Modal -->
                     <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <form method="post" action="${pageContext.request.contextPath}/admin/employees">
                                     <input type="hidden" name="action" value="add" />
+                                    <input type="hidden" name="page" value="${currentPage}" />
+                                    <input type="hidden" name="key" value="${key}" />
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <!-- Display all errors if any -->
                                         <c:if test="${not empty errorMessages}">
                                             <div class="alert alert-danger">
                                                 <ul>
@@ -180,6 +185,8 @@
                         </div>
                     </div>
 
+
+
                     <c:forEach var="emp" items="${listEmployee}">
                         <div class="modal fade" id="editEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="editEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
@@ -187,10 +194,14 @@
                                     <form method="post" action="${pageContext.request.contextPath}/admin/employees">
                                         <input type="hidden" name="action" value="update" />
                                         <input type="hidden" name="employeeId" value="${emp.employeeId}" />
+                                        <input type="hidden" name="page" value="${currentPage}" />
+                                        <input type="hidden" name="key" value="${key}" />
+
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="editEmployeeModalLabel_${emp.employeeId}">Edit Employee - ${emp.fullName}</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
+
                                         <div class="modal-body">
                                             <!-- Display all errors if any -->
                                             <c:if test="${not empty errorMessages}">
@@ -206,22 +217,22 @@
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label for="usernameEdit_${emp.employeeId}" class="form-label">Username</label>
-                                                    <input type="text" id="usernameEdit_${emp.employeeId}" name="username" value="${param.username != null ? param.username : emp.username}" class="form-control" required />
+                                                    <input type="text" id="usernameEdit_${emp.employeeId}" name="username" value="${requestScope.username != null ? requestScope.username : emp.username}" class="form-control" required />
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <label for="fullNameEdit_${emp.employeeId}" class="form-label">Full Name</label>
-                                                    <input type="text" id="fullNameEdit_${emp.employeeId}" name="fullName" value="${param.fullName != null ? param.fullName : emp.fullName}" class="form-control" required />
+                                                    <input type="text" id="fullNameEdit_${emp.employeeId}" name="fullName" value="${requestScope.fullName != null ? requestScope.fullName : emp.fullName}" class="form-control" required />
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <label for="phoneNumberEdit_${emp.employeeId}" class="form-label">Phone Number</label>
-                                                    <input type="text" id="phoneNumberEdit_${emp.employeeId}" name="phoneNumber" value="${param.phoneNumber != null ? param.phoneNumber : emp.phoneNumber}" class="form-control" required />
+                                                    <input type="text" id="phoneNumberEdit_${emp.employeeId}" name="phoneNumber" value="${requestScope.phoneNumber != null ? requestScope.phoneNumber : emp.phoneNumber}" class="form-control" required />
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <label for="emailEdit_${emp.employeeId}" class="form-label">Email</label>
-                                                    <input type="email" id="emailEdit_${emp.employeeId}" name="email" value="${param.email != null ? param.email : emp.email}" class="form-control" required />
+                                                    <input type="email" id="emailEdit_${emp.employeeId}" name="email" value="${requestScope.email != null ? requestScope.email : emp.email}" class="form-control" required />
                                                 </div>
 
                                                 <!-- Role Selector -->
@@ -230,19 +241,19 @@
                                                     <select id="roleIdEdit_${emp.employeeId}" name="roleId" class="form-select" required onchange="toggleFloorFieldEdit(${emp.employeeId})">
                                                         <c:forEach var="role" items="${listRole}">
                                                             <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
-                                                                <option value="${role.roleId}" ${param.roleId == role.roleId || emp.role.roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
+                                                                <option value="${role.roleId}" ${requestScope.roleId == role.roleId || emp.role.roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
                                                             </c:if>
                                                         </c:forEach>
                                                     </select>
                                                 </div>
 
                                                 <!-- Start/End Floor for Cleaner -->
-                                                <div class="col-md-6" id="floorFieldEdit_${emp.employeeId}" style="display:${emp.role.roleName == 'Cleaner' || param.roleId == 'Cleaner' ? 'block' : 'none'};">
+                                                <div class="col-md-6" id="floorFieldEdit_${emp.employeeId}" style="display:${requestScope.roleId == 'Cleaner' || emp.role.roleName == 'Cleaner' ? 'block' : 'none'};">
                                                     <label for="startFloorEdit_${emp.employeeId}" class="form-label">Start Floor</label>
-                                                    <input type="number" id="startFloorEdit_${emp.employeeId}" name="startFloor" value="${param.startFloor != null ? param.startFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.startFloor : '')}" class="form-control" min="1" max="6" />
+                                                    <input type="number" id="startFloorEdit_${emp.employeeId}" name="startFloor" value="${requestScope.startFloor != null ? requestScope.startFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.startFloor : '')}" class="form-control" min="1" max="6" />
 
                                                     <label for="endFloorEdit_${emp.employeeId}" class="form-label">End Floor</label>
-                                                    <input type="number" id="endFloorEdit_${emp.employeeId}" name="endFloor" value="${param.endFloor != null ? param.endFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.endFloor : '')}" class="form-control" min="1" max="6" />
+                                                    <input type="number" id="endFloorEdit_${emp.employeeId}" name="endFloor" value="${requestScope.endFloor != null ? requestScope.endFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.endFloor : '')}" class="form-control" min="1" max="6" />
                                                 </div>
 
                                             </div>
@@ -255,6 +266,7 @@
                             </div>
                         </div>
                     </c:forEach>
+
 
 
                     <c:forEach var="emp" items="${listEmployee}">
@@ -299,6 +311,8 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <form method="post" action="${pageContext.request.contextPath}/admin/employees?action=delete">
+                                        <input type="hidden" name="page" value="${currentPage}" />
+                                        <input type="hidden" name="key" value="${key}" />
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="deleteEmployeeModalLabel_${emp.employeeId}">Confirm Delete</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -391,6 +405,31 @@
                                                             }
                                                         }
 
+
+
+                                                        document.addEventListener('DOMContentLoaded', function () {
+                                                            const showAddModal = ${not empty requestScope.showAddModal};
+                                                            if (showAddModal) {
+                                                                const addEmployeeModalEl = document.getElementById("addEmployeeModal");
+                                                                if (addEmployeeModalEl) {
+                                                                    const modal = new bootstrap.Modal(addEmployeeModalEl);
+                                                                    modal.show();
+                                                                }
+                                                            }
+                                                        });
+
+                                                        document.addEventListener('DOMContentLoaded', function () {
+                                                            const showEditModalId = ${not empty requestScope.showEditModalId};
+                                                            if (showEditModalId) {
+                                                                const editEmployeeModalEl = document.getElementById("editEmployeeModal_" + showEditModalId);
+                                                                if (editEmployeeModalEl) {
+                                                                    const modal = new bootstrap.Modal(editEmployeeModalEl);
+                                                                    modal.show();
+                                                                }
+                                                            }
+                                                        });
         </script>
+
+
     </body>
 </html>

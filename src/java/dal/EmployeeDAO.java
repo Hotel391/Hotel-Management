@@ -138,7 +138,7 @@ public class EmployeeDAO {
             
             st.setString(2, username);
 
-            st.setString(3, password);
+            st.setString(3, Encryption.toSHA256(password));
 
             ResultSet rs = st.executeQuery();
             if (rs.next()) {

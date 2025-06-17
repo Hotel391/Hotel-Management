@@ -14,3 +14,4 @@
             <a href="login?service=logout" class="text-decoration-none text-reset"><i class="bi bi-box-arrow-right"></i>Logout</a>
         </div>
     </div>
+</div>

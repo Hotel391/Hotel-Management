@@ -136,32 +136,7 @@
                                                 </c:forEach>
 
 
-                                            </td><!--
-
-
-                                            <td class="viewService">
-                                                <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#serviceModal_${trl.typeId}">
-                                                    <i class="bi bi-eye"></i> View 
-                                                </button>
-                                               
                                             </td>
-                                            <td>
-                                                 Edit Employee Modal 
-                                                <button onclick="resetFormData(${trl.typeId})" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editTypeRoomModal_${trl.typeId}">
-                                                    <i class="bi bi-pencil"></i> Edit
-                                                </button>
-
-                                                
-
-                                            </td>
-                                            <td>
-                                                 Delete Employee Modal 
-                                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_${trl.typeId}">
-                                                    <i class="bi bi-trash"></i> Delete
-
-                                                </button>
-                                                
-                                            </td>-->
                                         </tr>
                                     </c:forEach>
                                 </tbody>

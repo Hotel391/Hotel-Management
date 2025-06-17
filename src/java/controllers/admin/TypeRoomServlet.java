@@ -239,7 +239,7 @@ public class TypeRoomServlet extends HttpServlet {
 
             request.setAttribute("key", key);
         } else {
-            //Take pagination numbers
+            
 
             typeRoomTotal = dal.TypeRoomDAO.getInstance().getTypeRoomQuantity();
 
@@ -249,7 +249,6 @@ public class TypeRoomServlet extends HttpServlet {
                 endPage++;
             }
         }
-
         request.setAttribute("endPage", endPage);
 
         //Take data number each page

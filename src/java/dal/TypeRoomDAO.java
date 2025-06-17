@@ -86,6 +86,28 @@ public class TypeRoomDAO {
         return null;
     }
     
+    //get type room by type id
+
+    public TypeRoom getTypeRoomById(int typeId) {
+        String sql = "select TypeId, TypeName, Description, Price from TypeRoom where TypeId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, typeId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt(1));
+                    typeRoom.setTypeName(rs.getString(2));
+                    typeRoom.setDescription(rs.getString(3));
+                    typeRoom.setPrice(rs.getInt(4));
+                    return typeRoom;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
 
 //    public List<TypeRoom> getAllTypeRoom() {
 //        List<TypeRoom> list = Collections.synchronizedList(new ArrayList<>());

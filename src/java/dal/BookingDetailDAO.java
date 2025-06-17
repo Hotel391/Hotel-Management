@@ -4,6 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import models.Booking;
+import models.BookingDetail;
 
 public class BookingDetailDAO {
     private static BookingDetailDAO instance;
@@ -27,4 +31,28 @@ public class BookingDetailDAO {
         }
         return 0;
     }
+    
+    //get booking detail by booking id
+    
+    public List<BookingDetail> getBookingDetailByBookingId(Booking booking) {
+        List<BookingDetail> bookingDetails = new ArrayList<>();
+        String sql = "SELECT * FROM BookingDetail WHERE BookingId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getBookingId());
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                BookingDetail bookingDetail = new BookingDetail();
+                bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
+                bookingDetail.setStartDate(rs.getDate("StartDate"));
+                bookingDetail.setEndDate(rs.getDate("EndDate"));
+                bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
+                bookingDetail.setServices(ServiceDAO.getInstance().getServicesByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetails.add(bookingDetail);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return bookingDetails;
+    }
+
 }

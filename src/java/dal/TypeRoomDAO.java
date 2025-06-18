@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 public class TypeRoomDAO {
 
@@ -43,8 +42,41 @@ public class TypeRoomDAO {
         return typeRooms;
     }
 
+    public TypeRoom getTypeRoomById(int typeId) {
+        String sql = "select typeId, typeName from TypeRoom where typeId = ?";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, typeId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt(1));
+                    typeRoom.setTypeName(rs.getString(2));
+                    return typeRoom;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<String> getAllTypeRoomName() {
+        String sql = "select TypeName from TypeRoom";
+        List<String> typeRooms = Collections.synchronizedList(new ArrayList<>());
+
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                typeRooms.add(rs.getString(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return typeRooms;
+    }
+
     public List<TypeRoom> getAllTypeRoom() {
-        List<TypeRoom> list = new Vector();
+        List<TypeRoom> list = Collections.synchronizedList(new ArrayList<>());
         String sql = "select typeId, typeName, Description, price from TypeRoom";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
@@ -77,17 +109,20 @@ public class TypeRoomDAO {
 
     public List<TypeRoom> searchTypeRoom(String key) {
         String sql = "select typeId, typeName, Description, price from TypeRoom\n"
-                + "where typeName like '%" + key + "%'";
-        List<TypeRoom> list = new Vector<>();
+                + "where typeName like ?";
+        List<TypeRoom> list = Collections.synchronizedList(new ArrayList<>());
 
-        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
-            while (rs.next()) {
-                TypeRoom tr = new TypeRoom(rs.getInt(1),
-                        rs.getString(2),
-                        rs.getString(3),
-                        rs.getInt(4));
-
-                list.add(tr);
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, '%'+key+'%');
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    TypeRoom tr = new TypeRoom(rs.getInt(1),
+                            rs.getString(2),
+                            rs.getString(3),
+                            rs.getInt(4));
+                    
+                    list.add(tr);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -98,16 +133,22 @@ public class TypeRoomDAO {
 
     public List<TypeRoom> typeRoomPagination(int index, String key) {
 
-        List<TypeRoom> list = new Vector<>();
+        List<TypeRoom> list = Collections.synchronizedList(new ArrayList<>());
 
         String sql = "select typeId, typeName, Description, price from TypeRoom \n";
         if (key != null && !key.isEmpty()) {
-            sql += "where typeName like '%" + key + "%' \n";
+            sql += "where typeName like ? \n";
         }
         sql += "order by TypeId offset ? rows fetch next 5 rows only\n";
 
         try(PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, (index - 1) * 5);
+            if(key != null && !key.isEmpty()){
+                st.setString(1, '%'+key+'%');
+                st.setInt(1, (index - 1) * 5);
+            }else{
+                st.setInt(1, (index - 1) * 5);
+            }
+            
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     TypeRoom tr = new TypeRoom(rs.getInt(1),

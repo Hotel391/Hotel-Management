@@ -19,11 +19,11 @@
                         <span><i class="bi bi-person"></i></span>Employee</a></li>
                 <li><a href="${pageContext.request.contextPath}/admin/customers">
                         <span><i class="bi bi-person-fill"></i></span></i>Customer</a></li>
-                <li><a href="#">
+                <li><a href="${pageContext.request.contextPath}/admin/review"">
                         <span><i class="bi bi-0-circle"></i></span>Review</a></li>
-                <li><a href="#">
+                <li><a href="${pageContext.request.contextPath}/admin/room">
                         <span><i class="bi bi-hospital"></i></span>Room</a></li>
-                <li><a href="#">
+                <li><a href="${pageContext.request.contextPath}/admin/service">
                         <span><i class="bi bi-tools"></i></span>Services</a></li>
                 <li><a href="${pageContext.request.contextPath}/admin/statistics">
                         <span><i class="bi bi-bar-chart-line-fill"></i></span>Statistics</a></li>
@@ -37,7 +37,7 @@
             </div>
         </div>
         <div class="nav-footer text-center">
-            <p>© 2023 Hotel Admin Dashboard</p>
+            <p>Hotel Admin Dashboard</p>
         </div>
     </div>
 </div>

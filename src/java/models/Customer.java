@@ -26,8 +26,6 @@ public class Customer {
         this.role = role;
         this.customerAccount = customerAccount;
     }
-
-   
     
     
     
@@ -116,5 +114,8 @@ public class Customer {
     public void setCustomerAccount(CustomerAccount customerAccount) {
         this.customerAccount = customerAccount;
     }
- 
+    
+    
+    
+    
 }

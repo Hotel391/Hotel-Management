@@ -2,27 +2,42 @@ package controllers.common;
 
 import dal.AccountGoogleDAO;
 import dal.CustomerAccountDAO;
+import dal.CustomerDAO;
 import dal.EmployeeDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import dal.CustomerDAO;
-import models.Customer;
 import java.util.Random;
 import models.AccountGoogle;
+import models.Customer;
 import models.CustomerAccount;
 import models.Employee;
 import models.Role;
+import utility.Validation;
 
+/**
+ *
+ * @author Hai Long
+ */
+@WebServlet(name = "Login", urlPatterns = {"/login"})
 public class Login extends HttpServlet {
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        response.setContentType("text/html;charset=UTF-8");
         response.setContentType("text/html;charset=UTF-8");
 
         HttpSession session = request.getSession(true);
@@ -45,7 +60,7 @@ public class Login extends HttpServlet {
                 return;
             }
 
-            String username = request.getParameter("username");
+            String username = request.getParameter("username").trim();
             String password = request.getParameter("password");
 
             if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
@@ -69,19 +84,16 @@ public class Login extends HttpServlet {
                 int roleId = employeeInfo.getRole().getRoleId();
                 switch (roleId) {
                     case 0:
-                        response.sendRedirect("developerPage");
+                        response.sendRedirect("developer/page");
                         break;
                     case 1:
                         response.sendRedirect("admin/dashboard");
                         break;
                     case 2:
-                        response.sendRedirect("receptionistPage");
+                        response.sendRedirect("receptionist/page");
                         break;
                     case 3:
-
-
-                        response.sendRedirect("cleanerPage");
-
+                        response.sendRedirect("cleaner/page");
                         break;
                     default:
                         request.getRequestDispatcher("View/Login.jsp").forward(request, response);
@@ -89,8 +101,11 @@ public class Login extends HttpServlet {
                 }
                 return;
             }
-
-            request.setAttribute("error", "Wrong username or password");
+            if (Validation.checkFormatException(username, "EMAIL")) {
+                request.setAttribute("error", "Wrong email or password");
+            } else {
+                request.setAttribute("error", "Wrong username or password");
+            }
             request.getRequestDispatcher("View/Login.jsp").forward(request, response);
         }
 
@@ -101,7 +116,7 @@ public class Login extends HttpServlet {
 
             AccountGoogle userInfo = AccountGoogleDAO.getInstance().getUserInfo(accessToken);
 
-            if (CustomerDAO.getInstance().checkExistedEmail(userInfo.getEmail()) == false) {
+            if (!CustomerDAO.getInstance().checkExistedEmail(userInfo.getEmail())) {
                 Customer customerInfo = new Customer();
 
                 customerInfo.setFullName(userInfo.getName());
@@ -145,8 +160,24 @@ public class Login extends HttpServlet {
             session.invalidate();
             response.sendRedirect("login");
         }
-
     }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
 
     private String generateRandomString(int length) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -160,16 +191,5 @@ public class Login extends HttpServlet {
 
         return result.toString();
     }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
 
 }

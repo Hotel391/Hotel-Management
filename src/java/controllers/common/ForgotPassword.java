@@ -34,7 +34,10 @@ public class ForgotPassword extends HttpServlet {
 
         EmailVerificationToken token = new EmailVerificationToken();
         service.deleteTokenByEmail(email);
+        var account=service.getAccountByEmail(email);
         token.setEmail(email);
+        token.setUsername(account.getUsername());
+        token.setPassword(account.getPassword());
         Email emailService = new Email();
         token.setToken(emailService.generateToken());
         token.setExpiryDate(emailService.expireDateTime());

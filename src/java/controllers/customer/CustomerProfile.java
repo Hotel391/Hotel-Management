@@ -10,11 +10,10 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import models.Customer;
 import models.CustomerAccount;
-import models.Employee;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "CustomerProfile", urlPatterns = {"/customer/customerProfile"})
+@WebServlet(name = "CustomerProfile", urlPatterns = {"/customerProfile"})
 public class CustomerProfile extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -22,6 +21,7 @@ public class CustomerProfile extends HttpServlet {
         String service = request.getParameter("service");
         String submit = request.getParameter("submit");
         String username = request.getParameter("username");
+        HttpSession session = request.getSession();
         String type;
         CustomerAccount ca = dal.CustomerDAO.getInstance().getCustomerAccount(username);
 
@@ -53,6 +53,7 @@ public class CustomerProfile extends HttpServlet {
                         "Username must be 5–20 characters, letters/numbers/underscores only."
                 );
 
+                // Kiểm tra trùng username
                 List<String> userName = dal.CustomerAccountDAO.getInstance().getAllUsername();
                 for (String un : userName) {
                     if (un.equalsIgnoreCase(newUserName)) {
@@ -61,10 +62,10 @@ public class CustomerProfile extends HttpServlet {
                         break;
                     }
                 }
-                // Kiểm tra trùng username
-                List<Employee> employees = dal.EmployeeDAO.getInstance().getAllEmployee();
-                for (Employee employee : employees) {
-                    if (employee.getUsername().equalsIgnoreCase(username)) {
+                
+                List<String> employees = dal.AdminDao.getInstance().getAllUsernames();
+                for (String un : employees) {
+                    if (un.equalsIgnoreCase(username)) {
                         request.setAttribute("usernameError", "Username already exists.");
                         hasError = true;
                         break;
@@ -77,11 +78,12 @@ public class CustomerProfile extends HttpServlet {
                     return;
                 }
 
-                HttpSession session = request.getSession();
-                session.setAttribute("username", newUserName);
+                // Cập nhật lại customerInfo trong session
+                CustomerAccount updatedAccount = dal.CustomerAccountDAO.getInstance().getCustomerAccountById(customerId);
+                session.setAttribute("customerInfo", updatedAccount);
 
                 dal.CustomerAccountDAO.getInstance().changeUsername(newUserName, customerId);
-                response.sendRedirect(request.getContextPath() + "/customer/customerProfile?service=info&username=" + newUserName);
+                response.sendRedirect(request.getContextPath() + "/customerProfile?service=info&username=" + newUserName);
             }
         }
 
@@ -128,7 +130,7 @@ public class CustomerProfile extends HttpServlet {
                     return;
                 }
                 dal.CustomerAccountDAO.getInstance().changePassword(newPassWordSh, username);
-                response.sendRedirect(request.getContextPath() + "/customer/customerProfile?service=info&username=" + username);
+                response.sendRedirect(request.getContextPath() + "/customer/profile?service=info&username=" + username);
             }
 
         }
@@ -183,7 +185,7 @@ public class CustomerProfile extends HttpServlet {
                     return;
                 }
                 dal.CustomerDAO.getInstance().updateCustomerInfo(username, fullName, phoneNumber, genderValue);
-                response.sendRedirect(request.getContextPath() + "/customer/customerProfile?service=info&username=" + username);
+                response.sendRedirect(request.getContextPath() + "/customerProfile?service=info&username=" + username);
                 return;
             }
         }

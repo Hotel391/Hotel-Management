@@ -5,13 +5,19 @@
 package dal;
 
 
+import models.BookingDetail;
+import models.DetailService;
+import models.Room;
+import models.RoomNService;
 import models.Service;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
+import java.util.Map;
 
 /**
  *
@@ -39,7 +45,7 @@ public class ServiceDAO {
                 + "      ,[ServiceName]\n"
                 + "      ,[Price]\n"
                 + "  FROM [HotelManagementDB].[dbo].[Service]";
-        List<Service> listService = new Vector<>();
+        List<Service> listService = Collections.synchronizedList(new ArrayList<>());
         try(PreparedStatement ptm = con.prepareStatement(sql)) {
             
             ResultSet rs = ptm.executeQuery();
@@ -100,6 +106,53 @@ public class ServiceDAO {
         } catch (SQLException ex) {
             ex.getStackTrace();
         }
+    }
+
+    public List<DetailService> getServiceByRoomNumber(int roomNumber) {
+        String sql = """
+                    select s.*,ds.quantity from BookingDetail bd 
+                    join DetailService ds on ds.BookingDetailId=bd.BookingDetailId
+                    join Service s on s.ServiceId=ds.ServiceId
+                    where bd.RoomNumber=?""";
+        List<DetailService> list = Collections.synchronizedList(new ArrayList<>());
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
+            ptm.setInt(1, roomNumber);
+            ResultSet rs = ptm.executeQuery();
+            while (rs.next()) {
+                DetailService ds = new DetailService();
+                ds.setService(new Service(rs.getInt(1), 
+                                rs.getString(2), 
+                                rs.getInt(3)));
+                ds.setQuantity(rs.getInt(4));
+                list.add(ds);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Service> getServiceNotInRoom(int roomNumber) {
+        String sql = """
+                     select * from Service s
+                     where NOT EXISTS(
+                     select ds.ServiceId from BookingDetail bd 
+                     join DetailService ds on ds.BookingDetailId=bd.BookingDetailId
+                     where bd.RoomNumber=? and s.ServiceId=ds.ServiceId)""";
+        List<Service> list = Collections.synchronizedList(new ArrayList<>());
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
+            ptm.setInt(1, roomNumber);
+            ResultSet rs = ptm.executeQuery();
+            while (rs.next()) {
+                Service s = new Service(rs.getInt(1), 
+                                rs.getString(2), 
+                                rs.getInt(3));
+                list.add(s);
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return list;
     }
 
 }

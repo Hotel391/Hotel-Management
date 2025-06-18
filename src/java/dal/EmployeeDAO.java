@@ -1,6 +1,7 @@
 package dal;
 
 import models.Employee;
+import models.EmployeeAccount;
 import models.Role;
 import models.CleanerFloor;
 import java.sql.Connection;
@@ -10,7 +11,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 import utility.Encryption;
 
 public class EmployeeDAO {
@@ -35,7 +35,7 @@ public class EmployeeDAO {
                 + "FROM Employee e "
                 + "JOIN Role r ON r.RoleId = e.RoleId "
                 + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
-                + "WHERE r.RoleId NOT IN (0, 1)";
+                + "WHERE r.RoleId NOT IN (0, 1)";  // Lọc bỏ các RoleId 0 và 1
 
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
@@ -129,13 +129,16 @@ public class EmployeeDAO {
     }
 
     public Employee getEmployeeLogin(String username, String password) {
-        String sql = "select e.*, r.RoleName from Employee e\n"
-                + "join Role r on r.RoleId=e.RoleId where Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? "
-                + "and Password=?";
+        String sql = """
+                     select e.*, r.RoleName from Employee e
+                     join Role r on r.RoleId=e.RoleId where (Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? 
+                     or email COLLATE SQL_Latin1_General_CP1_CI_AS = ?) and Password=?""";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
 
-            st.setString(2, Encryption.toSHA256(password));
+            st.setString(2, username);
+
+            st.setString(3, Encryption.toSHA256(password));
 
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
@@ -305,6 +308,26 @@ public class EmployeeDAO {
         return false;
     }
 
+    public EmployeeAccount getAccountByEmail(String email) {
+        String sql = "SELECT Username, Password "
+                + "FROM Employee "
+                + "WHERE Email = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, email);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    EmployeeAccount account = new EmployeeAccount();
+                    account.setUsername(rs.getString("Username"));
+                    account.setPassword(rs.getString("Password"));
+                    return account;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean isEmailExisted(String email, int excludeEmployeeId) {
         String sql = "SELECT 1 FROM Employee WHERE Email = ? AND EmployeeId != ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -376,6 +399,17 @@ public class EmployeeDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void resetPassword(String email, String newPassword) {
+        String sql = "UPDATE Employee SET Password = ? WHERE Email = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setString(2, email);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateEmployeeStatus(int employeeId, boolean status) {
@@ -506,4 +540,21 @@ public class EmployeeDAO {
         return list;
     }
 
+    public CleanerFloor getCleanerFloorByEmployeeId(int employeeId) {
+        String sql = "SELECT StartFloor, EndFloor FROM CleanerFloor WHERE EmployeeId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, employeeId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    CleanerFloor cf = new CleanerFloor();
+                    cf.setStartFloor(rs.getInt("StartFloor"));
+                    cf.setEndFloor(rs.getInt("EndFloor"));
+                    return cf;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

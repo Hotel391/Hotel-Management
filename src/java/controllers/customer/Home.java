@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import models.CustomerAccount;
 
-@WebServlet(name="Home", urlPatterns={"/customer/home"})
+@WebServlet(name="Home", urlPatterns={"/home"})
 public class Home extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)

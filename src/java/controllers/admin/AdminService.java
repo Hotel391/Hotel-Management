@@ -11,6 +11,11 @@ import models.Service;
 
 public class AdminService extends HttpServlet {
 
+    private String serviceIdd = "serviceId";
+    private String serviceServlet = "service";
+    private String submitt = "submit";
+    private String serviceNamee = "serviceName";
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -20,15 +25,15 @@ public class AdminService extends HttpServlet {
         }
         
         if(choose.equals("deleteService")){
-            String serviceIdStr = request.getParameter("serviceId");
+            String serviceIdStr = request.getParameter(serviceIdd);
             int serviceId = Integer.parseInt(serviceIdStr);
             dal.ServiceDAO.getInstance().deleteService(serviceId);
-            response.sendRedirect("service");
+            response.sendRedirect(serviceServlet);
         }
 
         //forward to InsertService.jsp
         if (choose.equals("insertService")) {
-            String submit = request.getParameter("submit");
+            String submit = request.getParameter(submitt);
             if (submit == null) {
                 request.getRequestDispatcher("/View/Admin/InsertService.jsp").forward(request, response);
             }
@@ -36,13 +41,13 @@ public class AdminService extends HttpServlet {
 
         //forward to UpdateService.jsp
         if (choose.equals("updateService")) {
-            String submit = request.getParameter("submit");
+            String submit = request.getParameter(submitt);
             if (submit == null) {
-                String serviceID = request.getParameter("serviceId");
-                String serviceName = request.getParameter("serviceName");
+                String serviceID = request.getParameter(serviceIdd);
+                String serviceName = request.getParameter(serviceNamee);
                 String price = request.getParameter("price");
-                request.setAttribute("serviceId", serviceID);
-                request.setAttribute("serviceName", serviceName);
+                request.setAttribute(serviceIdd, serviceID);
+                request.setAttribute(serviceNamee, serviceName);
                 request.setAttribute("price", price);
                 request.getRequestDispatcher("/View/Admin/UpdateService.jsp").forward(request, response);
             }
@@ -65,15 +70,15 @@ public class AdminService extends HttpServlet {
 
         //insert new service
         if (choose.equals("insertService")) {
-            String submit = request.getParameter("submit");
+            String submit = request.getParameter(submitt);
             if (submit != null) {
-                String serviceName = request.getParameter("serviceName");
+                String serviceName = request.getParameter(serviceNamee);
                 String priceStr = request.getParameter("priceService");
                 int price = 0;
                 boolean haveError = false;
 
                 // Set lại dữ liệu đã nhập để giữ lại nếu có lỗi
-                request.setAttribute("serviceName", serviceName);
+                request.setAttribute(serviceNamee, serviceName);
                 request.setAttribute("priceService", priceStr);
 
                 if (serviceName == null || !serviceName.matches("^[a-zA-Z0-9\\s]+$")) {
@@ -98,17 +103,17 @@ public class AdminService extends HttpServlet {
                 }
 
                 dal.ServiceDAO.getInstance().insertService(serviceName, price);
-                response.sendRedirect("service");
+                response.sendRedirect(serviceServlet);
                 
             }
         }
 
         //update service
         if (choose.equals("updateService")) {
-            String submit = request.getParameter("submit");
+            String submit = request.getParameter(submitt);
             if (submit != null) {
-                String serviceIdStr = request.getParameter("serviceId");
-                String serviceName = request.getParameter("serviceName");
+                String serviceIdStr = request.getParameter(serviceIdd);
+                String serviceName = request.getParameter(serviceNamee);
                 String priceStr = request.getParameter("price");
                 int serviceId = 0;
                 int price = 0;
@@ -116,8 +121,8 @@ public class AdminService extends HttpServlet {
                     serviceId = Integer.parseInt(serviceIdStr);
                     price = Integer.parseInt(priceStr);
                 } catch (Exception e) {
-                    request.setAttribute("serviceId", serviceIdStr);
-                    request.setAttribute("serviceName", serviceName);
+                    request.setAttribute(serviceIdd, serviceIdStr);
+                    request.setAttribute(serviceNamee, serviceName);
                     request.setAttribute("price", priceStr);
                     request.setAttribute("error", "Price must be integer number");
                     request.getRequestDispatcher("/View/Admin/UpdateService.jsp").forward(request, response);
@@ -125,7 +130,7 @@ public class AdminService extends HttpServlet {
 
                 Service s = new Service(serviceId, serviceName, price);
                 dal.ServiceDAO.getInstance().updateService(s);
-                response.sendRedirect("service");
+                response.sendRedirect(serviceServlet);
             }
         }
     }

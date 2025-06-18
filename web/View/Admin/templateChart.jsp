@@ -8,7 +8,7 @@
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<canvas id="${chartId}" width="100%""></canvas>
+<canvas id="${chartId}"></canvas>
 
 <script>
     const labels = [<c:forEach var="label" items="${labels}" varStatus="i">

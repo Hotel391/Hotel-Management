@@ -1,4 +1,4 @@
-package controllers.receptionist;
+package controllers.receptionists;
 
 import dal.CustomerAccountDAO;
 import dal.CustomerDAO;
@@ -41,7 +41,7 @@ public class ReceptionistProfile extends HttpServlet {
        request.setAttribute("receptionist", receptionist);
         request.setAttribute("isEditing", isEditing);
 
-        request.getRequestDispatcher("/View/Receptionist/receptionistProfile.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Receptionist/ReceptionistProfile.jsp").forward(request, response);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ReceptionistProfile extends HttpServlet {
                 handleChangePassword(request, receptionist, session);
                 request.setAttribute("receptionist", receptionist);
                 request.setAttribute("isEditing", false);
-                request.getRequestDispatcher("/View/Receptionist/receptionistProfile.jsp").forward(request, response);
+                request.getRequestDispatcher("/View/Receptionist/ReceptionistProfile.jsp").forward(request, response);
                 return;
             }
         } catch (Exception e) {
@@ -69,7 +69,7 @@ public class ReceptionistProfile extends HttpServlet {
             request.setAttribute("error", "Lỗi xử lý yêu cầu: " + e.getMessage());
             request.setAttribute("receptionist", receptionist);
             request.setAttribute("isEditing", true);
-            request.getRequestDispatcher("/View/Receptionist/receptionistProfile.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Receptionist/ReceptionistProfile.jsp").forward(request, response);
         }
 
         response.sendRedirect(request.getContextPath() + "receptionistProfile");

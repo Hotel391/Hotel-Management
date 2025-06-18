@@ -1,4 +1,4 @@
-package controllers.receptionist;
+package controllers.receptionists;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;

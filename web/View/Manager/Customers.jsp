@@ -28,12 +28,12 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/admin/customers">Customer Management</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/customers">Customer Management</a>
                             </li>
                         </ul>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <form method="get" action="${pageContext.request.contextPath}/admin/customers" class="d-flex gap-2">
+                            <form method="get" action="${pageContext.request.contextPath}/manager/customers" class="d-flex gap-2">
                                 <input type="text" name="key" value="${key}" class="form-control search-input" placeholder="Search" />
                             </form>
                         </div>
@@ -60,7 +60,7 @@
                                             <td><c:out value="${customer.phoneNumber}" default="-"/></td>
                                             <td><c:out value="${customer.email}" default="-"/></td>
                                             <td>
-                                                <form method="post" action="${pageContext.request.contextPath}/admin/customers?action=toggleStatus">
+                                                <form method="post" action="${pageContext.request.contextPath}/manager/customers?action=toggleStatus">
                                                     <input type="hidden" name="customerId" value="${customer.customerId}" />
                                                     <input type="hidden" name="page" value="${currentPage}" />
                                                     <input type="hidden" name="key" value="${key}" />

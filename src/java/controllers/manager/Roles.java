@@ -1,4 +1,5 @@
-package controllers.admin;
+package controllers.manager;
+
 
 import dal.RoleDAO;
 import java.io.IOException;
@@ -12,7 +13,7 @@ import models.Role;
 
 
 
-@WebServlet(name = "Roles", urlPatterns = {"/admin/roles"})
+@WebServlet(name = "ManagerRoles", urlPatterns = {"/manager/roles"})
 public class Roles extends HttpServlet {
 
     @Override
@@ -23,7 +24,7 @@ public class Roles extends HttpServlet {
             request.setAttribute("error", "No roles found or error retrieving roles.");
         }
         request.setAttribute("listRole", roleList);
-        request.getRequestDispatcher("/View/Admin/Role.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Manager/Role.jsp").forward(request, response);
     }
 
     @Override
@@ -87,7 +88,7 @@ public class Roles extends HttpServlet {
             request.setAttribute("error", error);
             doGet(request, response);
         } else {
-            response.sendRedirect(request.getContextPath() + "/admin/roles");
+            response.sendRedirect(request.getContextPath() + "/manager/roles");
         }
     }
 

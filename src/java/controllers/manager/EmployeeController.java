@@ -1,4 +1,5 @@
-package controllers.admin;
+package controllers.manager;
+
 
 import dal.CustomerAccountDAO;
 import dal.EmployeeDAO;
@@ -18,7 +19,7 @@ import models.Role;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "EmployeeController", urlPatterns = {"/admin/employees"})
+@WebServlet(name = "ManagerEmployees", urlPatterns = {"/manager/employees"})
 public class EmployeeController extends HttpServlet {
 
     @Override
@@ -57,7 +58,7 @@ public class EmployeeController extends HttpServlet {
         request.setAttribute("roleId", roleId);
         request.setAttribute("status", status);
 
-        request.getRequestDispatcher("/View/Admin/Employee.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Manager/Employee.jsp").forward(request, response);
     }
 
     @Override
@@ -120,7 +121,7 @@ public class EmployeeController extends HttpServlet {
             return;
         }
 
-        String redirectUrl = request.getContextPath() + "/admin/employees";
+        String redirectUrl = request.getContextPath() + "/manager/employees";
         if (page != null || key != null) {
             redirectUrl += "?";
             if (page != null) {

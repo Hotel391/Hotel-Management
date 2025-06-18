@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controllers.receptionist;
+package controllers.receptionists;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -22,7 +22,7 @@ public class ReceptionistPage extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setAttribute("title", "Receptionist Dashboard");
-        request.getRequestDispatcher("/View/Receptionist/receptionistPage.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Receptionist/ReceptionistPage.jsp").forward(request, response);
     }
 }
 

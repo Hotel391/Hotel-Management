@@ -2,7 +2,7 @@
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     <servlet>
         <servlet-name>DashBoard</servlet-name>
-        <servlet-class>controllers.admin.DashBoard</servlet-class>
+        <servlet-class>controllers.manager.DashBoard</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Statistics</servlet-name>
@@ -54,7 +54,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>DashBoard</servlet-name>
-        <url-pattern>/admin/dashboard</url-pattern>
+        <url-pattern>/manager/dashboard</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Statistics</servlet-name>
@@ -74,7 +74,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ForgotPassword</servlet-name>
-        <url-pattern>/forgotPassword</url-pattern>
+        <url-pattern>/forgotPassword</url-pattern>ManagerEmployees
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ConfirmResetPassword</servlet-name>
@@ -83,4 +83,12 @@
     <welcome-file-list>
         <welcome-file>login</welcome-file>
     </welcome-file-list>
+    <servlet>
+        <servlet-name>ManagerRoles</servlet-name>
+        <servlet-class>controllers.manager.Roles</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name></servlet-name>
+        <servlet-class>controllers.manager.EmployeeController</servlet-class>
+    </servlet>
 </web-app>

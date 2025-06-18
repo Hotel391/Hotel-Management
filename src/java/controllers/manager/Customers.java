@@ -1,5 +1,6 @@
-package controllers.admin;
+package controllers.manager;
 
+import controllers.admin.*;
 import dal.CustomerDAO;
 import dal.RoleDAO;
 import jakarta.servlet.ServletException;
@@ -13,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 import models.Role;
 
-@WebServlet(name = "CustomerController", urlPatterns = {"/admin/customers"})
+@WebServlet(name = "CustomerController", urlPatterns = {"/manager/customers"})
 public class Customers extends HttpServlet {
 
     @Override
@@ -48,7 +49,7 @@ public class Customers extends HttpServlet {
         request.setAttribute("listCustomer", customerList);
         request.setAttribute("key", key);
 
-        request.getRequestDispatcher("/View/Admin/Customers.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Manager/Customers.jsp").forward(request, response);
     }
 
     @Override
@@ -84,7 +85,7 @@ public class Customers extends HttpServlet {
             return;
         }
 
-        String redirectUrl = request.getContextPath() + "/admin/customers";
+        String redirectUrl = request.getContextPath() + "/manager/customers";
         if (page != null || key != null) {
             redirectUrl += "?";
             if (page != null) {

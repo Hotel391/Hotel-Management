@@ -37,7 +37,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/admin/employees">Management Employee</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/employees">Management Employee</a>
                             </li>
                         </ul>
 
@@ -45,7 +45,7 @@
                             <div class="d-flex gap-2">
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">+ Add Employee</button>
                             </div>
-                            <form method="get" action="${pageContext.request.contextPath}/admin/employees" class="d-flex gap-2">
+                            <form method="get" action="${pageContext.request.contextPath}/manager/employees" class="d-flex gap-2">
                                 <input type="text" name="key" value="${key}" class="form-control search-input" placeholder="Search" />
 
 
@@ -77,7 +77,7 @@
                                             <td><c:out value="${emp.email}" default="-"/></td>
                                             <td><c:out value="${emp.role != null ? emp.role.roleName : '-'}"/></td>
                                             <td><!-- Active/Inactive Employee Action -->
-                                                <form method="post" action="${pageContext.request.contextPath}/admin/employees?action=toggleStatus">
+                                                <form method="post" action="${pageContext.request.contextPath}/manager/employees?action=toggleStatus">
                                                     <input type="hidden" name="employeeId" value="${emp.employeeId}" />
                                                     <input type="hidden" name="page" value="${currentPage}" />
                                                     <input type="hidden" name="key" value="${key}" />
@@ -117,7 +117,7 @@
                     <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
-                                <form method="post" action="${pageContext.request.contextPath}/admin/employees">
+                                <form method="post" action="${pageContext.request.contextPath}/manager/employees">
                                     <input type="hidden" name="action" value="add" />
                                     <input type="hidden" name="page" value="${currentPage}" />
                                     <input type="hidden" name="key" value="${key}" />
@@ -191,7 +191,7 @@
                         <div class="modal fade" id="editEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="editEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
-                                    <form method="post" action="${pageContext.request.contextPath}/admin/employees">
+                                    <form method="post" action="${pageContext.request.contextPath}/manager/employees">
                                         <input type="hidden" name="action" value="update" />
                                         <input type="hidden" name="employeeId" value="${emp.employeeId}" />
                                         <input type="hidden" name="page" value="${currentPage}" />
@@ -310,7 +310,7 @@
                         <div class="modal fade" id="deleteEmployeeModal_${emp.employeeId}" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel_${emp.employeeId}" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <form method="post" action="${pageContext.request.contextPath}/admin/employees?action=delete">
+                                    <form method="post" action="${pageContext.request.contextPath}/manager/employees?action=delete">
                                         <input type="hidden" name="page" value="${currentPage}" />
                                         <input type="hidden" name="key" value="${key}" />
                                         <div class="modal-header">

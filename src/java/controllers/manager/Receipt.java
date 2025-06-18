@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controllers.admin;
+package controllers.manager;
 
 import dal.BookingDAO;
 import dal.BookingDetailDAO;
@@ -24,7 +24,7 @@ import models.BookingDetail;
  *
  * @author Hai Long
  */
-@WebServlet(name = "Receipt", urlPatterns = {"/admin/receipt"})
+@WebServlet(name = "Receipt", urlPatterns = {"/manager/receipt"})
 public class Receipt extends HttpServlet {
 
     /**
@@ -121,7 +121,7 @@ public class Receipt extends HttpServlet {
 
             request.setAttribute("detailList", detailList);
 
-            request.getRequestDispatcher("/View/Admin/Receipt.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/manager/Receipt.jsp").forward(request, response);
 
         }
     }

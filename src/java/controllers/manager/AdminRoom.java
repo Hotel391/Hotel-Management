@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;

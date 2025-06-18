@@ -89,7 +89,7 @@ public class Login extends HttpServlet {
                         response.sendRedirect("developer/page");
                         break;
                     case 1:
-                        response.sendRedirect("admin/dashboard");
+                        response.sendRedirect("manager/dashboard");
                         break;
                     case 2:
                         response.sendRedirect("receptionist/page");

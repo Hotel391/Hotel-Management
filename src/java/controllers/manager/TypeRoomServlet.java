@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import dal.RoomNServiceDAO;
 import dal.TypeRoomDAO;
@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import utility.Validation;
 
-@WebServlet(name = "TypeRoomServlet", urlPatterns = {"/admin/types"})
+@WebServlet(name = "TypeRoomServlet", urlPatterns = {"/manager/types"})
 public class TypeRoomServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -260,7 +260,7 @@ public class TypeRoomServlet extends HttpServlet {
 
         request.setAttribute("typeRoomList", typeRoomList);
 
-        request.getRequestDispatcher("/View/Admin/TypeRoom.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/manager/TypeRoom.jsp").forward(request, response);
     }
 
     @Override

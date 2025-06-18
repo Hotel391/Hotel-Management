@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import dal.RoleDAO;
 import java.io.IOException;

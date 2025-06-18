@@ -3,9 +3,9 @@
     <div class="logo">
         <img src="${pageContext.request.contextPath}/Image/Logo.png" alt="Logo">
         <h1>Hotel</h1>
-        <h2>Hotel Admin Dashboard</h2>
+        <h2>Developer</h2>
     </div>
-    <div class="nav-navigation">
+<!--    <div class="nav-navigation">
         <div class="nav-links">
             <ul class="nav-list">
                 <li>
@@ -13,9 +13,9 @@
                         <span><i class="bi bi-speedometer2"></i></span>Dashboard
                     </a>
                 </li>
-                <li><a href="${pageContext.request.contextPath}/view/admin/roles">
+                <li><a href="#">
                         <span><i class="bi bi-person-badge"></i></span>Role</a></li>
-                <li><a href="${pageContext.request.contextPath}/view/admin/employees">
+                <li><a href="#">
                         <span><i class="bi bi-person"></i></span>Employee</a></li>
                 <li><a href="#">
                         <span><i class="bi bi-person-fill"></i></span></i>Customer</a></li>
@@ -37,7 +37,7 @@
             </div>
         </div>
         <div class="nav-footer text-center">
-            <p>Hotel Admin Dashboard</p>
+            <p>© 2023 Hotel Admin Dashboard</p>
         </div>
-    </div>
+    </div>-->
 </div>

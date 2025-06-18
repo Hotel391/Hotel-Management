@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import dal.EmployeeDAO;
 import models.Employee;

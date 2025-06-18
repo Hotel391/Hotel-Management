@@ -48,6 +48,8 @@ public class CheckoutRoom extends HttpServlet {
         }
 
         if ("view".equals(service)) {
+            String checkout = request.getParameter("checkout");
+            
             long millis = System.currentTimeMillis();
 
             Date currentDate = new Date(millis);

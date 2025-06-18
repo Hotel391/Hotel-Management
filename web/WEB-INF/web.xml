@@ -2,23 +2,23 @@
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     <servlet>
         <servlet-name>DashBoard</servlet-name>
-        <servlet-class>controllers.admin.DashBoard</servlet-class>
+        <servlet-class>controllers.manager.DashBoard</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Statistics</servlet-name>
-        <servlet-class>controllers.admin.Statistics</servlet-class>
+        <servlet-class>controllers.manager.Statistics</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>AdminReview</servlet-name>
-        <servlet-class>controllers.admin.AdminReview</servlet-class>
+        <servlet-class>controllers.manager.AdminReview</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>AdminRoom</servlet-name>
-        <servlet-class>controllers.admin.AdminRoom</servlet-class>
+        <servlet-class>controllers.manager.AdminRoom</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>AdminService</servlet-name>
-        <servlet-class>controllers.admin.AdminService</servlet-class>
+        <servlet-class>controllers.manager.AdminService</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Register</servlet-name>

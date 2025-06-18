@@ -9,8 +9,6 @@ import java.util.List;
 import models.Booking;
 import models.BookingDetail;
 import java.sql.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class BookingDetailDAO {
 
@@ -27,7 +25,6 @@ public class BookingDetailDAO {
         }
         return instance;
     }
-
     public int checkinCount() {
         String sql = "SELECT COUNT(*) FROM BookingDetail";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
@@ -82,5 +79,4 @@ public class BookingDetailDAO {
         }
         return bookingDetails;
     }
-
 }

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+
+    <!-- Manager Controllers -->
     <servlet>
         <servlet-name>DashBoard</servlet-name>
         <servlet-class>controllers.manager.DashBoard</servlet-class>
@@ -9,7 +11,6 @@
         <servlet-class>controllers.manager.Statistics</servlet-class>
     </servlet>
     <servlet>
-<<<<<<< HEAD
         <servlet-name>ManagerReview</servlet-name>
         <servlet-class>controllers.manager.ManagerReview</servlet-class>
     </servlet>
@@ -20,19 +21,17 @@
     <servlet>
         <servlet-name>ManagerService</servlet-name>
         <servlet-class>controllers.manager.ManagerService</servlet-class>
-=======
-        <servlet-name>AdminReview</servlet-name>
-        <servlet-class>controllers.manager.AdminReview</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AdminRoom</servlet-name>
-        <servlet-class>controllers.manager.AdminRoom</servlet-class>
+        <servlet-name>ManagerRoles</servlet-name>
+        <servlet-class>controllers.manager.Roles</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AdminService</servlet-name>
-        <servlet-class>controllers.manager.AdminService</servlet-class>
->>>>>>> origin/HaiLong25
+        <servlet-name>ManagerEmployees</servlet-name>
+        <servlet-class>controllers.manager.EmployeeController</servlet-class>
     </servlet>
+
+    <!-- Common Controllers -->
     <servlet>
         <servlet-name>Register</servlet-name>
         <servlet-class>controllers.common.Register</servlet-class>
@@ -53,6 +52,16 @@
         <servlet-name>ConfirmResetPassword</servlet-name>
         <servlet-class>controllers.common.ConfirmResetPassword</servlet-class>
     </servlet>
+
+    <!-- Mappings -->
+    <servlet-mapping>
+        <servlet-name>DashBoard</servlet-name>
+        <url-pattern>/manager/dashboard</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Statistics</servlet-name>
+        <url-pattern>/manager/statistics</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ManagerReview</servlet-name>
         <url-pattern>/manager/review</url-pattern>
@@ -66,12 +75,12 @@
         <url-pattern>/manager/service</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>DashBoard</servlet-name>
-        <url-pattern>/manager/dashboard</url-pattern>
+        <servlet-name>ManagerRoles</servlet-name>
+        <url-pattern>/manager/roles</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>Statistics</servlet-name>
-        <url-pattern>/manager/statistics</url-pattern>
+        <servlet-name>ManagerEmployees</servlet-name>
+        <url-pattern>/manager/employees</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Register</servlet-name>
@@ -93,7 +102,10 @@
         <servlet-name>ConfirmResetPassword</servlet-name>
         <url-pattern>/confirmResetPassword</url-pattern>
     </servlet-mapping>
+
+    <!-- Welcome File -->
     <welcome-file-list>
         <welcome-file>login</welcome-file>
     </welcome-file-list>
+
 </web-app>

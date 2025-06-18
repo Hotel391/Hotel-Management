@@ -261,9 +261,8 @@ public class CustomerDAO {
         }
         return false;
     }
-    
+
     //get customer by booking detail id
-    
     public Customer getCustomerByBookingDetailId(int bookingDetailId) {
         String sql = "SELECT c.* FROM Customer c JOIN Booking b ON c.CustomerId = b.CustomerId JOIN BookingDetail bd ON b.BookingId = bd.BookingId WHERE bd.BookingDetailId = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -286,5 +285,151 @@ public class CustomerDAO {
             Logger.getLogger(CustomerDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    public void updateCustomerStatus(int customerId, boolean newStatus) {
+        String sql = "UPDATE Customer SET activate = ? WHERE CustomerId = ?";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setBoolean(1, newStatus);
+            st.setInt(2, customerId);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Customer getCustomerById(int customerId) {
+        String sql = "SELECT * FROM Customer WHERE CustomerId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, customerId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    customer.setFullName(rs.getString("FullName"));
+                    customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                    customer.setEmail(rs.getString("Email"));
+                    customer.setActivate(rs.getBoolean("activate"));
+                    return customer;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public int countCustomer() {
+        String sql = "SELECT COUNT(*) FROM Customer";
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Customer> searchCustomer(String key) {
+        List<Customer> list = new ArrayList<>();
+        String sql = """
+            SELECT c.*, r.RoleName, ca.Username
+            FROM Customer c
+            JOIN Role r ON c.RoleId = r.RoleId
+            JOIN CustomerAccount ca ON c.CustomerId = ca.CustomerId
+            WHERE c.FullName LIKE ? OR c.PhoneNumber LIKE ? OR c.Email LIKE ?
+            ORDER BY c.CustomerId
+            """;
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            String searchKey = "%" + key + "%";
+            st.setString(1, searchKey);
+            st.setString(2, searchKey);
+            st.setString(3, searchKey);
+
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    customer.setFullName(rs.getString("FullName"));
+                    customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                    customer.setEmail(rs.getString("Email"));
+                    customer.setGender(rs.getBoolean("Gender"));
+                    customer.setCCCD(rs.getString("CCCD"));
+                    customer.setActivate(rs.getBoolean("activate"));
+
+                    Role role = new Role(rs.getInt("RoleId"));
+                    role.setRoleName(rs.getString("RoleName"));
+                    customer.setRole(role);
+
+                    CustomerAccount customerAccount = new CustomerAccount();
+                    customerAccount.setUsername(rs.getString("Username"));
+                    customer.setCustomerAccount(customerAccount);
+
+                    list.add(customer);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Customer> customerPagination(int index, String key) {
+        List<Customer> list = new ArrayList<>();
+        String sql = """
+            SELECT c.*, r.RoleName, ca.Username
+            FROM Customer c
+            JOIN Role r ON c.RoleId = r.RoleId
+            JOIN CustomerAccount ca ON c.CustomerId = ca.CustomerId
+            WHERE 1=1
+            """;
+
+        if (key != null && !key.isEmpty()) {
+            sql += " AND (c.FullName LIKE ? OR c.PhoneNumber LIKE ? OR c.Email LIKE ?)";
+        }
+
+        sql += " ORDER BY c.CustomerId OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            int parameterIndex = 1;
+
+            if (key != null && !key.isEmpty()) {
+                String searchKey = "%" + key + "%";
+                st.setString(parameterIndex++, searchKey);
+                st.setString(parameterIndex++, searchKey);
+                st.setString(parameterIndex++, searchKey);
+            }
+
+            st.setInt(parameterIndex++, (index - 1) * 5);
+
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    customer.setFullName(rs.getString("FullName"));
+                    customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                    customer.setEmail(rs.getString("Email"));
+                    customer.setGender(rs.getBoolean("Gender"));
+                    customer.setCCCD(rs.getString("CCCD"));
+                    customer.setActivate(rs.getBoolean("activate"));
+
+                    Role role = new Role(rs.getInt("RoleId"));
+                    role.setRoleName(rs.getString("RoleName"));
+                    customer.setRole(role);
+
+                    CustomerAccount customerAccount = new CustomerAccount();
+                    customerAccount.setUsername(rs.getString("Username"));
+                    customer.setCustomerAccount(customerAccount);
+
+                    list.add(customer);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

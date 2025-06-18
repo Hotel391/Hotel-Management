@@ -12,10 +12,10 @@ import models.Employee;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "DeveloperPage", urlPatterns = {"/developer/page"})
-public class DeveloperPage extends HttpServlet {
+@WebServlet(name = "AdminPage", urlPatterns = {"/admin/page"})
+public class AdminPage extends HttpServlet {
 
-    private String linkInfoAdmin = "/View/Developer/InfoAdmin.jsp";
+    private String linkInfoAdmin = "/View/Admin/InfoAdmin.jsp";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -38,13 +38,13 @@ public class DeveloperPage extends HttpServlet {
         }
 
         if (service.equals("add")) {
-            request.getRequestDispatcher("/View/Developer/AddManager.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Admin/AddManager.jsp").forward(request, response);
         }
 
         if (service.equals("deleteManager")) {
             int employeeID = Integer.parseInt(request.getParameter("employeeID"));
             dal.AdminDao.getInstance().deleteManagerAccount(employeeID);
-            response.sendRedirect("developerPage");
+            response.sendRedirect("AdminPage");
         }
 
         if (service.equals("viewAll")) {
@@ -52,7 +52,7 @@ public class DeveloperPage extends HttpServlet {
             List<Employee> list = dal.AdminDao.getInstance().getAllEmployee();
             request.setAttribute("list", list);
             request.setAttribute("adminAccount", em);
-            request.getRequestDispatcher("/View/Developer/DeveloperPage.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Admin/AdminPage.jsp").forward(request, response);
         }
     }
 
@@ -109,7 +109,7 @@ public class DeveloperPage extends HttpServlet {
         }
 
         dal.EmployeeDAO.getInstance().updatePasswordAdminByUsername(userName, newPassSh);
-        response.sendRedirect(request.getContextPath() + "/developer/page?service=viewAll");
+        response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll");
     }
 
     private void handleAddNewAccount(HttpServletRequest request, HttpServletResponse response, String userName)
@@ -133,12 +133,12 @@ public class DeveloperPage extends HttpServlet {
         }
 
         if (hasError) {
-            request.getRequestDispatcher("/View/Developer/AddManager.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Admin/AddManager.jsp").forward(request, response);
             return;
         }
 
         dal.AdminDao.getInstance().addNewAccountManager(userName, passwordSh);
-        response.sendRedirect(request.getContextPath() + "/developer/page?service=viewAll");
+        response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll");
     }
 
     private boolean isUsernameTaken(String userName) {

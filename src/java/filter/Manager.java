@@ -24,8 +24,8 @@ import models.Employee;
  *
  * @author Tuan'sPC
  */
-//@WebFilter(filterName = "Developer", urlPatterns = {"/developer/*"})
-public class Developer implements Filter {
+//@WebFilter(filterName = "Manager", urlPatterns = {"/manager/*"})
+public class Manager implements Filter {
 
     private static final boolean debug = true;
 
@@ -34,7 +34,7 @@ public class Developer implements Filter {
     // configured. 
     private FilterConfig filterConfig = null;
 
-    public Developer() {
+    public Manager() {
     }
 
     private void doBeforeProcessing(ServletRequest request, ServletResponse response)
@@ -115,14 +115,13 @@ public class Developer implements Filter {
         if (session.getAttribute("employeeInfo") != null) {
             Employee employee = (Employee) session.getAttribute("employeeInfo");
             int roleId = employee.getRole().getRoleId();
-            if (roleId == 0) {
-                // Cho phép truy cập nếu đúng là developer
+            if (roleId == 1) {
                 chain.doFilter(request, response);
                 return;
             } else {
                 switch (roleId) {
-                    case 1:
-                        res.sendRedirect(req.getContextPath() + "/admin/dashboard");
+                    case 0:
+                        res.sendRedirect(req.getContextPath() + "/admin/page");
                         return;
                     case 2:
                         res.sendRedirect(req.getContextPath() + "/receptionist/page");

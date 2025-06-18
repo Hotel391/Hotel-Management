@@ -115,13 +115,14 @@ public class Admin implements Filter {
         if (session.getAttribute("employeeInfo") != null) {
             Employee employee = (Employee) session.getAttribute("employeeInfo");
             int roleId = employee.getRole().getRoleId();
-            if (roleId == 1) {
+            if (roleId == 0) {
+                // Cho phép truy cập nếu đúng là developer
                 chain.doFilter(request, response);
                 return;
             } else {
                 switch (roleId) {
-                    case 0:
-                        res.sendRedirect(req.getContextPath() + "/developer/page");
+                    case 1:
+                        res.sendRedirect(req.getContextPath() + "/manager/dashboard");
                         return;
                     case 2:
                         res.sendRedirect(req.getContextPath() + "/receptionist/page");

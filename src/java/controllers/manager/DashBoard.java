@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import models.DailyRevenue;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class DashBoard extends HttpServlet {
         request.setAttribute("soldOutRoomCount", dal.RoomDAO.getInstance().roomBookedCount());
         request.setAttribute("employeeCount", dal.EmployeeDAO.getInstance().countEmployee());
         request.setAttribute("customerCount", dal.CustomerDAO.getInstance().customerCount());
-        request.getRequestDispatcher("/View/Admin/Dashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Manager/Dashboard.jsp").forward(request, response);
     }
 
     @Override

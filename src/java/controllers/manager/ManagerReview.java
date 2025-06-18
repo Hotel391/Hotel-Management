@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -9,7 +9,7 @@ import java.sql.Date;
 import java.util.List;
 import models.Review;
 
-public class AdminReview extends HttpServlet {
+public class ManagerReview extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -19,7 +19,7 @@ public class AdminReview extends HttpServlet {
         if (submit == null) {
             list = dal.ReviewDAO.getInstance().getAllReview();
             request.setAttribute("list", list);
-            request.getRequestDispatcher("/View/Admin/ViewReview.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewReview.jsp").forward(request, response);
         } 
     }
 
@@ -37,7 +37,7 @@ public class AdminReview extends HttpServlet {
             }
             list = dal.ReviewDAO.getInstance().searchReview(fullname, date);
             request.setAttribute("list", list);
-            request.getRequestDispatcher("/View/Admin/ViewReview.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewReview.jsp").forward(request, response);
         }
     }
 }

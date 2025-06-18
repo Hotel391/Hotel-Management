@@ -20,7 +20,7 @@
         <div class="containerBox">
             <jsp:include page="leftNav.jsp" />
             <div class="right-section">
-                <c:set var="title" value="Developer" scope="request"/>
+                <c:set var="title" value="Admin" scope="request"/>
                 <jsp:include page="topNav.jsp" />
 
                 <c:if test="${adminAccount.role.roleId == 0}">

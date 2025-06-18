@@ -19,7 +19,7 @@ import websocket.RoomStatusSocket;
 @WebServlet(name = "StayingRoom", urlPatterns = {"/receptionist/stayingRoom"})
 public class StayingRoom extends HttpServlet {
 
-    private static final int NUMBER_OF_ROWS = 4;
+    private static final int NUMBER_OF_ROWS = 8;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -55,7 +55,7 @@ public class StayingRoom extends HttpServlet {
 
     private void handleDefault(HttpServletRequest request, int currentPage)
             throws ServletException, IOException {
-        List<Room> stayingRooms = dal.RoomDAO.getInstance().getStayingRooms(NUMBER_OF_ROWS, currentPage, "");
+        List<BookingDetail> bookingDetails = dal.RoomDAO.getInstance().getStayingRooms(NUMBER_OF_ROWS, currentPage, "");
         request.setAttribute("stayingRooms", stayingRooms);
         int totalStayingRooms = dal.RoomDAO.getInstance().getTotalStayingRooms("");
         int totalPages = (int) Math.ceil((double) totalStayingRooms / NUMBER_OF_ROWS);
@@ -76,20 +76,21 @@ public class StayingRoom extends HttpServlet {
     private void handleView(HttpServletRequest request)
             throws ServletException, IOException {
         int roomNumber = Integer.parseInt(request.getParameter("roomNumber"));
-        List<DetailService> services = dal.ServiceDAO.getInstance().getServiceByRoomNumber(roomNumber);
-        request.setAttribute("services", services);
+        List<DetailService> detailService = dal.ServiceDAO.getInstance().getServiceByRoomNumber(roomNumber);
+        request.setAttribute("detailService", detailService);
         List<Service> otherServices = dal.ServiceDAO.getInstance().getServiceNotInRoom(roomNumber);
-        request.setAttribute("otherServices", otherServices);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String roomNumber = request.getParameter("roomNumber");
-        boolean isCleaner = Boolean.parseBoolean(request.getParameter("status"));
-        int roomId = Integer.parseInt(roomNumber);
-        dal.RoomDAO.getInstance().updateRoomStatus(roomId, !isCleaner);
-        RoomStatusSocket.broadcast("{\"roomId\":" + roomId + "}");
+        String action = request.getParameter("action");
+        if("updateServices".equals(action)) {
+            handleUpdateServices(request, response, roomNumber);
+        } else if ("updateStatus".equals(action)) {
+            handleUpdateStatus(request, response, roomNumber);
+        }
 
         StringBuilder linkForward = new StringBuilder(request.getContextPath() + "/receptionist/stayingRoom");
         String pageStr = request.getParameter("page");
@@ -111,6 +112,24 @@ public class StayingRoom extends HttpServlet {
             linkForward.append(hasParam ? "&" : "?").append("oldSearch=").append(oldSearch);
         }
         response.sendRedirect(linkForward.toString());
+    }
+
+    private void handleUpdateServices(HttpServletRequest request, HttpServletResponse response, String roomNumber)
+            throws ServletException, IOException {
+        String[] serviceIds = request.getParameterValues("serviceId");
+        String[] serviceQuantitiesStr = request.getParameterValues("quantities");
+        String[] serviceOldQuantityStr = request.getParameterValues("oldQuantity");
+        String[] otherServiceIds= request.getParameterValues("otherServiceId");
+        String[] otherQuantitiesStr= request.getParameterValues("otherQuantities");
+
+    }
+
+    private void handleUpdateStatus(HttpServletRequest request, HttpServletResponse response, String roomNumber)
+            throws ServletException, IOException {
+        boolean isCleaner = Boolean.parseBoolean(request.getParameter("status"));
+        int roomId = Integer.parseInt(roomNumber);
+        dal.RoomDAO.getInstance().updateRoomStatus(roomId, !isCleaner);
+        RoomStatusSocket.broadcast("{\"roomId\":" + roomId + "}");
     }
 
     @Override

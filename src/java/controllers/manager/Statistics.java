@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -28,7 +28,7 @@ public class Statistics extends HttpServlet {
             throws ServletException, IOException {
         int currentYear = LocalDate.now().getYear();
         request.setAttribute("currentYear", currentYear);
-        request.getRequestDispatcher("/View/Admin/Statistics.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Manager/Statistics.jsp").forward(request, response);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class Statistics extends HttpServlet {
         List<BigInteger> data = getDataFromRaw(dataRaw, labels);
 
         request.setAttribute("data", data);
-        request.getRequestDispatcher("/View/Admin/Statistics.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Manager/Statistics.jsp").forward(request, response);
     }
 
     private List<String> generateYearLabels(int start, int end) {

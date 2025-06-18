@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import dal.EmployeeDAO;
 import models.Employee;
@@ -36,7 +36,7 @@ public class ManagerProfile extends HttpServlet {
         request.setAttribute("manager", manager);
         request.setAttribute("isEditing", isEditing);
 
-        request.getRequestDispatcher("/View/Admin/managerProfile.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Manager/managerProfile.jsp").forward(request, response);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ManagerProfile extends HttpServlet {
                 if (hasError) {
                     request.setAttribute("manager", manager);
                     request.setAttribute("isEditing", true);
-                    request.getRequestDispatcher("/View/Admin/managerProfile.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Manager/managerProfile.jsp").forward(request, response);
                     return;
                 }
 

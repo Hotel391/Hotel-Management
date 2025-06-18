@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import models.TypeRoom;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
-@WebServlet(name = "TypeRoomServlet", urlPatterns = {"/admin/types"})
+@WebServlet(name = "TypeRoomServlet", urlPatterns = {"/manager/types"})
 public class TypeRoomServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -61,7 +61,7 @@ public class TypeRoomServlet extends HttpServlet {
 
         request.setAttribute("typeRoom", typeRoomList);
 
-        request.getRequestDispatcher("/View/Admin/TypeRoom.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Manager/TypeRoom.jsp").forward(request, response);
 
     }
 

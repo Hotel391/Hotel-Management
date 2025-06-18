@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -9,7 +9,7 @@ import java.util.List;
 import models.Room;
 import models.TypeRoom;
 
-public class AdminRoom extends HttpServlet {
+public class ManagerRoom extends HttpServlet {
 
     private String submitt = "submit";
     private String updateRoom = "updateRoom";
@@ -43,7 +43,7 @@ public class AdminRoom extends HttpServlet {
         if (choose.equals(insertRoom)) {
             if (submit == null) {
                 request.setAttribute(typeRoom, tr);
-                request.getRequestDispatcher("/View/Admin/InsertRoom.jsp").forward(request, response);
+                request.getRequestDispatcher("/View/Manager/InsertRoom.jsp").forward(request, response);
             }
         }
 
@@ -55,7 +55,7 @@ public class AdminRoom extends HttpServlet {
                 request.setAttribute(roomNumberr, roomNumber);
                 request.setAttribute(typeRoomIdd, typeRoomId);
                 request.setAttribute(typeRoom, tr);
-                request.getRequestDispatcher("/View/Admin/UpdateRoom.jsp").forward(request, response);
+                request.getRequestDispatcher("/View/Manager/UpdateRoom.jsp").forward(request, response);
             }
         }
 
@@ -63,7 +63,7 @@ public class AdminRoom extends HttpServlet {
         if (choose.equals("viewAll")) {
             List<Room> r = dal.RoomDAO.getInstance().getAllRoom();
             request.setAttribute("listR", r);
-            request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewRoom.jsp").forward(request, response);
         }
     }
 
@@ -115,7 +115,7 @@ public class AdminRoom extends HttpServlet {
                     haveError = true;
                 }
                 if (haveError) {
-                    request.getRequestDispatcher("/View/Admin/InsertRoom.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Manager/InsertRoom.jsp").forward(request, response);
                     return;
                 }
                 dal.RoomDAO.getInstance().insertRoom(roomNumber, typeRoomId);

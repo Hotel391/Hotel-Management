@@ -1,5 +1,6 @@
 package dal;
 
+import models.BookingDetail;
 import models.Room;
 import models.RoomNService;
 import models.Service;

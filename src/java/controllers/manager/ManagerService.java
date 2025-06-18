@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -9,7 +9,7 @@ import java.util.List;
 import models.Service;
 
 
-public class AdminService extends HttpServlet {
+public class ManagerService extends HttpServlet {
 
     private String serviceIdd = "serviceId";
     private String serviceServlet = "service";
@@ -35,7 +35,7 @@ public class AdminService extends HttpServlet {
         if (choose.equals("insertService")) {
             String submit = request.getParameter(submitt);
             if (submit == null) {
-                request.getRequestDispatcher("/View/Admin/InsertService.jsp").forward(request, response);
+                request.getRequestDispatcher("/View/Manager/InsertService.jsp").forward(request, response);
             }
         }
 
@@ -49,7 +49,7 @@ public class AdminService extends HttpServlet {
                 request.setAttribute(serviceIdd, serviceID);
                 request.setAttribute(serviceNamee, serviceName);
                 request.setAttribute("price", price);
-                request.getRequestDispatcher("/View/Admin/UpdateService.jsp").forward(request, response);
+                request.getRequestDispatcher("/View/Manager/UpdateService.jsp").forward(request, response);
             }
         }
 
@@ -57,7 +57,7 @@ public class AdminService extends HttpServlet {
         if (choose.equals("ViewAllService")) {
             List<Service> list = dal.ServiceDAO.getInstance().getAllService();
             request.setAttribute("listS", list);
-            request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
         }
     }
 
@@ -98,7 +98,7 @@ public class AdminService extends HttpServlet {
                 }
 
                 if (haveError) {
-                    request.getRequestDispatcher("/View/Admin/InsertService.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Manager/InsertService.jsp").forward(request, response);
                     return;
                 }
 
@@ -125,7 +125,7 @@ public class AdminService extends HttpServlet {
                     request.setAttribute(serviceNamee, serviceName);
                     request.setAttribute("price", priceStr);
                     request.setAttribute("error", "Price must be integer number");
-                    request.getRequestDispatcher("/View/Admin/UpdateService.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Manager/UpdateService.jsp").forward(request, response);
                 }
 
                 Service s = new Service(serviceId, serviceName, price);

@@ -1,18 +1,13 @@
 package controllers.manager;
 
 import java.io.IOException;
-<<<<<<< HEAD
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
-=======
->>>>>>> origin/HaiLong25
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-<<<<<<< HEAD
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -113,23 +108,7 @@ public class Statistics extends HttpServlet {
             data.add(dataRaw.getOrDefault(label, BigInteger.ZERO));
         }
         return data;
-=======
-
-public class Statistics extends HttpServlet {
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        request.getRequestDispatcher("/View/Admin/Statistics.jsp").forward(request, response);
-    } 
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        //
->>>>>>> origin/HaiLong25
     }
-
     @Override
     public String getServletInfo() {
         return "Short description";

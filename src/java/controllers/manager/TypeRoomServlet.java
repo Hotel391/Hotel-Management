@@ -1,10 +1,7 @@
 package controllers.manager;
 
-<<<<<<< HEAD
-=======
 import dal.RoomNServiceDAO;
 import dal.TypeRoomDAO;
->>>>>>> origin/HaiLong25
 import models.TypeRoom;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -12,14 +9,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-<<<<<<< HEAD
-import java.util.List;
-=======
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import utility.Validation;
->>>>>>> origin/HaiLong25
 
 @WebServlet(name = "TypeRoomServlet", urlPatterns = {"/manager/types"})
 public class TypeRoomServlet extends HttpServlet {
@@ -28,8 +21,6 @@ public class TypeRoomServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
 
-<<<<<<< HEAD
-=======
         String service = request.getParameter("service");
 
         if (service == null) {
@@ -228,21 +219,13 @@ public class TypeRoomServlet extends HttpServlet {
 
     private void showTypeRoom(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
->>>>>>> origin/HaiLong25
         List<TypeRoom> typeRoomList;
 
         //Search Type Room
         String key = request.getParameter("key");
 
-<<<<<<< HEAD
-        System.out.println("key: " + key);
-        
-        int typeRoomTotal;
-        
-=======
         int typeRoomTotal;
 
->>>>>>> origin/HaiLong25
         int endPage;
 
         if (key != null && !key.trim().isEmpty()) {
@@ -253,17 +236,10 @@ public class TypeRoomServlet extends HttpServlet {
             if (typeRoomTotal % 5 != 0) {
                 endPage++;
             }
-<<<<<<< HEAD
-            
-            request.setAttribute("key", key);
-        } else {
-            //Take pagination numbers
-=======
 
             request.setAttribute("key", key);
         } else {
             
->>>>>>> origin/HaiLong25
 
             typeRoomTotal = dal.TypeRoomDAO.getInstance().getTypeRoomQuantity();
 
@@ -273,23 +249,6 @@ public class TypeRoomServlet extends HttpServlet {
                 endPage++;
             }
         }
-<<<<<<< HEAD
-
-            request.setAttribute("endPage", endPage);
-
-            //Take data number each page
-            int indexPage = Integer.parseInt(request.getParameter("page") == null ? "1" : request.getParameter("page"));
-
-            typeRoomList = dal.TypeRoomDAO.getInstance().typeRoomPagination(indexPage, key);
-
-            request.setAttribute("currentPage", indexPage);
-
-
-        request.setAttribute("typeRoom", typeRoomList);
-
-        request.getRequestDispatcher("/View/Manager/TypeRoom.jsp").forward(request, response);
-
-=======
         request.setAttribute("endPage", endPage);
 
         //Take data number each page
@@ -302,7 +261,6 @@ public class TypeRoomServlet extends HttpServlet {
         request.setAttribute("typeRoomList", typeRoomList);
 
         request.getRequestDispatcher("/View/manager/TypeRoom.jsp").forward(request, response);
->>>>>>> origin/HaiLong25
     }
 
     @Override

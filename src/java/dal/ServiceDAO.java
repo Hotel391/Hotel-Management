@@ -4,7 +4,6 @@
  */
 package dal;
 
-
 import models.BookingDetail;
 import models.DetailService;
 import models.Room;
@@ -18,6 +17,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+import models.TypeRoom;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -43,21 +46,32 @@ public class ServiceDAO {
 
         String sql = "SELECT [ServiceId]\n"
                 + "      ,[ServiceName]\n"
+                + "      ,[IsActive]\n"
                 + "      ,[Price]\n"
                 + "  FROM [HotelManagementDB].[dbo].[Service]";
-        List<Service> listService = Collections.synchronizedList(new ArrayList<>());
-        try(PreparedStatement ptm = con.prepareStatement(sql)) {
-            
-            ResultSet rs = ptm.executeQuery();
+        List<Service> listService = new Vector<>();
+        try (PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
+
             while (rs.next()) {
                 Service s = new Service(rs.getInt(1),
                         rs.getString(2),
-                        rs.getInt(3));
+                        rs.getBoolean(3),
+                        rs.getInt(4));
                 listService.add(s);
             }
         } catch (SQLException e) {
         }
         return listService;
+    }
+
+    public void toggleServiceStatus(int serviceId) {
+        String sql = "UPDATE [Service] SET IsActive = IIF(IsActive = 1, 0, 1) WHERE ServiceId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, serviceId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateService(Service s) {
@@ -67,7 +81,7 @@ public class ServiceDAO {
                 + " WHERE ServiceId = ?";
 
         try (PreparedStatement ptm = con.prepareStatement(sql);) {
-            
+
             ptm.setString(1, s.getServiceName());
             ptm.setInt(2, s.getPrice());
             ptm.setInt(3, s.getServiceId());
@@ -84,7 +98,7 @@ public class ServiceDAO {
                 + "     VALUES(?, ?)";
         int n = 0;
         try (PreparedStatement ptm = con.prepareStatement(sql);) {
-            
+
             ptm.setString(1, serviceName);
             ptm.setInt(2, price);
             n = ptm.executeUpdate();
@@ -98,14 +112,58 @@ public class ServiceDAO {
         String sql = "DELETE FROM [dbo].[Service]\n"
                 + "      WHERE ServiceId=?";
 
-        try ( PreparedStatement ptm = con.prepareStatement(sql);) {
-           
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
+
             ptm.setInt(1, roomNumber);
 
             ptm.executeUpdate();
         } catch (SQLException ex) {
             ex.getStackTrace();
         }
+    }
+    
+     public List<Service> getServicesNotInTypeRoom(TypeRoom typeRoom) {
+        List<Service> services = new ArrayList<>();
+        String sql = "SELECT * FROM Service WHERE ServiceId NOT IN (SELECT ServiceId FROM RoomNService WHERE TypeId = ?)";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, typeRoom.getTypeId());
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Service service = new Service();
+                    service.setServiceId(rs.getInt("ServiceId"));
+                    service.setServiceName(rs.getString("ServiceName"));
+                    service.setPrice(rs.getInt("Price"));
+                    services.add(service);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return services;
+    }
+     
+     //get service by booking detail id
+     
+    public List<Service> getServicesByBookingDetailId(int bookingDetailId) {
+        List<Service> services = new ArrayList<>();
+        String sql = "SELECT s.ServiceId, s.ServiceName, s.Price FROM Service s JOIN detailService ds ON s.ServiceId = ds.ServiceId WHERE ds.BookingDetailId = ?";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingDetailId);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Service service = new Service();
+                    service.setServiceId(rs.getInt("ServiceId"));
+                    service.setServiceName(rs.getString("ServiceName"));
+                    service.setPrice(rs.getInt("Price"));
+                    services.add(service);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(ServiceDAO.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return services;
     }
 
     public List<DetailService> getServiceByRoomNumber(int roomNumber) {
@@ -153,6 +211,21 @@ public class ServiceDAO {
             //
         }
         return list;
+    }
+
+    public List<Integer> getAllServiceIdsFromDetailService() {
+        List<Integer> serviceIds = new ArrayList<>();
+        String sql = "SELECT ServiceId FROM DetailService";
+
+        try (PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery();) {
+            while (rs.next()) {
+                serviceIds.add(rs.getInt("ServiceId"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // hoặc log lỗi
+        }
+
+        return serviceIds;
     }
 
 }

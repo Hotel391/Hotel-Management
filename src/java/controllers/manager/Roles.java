@@ -1,5 +1,6 @@
 package controllers.manager;
 
+
 import dal.RoleDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -12,7 +13,7 @@ import models.Role;
 
 
 
-@WebServlet(name = "Roles", urlPatterns = {"/manager/roles"})
+@WebServlet(name = "ManagerRoles", urlPatterns = {"/manager/roles"})
 public class Roles extends HttpServlet {
 
     @Override
@@ -87,12 +88,12 @@ public class Roles extends HttpServlet {
             request.setAttribute("error", error);
             doGet(request, response);
         } else {
-            response.sendRedirect(request.getContextPath() + "/Manager/roles");
+            response.sendRedirect(request.getContextPath() + "/manager/roles");
         }
     }
 
     @Override
     public String getServletInfo() {
-        return "Servlet for managing roles in the Manager panel";
+        return "Servlet for managing roles in the admin panel";
     }
 }

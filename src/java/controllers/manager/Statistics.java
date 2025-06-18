@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -110,7 +109,6 @@ public class Statistics extends HttpServlet {
         }
         return data;
     }
-
     @Override
     public String getServletInfo() {
         return "Short description";

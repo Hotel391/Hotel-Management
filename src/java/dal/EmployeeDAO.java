@@ -193,117 +193,76 @@ public class EmployeeDAO {
 
     public void addEmployee(Employee emp) {
         try {
-            con.setAutoCommit(false);
+
             String sqlEmployee = "INSERT INTO Employee (username, password, fullName,"
-                    + " address, phoneNumber, email, gender, CCCD, dateOfBirth, "
-                    + "registrationDate, activate, roleId) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = con.prepareStatement(sqlEmployee, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                    + " phoneNumber, email, gender, registrationDate, activate,  roleId) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = con.prepareStatement(sqlEmployee)) {
                 stmt.setString(1, emp.getUsername());
                 stmt.setString(2, emp.getPassword());
                 stmt.setString(3, emp.getFullName());
-                stmt.setString(4, emp.getAddress());
-                stmt.setString(5, emp.getPhoneNumber());
-                stmt.setString(6, emp.getEmail());
-                stmt.setBoolean(7, emp.isGender());
-                stmt.setString(8, emp.getCCCD());
-                stmt.setDate(9, emp.getDateOfBirth());
-                stmt.setDate(10, emp.getRegistrationDate());
-                stmt.setBoolean(11, emp.isActivate());
-                stmt.setInt(12, emp.getRole().getRoleId());
+                stmt.setString(4, emp.getPhoneNumber());
+                stmt.setString(5, emp.getEmail());
+                stmt.setBoolean(6, emp.isGender());
+                stmt.setDate(7, emp.getRegistrationDate());
+                stmt.setBoolean(8, emp.isActivate());
+                stmt.setInt(9, emp.getRole().getRoleId());
                 stmt.executeUpdate();
-
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        emp.setEmployeeId(rs.getInt(1));
-                    }
-                }
             }
 
             if (emp.getCleanerFloor() != null) {
                 String sqlCleanerFloor = "INSERT INTO CleanerFloor (EmployeeId, StartFloor, EndFloor) VALUES (?, ?, ?)";
                 try (PreparedStatement stmt = con.prepareStatement(sqlCleanerFloor)) {
+
                     stmt.setInt(1, emp.getEmployeeId());
                     stmt.setInt(2, emp.getCleanerFloor().getStartFloor());
                     stmt.setInt(3, emp.getCleanerFloor().getEndFloor());
                     stmt.executeUpdate();
                 }
             }
-
-            con.commit();
         } catch (SQLException e) {
-            try {
-                con.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        } finally {
-            try {
-                con.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            e.printStackTrace();
         }
     }
 
     public void updateEmployee(Employee emp) {
         try {
-            con.setAutoCommit(false);
-            String sqlEmployee = "UPDATE Employee SET username = ?, password = ?, "
-                    + "fullName = ?, address = ?, phoneNumber = ?, email = ?, gender = ?, CCCD = ?, "
-                    + "dateOfBirth = ?, registrationDate = ?, activate = ?, roleId = ? WHERE employeeId = ?";
+            String sqlEmployee = "UPDATE Employee SET username = ?, fullName = ?,"
+                    + " phoneNumber = ?, email = ?, roleId = ? WHERE employeeId = ?";
+
             try (PreparedStatement stmt = con.prepareStatement(sqlEmployee)) {
                 stmt.setString(1, emp.getUsername());
-                stmt.setString(2, emp.getPassword());
-                stmt.setString(3, emp.getFullName());
-                stmt.setString(4, emp.getAddress());
-                stmt.setString(5, emp.getPhoneNumber());
-                stmt.setString(6, emp.getEmail());
-                stmt.setBoolean(7, emp.isGender());
-                stmt.setString(8, emp.getCCCD());
-                stmt.setDate(9, emp.getDateOfBirth());
-                stmt.setDate(10, emp.getRegistrationDate());
-                stmt.setBoolean(11, emp.isActivate());
-                stmt.setInt(12, emp.getRole().getRoleId());
-                stmt.setInt(13, emp.getEmployeeId());
-                stmt.executeUpdate();
-            }
-
-            String sqlDeleteCleanerFloor = "DELETE FROM CleanerFloor WHERE EmployeeId = ?";
-            try (PreparedStatement stmt = con.prepareStatement(sqlDeleteCleanerFloor)) {
-                stmt.setInt(1, emp.getEmployeeId());
+                stmt.setString(2, emp.getFullName());
+                stmt.setString(3, emp.getPhoneNumber());
+                stmt.setString(4, emp.getEmail());
+                stmt.setInt(5, emp.getRole().getRoleId());
+                stmt.setInt(6, emp.getEmployeeId());
                 stmt.executeUpdate();
             }
 
             if (emp.getCleanerFloor() != null) {
-                String sqlInsertCleanerFloor = "INSERT INTO CleanerFloor (EmployeeId, StartFloor, EndFloor) VALUES (?, ?, ?)";
-                try (PreparedStatement stmt = con.prepareStatement(sqlInsertCleanerFloor)) {
+                try (PreparedStatement stmt = con.prepareStatement("DELETE FROM CleanerFloor "
+                        + "WHERE EmployeeId = ?")) {
+
+                    stmt.setInt(1, emp.getEmployeeId());
+                    stmt.executeUpdate();
+                }
+                try (PreparedStatement stmt = con.prepareStatement("INSERT INTO CleanerFloor "
+                        + "(EmployeeId, StartFloor, EndFloor) VALUES (?, ?, ?)")) {
                     stmt.setInt(1, emp.getEmployeeId());
                     stmt.setInt(2, emp.getCleanerFloor().getStartFloor());
                     stmt.setInt(3, emp.getCleanerFloor().getEndFloor());
                     stmt.executeUpdate();
                 }
             }
-
-            con.commit();
         } catch (SQLException e) {
-            try {
-                con.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        } finally {
-            try {
-                con.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            e.printStackTrace();
         }
     }
 
     public void deleteEmployee(int employeeId) {
         try {
-            con.setAutoCommit(false);
+
             String sqlDeleteCleanerFloor = "DELETE FROM CleanerFloor WHERE EmployeeId = ?";
             try (PreparedStatement stmt = con.prepareStatement(sqlDeleteCleanerFloor)) {
                 stmt.setInt(1, employeeId);
@@ -315,18 +274,8 @@ public class EmployeeDAO {
                 stmt.setInt(1, employeeId);
                 stmt.executeUpdate();
             }
-
-            con.commit();
         } catch (SQLException e) {
-            try {
-                con.rollback();
-            } catch (SQLException ex) {
-            }
-        } finally {
-            try {
-                con.setAutoCommit(true);
-            } catch (SQLException e) {
-            }
+            e.printStackTrace();
         }
     }
 
@@ -433,7 +382,6 @@ public class EmployeeDAO {
                     r.setRoleName(rs.getString("RoleName"));
                     e.setRole(r);
 
-                    // Lấy thông tin từ bảng CleanerFloor
                     int startFloor = rs.getInt("StartFloor");
                     int endFloor = rs.getInt("EndFloor");
                     if (!rs.wasNull()) {
@@ -534,8 +482,7 @@ public class EmployeeDAO {
                 + "FROM Employee e "
                 + "JOIN Role r ON r.RoleId = e.RoleId "
                 + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
-                + "WHERE r.RoleId NOT IN (0, 1)";  // Lọc các role (trừ 0, 1)
-
+                + "WHERE r.RoleId NOT IN (0, 1)";
         if (key != null && !key.isEmpty()) {
             sql += " AND (e.Username LIKE ? OR e.FullName LIKE ? OR e.PhoneNumber LIKE ? OR e.Email LIKE ?)";
         }
@@ -553,8 +500,7 @@ public class EmployeeDAO {
                 st.setString(parameterIndex++, searchKey);
             }
 
-            st.setInt(parameterIndex++, (index - 1) * 5);  // Pagination logic
-
+            st.setInt(parameterIndex++, (index - 1) * 5);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     Employee e = new Employee();

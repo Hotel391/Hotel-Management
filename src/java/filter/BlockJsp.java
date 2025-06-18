@@ -18,30 +18,28 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import models.Employee;
-import org.apache.http.HttpRequest;
 
 /**
  *
- * @author Tuan'sPC
+ * @author HieuTT
  */
-//@WebFilter(filterName = "Admin", urlPatterns = {"/admin/*"})
-public class Admin implements Filter {
-
+//@WebFilter(filterName = "BlockJsp", urlPatterns = {"/*"})
+public class BlockJsp implements Filter {
+    
     private static final boolean debug = true;
 
     // The filter configuration object we are associated with.  If
     // this value is null, this filter instance is not currently
     // configured. 
     private FilterConfig filterConfig = null;
-
-    public Admin() {
-    }
-
+    
+    public BlockJsp() {
+    }    
+    
     private void doBeforeProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
-            log("Admin:DoBeforeProcessing");
+            log("BlockJsp:DoBeforeProcessing");
         }
 
         // Write code here to process the request and/or response before
@@ -64,12 +62,12 @@ public class Admin implements Filter {
 	    log(buf.toString());
 	}
          */
-    }
-
+    }    
+    
     private void doAfterProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
-            log("Admin:DoAfterProcessing");
+            log("BlockJsp:DoAfterProcessing");
         }
 
         // Write code here to process the request and/or response after
@@ -103,45 +101,16 @@ public class Admin implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
-
+        
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-        HttpSession session = req.getSession(false);
-
-        if (session == null) {
-            res.sendRedirect(req.getContextPath() + "/login");
+        String uri = req.getServletPath();
+        //chua dang nhap
+        if (uri.endsWith(".jsp")) {
+            res.sendRedirect(req.getContextPath() + "/customer/home");
             return;
         }
-
-        if (session.getAttribute("employeeInfo") != null) {
-            Employee employee = (Employee) session.getAttribute("employeeInfo");
-            int roleId = employee.getRole().getRoleId();
-            if (roleId == 0) {
-                // Cho phép truy cập nếu đúng là developer
-                chain.doFilter(request, response);
-                return;
-            } else {
-                switch (roleId) {
-                    case 1:
-                        res.sendRedirect(req.getContextPath() + "/manager/dashboard");
-                        return;
-                    case 2:
-                        res.sendRedirect(req.getContextPath() + "/receptionist/page");
-                        return;
-                    case 3:
-                        res.sendRedirect(req.getContextPath() + "/cleaner/page");
-                        return;
-                    default:
-                        throw new AssertionError();
-                }
-            }
-        } else if (session.getAttribute("customerInfo") != null) {
-            res.sendRedirect(req.getContextPath() + "/home");
-            return;
-        }
-
-        res.sendRedirect(req.getContextPath() + "/login");
-
+        chain.doFilter(request, response);
     }
 
     /**
@@ -163,17 +132,17 @@ public class Admin implements Filter {
     /**
      * Destroy method for this filter
      */
-    public void destroy() {
+    public void destroy() {        
     }
 
     /**
      * Init method for this filter
      */
-    public void init(FilterConfig filterConfig) {
+    public void init(FilterConfig filterConfig) {        
         this.filterConfig = filterConfig;
         if (filterConfig != null) {
-            if (debug) {
-                log("Admin:Initializing filter");
+            if (debug) {                
+                log("BlockJsp:Initializing filter");
             }
         }
     }
@@ -184,27 +153,27 @@ public class Admin implements Filter {
     @Override
     public String toString() {
         if (filterConfig == null) {
-            return ("Admin()");
+            return ("BlockJsp()");
         }
-        StringBuffer sb = new StringBuffer("Admin(");
+        StringBuffer sb = new StringBuffer("BlockJsp(");
         sb.append(filterConfig);
         sb.append(")");
         return (sb.toString());
     }
-
+    
     private void sendProcessingError(Throwable t, ServletResponse response) {
-        String stackTrace = getStackTrace(t);
-
+        String stackTrace = getStackTrace(t);        
+        
         if (stackTrace != null && !stackTrace.equals("")) {
             try {
                 response.setContentType("text/html");
                 PrintStream ps = new PrintStream(response.getOutputStream());
-                PrintWriter pw = new PrintWriter(ps);
+                PrintWriter pw = new PrintWriter(ps);                
                 pw.print("<html>\n<head>\n<title>Error</title>\n</head>\n<body>\n"); //NOI18N
 
                 // PENDING! Localize this for next official release
-                pw.print("<h1>The resource did not process correctly</h1>\n<pre>\n");
-                pw.print(stackTrace);
+                pw.print("<h1>The resource did not process correctly</h1>\n<pre>\n");                
+                pw.print(stackTrace);                
                 pw.print("</pre></body>\n</html>"); //NOI18N
                 pw.close();
                 ps.close();
@@ -221,7 +190,7 @@ public class Admin implements Filter {
             }
         }
     }
-
+    
     public static String getStackTrace(Throwable t) {
         String stackTrace = null;
         try {
@@ -235,9 +204,9 @@ public class Admin implements Filter {
         }
         return stackTrace;
     }
-
+    
     public void log(String msg) {
-        filterConfig.getServletContext().log(msg);
+        filterConfig.getServletContext().log(msg);        
     }
-
+    
 }

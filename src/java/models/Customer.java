@@ -10,9 +10,25 @@ public class Customer {
     private String CCCD;
     private boolean activate;
     private Role role;
+    private CustomerAccount customerAccount;
 
     public Customer() {
     }
+
+    public Customer(int customerId, String fullName, String phoneNumber, String email, boolean gender, String CCCD, boolean activate, Role role, CustomerAccount customerAccount) {
+        this.customerId = customerId;
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.gender = gender;
+        this.CCCD = CCCD;
+        this.activate = activate;
+        this.role = role;
+        this.customerAccount = customerAccount;
+    }
+    
+    
+    
     
     
 
@@ -90,6 +106,16 @@ public class Customer {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    public CustomerAccount getCustomerAccount() {
+        return customerAccount;
+    }
+
+    public void setCustomerAccount(CustomerAccount customerAccount) {
+        this.customerAccount = customerAccount;
+    }
+    
+    
     
     
 }

@@ -27,7 +27,7 @@
                 <c:set var="title" value="Staying Room" scope="request"/>
                 <jsp:include page="topNavReceptionist.jsp" />
                 <div class="main-content">
-                    <h1 class="mb-4">Danh sách phòng checkout ngày hôm nay (<fmt:formatDate value="${today}" pattern="dd-mm-yyyy"/>)</h1>
+                    <h1 class="mb-4">Danh sách phòng checkout ngày hôm nay (<fmt:formatDate value="${today}" pattern="dd-MM-yyyy"/>)</h1>
                     <form class="mb-3" method="get">
                         <div class="input-group" style="max-width: 400px;">
                             <input type="hidden" name="oldSearch" value="${oldSearch}">
@@ -54,7 +54,8 @@
                                 <td>${ckl.value.phoneNumber}</td>
                                 <td>${ckl.key.room.roomNumber}</td>
                                 <td>
-                                    <form action="">
+                                    <form action="${requestScope.request.contextPath}/receptionist/checkout" method="post">
+                                        <input type="hidden" name="checkout" value="checkout">
                                         <button type="submit" class="btn btn-sm btn-warning">
                                             Checkout
                                         </button>

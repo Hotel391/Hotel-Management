@@ -1,83 +1,103 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-
 package controllers.admin;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import dal.CustomerDAO;
+import dal.RoleDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import models.Customer;
 
-/**
- *
- * @author win
- */
-@WebServlet(name="Customers", urlPatterns={"/admin/customers"})
+import java.io.IOException;
+import java.util.List;
+import models.Role;
+
+@WebServlet(name = "CustomerController", urlPatterns = {"/admin/customers"})
 public class Customers extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet Customers</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet Customers at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    } 
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
-    } 
+            throws ServletException, IOException {
+        List<Role> roleList = RoleDAO.getInstance().getAllRoles();
+        request.setAttribute("listRole", roleList);
 
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
+        String key = request.getParameter("key");
+
+        int CustumerTotal;
+        if (key != null && !key.trim().isEmpty()) {
+            CustumerTotal = CustomerDAO.getInstance().searchCustomer(key).size();
+        } else {
+            CustumerTotal = CustomerDAO.getInstance().countCustomer();
+        }
+
+        int endPage = CustumerTotal / 5;
+        if (CustumerTotal % 5 != 0) {
+            endPage++;
+        }
+
+        request.setAttribute("endPage", endPage);
+
+        int currentPage = Integer.parseInt(request.getParameter("page") == null ? "1" : request.getParameter("page"));
+        if (currentPage > endPage) {
+            currentPage = endPage;
+        }
+
+        List<Customer> customerList = CustomerDAO.getInstance().customerPagination(currentPage, key);
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("listCustomer", customerList);
+        request.setAttribute("key", key);
+
+        request.getRequestDispatcher("/View/Admin/Customers.jsp").forward(request, response);
     }
 
-    /** 
-     * Returns a short description of the servlet.
-     * @return a String containing servlet description
-     */
     @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        String page = request.getParameter("page");
+        String key = request.getParameter("key");
+
+        try {
+            switch (action) {
+                case "toggleStatus":
+
+                    int customerId = Integer.parseInt(request.getParameter("customerId"));
+                    Customer customer = CustomerDAO.getInstance().getCustomerByCustomerID(customerId);
+                    if (customer != null) {
+                        boolean newStatus = !customer.getActivate(); 
+                        CustomerDAO.getInstance().updateCustomerStatus(customer.getCustomerId(), newStatus);
+
+                
+                        request.getSession().setAttribute("success", "Customer status updated.");
+                    }
+
+                    break;
+                default:
+                    request.setAttribute("error", "Invalid action.");
+                    doGet(request, response);
+                    return;
+            }
+        } catch (Exception e) {
+            request.setAttribute("error", "Error: " + e.getMessage());
+            doGet(request, response);
+            return;
+        }
+
+        String redirectUrl = request.getContextPath() + "/admin/customers";
+        if (page != null || key != null) {
+            redirectUrl += "?";
+            if (page != null) {
+                redirectUrl += "page=" + page;
+            }
+            if (key != null) {
+                if (page != null) {
+                    redirectUrl += "&";
+                }
+                redirectUrl += "key=" + key;
+            }
+        }
+        response.sendRedirect(redirectUrl); 
+    }
 
 }

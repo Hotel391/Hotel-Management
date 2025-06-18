@@ -23,7 +23,7 @@ import jakarta.servlet.http.HttpSession;
  *
  * @author HieuTT
  */
-@WebFilter(filterName = "BlockJsp", urlPatterns = {"/*"})
+//@WebFilter(filterName = "BlockJsp", urlPatterns = {"/*"})
 public class BlockJsp implements Filter {
     
     private static final boolean debug = true;

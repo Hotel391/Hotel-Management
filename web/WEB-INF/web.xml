@@ -52,8 +52,6 @@
         <servlet-name>ConfirmResetPassword</servlet-name>
         <servlet-class>controllers.common.ConfirmResetPassword</servlet-class>
     </servlet>
-
-    <!-- Mappings -->
     <servlet-mapping>
         <servlet-name>DashBoard</servlet-name>
         <url-pattern>/manager/dashboard</url-pattern>

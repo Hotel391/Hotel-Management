@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,6 +49,27 @@ public class RoomDAO {
                      SELECT COUNT(*) \r
                      FROM Room r\r
                      WHERE NOT EXISTS (\r
+                         SELECT 1 FROM BookingDetail bd \r
+                     \tWHERE bd.RoomNumber = r.RoomNumber and \r
+                     \tCONVERT(DATE, GETDATE()) >= bd.StartDate\r
+                           and CONVERT(DATE, GETDATE()) < bd.EndDate\r
+                     )\r
+                     """;
+
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+        }
+        return 0;
+    }
+
+    public int RoomBookedCount() {
+        String sql = """
+                     SELECT COUNT(*) \r
+                     FROM Room r\r
+                     WHERE EXISTS (\r
                          SELECT 1 FROM BookingDetail bd \r
                      \tWHERE bd.RoomNumber = r.RoomNumber and \r
                      \tCONVERT(DATE, GETDATE()) >= bd.StartDate\r
@@ -115,7 +137,7 @@ public class RoomDAO {
     public List<Room> getAllRoom() {
         List<Room> listRoom = Collections.synchronizedList(new ArrayList<>());
 
-        String sql = "SELECT r.RoomNumber, r.isCleaner, "
+        String sql = "SELECT r.RoomNumber, r.isCleaner, r.IsActive,"
                 + "tr.TypeId, tr.TypeName, tr.Description, tr.Price, "
                 + "s.ServiceId, s.ServiceName, s.Price AS ServicePrice, rns.quantity "
                 + "FROM Room r "
@@ -145,7 +167,8 @@ public class RoomDAO {
                     typeRoom.setDescription(rs.getString("Description"));
                     typeRoom.setPrice(rs.getInt("Price"));
 
-                    foundRoom = new Room(roomNumber, rs.getBoolean("isCleaner"), typeRoom);
+                    foundRoom = new Room(roomNumber, rs.getBoolean("isCleaner"),
+                            rs.getBoolean("IsActive"), typeRoom);
                     listRoom.add(foundRoom);
                 }
 
@@ -172,14 +195,95 @@ public class RoomDAO {
         return listRoom;
     }
 
-    public void updateRoom(int typeRoomID, int roomNumber) {
+    public List<Room> searchAllRoom(String roomNumber, Integer typeRoomId) {
+        List<Room> listRoom = new Vector<>();
+
+        StringBuilder sql = new StringBuilder("SELECT r.RoomNumber, r.isCleaner, r.IsActive, "
+                + "tr.TypeId, tr.TypeName, tr.Description, tr.Price, "
+                + "s.ServiceId, s.ServiceName, s.Price AS ServicePrice, rns.quantity "
+                + "FROM Room r "
+                + "JOIN TypeRoom tr ON r.TypeId = tr.TypeId "
+                + "LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId "
+                + "LEFT JOIN [Service] s ON rns.ServiceId = s.ServiceId "
+                + "WHERE 1=1 ");
+
+        if (roomNumber != null) {
+            sql.append("AND r.RoomNumber like ? ");
+        }
+        if (typeRoomId != null) {
+            sql.append("AND tr.TypeId = ? ");
+        }
+
+        sql.append("ORDER BY r.RoomNumber");
+
+        try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
+            int index = 1;
+            if (roomNumber != null) {
+                ptm.setString(index++, "%" + roomNumber + "%");
+            }
+            if (typeRoomId != null) {
+                ptm.setInt(index++, typeRoomId);
+            }
+
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    int rNumber = rs.getInt("RoomNumber");
+                    Room foundRoom = null;
+
+                    // Tìm xem Room đã tồn tại trong list chưa
+                    for (Room r : listRoom) {
+                        if (r.getRoomNumber() == rNumber) {
+                            foundRoom = r;
+                            break;
+                        }
+                    }
+
+                    if (foundRoom == null) {
+                        TypeRoom typeRoom = new TypeRoom();
+                        typeRoom.setTypeId(rs.getInt("TypeId"));
+                        typeRoom.setTypeName(rs.getString("TypeName"));
+                        typeRoom.setDescription(rs.getString("Description"));
+                        typeRoom.setPrice(rs.getInt("Price"));
+
+                        foundRoom = new Room(rNumber, rs.getBoolean("isCleaner"),
+                                rs.getBoolean("IsActive"), typeRoom);
+                        listRoom.add(foundRoom);
+                    }
+
+                    int serviceId = rs.getInt("ServiceId");
+                    if (!rs.wasNull()) {
+                        Service service = new Service();
+                        service.setServiceId(serviceId);
+                        service.setServiceName(rs.getString("ServiceName"));
+                        service.setPrice(rs.getInt("ServicePrice"));
+
+                        RoomNService rns = new RoomNService();
+                        rns.setService(service);
+                        rns.setQuantity(rs.getInt("quantity"));
+                        rns.setTypeRoom(foundRoom.getTypeRoom());
+
+                        foundRoom.getTypeRoom().addRoomNService(rns);
+                    }
+                }
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return listRoom;
+    }
+
+    public void updateRoom(int typeRoomID, int roomNumber, boolean isActive) {
         String sql = "UPDATE [dbo].[Room]\n"
                 + "   SET [TypeId] = ?\n"
+                + "   ,[IsActive] = ?\n"
                 + " WHERE [RoomNumber] =?";
 
         try (PreparedStatement ptm = con.prepareStatement(sql);) {
             ptm.setInt(1, typeRoomID);
-            ptm.setInt(2, roomNumber);
+            ptm.setBoolean(2, isActive);
+            ptm.setInt(3, roomNumber);
             ptm.executeUpdate();
         } catch (SQLException ex) {
             ex.getStackTrace();
@@ -215,12 +319,28 @@ public class RoomDAO {
         }
     }
 
+    public void changeIsActiveRoom(int roomNumber, String isActiveStr) {
+        String sql = "UPDATE [dbo].[Room] SET [IsActive] = ? WHERE RoomNumber = ?";
+
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            // Chuyển String sang boolean rồi đảo ngược
+            boolean currentIsActive = "1".equals(isActiveStr) || "true".equalsIgnoreCase(isActiveStr);
+            boolean newIsActive = !currentIsActive;
+
+            ptm.setBoolean(1, newIsActive);
+            ptm.setInt(2, roomNumber);
+            ptm.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public List<TypeRoom> getAllTypeRoom() {
         List<TypeRoom> listTypeRoom = Collections.synchronizedList(new ArrayList<>());
 
         String sql = "SELECT [TypeId]\n"
-                + "      ,[Description]\n"
                 + "      ,[TypeName]\n"
+                + "      ,[Description]\n"
                 + "      ,[Price]\n"
                 + "  FROM [HotelManagementDB].[dbo].[TypeRoom]";
 

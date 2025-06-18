@@ -13,6 +13,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/navDashboardStyle.css"/>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/mainDashboardStyle.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/dashboardStyle.css" />
@@ -28,20 +29,21 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/admin/receipt">View receipt</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/receipt?customerId=${customerId}">View receipt</a>
                             </li>
                         </ul>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
 
 
-                            <form method="get" action="${pageContext.request.contextPath}/admin/receipt" class="d-flex gap-2">
+                            <form method="get" action="${pageContext.request.contextPath}/manager/receipt" class="d-flex gap-2">
                                 <label class="input-group-text" for="startDate">From</label>
                                 <input type="date" name="startDate" value="${param.startDate}" class="form-control search-input" />
                                 <label class="input-group-text" for="startDate">To</label>
                                 <input type="date" name="endDate" value="${param.endDate}" class="form-control search-input" />
                                 <input type="hidden" name="search" value="search">
                                 <input type="hidden" name="page" value="${currentPage}">
+                                <input type="hidden" name="customerId" value="${customerId}">
                                 <button type="submit" class="btn btn-primary">Filter</button>
                             </form>
 
@@ -148,12 +150,12 @@
                             <c:choose>
                                 <c:when test="${search != null && !search.isEmpty()}">
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage - 1}&startDate=${start}&endDate=${end}&search=search" class="page-link">Previous</a>
+                                        <a href="?page=${currentPage - 1}&startDate=${start}&endDate=${end}&search=search&customerId=${customerId}" class="page-link">Previous</a>
                                     </li>
                                 </c:when>
                                 <c:otherwise>
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage - 1}" class="page-link">Previous</a>
+                                        <a href="?page=${currentPage - 1}&customerId=${customerId}" class="page-link">Previous</a>
                                     </li>
                                 </c:otherwise>
                             </c:choose>
@@ -161,13 +163,13 @@
                                 <c:choose>
                                     <c:when test="${search != null && !search.isEmpty()}">
                                         <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                            <a class="page-link" href="?page=${i}&startDate=${start}&endDate=${end}&search=search">${i}</a>
+                                            <a class="page-link" href="?page=${i}&startDate=${start}&endDate=${end}&search=search&customerId=${customerId}">${i}</a>
                                         </li>
 
                                     </c:when>
                                     <c:otherwise>
                                         <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                            <a class="page-link" href="?page=${i}">${i}</a>
+                                            <a class="page-link" href="?page=${i}&customerId=${customerId}">${i}</a>
                                         </li>
                                     </c:otherwise>
                                 </c:choose>
@@ -177,12 +179,12 @@
                                 <c:when test="${search != null && !search.isEmpty()}">
 
                                     <li class="page-item ${currentPage == endPage ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage + 1}&startDate=${start}&endDate=${end}&search=search" class="page-link">Next</a>
+                                        <a href="?page=${currentPage + 1}&startDate=${start}&endDate=${end}&search=search&customerId=${customerId}" class="page-link">Next</a>
                                     </li>
                                 </c:when>
                                 <c:otherwise>
                                     <li class="page-item ${currentPage == endPage ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage + 1}" class="page-link">Next</a>
+                                        <a href="?page=${currentPage + 1}&customerId=${customerId}" class="page-link">Next</a>
                                     </li>
                                 </c:otherwise>
                             </c:choose>

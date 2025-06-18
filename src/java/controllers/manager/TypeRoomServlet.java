@@ -44,7 +44,6 @@ public class TypeRoomServlet extends HttpServlet {
             if (Validation.validateField(request, "nameError", name, "TYPE_ROOM_NAME_BASIC",
                     "Type Name", "Chỉ bao gồm chữ cái")) {
                 check = true;
-                System.out.println("lỗi");
             }
 
             if (Validation.validateField(request, "priceError", price_raw, "ROOM_PRICE_INT",
@@ -260,7 +259,7 @@ public class TypeRoomServlet extends HttpServlet {
 
         request.setAttribute("typeRoomList", typeRoomList);
 
-        request.getRequestDispatcher("/View/manager/TypeRoom.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Manager/TypeRoom.jsp").forward(request, response);
     }
 
     @Override

@@ -55,6 +55,8 @@ public class Receipt extends HttpServlet {
             int detailTotal;
 
             int endPage = 0;
+            
+            int customerId = Integer.parseInt(request.getParameter("customerId"));
 
             int indexPage = Integer.parseInt(request.getParameter("page") == null ? "1" : request.getParameter("page"));
 
@@ -68,10 +70,8 @@ public class Receipt extends HttpServlet {
 
                 if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
                     request.setAttribute("error", "Fill in all information of date");
-                    bookingList = BookingDAO.getInstance().getBookingByCustomerId(46, indexPage, 2);
-                    detailTotal = BookingDAO.getInstance().getBookingCountByCustomerId(46); 
-                    
-                    System.out.println(detailTotal);
+                    bookingList = BookingDAO.getInstance().getBookingByCustomerId(customerId, indexPage, 2);
+                    detailTotal = BookingDAO.getInstance().getBookingCountByCustomerId(customerId); 
 
                     endPage = detailTotal / 2;
 
@@ -82,9 +82,8 @@ public class Receipt extends HttpServlet {
                 } else {
                     Date start = Date.valueOf(startDate);
                     Date end = Date.valueOf(endDate);
-                    System.out.println(start + " " + end);
-                    bookingList = BookingDAO.getInstance().getBookingByCustomerIdAndDate(46, indexPage, 1, start, end);
-                    detailTotal = BookingDAO.getInstance().getTotalBookingByCustomerIdAndDate(46, start, end);
+                    bookingList = BookingDAO.getInstance().getBookingByCustomerIdAndDate(customerId, indexPage, 1, start, end);
+                    detailTotal = BookingDAO.getInstance().getTotalBookingByCustomerIdAndDate(customerId, start, end);
 
                     endPage = detailTotal / 1;
 
@@ -98,9 +97,9 @@ public class Receipt extends HttpServlet {
                     request.setAttribute("end", end);
                 }
             } else {
-                bookingList = BookingDAO.getInstance().getBookingByCustomerId(46, indexPage, 2);
+                bookingList = BookingDAO.getInstance().getBookingByCustomerId(customerId, indexPage, 2);
 
-                detailTotal = BookingDAO.getInstance().getBookingCountByCustomerId(46);
+                detailTotal = BookingDAO.getInstance().getBookingCountByCustomerId(customerId);
 
                 endPage = detailTotal / 2;
 
@@ -108,6 +107,8 @@ public class Receipt extends HttpServlet {
                     endPage++;
                 }
             }
+            
+            request.setAttribute("customerId", customerId);
 
             request.setAttribute("endPage", endPage);
 
@@ -121,7 +122,7 @@ public class Receipt extends HttpServlet {
 
             request.setAttribute("detailList", detailList);
 
-            request.getRequestDispatcher("/View/manager/Receipt.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/Receipt.jsp").forward(request, response);
 
         }
     }

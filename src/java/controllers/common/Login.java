@@ -86,10 +86,10 @@ public class Login extends HttpServlet {
                 int roleId = employeeInfo.getRole().getRoleId();
                 switch (roleId) {
                     case 0:
-                        response.sendRedirect("developer/page");
+                        response.sendRedirect("admin/page");
                         break;
                     case 1:
-                        response.sendRedirect("admin/dashboard");
+                        response.sendRedirect("manager/dashboard");
                         break;
                     case 2:
                         response.sendRedirect("receptionistPage");

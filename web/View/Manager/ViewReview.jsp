@@ -33,7 +33,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/admin/review">List review</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/review">List review</a>
                             </li>
                         </ul>
 
@@ -42,12 +42,13 @@
 
                             <!-- SEARCH FORM -->
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <form method="post" action="${pageContext.request.contextPath}/admin/review" class="d-flex gap-2">
+                                <form method="post" action="${pageContext.request.contextPath}/manager/review" class="d-flex gap-2">
                                     <!--<input type="text" name="fullName" class="form-control search-input" placeholder="Enter fullName"/>-->
 
                                     <div class="form-group">
                                         <label for="starFilter" class="form-label">Tìm kiếm theo sao</label>
                                         <select id="starFilter" name="starFilter" class="form-select" style="color: orange">
+                                            <option value="">--Tất cả loại &#9733--</option>
                                             <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733; (5 sao)</option>
                                             <option value="4">&#9733;&#9733;&#9733;&#9733; (4 sao)</option>
                                             <option value="3">&#9733;&#9733;&#9733; (3 sao)</option>
@@ -56,11 +57,32 @@
                                         </select>
                                     </div>
 
-                                    <!-- Date filter -->
+                                    <!-- Month filter -->
                                     <div class="form-group">
-                                        <label for="date" class="form-label">Ngày</label>
-                                        <input type="date" name="date" id="date" class="form-control" />
+                                        <label for="month" class="form-label">Tháng</label>
+                                        <select name="month" id="month" class="form-select">
+                                            <option value="">-- Chọn tháng --</option>
+                                            <c:forEach var="i" begin="1" end="12">
+                                                <option value="${i}">Tháng ${i}</option>
+                                            </c:forEach>
+                                        </select>
                                     </div>
+
+                                    <!-- Year filter -->
+                                    <div class="form-group">
+                                        <label for="year" class="form-label">Năm</label>
+                                        <select name="year" id="year" class="form-select">
+                                            <option value="">-- Chọn năm --</option>
+                                            <%
+                                                int currentYear = java.time.Year.now().getValue();
+                                                for (int i = currentYear; i >= 2015; i--) {
+                                            %>
+                                            <option value="<%= i %>"><%= i %></option>
+                                            <%}%>
+
+                                        </select>
+                                    </div>
+
 
                                     <!-- Hidden action -->
                                     <input type="hidden" name="action" value="search"/>
@@ -68,7 +90,7 @@
                                     <!-- Buttons -->
                                     <div class="form-group d-flex gap-2 align-items-end">
                                         <button type="submit" class="btn btn-primary">Search</button>
-                                        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/review">Reset</a>
+                                        <a class="btn btn-secondary" href="${pageContext.request.contextPath}/manager/review">Reset</a>
                                     </div>
                                 </form>
 
@@ -124,7 +146,7 @@
                                             <!-- First Page -->
                                             <c:if test="${currentPage > 1}">
                                                 <li class="page-item">
-                                                    <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
+                                                    <form action="${pageContext.request.contextPath}/manager/review" method="post" style="display:inline;">
                                                         <input type="hidden" name="action" value="search"/>
                                                         <input type="hidden" name="starFilter" value="${param.starFilter}"/>
                                                         <input type="hidden" name="date" value="${param.date}"/>
@@ -143,7 +165,7 @@
                                             <c:forEach var="i" begin="1" end="${totalPages}">
                                                 <c:if test="${i >= currentPage - 2 && i <= currentPage + 2}">
                                                     <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                        <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
+                                                        <form action="${pageContext.request.contextPath}/manager/review" method="post" style="display:inline;">
                                                             <input type="hidden" name="action" value="search"/>
                                                             <input type="hidden" name="starFilter" value="${param.starFilter}"/>
                                                             <input type="hidden" name="date" value="${param.date}"/>
@@ -162,7 +184,7 @@
                                             <!-- Last Page -->
                                             <c:if test="${currentPage < totalPages}">
                                                 <li class="page-item">
-                                                    <form action="${pageContext.request.contextPath}/admin/review" method="post" style="display:inline;">
+                                                    <form action="${pageContext.request.contextPath}/manager/review" method="post" style="display:inline;">
                                                         <input type="hidden" name="action" value="search"/>
                                                         <input type="hidden" name="starFilter" value="${param.starFilter}"/>
                                                         <input type="hidden" name="date" value="${param.date}"/>
@@ -200,6 +222,17 @@
             </div>
         </div>
         <script>
+
+            document.querySelector("form").addEventListener("submit", function (e) {
+                const month = document.getElementById("month").value;
+                const year = document.getElementById("year").value;
+
+                if ((month && !year) || (!month && year)) {
+                    alert("Vui lòng chọn cả tháng và năm nếu bạn muốn lọc theo thời gian.");
+                    e.preventDefault();
+                }
+            });
+
             function viewFeedback(feedback) {
                 document.getElementById('viewfeedback').innerText = feedback;
                 new bootstrap.Modal(document.getElementById('viewFeedbackModal')).show();

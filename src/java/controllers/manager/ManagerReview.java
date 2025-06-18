@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -9,7 +9,7 @@ import java.sql.Date;
 import java.util.List;
 import models.Review;
 
-public class AdminReview extends HttpServlet {
+public class ManagerReview extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -17,7 +17,7 @@ public class AdminReview extends HttpServlet {
         List<Review> fullList = dal.ReviewDAO.getInstance().getAllReview();
         paginateReviewList(request, fullList);
 
-        request.getRequestDispatcher("/View/Admin/ViewReview.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Manager/ViewReview.jsp").forward(request, response);
     }
 
     @Override
@@ -28,23 +28,31 @@ public class AdminReview extends HttpServlet {
         if ("search".equals(action)) {
 //            String fullname = request.getParameter("fullName");
             String starFilterStr = request.getParameter("starFilter");
+            String monthStr = request.getParameter("month");
+            String yearStr = request.getParameter("year");
+
             Integer starFilter = null;
-            String dateStr = request.getParameter("date");
-            Date date = null;
-            if (dateStr != null && !dateStr.isEmpty()) {
-                date = Date.valueOf(dateStr);
-            }
-            if(starFilterStr != null && !starFilterStr.trim().isEmpty()){
+            Integer month = null;
+            Integer year = null;
+
+            if (starFilterStr != null && !starFilterStr.trim().isEmpty()) {
                 starFilter = Integer.valueOf(starFilterStr);
             }
+            if (monthStr != null && !monthStr.trim().isEmpty()) {
+                month = Integer.valueOf(monthStr);
+            }
+            if (yearStr != null && !yearStr.trim().isEmpty()) {
+                year = Integer.valueOf(yearStr);
+            }
 
-            List<Review> filteredList = dal.ReviewDAO.getInstance().searchReview(starFilter, date);
+            List<Review> filteredList = dal.ReviewDAO.getInstance().searchReview(starFilter, month, year);
 
             paginateReviewList(request, filteredList);
 
             request.setAttribute("starFilter", starFilter);
-            request.setAttribute("date", dateStr);
-            request.getRequestDispatcher("/View/Admin/ViewReview.jsp").forward(request, response);
+            request.setAttribute("month", monthStr);
+            request.setAttribute("year", yearStr);
+            request.getRequestDispatcher("/View/Manager/ViewReview.jsp").forward(request, response);
         } else {
             doGet(request, response);
         }

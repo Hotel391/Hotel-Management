@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -9,7 +9,7 @@ import java.util.List;
 import models.Room;
 import models.TypeRoom;
 
-public class AdminRoom extends HttpServlet {
+public class ManagerRoom extends HttpServlet {
 
     private String submitt = "submit";
     private String updateRoom = "updateRoom";
@@ -54,7 +54,7 @@ public class AdminRoom extends HttpServlet {
             List<Room> rr = dal.RoomDAO.getInstance().searchAllRoom(roomNumberStr, typeRoomId);
             paginateRoomList(request, rr);
             request.setAttribute(typeRoom, tr);
-            request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewRoom.jsp").forward(request, response);
             return;
         }
 
@@ -64,7 +64,7 @@ public class AdminRoom extends HttpServlet {
 //            String typeRoomIdSearchStr = request.getParameter(typeRoomIdSearch);
 //            int roomNumber = Integer.parseInt(roomNumberStr);
 //            dal.RoomDAO.getInstance().deleteRoom(roomNumber);
-//            String redirectUrl = String.format("%s/admin/room?choose=search&page=%s&roomNumberSearch=%s&typeRoomIdSearch=%s&success=true&action=delete",
+//            String redirectUrl = String.format("%s/manager/room?choose=search&page=%s&roomNumberSearch=%s&typeRoomIdSearch=%s&success=true&action=delete",
 //                    request.getContextPath(),
 //                    pageStr,
 //                    roomNumberSearchStr,
@@ -79,7 +79,7 @@ public class AdminRoom extends HttpServlet {
             List<Room> r = dal.RoomDAO.getInstance().getAllRoom();
             paginateRoomList(request, r);
             request.setAttribute(typeRoom, tr);
-            request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewRoom.jsp").forward(request, response);
         }
     }
 
@@ -116,7 +116,7 @@ public class AdminRoom extends HttpServlet {
                 dal.RoomDAO.getInstance().updateRoom(typeRoomID, roomNumber, isActive);
 
                 // redirect giữ lại filter sau khi thêm
-                String redirectUrl = String.format("%s/admin/room?choose=search&page=%s&roomNumberSearch=%s&typeRoomIdSearch=%s&success=true&action=update",
+                String redirectUrl = String.format("%s/manager/room?choose=search&page=%s&roomNumberSearch=%s&typeRoomIdSearch=%s&success=true&action=update",
                         request.getContextPath(),
                         pageStr,
                         roomNumberSearchStr,
@@ -171,7 +171,7 @@ public class AdminRoom extends HttpServlet {
                     paginateRoomList(request, listRoomSearch);
 
                     request.setAttribute("currentPage", Integer.valueOf(pageStr));
-                    request.getRequestDispatcher("/View/Admin/ViewRoom.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Manager/ViewRoom.jsp").forward(request, response);
                     return;
                 }
 
@@ -179,7 +179,7 @@ public class AdminRoom extends HttpServlet {
                 dal.RoomDAO.getInstance().insertRoom(roomNumber, typeRoomId);
 
                 // redirect giữ lại filter sau khi thêm
-                String redirectUrl = String.format("%s/admin/room?choose=search&page=%s&roomNumberSearch=%s&typeRoomIdSearch=%s&success=true&action=add",
+                String redirectUrl = String.format("%s/manager/room?choose=search&page=%s&roomNumberSearch=%s&typeRoomIdSearch=%s&success=true&action=add",
                         request.getContextPath(),
                         pageStr,
                         roomNumberSearchStr,

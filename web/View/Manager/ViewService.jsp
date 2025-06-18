@@ -33,7 +33,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/admin/service">Management service</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/service">Management service</a>
                             </li>
                         </ul>
 
@@ -110,7 +110,7 @@
                                                 </button>
                                             </td>  
 
-                                            <td><form method="post" action="${pageContext.request.contextPath}/admin/service" style="display:inline;">
+                                            <td><form method="post" action="${pageContext.request.contextPath}/manager/service" style="display:inline;">
                                                     <input type="hidden" name="serviceId" value="${s.serviceId}" />
                                                     <input type="hidden" name="choose" value="toggleStatus">
                                                     <input type="hidden" name="page" value="${currentPage}" />
@@ -131,7 +131,7 @@
                                     <ul class="pagination">
                                         <c:forEach begin="1" end="${totalPages}" var="i">
                                             <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <form action="${pageContext.request.contextPath}/admin/service" method="post">
+                                                <form action="${pageContext.request.contextPath}/manager/service" method="post">
                                                     <input type="hidden" name="choose" value="search">
                                                     <button class="page-link">${i}</button>
                                                     <input type="hidden" name="page" value="${i}" />
@@ -150,7 +150,7 @@
                     <div class="modal fade" id="updateServiceModal" tabindex="-1" aria-labelledby="updateServiceModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <form action="${pageContext.request.contextPath}/admin/service?choose=updateService" method="post">
+                                <form action="${pageContext.request.contextPath}/manager/service?choose=updateService" method="post">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="updateServiceModalLabel">Update Service</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -201,7 +201,7 @@
                     <div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/admin/service?choose=insertService" novalidate>
+                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/manager/service?choose=insertService" novalidate>
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addRoleModalLabel">Add New Service</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -240,7 +240,7 @@
                     <div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-labelledby="deleteServiceModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <form method="get" action="${pageContext.request.contextPath}/admin/service?choose=deleteService">
+                                <form method="get" action="${pageContext.request.contextPath}/manager/service?choose=deleteService">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="deleteServiceModalLabel">Confirm Delete</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

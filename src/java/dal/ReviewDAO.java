@@ -10,8 +10,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class ReviewDAO {
 
@@ -48,7 +48,7 @@ public class ReviewDAO {
                 + "JOIN \n"
                 + "    Customer c ON ca.CustomerId = c.CustomerId\n"
                 + "ORDER BY r.[Date] DESC;";
-        List<Review> listReview = new Vector<>();
+        List<Review> listReview = new ArrayList<>();
         try (PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
 
             while (rs.next()) {
@@ -74,43 +74,40 @@ public class ReviewDAO {
         return listReview;
     }
 
-    public List<Review> searchReview(Integer start, Date date) {
-        String sql = "SELECT \n"
-                + "    r.ReviewId,\n"
-                + "    r.Rating,\n"
-                + "    r.FeedBack,\n"
-                + "    r.[Date],\n"
-                + "    b.BookingId,\n"
-                + "    c.FullName\n"
-                + "FROM \n"
-                + "    Review r\n"
-                + "JOIN BookingDetail bd ON r.BookingDetailId = bd.BookingDetailId\n"
-                + "JOIN Booking b ON bd.BookingId = b.BookingId\n"
-                + "JOIN CustomerAccount ca ON r.Username = ca.Username\n"
-                + "JOIN Customer c ON ca.CustomerId = c.CustomerId\n";
+    public List<Review> searchReview(Integer star, Integer month, Integer year) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT r.ReviewId, r.Rating, r.FeedBack, r.[Date], b.BookingId, c.FullName "
+                + "FROM Review r "
+                + "JOIN BookingDetail bd ON r.BookingDetailId = bd.BookingDetailId "
+                + "JOIN Booking b ON bd.BookingId = b.BookingId "
+                + "JOIN CustomerAccount ca ON r.Username = ca.Username "
+                + "JOIN Customer c ON ca.CustomerId = c.CustomerId "
+        );
 
-        boolean hasStart = start != null;
-        boolean hasDate = date != null;
+        boolean hasStar = star != null;
+        boolean hasMonth = month != null;
+        boolean hasYear = year != null;
+        List<Object> params = new ArrayList<>();
+        boolean whereAdded = false;
 
-        // Thêm điều kiện WHERE để search
-        if (hasStart && hasDate) {
-            sql += "WHERE r.Rating = ? AND r.[Date] = ?";
-        } else if (hasStart) {
-            sql += "WHERE r.Rating = ?";
-        } else if (hasDate) {
-            sql += "WHERE r.[Date] = ?";
+        if (hasStar) {
+            sql.append(whereAdded ? " AND " : " WHERE ").append("r.Rating = ?");
+            params.add(star);
+            whereAdded = true;
         }
-        
-        sql += " ORDER BY r.[Date] DESC;";
+        if (hasMonth && hasYear) {
+            sql.append(whereAdded ? " AND " : " WHERE ").append("MONTH(r.[Date]) = ? AND YEAR(r.[Date]) = ?");
+            params.add(month);
+            params.add(year);
+            whereAdded = true;
+        }
 
-        List<Review> listReview = new Vector<>();
-        try (PreparedStatement ptm = con.prepareStatement(sql);) {
-             int paramIndex = 1;
-            if (hasStart) {
-                ptm.setInt(paramIndex++, start);
-            }
-            if (hasDate) {
-                ptm.setDate(paramIndex++, new java.sql.Date(date.getTime()));
+        sql.append(" ORDER BY r.[Date] DESC");
+
+        List<Review> listReview = new ArrayList<>();
+        try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ptm.setObject(i + 1, params.get(i));
             }
 
             try (ResultSet rs = ptm.executeQuery()) {
@@ -139,4 +136,5 @@ public class ReviewDAO {
         }
         return listReview;
     }
+
 }

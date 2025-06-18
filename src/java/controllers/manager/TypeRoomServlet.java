@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import models.TypeRoom;
 import java.io.IOException;

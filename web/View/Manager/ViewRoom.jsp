@@ -33,7 +33,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/admin/room">Management Room</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/room">Management Room</a>
                             </li>
                         </ul>
 
@@ -59,7 +59,7 @@
                             </div>
 
                             <!--form search-->
-                            <form method="get" action="${pageContext.request.contextPath}/admin/room?choose=search" class="d-flex gap-2">
+                            <form method="get" action="${pageContext.request.contextPath}/manager/room?choose=search" class="d-flex gap-2">
                                 <input type="number" name="roomNumberSearch"" 
                                        class="form-control search-input" placeholder="Room number" min="0" />
 
@@ -74,7 +74,7 @@
                                 </select>
 
                                 <button type="submit" class="btn btn-primary">Filter</button>
-                                <a class="btn btn-secondary" href="${pageContext.request.contextPath}/admin/room">Reset</a>
+                                <a class="btn btn-secondary" href="${pageContext.request.contextPath}/manager/room">Reset</a>
                                 <input type="hidden" name="choose" value="search">
                             </form>
                         </div>
@@ -152,7 +152,7 @@
                                     <ul class="pagination justify-content-center">
                                         <c:forEach begin="1" end="${totalPages}" var="i">
                                             <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <form action="${pageContext.request.contextPath}/admin/room" method="get" style="display:inline;">
+                                                <form action="${pageContext.request.contextPath}/manager/room" method="get" style="display:inline;">
                                                     <input type="hidden" name="choose" value="search"/>
                                                     <input type="hidden" name="page" value="${i}"/>
                                                     <c:if test="${not empty param.roomNumberSearch}">
@@ -178,7 +178,7 @@
                     <div class="modal fade" id="addRoomModal" tabindex="-1" aria-labelledby="addRoomModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/admin/room?choose=insertRoom" novalidate>
+                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/manager/room?choose=insertRoom" novalidate>
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addRoleModalLabel">Add New Room</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -224,7 +224,7 @@
                         <div class="modal-dialog">
                             <div class="modal-content">
 
-                                <form action="${pageContext.request.contextPath}/admin/room?choose=updateRoom" method="post">
+                                <form action="${pageContext.request.contextPath}/manager/room?choose=updateRoom" method="post">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addRoleModalLabel">Chỉnh sửa phòng</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -278,7 +278,7 @@
                     <!--                    <div class="modal fade" id="deleteRoomModal" tabindex="-1" aria-labelledby="deleteRoomModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
-                                                    <form method="get" action="${pageContext.request.contextPath}/admin/room?choose=deleteRoom">
+                                                    <form method="get" action="${pageContext.request.contextPath}/manager/room?choose=deleteRoom">
                                                         <div class="modal-header">
                                                             <h5 class="modal-title">Confirm Delete</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

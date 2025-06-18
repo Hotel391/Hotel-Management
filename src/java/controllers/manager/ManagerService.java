@@ -1,4 +1,4 @@
-package controllers.admin;
+package controllers.manager;
 
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -9,7 +9,7 @@ import java.text.Normalizer;
 import java.util.List;
 import models.Service;
 
-public class AdminService extends HttpServlet {
+public class ManagerService extends HttpServlet {
 
     private String serviceIdd = "serviceId";
     private String serviceServlet = "service";
@@ -34,19 +34,19 @@ public class AdminService extends HttpServlet {
                 if (integer == serviceId) {
                     paginateServiceList(request, list, pageStr);
                     request.setAttribute("canNotDelete", "không thể xóa dịch vụ vì dịch vụ đã được sử dụng");
-                    request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
                     return;
                 }
             }
 
             dal.ServiceDAO.getInstance().deleteService(serviceId);
             paginateServiceList(request, list, pageStr);
-            response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr + "&action=delete&success=true");
+            response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=delete&success=true");
         }
         //list all service
         if (choose.equals("ViewAllService")) {
             paginateServiceList(request, list, pageStr);
-            request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
         }
     }
 
@@ -63,13 +63,13 @@ public class AdminService extends HttpServlet {
 
         if (choose.equals("search")) {
             paginateServiceList(request, list, pageStr);
-            request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
         }
 
         if ("toggleStatus".equals(choose)) {
             int serviceId = Integer.parseInt(request.getParameter(serviceIdd));
             dal.ServiceDAO.getInstance().toggleServiceStatus(serviceId);
-            response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr + "&action=isActive&success=true");
+            response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=isActive&success=true");
         }
 
         //insert, update service
@@ -106,7 +106,7 @@ public class AdminService extends HttpServlet {
         if (isUsed && !normalize(serviceName).equals(normalize(oldName))) {
             request.setAttribute("canNotUpdate", "Không thể thay đổi tên vì dịch vụ đã được sử dụng.");
             paginateServiceList(request, list, pageStr);
-            request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
             return;
         }
 
@@ -133,13 +133,13 @@ public class AdminService extends HttpServlet {
 
         if (haveError) {
             paginateServiceList(request, list, pageStr);
-            request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
             return;
         }
 
         Service s = new Service(serviceId, serviceName, price);
         dal.ServiceDAO.getInstance().updateService(s);
-        response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr + "&action=update&success=true");
+        response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=update&success=true");
 
     }
 
@@ -174,12 +174,12 @@ public class AdminService extends HttpServlet {
 
         if (haveError) {
             paginateServiceList(request, list, pageStr);
-            request.getRequestDispatcher("/View/Admin/ViewService.jsp").forward(request, response);
+            request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
             return;
         }
 
         dal.ServiceDAO.getInstance().insertService(serviceName, price);
-        response.sendRedirect(request.getContextPath() + "/admin/service?page=" + pageStr + "&action=add&success=true");
+        response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=add&success=true");
 
     }
 

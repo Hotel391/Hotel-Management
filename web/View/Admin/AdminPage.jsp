@@ -4,7 +4,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Developer Page</title>
+        <title>Admin Page</title>
         <%--style for dashbord--%>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
@@ -20,7 +20,7 @@
         <div class="containerBox">
             <jsp:include page="leftNav.jsp" />
             <div class="right-section">
-                <c:set var="title" value="Developer" scope="request"/>
+                <c:set var="title" value="Admin" scope="request"/>
                 <jsp:include page="topNav.jsp" />
 
                 <c:if test="${adminAccount.role.roleId == 0}">
@@ -29,7 +29,7 @@
                         <div class="container-fluid p-4">
                             <ul class="nav nav-tabs mb-3">
                                 <li class="nav-item">
-                                    <a class="nav-link active" href="${pageContext.request.contextPath}/developer/page">Management manager account</a>
+                                    <a class="nav-link active" href="${pageContext.request.contextPath}/admin/page">Management manager account</a>
                                 </li>
                             </ul>
                             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -65,7 +65,7 @@
                                                 </td>
                                                 <td>${e.role.roleName}</td>
                                                 <td>
-                                                    <a href="${pageContext.request.contextPath}developer/page?service=deleteManager&employeeID=${e.employeeId}" 
+                                                    <a href="${pageContext.request.contextPath}/admin/page?service=deleteManager&employeeID=${e.employeeId}" 
                                                        onclick="return confirm('Are you sure to delete?');"
                                                        class="btn btn-sm btn-danger">
                                                         <i class="bi bi-trash-fill"></i>
@@ -84,7 +84,7 @@
                         <div class="modal fade" id="addManagerAccountModal" tabindex="-1" aria-labelledby="addManagerAccountModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/developer/page" novalidate>
+                                    <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/admin/page" novalidate>
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="addRoleModalLabel">Add New Service</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

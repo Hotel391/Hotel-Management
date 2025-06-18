@@ -67,6 +67,27 @@ public class CustomerAccountDAO {
         return null;
     }
 
+    public CustomerAccount getCustomerAccountById(int customerId) {
+    String sql = "SELECT c.Email, ca.Username, ca.Password, ca.CustomerId "
+               + "FROM customer c JOIN CustomerAccount ca ON c.CustomerId = ca.CustomerId "
+               + "WHERE ca.CustomerId = ?";
+    try (PreparedStatement st = con.prepareStatement(sql)) {
+        st.setInt(1, customerId);
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            CustomerAccount ca = new CustomerAccount();
+            ca.setUsername(rs.getString("Username"));
+            ca.setPassword(rs.getString("Password"));
+            Customer c = CustomerDAO.getInstance().getCustomerByCustomerID(customerId);
+            ca.setCustomer(c);
+            return ca;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
     //create function check account by email
     public CustomerAccount checkAccountByEmail(String email) {
         String sql = "select ca.* from CustomerAccount ca join Customer c on ca.CustomerId = c.CustomerId where c.Email=?";
@@ -102,7 +123,7 @@ public class CustomerAccountDAO {
         }
     }
 
-    public void resetPasswrod(String email, String password) {
+    public void resetPassword(String email, String password) {
         String sql = """
                    update CustomerAccount
                    set Password=?
@@ -157,5 +178,26 @@ public class CustomerAccountDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public CustomerAccount getAccountByEmail(String email) {
+        String sql = "SELECT ca.Username, ca.Password FROM CustomerAccount ca "
+                + "JOIN Customer c ON ca.CustomerId = c.CustomerId "
+                + "WHERE c.Email = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, email);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                String username = rs.getString("Username");
+                String password = rs.getString("Password");
+                CustomerAccount account = new CustomerAccount();
+                account.setUsername(username);
+                account.setPassword(password);
+                return account;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

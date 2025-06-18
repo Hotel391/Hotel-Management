@@ -2,23 +2,23 @@
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     <servlet>
         <servlet-name>DashBoard</servlet-name>
-        <servlet-class>controllers.admin.DashBoard</servlet-class>
+        <servlet-class>controllers.manager.DashBoard</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Statistics</servlet-name>
-        <servlet-class>controllers.admin.Statistics</servlet-class>
+        <servlet-class>controllers.manager.Statistics</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AdminReview</servlet-name>
-        <servlet-class>controllers.admin.AdminReview</servlet-class>
+        <servlet-name>ManagerReview</servlet-name>
+        <servlet-class>controllers.manager.ManagerReview</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AdminRoom</servlet-name>
-        <servlet-class>controllers.admin.AdminRoom</servlet-class>
+        <servlet-name>ManagerRoom</servlet-name>
+        <servlet-class>controllers.manager.ManagerRoom</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AdminService</servlet-name>
-        <servlet-class>controllers.admin.AdminService</servlet-class>
+        <servlet-name>ManagerService</servlet-name>
+        <servlet-class>controllers.manager.ManagerService</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Register</servlet-name>
@@ -41,24 +41,24 @@
         <servlet-class>controllers.common.ConfirmResetPassword</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>AdminReview</servlet-name>
-        <url-pattern>/admin/review</url-pattern>
+        <servlet-name>ManagerReview</servlet-name>
+        <url-pattern>/manager/review</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AdminRoom</servlet-name>
-        <url-pattern>/admin/room</url-pattern>
+        <servlet-name>ManagerRoom</servlet-name>
+        <url-pattern>/manager/room</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AdminService</servlet-name>
-        <url-pattern>/admin/service</url-pattern>
+        <servlet-name>ManagerService</servlet-name>
+        <url-pattern>/manager/service</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>DashBoard</servlet-name>
-        <url-pattern>/admin/dashboard</url-pattern>
+        <url-pattern>/manager/dashboard</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Statistics</servlet-name>
-        <url-pattern>/admin/statistics</url-pattern>
+        <url-pattern>/manager/statistics</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>Register</servlet-name>

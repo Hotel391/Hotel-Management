@@ -4,10 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 import models.Employee;
 import models.Role;
 
@@ -32,7 +32,7 @@ public class AdminDao {
     }
 
     public List<Employee> getAllEmployee() {
-        List<Employee> list = new Vector<>();
+        List<Employee> list = Collections.synchronizedList(new ArrayList<>());
         String sql = """
                      SELECT 
                          e.EmployeeId,
@@ -83,7 +83,7 @@ public class AdminDao {
     }
 
     public List<String> getAllUsernames() {
-        List<String> usernames = new Vector<>();
+        List<String> usernames = Collections.synchronizedList(new ArrayList<>());
         String sql = "SELECT Username FROM Employee";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
 

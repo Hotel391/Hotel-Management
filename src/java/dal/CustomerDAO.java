@@ -126,11 +126,10 @@ public class CustomerDAO {
     }
 
     //create function to search customer by customerID
-
-    public Customer getCustomerByCustomerID(int CustomerID) {
+    public Customer getCustomerByCustomerID(int customerID) {
         String sql = "select * from Customer where CustomerID = ?";
         try (PreparedStatement st = con.prepareStatement(sql);) {
-            st.setInt(1, CustomerID);
+            st.setInt(1, customerID);
             try (ResultSet rs = st.executeQuery();) {
                 if (rs.next()) {
                     return new Customer(rs.getInt(1),
@@ -187,7 +186,7 @@ public class CustomerDAO {
             st.setString(2, customer.getEmail());
             st.setBoolean(3, customer.getGender());
             st.setBoolean(4, customer.getActivate());
-  
+
             st.executeUpdate();
 
             try (ResultSet rs = st.getGeneratedKeys()) {
@@ -200,6 +199,7 @@ public class CustomerDAO {
         }
         return 0;
     }
+
     public List<String> getAllString(String columnName) {
         List<String> list = new ArrayList<>();
         String sql = "SELECT " + columnName + " FROM Customer";
@@ -211,5 +211,52 @@ public class CustomerDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public int getCustomerIdByEmail(String email) {
+        String sql = "SELECT CustomerId FROM Customer WHERE Email = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, email);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("CustomerId");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public void updateCustomerInfo(int customerId, String fullName, boolean gender) {
+        String sql = "UPDATE Customer SET FullName = ?, Gender = ? WHERE CustomerId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, fullName);
+            st.setBoolean(2, gender);
+            st.setInt(3, customerId);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isEmailExisted(String email) {
+        String sql = "SELECT 1 FROM Customer WHERE Email = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, email);
+            return st.executeQuery().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isPhoneExisted(String phone) {
+        String sql = "SELECT 1 FROM Customer WHERE PhoneNumber = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, phone);
+            return st.executeQuery().next();
+        } catch (SQLException e) {
+        }
+        return false;
     }
 }

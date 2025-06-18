@@ -25,7 +25,7 @@ public class EmailVerificationTokenDAO {
 
     public EmailVerificationToken getTokenByEmail(String email) {
         String sql = """
-                select TokenId,Username, Token, ExpiryDate, IsUsed from EmailVerificationToken
+                select TokenId,Username,Password, Token, ExpiryDate, IsUsed from EmailVerificationToken
                 where Email=?""";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, email);
@@ -35,14 +35,15 @@ public class EmailVerificationTokenDAO {
                     token.setEmail(email);
                     token.setTokenId(rs.getInt(1));
                     token.setUsername(rs.getString(2));
-                    token.setToken(rs.getString(3));
-                    token.setExpiryDate(rs.getTimestamp(4));
-                    token.setIsUsed(rs.getBoolean(5));
+                    token.setPassword(rs.getString(3));
+                    token.setToken(rs.getString(4));
+                    token.setExpiryDate(rs.getTimestamp(5));
+                    token.setIsUsed(rs.getBoolean(6));
                     return token;
                 }
             }
         } catch (SQLException e) {
-
+            //
         }
         return null;
     }
@@ -89,6 +90,7 @@ public class EmailVerificationTokenDAO {
                 }
             } 
         } catch (SQLException e) {
+            //
         }
         return false;
     }
@@ -107,7 +109,7 @@ public class EmailVerificationTokenDAO {
             st.setTimestamp(7, token.getExpiryDate());
             st.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            //
         }
     }
 
@@ -122,7 +124,7 @@ public class EmailVerificationTokenDAO {
             st.setInt(3, token.getTokenId());
             st.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            //
         }
     }
 
@@ -132,7 +134,7 @@ public class EmailVerificationTokenDAO {
             st.setInt(1, tokenId);
             st.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            //
         }
     }
     
@@ -142,7 +144,7 @@ public class EmailVerificationTokenDAO {
             st.setString(1, email);
             st.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            //
         }
     }
 }

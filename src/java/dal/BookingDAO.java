@@ -1,12 +1,16 @@
 package dal;
 
 import models.DailyRevenue;
+
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BookingDAO {
 
@@ -24,7 +28,7 @@ public class BookingDAO {
         con = new DBContext().connect;
     }
 
-    public int BookingCount() {
+    public int bookingCount() {
         String sql = "select count(*) from Booking";
 
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
@@ -36,7 +40,7 @@ public class BookingDAO {
         return 0;
     }
 
-    public int CheckoutCount() {
+    public int checkoutCount() {
         String sql = "select count(*) from Booking where PayDay is not null";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
@@ -72,4 +76,92 @@ public class BookingDAO {
         }
         return result;
     }
+
+    public Map<String, BigInteger> totalMoneyInYears(int startYear, int endYear) {
+        String sql = "SELECT YEAR(PayDay) AS Year, SUM(TotalPrice) AS totalMoney "
+                + "FROM Booking "
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "GROUP BY YEAR(PayDay) "
+                + "ORDER BY Year";
+
+        Map<String, BigInteger> result = new HashMap<>();
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, startYear + "-01-01");
+            st.setString(2, (endYear + 1) + "-01-01");
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    String year = rs.getString("Year");
+                    BigInteger totalMoney = rs.getBigDecimal("totalMoney").toBigInteger();
+                    result.put(year, totalMoney);
+                }
+            }
+        } catch (SQLException e) {
+        }
+        return result;
+    }
+
+    public Map<String, BigInteger> totalMoneyInQuarters(int startYear, int startQuarter, int endYear, int endQuarter) {
+        String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(QUARTER, PayDay) AS Quarter, SUM(TotalPrice) AS totalMoney "
+                + "FROM Booking "
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "GROUP BY YEAR(PayDay), DATEPART(QUARTER, PayDay) "
+                + "ORDER BY Year, Quarter";
+
+        Map<String, BigInteger> result = new HashMap<>();
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, startYear + "-" + String.format("%02d", startQuarter * 3 - 2) + "-01");
+            st.setString(2, getFirstDateOfNextQuarter(endYear, endQuarter));
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    String key = rs.getInt("Year") + "-Q" + rs.getInt("Quarter");
+                    BigInteger totalMoney = rs.getBigDecimal("totalMoney").toBigInteger();
+                    result.put(key, totalMoney);
+                }
+            }
+        } catch (SQLException e) {
+        }
+        return result;
+    }
+
+    public Map<String, BigInteger> totalMoneyInMonths(int startYear, int startMonth, int endYear, int endMonth) {
+        String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(Month, PayDay) AS Month, SUM(TotalPrice) AS totalMoney "
+                + "FROM Booking "
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "GROUP BY YEAR(PayDay), DATEPART(Month, PayDay) "
+                + "ORDER BY Year, Month";
+
+        Map<String, BigInteger> result = new HashMap<>();
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, startYear + "-" + String.format("%02d", startMonth) + "-01");
+            // Tính tháng tiếp theo của endMonth
+            int nextMonth = endMonth + 1;
+            int nextYear = endYear;
+            if (nextMonth > 12) {
+                nextMonth = 1;
+                nextYear++;
+            }
+            st.setString(2, nextYear + "-" + String.format("%02d", nextMonth) + "-01");
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    String key = rs.getInt("Year") + "-" + String.format("%02d", rs.getInt("Month"));
+                    BigInteger totalMoney = rs.getBigDecimal("totalMoney").toBigInteger();
+                    result.put(key, totalMoney);
+                }
+            }
+        } catch (SQLException e) {
+        }
+        return result;
+    }
+
+    private String getFirstDateOfNextQuarter(int year, int quarter) {
+        if (quarter == 4) {
+            return (year + 1) + "-01-01";
+        } else {
+            return year + "-" + String.format("%02d", quarter * 3 + 1) + "-01";
+        }
+    }
+
 }

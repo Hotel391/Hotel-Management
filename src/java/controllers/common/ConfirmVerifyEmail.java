@@ -41,13 +41,13 @@ public class ConfirmVerifyEmail extends HttpServlet {
             customer.setFullName(tokenObject.getFullname());
             customer.setEmail(tokenObject.getEmail());
             customer.setGender(tokenObject.getGender());
-            customer.setCustomerId(service.insertCustomer(customer));
-
-            CustomerAccount account = new CustomerAccount();
-            account.setUsername(tokenObject.getUsername());
-            account.setPassword(tokenObject.getPassword());
-            account.setCustomer(customer);
-            service.inssertCustomerAccount(account);
+            if (!service.isEmailExistsInCustomer(tokenObject.getEmail())) {
+                customer.setCustomerId(service.insertCustomer(customer));
+            } else {
+                customer.setCustomerId(service.getCustomerIdByEmail(tokenObject.getEmail()));
+                service.updateCustomerInfo(customer.getCustomerId(), customer.getFullName(), customer.getGender());
+            }
+            insertCustomerAccount(service, customer, tokenObject);
             request.setAttribute("success", "true");
 
             service.deleteConfirmedToken(tokenObject.getTokenId());
@@ -56,9 +56,12 @@ public class ConfirmVerifyEmail extends HttpServlet {
         request.getRequestDispatcher("View/ConfirmVerifyEmail.jsp").forward(request, response);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    public void insertCustomerAccount(RegisterService service, Customer customer, EmailVerificationToken token) {
+        CustomerAccount account = new CustomerAccount();
+        account.setUsername(token.getUsername());
+        account.setPassword(token.getPassword());
+        account.setCustomer(customer);
+        service.insertCustomerAccount(account);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package models;
 
 import java.sql.Date;
+import java.util.List;
 
 public class BookingDetail {
 
@@ -9,9 +10,21 @@ public class BookingDetail {
     private Date endDate;
     private Booking booking;
     private Room room;
+    private List<Service> services;
 
     public BookingDetail() {
     }
+
+    public BookingDetail(int bookingDetailId, Date startDate, Date endDate, Booking booking, Room room, List<Service> services) {
+        this.bookingDetailId = bookingDetailId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.booking = booking;
+        this.room = room;
+        this.services = services;
+    }
+    
+    
 
     public BookingDetail(int bookingDetailId, Date startDate, Date endDate, Booking booking, Room room) {
         this.bookingDetailId = bookingDetailId;
@@ -19,6 +32,14 @@ public class BookingDetail {
         this.endDate = endDate;
         this.booking = booking;
         this.room = room;
+    }
+
+    public List<Service> getServices() {
+        return services;
+    }
+
+    public void setServices(List<Service> services) {
+        this.services = services;
     }
 
     public int getBookingDetailId() {
@@ -60,6 +81,12 @@ public class BookingDetail {
     public void setRoom(Room room) {
         this.room = room;
     }
+
+    @Override
+    public String toString() {
+        return "BookingDetail{" + "bookingDetailId=" + bookingDetailId + ", startDate=" + startDate + ", endDate=" + endDate + ", booking=" + booking + ", room=" + room + '}';
+    }
+    
     
     
 }

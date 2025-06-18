@@ -16,10 +16,17 @@
     <div class="nav-navigation">
         <div class="nav-links">
             <ul class="nav-list">
+<<<<<<< HEAD
                 <li><a href="${pageContext.request.contextPath}/receptionist/viewBookingList"><span><i class="bi bi-list-ul"></i></span>View Booking List</a></li>
                 <li><a href="${pageContext.request.contextPath}/receptionist/viewCheckoutRoom"><span><i class="bi bi-door-open"></i></span>View Checkout Room</a></li>
                 <li><a href="${pageContext.request.contextPath}/receptionist/searchRoom"><span><i class="bi bi-search"></i></span>Search Room</a></li>
                 <li><a href="${pageContext.request.contextPath}/receptionist/stayingRoom"><span><i class="bi bi-house-door"></i></span>Staying Room</a></li>
+=======
+                <li><a href="${pageContext.request.contextPath}/admin/viewBookingList"><span><i class="bi bi-list-ul"></i></span>View Booking List</a></li>
+                <li><a href="${pageContext.request.contextPath}/receptionist/checkout"><span><i class="bi bi-door-open"></i></span>View Checkout Room</a></li>
+                <li><a href="${pageContext.request.contextPath}/admin/searchRoom"><span><i class="bi bi-search"></i></span>Search Room</a></li>
+                <li><a href="${pageContext.request.contextPath}/admin/stayingRoom"><span><i class="bi bi-house-door"></i></span>Staying Room</a></li>
+>>>>>>> origin/HaiLong25
             </ul>
         </div>
         <div class="contact-container">

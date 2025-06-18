@@ -55,8 +55,8 @@ public class StayingRoom extends HttpServlet {
 
     private void handleDefault(HttpServletRequest request, int currentPage)
             throws ServletException, IOException {
-        List<BookingDetail> bookingDetails = dal.RoomDAO.getInstance().getStayingRooms(NUMBER_OF_ROWS, currentPage, "");
-        request.setAttribute("stayingRooms", stayingRooms);
+//        List<BookingDetail> bookingDetails = dal.RoomDAO.getInstance().getStayingRooms(NUMBER_OF_ROWS, currentPage, "");
+//        request.setAttribute("stayingRooms", stayingRooms);
         int totalStayingRooms = dal.RoomDAO.getInstance().getTotalStayingRooms("");
         int totalPages = (int) Math.ceil((double) totalStayingRooms / NUMBER_OF_ROWS);
         request.setAttribute("totalPages", totalPages);

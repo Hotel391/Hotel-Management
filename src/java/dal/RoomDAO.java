@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RoomDAO {
 
@@ -81,6 +83,33 @@ public class RoomDAO {
         } catch (SQLException e) {
         }
         return 0;
+    }
+    
+    //get room by room number
+    
+    public Room getRoomByNumber(int roomNumber) {
+        String sql = "SELECT * from room where roomNumber = ?";
+
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, roomNumber);
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+
+                    Room room = new Room();
+                    
+                    room.setIsCleaner(rs.getBoolean("isCleaner"));
+                    
+                    room.setRoomNumber(rs.getInt("RoomNumber"));
+                    
+                    room.setTypeRoom(TypeRoomDAO.getInstance().getTypeRoomById(rs.getInt("typeId")));
+
+                    return room;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     public List<Room> getAllRoom() {

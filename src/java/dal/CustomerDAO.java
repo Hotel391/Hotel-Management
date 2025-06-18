@@ -10,6 +10,8 @@ import models.Role;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CustomerDAO {
 
@@ -258,5 +260,31 @@ public class CustomerDAO {
         } catch (SQLException e) {
         }
         return false;
+    }
+    
+    //get customer by booking detail id
+    
+    public Customer getCustomerByBookingDetailId(int bookingDetailId) {
+        String sql = "SELECT c.* FROM Customer c JOIN Booking b ON c.CustomerId = b.CustomerId JOIN BookingDetail bd ON b.BookingId = bd.BookingId WHERE bd.BookingDetailId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingDetailId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new Customer(
+                            rs.getInt("CustomerId"),
+                            rs.getString("FullName"),
+                            rs.getString("PhoneNumber"),
+                            rs.getString("Email"),
+                            rs.getBoolean("Gender"),
+                            rs.getString("CCCD"),
+                            rs.getBoolean("activate"),
+                            new Role(rs.getInt("RoleId"))
+                    );
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }

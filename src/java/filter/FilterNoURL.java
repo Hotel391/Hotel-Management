@@ -99,6 +99,7 @@ public class FilterNoURL implements Filter {
             FilterChain chain)
             throws IOException, ServletException {
 
+<<<<<<< HEAD
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
@@ -155,6 +156,59 @@ public class FilterNoURL implements Filter {
             return;
         }
 
+=======
+//        HttpServletRequest req = (HttpServletRequest) request;
+//        HttpServletResponse res = (HttpServletResponse) response;
+//        String uri = req.getServletPath();
+//        // dang nhap
+//        HttpSession sess = req.getSession(false);
+//        if (uri.endsWith(".jsp")) {
+//            if (sess == null) {
+//                res.sendRedirect(req.getContextPath() + "/login");
+//                return;
+//            } else if (sess.getAttribute("customerInfo") != null) {
+//                // da dang nhap, chuyen den trang home
+//                res.sendRedirect(req.getContextPath() + "/home");
+//                return;
+//            } else {
+//                Employee employee = (Employee) sess.getAttribute("employeeInfo");
+//                int roleId=employee.getRole().getRoleId();
+//                switch (roleId) {
+//                    case 0:
+//                        res.sendRedirect("developer/page");
+//                        break;
+//                    case 1:
+//                        res.sendRedirect("admin/dashboard");
+//                        break;
+//                    case 2:
+//                        res.sendRedirect("receptionist/page");
+//                        break;
+//                    case 3:
+//                        res.sendRedirect("cleaner/page");
+//                        break;
+//                    default:
+//                        break;
+//                }
+//                return;
+//
+//            }
+//
+//        }
+//        if (sess == null && (uri.endsWith("cart") || uri.endsWith("checkout")
+//                || uri.endsWith("payment") || uri.endsWith("confirmPayment") 
+//                || uri.contains("customer"))) {
+//            // neu chua dang nhap, chuyen den trang login
+//            res.sendRedirect(req.getContextPath() + "/login");
+//            return;
+//        } else if (sess != null && sess.getAttribute("customerInfo") != null
+//                && (uri.contains("admin") || uri.contains("receptionist")
+//                || uri.contains("cleaner") || uri.contains("developer"))) {
+//            // da dang nhap, chuyen den trang home
+//            res.sendRedirect(req.getContextPath() + "/home");
+//            return;
+//            
+//        }
+>>>>>>> origin/HaiLong25
         chain.doFilter(request, response);
     }
 

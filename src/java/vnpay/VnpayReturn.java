@@ -63,7 +63,7 @@ public class VnpayReturn extends HttpServlet {
             String status = (String) session.getAttribute("status");
             boolean transSuccess = false;
 
-            if (status.equals("checkIn")) {
+            if ("checkIn".equals(status)) {
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     booking.setStatus("Completed CheckIn");
                     request.setAttribute("pageChange", "checkIn");

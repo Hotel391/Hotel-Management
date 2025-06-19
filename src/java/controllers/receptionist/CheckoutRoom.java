@@ -83,6 +83,8 @@ public class CheckoutRoom extends HttpServlet {
             
             session.setAttribute("bookingId", bookingId);
             
+            session.setAttribute("status", "checkOut");
+            
             response.sendRedirect(request.getContextPath() + "/receptionist/checkoutRoom");
             
         }

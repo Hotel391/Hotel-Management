@@ -139,6 +139,10 @@ public class Checkout extends HttpServlet {
                 int checkUpdate = CustomerDAO.getInstance().insertCustomerExceptionId(customer);
 
                 session.setAttribute("customerId", checkUpdate);
+                
+                session.setAttribute("status", "checkIn");
+                
+                response.sendRedirect(request.getContextPath() + "/payment");
             } else {
                 request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
             }
@@ -151,6 +155,10 @@ public class Checkout extends HttpServlet {
             Customer existedCustomer = CustomerDAO.getInstance().getCustomerByPhoneNumber(phone);
             
             session.setAttribute("customerId", existedCustomer.getCustomerId());
+            
+            session.setAttribute("status", "checkIn");
+            
+            response.sendRedirect(request.getContextPath() + "/payment");
         }
         
     }

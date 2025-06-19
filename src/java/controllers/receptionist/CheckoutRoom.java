@@ -85,7 +85,7 @@ public class CheckoutRoom extends HttpServlet {
             
             session.setAttribute("status", "checkOut");
             
-            response.sendRedirect(request.getContextPath() + "/receptionist/checkoutRoom");
+            response.sendRedirect(request.getContextPath() + "/payment");
             
         }
         

@@ -59,7 +59,7 @@ public class ajaxServlet extends HttpServlet {
             String startDateStr = (String) session.getAttribute("startDate");
             String endDateStr = (String) session.getAttribute("endDate");
 
-            Date startDate = Date.valueOf(startDateStr); // Format phải là yyyy-[m]m-[d]d
+            Date startDate = Date.valueOf(startDateStr); 
             Date endDate = Date.valueOf(endDateStr);
             int roomNumber = Integer.parseInt((String)session.getAttribute("roomNumber"));
 

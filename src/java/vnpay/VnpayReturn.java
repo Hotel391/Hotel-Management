@@ -66,6 +66,7 @@ public class VnpayReturn extends HttpServlet {
             if (status.equals("checkIn")) {
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     booking.setStatus("Completed CheckIn");
+                    request.setAttribute("pageChange", "checkIn");
                     transSuccess = true;
                 } else {
                     booking.setStatus("Failed");
@@ -76,15 +77,16 @@ public class VnpayReturn extends HttpServlet {
                     int totalPrice = (int) session.getAttribute("totalPriceUpdate");
                     booking.setTotalPrice(totalPrice);
                     dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
+                    request.setAttribute("pageChange", "checkOut");
                     transSuccess = true;
                 } else {
                     booking.setStatus("Completed CheckIn");
                 }
             }
-
             session.removeAttribute("status");
             dal.BookingDAO.getInstance().updateBookingStatus(booking);
             request.setAttribute("transResult", transSuccess);
+            
             request.getRequestDispatcher("/paymentResult.jsp").forward(request, response);
         } else {
             //RETURN PAGE ERROR

@@ -120,12 +120,6 @@ public class Checkout extends HttpServlet {
                 request.setAttribute("emailError", "Email đã tồn tại");
             }
 
-            String address = request.getParameter("address");
-
-            if (Validation.validateField(request, "addressError", address, "ADDRESS", "Địa chỉ", "Địa chỉ không hợp lệ")) {
-                check = true;
-            }
-
             if (!check) {
                 Customer customer = new Customer();
                 customer.setFullName(fullName);

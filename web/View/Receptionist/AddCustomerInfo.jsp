@@ -81,9 +81,6 @@
                     </div>
                 </div>
             </div>
-            <c:if test="${not empty addressError}">
-                <p class="error">${addressError}</p>
-            </c:if>
             <div class="btn-submit">
                 <input type="hidden" name="service" value="addNew">
                 <button class="btn btn-danger">Đặt phòng</button>

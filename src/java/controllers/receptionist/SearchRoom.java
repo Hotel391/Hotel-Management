@@ -1,6 +1,7 @@
 package controllers.receptionist;
 
 import dal.RoomDAO;
+import dal.TypeRoomDAO;
 import java.io.IOException;
 import java.util.List;
 import jakarta.servlet.ServletException;
@@ -8,6 +9,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.Date;
 import models.Room;
 
@@ -25,12 +27,28 @@ public class SearchRoom extends HttpServlet {
         int page = pageStr != null && !pageStr.isEmpty() ? Integer.parseInt(pageStr) : 1;
         int recordsPerPage = 8;
 
-
         request.setAttribute("startDateSearch", startDateStr != null ? startDateStr : "");
         request.setAttribute("endDateSearch", endDateStr != null ? endDateStr : "");
         request.setAttribute("typeRoomIdSearch", typeRoomIdStr != null ? typeRoomIdStr : "");
         request.setAttribute("currentPage", page);
         request.setAttribute("typeRooms", RoomDAO.getInstance().getAllTypeRoom());
+
+
+        String checkInAction = request.getParameter("checkIn");
+        if (checkInAction != null) {
+            String roomNumber = request.getParameter("roomNumber");
+            HttpSession session = request.getSession();
+            session.setAttribute("startDate", startDateStr);
+            session.setAttribute("endDate", endDateStr);
+            session.setAttribute("roomNumber", roomNumber);
+            session.setAttribute("typeRoomId", typeRoomIdStr);
+
+            double totalPrice = calculateTotalPrice(typeRoomIdStr, startDateStr, endDateStr);
+            session.setAttribute("totalPrice", totalPrice);
+
+            response.sendRedirect(request.getContextPath() + "/receptionist/searchRoom");
+            return;
+        }
 
         if (startDateStr != null && !startDateStr.isEmpty() && endDateStr != null && !endDateStr.isEmpty()) {
             java.sql.Date startDate;
@@ -76,6 +94,20 @@ public class SearchRoom extends HttpServlet {
         }
 
         showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+    }
+
+    private double calculateTotalPrice(String typeRoomIdStr, String startDateStr, String endDateStr) {
+
+        double basePrice = TypeRoomDAO.getInstance().getPriceByTypeId(Integer.parseInt(typeRoomIdStr));  
+
+        java.sql.Date startDate = java.sql.Date.valueOf(startDateStr);
+        java.sql.Date endDate = java.sql.Date.valueOf(endDateStr);
+        
+        long numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+
+        double totalRoomPrice = basePrice * numberOfNights;
+
+        return totalRoomPrice;
     }
 
     private void showSearchRoom(HttpServletRequest request, HttpServletResponse response,

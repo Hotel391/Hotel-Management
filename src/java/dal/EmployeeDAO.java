@@ -483,7 +483,6 @@ public class EmployeeDAO {
                 + "JOIN Role r ON r.RoleId = e.RoleId "
                 + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
                 + "WHERE r.RoleId NOT IN (0, 1)";
-
         if (key != null && !key.isEmpty()) {
             sql += " AND (e.Username LIKE ? OR e.FullName LIKE ? OR e.PhoneNumber LIKE ? OR e.Email LIKE ?)";
         }
@@ -502,7 +501,6 @@ public class EmployeeDAO {
             }
 
             st.setInt(parameterIndex++, (index - 1) * 5);
-
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     Employee e = new Employee();

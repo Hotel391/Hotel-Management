@@ -10,6 +10,8 @@ import models.Role;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CustomerDAO {
 
@@ -259,14 +261,39 @@ public class CustomerDAO {
         }
         return false;
     }
-    
-     public void updateCustomerStatus(int customerId, boolean newStatus) {
+
+    //get customer by booking detail id
+    public Customer getCustomerByBookingDetailId(int bookingDetailId) {
+        String sql = "SELECT c.* FROM Customer c JOIN Booking b ON c.CustomerId = b.CustomerId JOIN BookingDetail bd ON b.BookingId = bd.BookingId WHERE bd.BookingDetailId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingDetailId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new Customer(
+                            rs.getInt("CustomerId"),
+                            rs.getString("FullName"),
+                            rs.getString("PhoneNumber"),
+                            rs.getString("Email"),
+                            rs.getBoolean("Gender"),
+                            rs.getString("CCCD"),
+                            rs.getBoolean("activate"),
+                            new Role(rs.getInt("RoleId"))
+                    );
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public void updateCustomerStatus(int customerId, boolean newStatus) {
         String sql = "UPDATE Customer SET activate = ? WHERE CustomerId = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setBoolean(1, newStatus);  
-            st.setInt(2, customerId);     
-            st.executeUpdate();           
+            st.setBoolean(1, newStatus);
+            st.setInt(2, customerId);
+            st.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -283,7 +310,7 @@ public class CustomerDAO {
                     customer.setFullName(rs.getString("FullName"));
                     customer.setPhoneNumber(rs.getString("PhoneNumber"));
                     customer.setEmail(rs.getString("Email"));
-                    customer.setActivate(rs.getBoolean("activate"));                 
+                    customer.setActivate(rs.getBoolean("activate"));
                     return customer;
                 }
             }
@@ -297,12 +324,12 @@ public class CustomerDAO {
         String sql = "SELECT COUNT(*) FROM Customer";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
-                return rs.getInt(1); 
+                return rs.getInt(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return 0; 
+        return 0;
     }
 
     public List<Customer> searchCustomer(String key) {
@@ -364,7 +391,7 @@ public class CustomerDAO {
             sql += " AND (c.FullName LIKE ? OR c.PhoneNumber LIKE ? OR c.Email LIKE ?)";
         }
 
-        sql += " ORDER BY c.CustomerId OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY"; 
+        sql += " ORDER BY c.CustomerId OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
             int parameterIndex = 1;
@@ -376,7 +403,7 @@ public class CustomerDAO {
                 st.setString(parameterIndex++, searchKey);
             }
 
-            st.setInt(parameterIndex++, (index - 1) * 5); 
+            st.setInt(parameterIndex++, (index - 1) * 5);
 
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
@@ -397,7 +424,7 @@ public class CustomerDAO {
                     customerAccount.setUsername(rs.getString("Username"));
                     customer.setCustomerAccount(customerAccount);
 
-                    list.add(customer); 
+                    list.add(customer);
                 }
             }
         } catch (SQLException e) {

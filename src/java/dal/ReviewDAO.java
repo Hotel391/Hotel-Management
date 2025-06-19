@@ -47,7 +47,8 @@ public class ReviewDAO {
                 + "JOIN \n"
                 + "    CustomerAccount ca ON r.Username = ca.Username\n"
                 + "JOIN \n"
-                + "    Customer c ON ca.CustomerId = c.CustomerId;";
+                + "    Customer c ON ca.CustomerId = c.CustomerId\n"
+                + "    ORDER BY r.[Date] DESC;";
         List<Review> listReview = Collections.synchronizedList(new ArrayList<>());
         try (PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
             while (rs.next()) {
@@ -73,41 +74,40 @@ public class ReviewDAO {
         return listReview;
     }
 
-    public List<Review> searchReview(String fullName, Date date) {
-        String sql = "SELECT \n"
-                + "    r.ReviewId,\n"
-                + "    r.Rating,\n"
-                + "    r.FeedBack,\n"
-                + "    r.[Date],\n"
-                + "    b.BookingId,\n"
-                + "    c.FullName\n"
-                + "FROM \n"
-                + "    Review r\n"
-                + "JOIN BookingDetail bd ON r.BookingDetailId = bd.BookingDetailId\n"
-                + "JOIN Booking b ON bd.BookingId = b.BookingId\n"
-                + "JOIN CustomerAccount ca ON r.Username = ca.Username\n"
-                + "JOIN Customer c ON ca.CustomerId = c.CustomerId\n";
+    public List<Review> searchReview(Integer star, Integer month, Integer year) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT r.ReviewId, r.Rating, r.FeedBack, r.[Date], b.BookingId, c.FullName "
+                + "FROM Review r "
+                + "JOIN BookingDetail bd ON r.BookingDetailId = bd.BookingDetailId "
+                + "JOIN Booking b ON bd.BookingId = b.BookingId "
+                + "JOIN CustomerAccount ca ON r.Username = ca.Username "
+                + "JOIN Customer c ON ca.CustomerId = c.CustomerId "
+        );
 
-        boolean hasFullName = fullName != null && !fullName.trim().isEmpty();
-        boolean hasDate = date != null;
+        boolean hasStar = star != null;
+        boolean hasMonth = month != null;
+        boolean hasYear = year != null;
+        List<Object> params = new ArrayList<>();
+        boolean whereAdded = false;
 
-        // Thêm điều kiện WHERE để search
-        if (hasFullName && hasDate) {
-            sql += "WHERE c.FullName LIKE ? AND r.[Date] = ?";
-        } else if (hasFullName) {
-            sql += "WHERE c.FullName LIKE ?";
-        } else if (hasDate) {
-            sql += "WHERE r.[Date] = ?";
+        if (hasStar) {
+            sql.append(whereAdded ? " AND " : " WHERE ").append("r.Rating = ?");
+            params.add(star);
+            whereAdded = true;
+        }
+        if (hasMonth && hasYear) {
+            sql.append(whereAdded ? " AND " : " WHERE ").append("MONTH(r.[Date]) = ? AND YEAR(r.[Date]) = ?");
+            params.add(month);
+            params.add(year);
+            whereAdded = true;
         }
 
-        List<Review> listReview = Collections.synchronizedList(new ArrayList<>());
-        try (PreparedStatement ptm = con.prepareStatement(sql);) {
+        sql.append(" ORDER BY r.[Date] DESC");
 
-            if (hasFullName) {
-                ptm.setString(1, "%" + fullName + "%");
-            }
-            if (hasDate) {
-                ptm.setDate(2, new java.sql.Date(date.getTime()));
+        List<Review> listReview = new ArrayList<>();
+        try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ptm.setObject(i + 1, params.get(i));
             }
             try (ResultSet rs = ptm.executeQuery()) {
                 while (rs.next()) {
@@ -135,4 +135,5 @@ public class ReviewDAO {
         }
         return listReview;
     }
+
 }

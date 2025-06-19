@@ -1,4 +1,4 @@
-package controllers.manager;
+package controllers.receptionist;
 
 import dal.EmployeeDAO;
 import models.Employee;
@@ -12,8 +12,8 @@ import java.io.IOException;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "ManagerProfileServlet", urlPatterns = "/managerProfile")
-public class ManagerProfile extends HttpServlet {
+@WebServlet(name = "ReceptionistProfileServlet", urlPatterns = "/receptionist/profile")
+public class ReceptionistProfile extends HttpServlet {
 
     private EmployeeDAO employeeDAO;
 
@@ -27,16 +27,15 @@ public class ManagerProfile extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        Employee manager = (Employee) session.getAttribute("employeeInfo");
-
+        Employee receptionist = (Employee) session.getAttribute("employeeInfo");
 
         String action = request.getParameter("action");
         boolean isEditing = "updateprofile".equals(action);
 
-        request.setAttribute("manager", manager);
+        request.setAttribute("receptionist", receptionist);
         request.setAttribute("isEditing", isEditing);
 
-        request.getRequestDispatcher("/View/Manager/managerProfile.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Receptionist/receptionistProfile.jsp").forward(request, response);
     }
 
     @Override
@@ -44,8 +43,7 @@ public class ManagerProfile extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        Employee manager = (Employee) session.getAttribute("employeeInfo");
-
+        Employee receptionist = (Employee) session.getAttribute("employeeInfo");
 
         String action = request.getParameter("action");
 
@@ -74,42 +72,45 @@ public class ManagerProfile extends HttpServlet {
                     hasError = true;
                 }
 
-                if (!username.equals(manager.getUsername()) && employeeDAO.isUsernameExisted(username)) {
+                if (!username.equals(receptionist.getUsername()) && employeeDAO.getAllString("Username").contains(username)) {
                     request.setAttribute("usernameError", "Tên đăng nhập đã tồn tại!");
                     hasError = true;
                 }
 
                 if (hasError) {
-                    request.setAttribute("manager", manager);
+                    request.setAttribute("receptionist", receptionist);
                     request.setAttribute("isEditing", true);
-                    request.getRequestDispatcher("/View/Manager/managerProfile.jsp").forward(request, response);
+                    request.getRequestDispatcher("/View/Receptionist/receptionistProfile.jsp").forward(request, response);
                     return;
                 }
 
-                manager.setUsername(username);
-                manager.setFullName(fullName);
-                manager.setAddress(address);
-                manager.setPhoneNumber(phoneNumber);
+                receptionist.setUsername(username);
+                receptionist.setFullName(fullName);
+                receptionist.setAddress(address);
+                receptionist.setPhoneNumber(phoneNumber);
 
-                employeeDAO.updateEmployee(manager);
-                session.setAttribute("employeeInfo", manager);
-                response.sendRedirect(request.getContextPath() + "/managerProfile");
+                employeeDAO.updateEmployee(receptionist);
+                session.setAttribute("employeeInfo", receptionist);
+                response.sendRedirect(request.getContextPath() + "/receptionist/profile");
                 return;
 
             } else if ("changepassword".equals(action)) {
                 String currentPassword = request.getParameter("currentPassword");
                 String newPassword = request.getParameter("newPassword");
+                String confirmPassword = request.getParameter("confirmPassword");
 
                 String encryptedCurrent = Encryption.toSHA256(currentPassword);
-                if (!encryptedCurrent.equals(manager.getPassword())) {
+                if (!encryptedCurrent.equals(receptionist.getPassword())) {
                     request.setAttribute("error", "Mật khẩu hiện tại không đúng!");
+                } else if (!newPassword.equals(confirmPassword)) {
+                    request.setAttribute("error", "Mật khẩu mới và xác nhận mật khẩu không khớp!");
                 } else if (!Validation.checkFormatException(newPassword, "PASSWORD")) {
                     request.setAttribute("error", "Mật khẩu mới phải dài ít nhất 8 ký tự, chứa cả chữ, số và ký tự đặc biệt!");
                 } else {
                     String encryptedNew = Encryption.toSHA256(newPassword);
-                    employeeDAO.changePassword(manager.getEmployeeId(), encryptedNew);
-                    manager.setPassword(encryptedNew);
-                    session.setAttribute("employeeInfo", manager);
+                    employeeDAO.changePassword(receptionist.getEmployeeId(), encryptedNew);
+                    receptionist.setPassword(encryptedNew);
+                    session.setAttribute("employeeInfo", receptionist);
                     request.setAttribute("success", "Đổi mật khẩu thành công!");
                 }
             }

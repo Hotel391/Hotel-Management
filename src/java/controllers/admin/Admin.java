@@ -12,10 +12,11 @@ import models.Employee;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "DeveloperPage", urlPatterns = {"/developer/page"})
-public class DeveloperPage extends HttpServlet {
+@WebServlet(name = "Admin", urlPatterns = {"/admin/page"})
+public class Admin extends HttpServlet {
 
-    private String linkInfoAdmin = "/View/Developer/InfoAdmin.jsp";
+    private String linkInfoAdmin = "/View/Admin/InfoAdmin.jsp";
+    private String linkAdminPage = "/View/Admin/AdminPage.jsp";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -25,7 +26,7 @@ public class DeveloperPage extends HttpServlet {
         HttpSession session = request.getSession();
         Employee employeeInfo = (Employee) session.getAttribute("employeeInfo");
         String username = employeeInfo.getUsername();
-        session.setAttribute("username", username);
+//        session.setAttribute("username", username);
 
         if (service == null) {
             service = "viewAll";
@@ -37,14 +38,10 @@ public class DeveloperPage extends HttpServlet {
             request.getRequestDispatcher(linkInfoAdmin).forward(request, response);
         }
 
-        if (service.equals("add")) {
-            request.getRequestDispatcher("/View/Developer/AddManager.jsp").forward(request, response);
-        }
-
         if (service.equals("deleteManager")) {
             int employeeID = Integer.parseInt(request.getParameter("employeeID"));
             dal.AdminDao.getInstance().deleteManagerAccount(employeeID);
-            response.sendRedirect("developerPage");
+            response.sendRedirect(request.getContextPath()+"/admin/page");
         }
 
         if (service.equals("viewAll")) {
@@ -52,7 +49,7 @@ public class DeveloperPage extends HttpServlet {
             List<Employee> list = dal.AdminDao.getInstance().getAllEmployee();
             request.setAttribute("list", list);
             request.setAttribute("adminAccount", em);
-            request.getRequestDispatcher("/View/Developer/DeveloperPage.jsp").forward(request, response);
+            request.getRequestDispatcher(linkAdminPage).forward(request, response);
         }
     }
 
@@ -89,7 +86,7 @@ public class DeveloperPage extends HttpServlet {
 
         hasError |= Validation.validateField(
                 request, "passwordError", newPass, "PASSWORD", "Password",
-                "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
+                "Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt."
         );
 
         if (newPassSh.equals(em.getPassword())) {
@@ -109,49 +106,58 @@ public class DeveloperPage extends HttpServlet {
         }
 
         dal.EmployeeDAO.getInstance().updatePasswordAdminByUsername(userName, newPassSh);
-        response.sendRedirect(request.getContextPath() + "/developer/page?service=viewAll");
+        response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll");
     }
 
-    private void handleAddNewAccount(HttpServletRequest request, HttpServletResponse response, String userName)
+    private void handleAddNewAccount(HttpServletRequest request, HttpServletResponse response, String userNameManager)
             throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+        Employee employeeInfo = (Employee) session.getAttribute("employeeInfo");
+        String usernameAdmin = employeeInfo.getUsername();
+        
         String password = request.getParameter("password");
         String passwordSh = Encryption.toSHA256(password);
         boolean hasError = false;
 
         hasError |= Validation.validateField(
-                request, "usernameError", userName, "USERNAME", "Username",
-                "Username must be 5–20 characters, letters/numbers/underscores only."
+                request, "usernameError", userNameManager, "USERNAME", "Username",
+                "Tên người dùng phải dài từ 5–20 ký tự, chỉ bao gồm chữ cái/số/dấu gạch dưới."
         );
         hasError |= Validation.validateField(
                 request, "passwordError", password, "PASSWORD", "Password",
-                "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
+                "Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt."
         );
 
-        if (isUsernameTaken(userName)) {
+        if (isUsernameTaken(userNameManager)) {
             hasError = true;
             request.setAttribute("usernameError", "Username already exists.");
         }
 
         if (hasError) {
-            request.getRequestDispatcher("/View/Developer/AddManager.jsp").forward(request, response);
+            Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(usernameAdmin);
+            List<Employee> list = dal.AdminDao.getInstance().getAllEmployee();
+            request.setAttribute("list", list);
+            request.setAttribute("adminAccount", em);
+            request.getRequestDispatcher(linkAdminPage).forward(request, response);
             return;
         }
 
-        dal.AdminDao.getInstance().addNewAccountManager(userName, passwordSh);
-        response.sendRedirect(request.getContextPath() + "/developer/page?service=viewAll");
+        dal.AdminDao.getInstance().addNewAccountManager(userNameManager, passwordSh);
+        response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll");
     }
 
-    private boolean isUsernameTaken(String userName) {
+    private boolean isUsernameTaken(String userNameManager) {
         List<String> employees = dal.AdminDao.getInstance().getAllUsernames();
         for (String username : employees) {
-            if (username.equalsIgnoreCase(userName)) {
+            if (username.equalsIgnoreCase(userNameManager)) {
                 return true;
             }
         }
 
         List<String> customerAccount = dal.CustomerAccountDAO.getInstance().getAllUsername();
         for (String usernameca : customerAccount) {
-            if (usernameca.equalsIgnoreCase(userName)) {
+            if (usernameca.equalsIgnoreCase(userNameManager)) {
                 return true;
             }
         }

@@ -33,8 +33,6 @@ public class Booking {
         this.paidAmount = paidAmount;
     }
     
-    
-
     public int getBookingId() {
         return bookingId;
     }

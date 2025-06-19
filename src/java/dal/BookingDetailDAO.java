@@ -174,7 +174,7 @@ public class BookingDetailDAO {
                      SELECT 
                          b.BookingId,
                          bd.BookingDetailId,
-                         b.TotalPrice,
+                         b.PaidAmount,
                          bd.TotalAmount
                      FROM 
                          Booking b
@@ -192,7 +192,7 @@ public class BookingDetailDAO {
                     Booking booking = new Booking();
                     booking.setBookingId(rs.getInt(1));
                     bookingDetail.setBookingDetailId(rs.getInt(2));
-                    booking.setTotalPrice(rs.getInt(3));
+                    booking.setPaidAmount(rs.getInt(3));
                     bookingDetail.setBooking(booking);
                     bookingDetail.setTotalAmount(rs.getInt(4));
                     return bookingDetail;

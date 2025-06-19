@@ -315,14 +315,14 @@ public class BookingDAO {
                 + "            ([PayDay]\n"
                 + "           ,[CustomerId]\n"
                 + "           ,[PaymentMethodId]\n"
-                + "           ,[TotalPrice])\n"
+                + "           ,[PaidAmount])\n"
                 + "     VALUES(?, ?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
 
             st.setDate(1, java.sql.Date.valueOf(java.time.LocalDate.now()));
             st.setInt(2, booking.getCustomer().getCustomerId());
             st.setInt(3, 1);
-            st.setInt(4, booking.getTotalPrice());
+            st.setInt(4, booking.getPaidAmount());
             st.executeUpdate();
 
             try (ResultSet generatedKeys = st.getGeneratedKeys()) {

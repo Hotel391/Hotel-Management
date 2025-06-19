@@ -57,7 +57,7 @@ public class ajaxServlet extends HttpServlet {
             Customer customer = new Customer();
             customer.setCustomerId(customerId);
             booking.setCustomer(customer);
-            booking.setTotalPrice(totalPrice);
+            booking.setPaidAmount(totalPrice);
             bookingId = dal.BookingDAO.getInstance().insertNewBooking(booking);
 
             BookingDetail bookingDetail = new BookingDetail();
@@ -92,13 +92,15 @@ public class ajaxServlet extends HttpServlet {
         } else if (status.equals("checkOut")) {
             bookingId = (int) session.getAttribute("bookingId");
             BookingDetail bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetalByBookingId(bookingId);
-            int totalPricePaidAmount = bookingDetail.getBooking().getTotalPrice();
+            int PaidAmount = bookingDetail.getBooking().getPaidAmount();
             int totalAmount = bookingDetail.getTotalAmount();
-            if (totalPricePaidAmount == totalAmount) {
+            if (PaidAmount == totalAmount) {
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
+                return;
             }
-            totalPrice = totalAmount - totalPricePaidAmount;
+            totalPrice = totalAmount - PaidAmount;
             session.setAttribute("totalPriceUpdate", totalAmount);
+            session.removeAttribute("bookingId");
         }
 
 

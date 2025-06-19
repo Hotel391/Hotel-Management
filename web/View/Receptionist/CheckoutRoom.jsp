@@ -18,13 +18,14 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/navDashboardStyle.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/dashboardStyle.css" />
+        
         <%--another in the following--%>
     </head>
     <body>
         <div class="containerBox">
             <jsp:include page="leftNavReceptionist.jsp" /> 
             <div class="right-section">
-                <c:set var="title" value="Staying Room" scope="request"/>
+                <c:set var="title" value="Checkout Room Today" scope="request"/>
                 <jsp:include page="topNavReceptionist.jsp" />
                 <div class="main-content">
                     <h1 class="mb-4">Danh sách phòng checkout ngày hôm nay (<fmt:formatDate value="${today}" pattern="dd-MM-yyyy"/>)</h1>
@@ -54,7 +55,7 @@
                                 <td>${ckl.value.phoneNumber}</td>
                                 <td>${ckl.key.room.roomNumber}</td>
                                 <td>
-                                    <form action="${requestScope.request.contextPath}/receptionist/checkout" method="post">
+                                    <form action="${requestScope.request.contextPath}/receptionist/checkoutRoom" method="post">
                                         <input type="hidden" name="checkout" value="checkout">
                                         <button type="submit" class="btn btn-sm btn-warning">
                                             Checkout

@@ -25,7 +25,7 @@ import java.util.LinkedHashMap;
  *
  * @author Hai Long
  */
-@WebServlet(name = "CheckoutRoom", urlPatterns = {"/receptionist/checkout"})
+@WebServlet(name = "CheckoutRoom", urlPatterns = {"/receptionist/checkoutRoom"})
 public class CheckoutRoom extends HttpServlet {
 
     /**

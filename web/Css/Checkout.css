@@ -1,0 +1,53 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : Jun 19, 2025, 8:08:02 AM
+    Author     : Hai Long
+*/
+
+/* css customer-info*/
+
+.info-title{
+    text-align: center;
+}
+
+.gender{
+    display: flex;
+    gap: 50px;
+}
+
+.info_input{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.form_row{
+    display: flex;
+    width: 100%;
+    gap: 20px;
+}
+
+.checkout_detail{
+    width: 100%;
+}
+
+.info_input input{
+    width: 100%;
+    height: 40px;
+    margin: 10px 0px;
+    border: 1px solid grey;
+    border-radius: 10px;
+}
+
+.info_input input:focus{
+    outline: none;
+    border: 2px solid #0D6EFD;
+}
+
+.error{
+    color: red;
+}

@@ -86,6 +86,23 @@ public class CustomerDAO {
 
         return ca;
     }
+    
+    //check existed cccd
+    
+    public boolean checkcccd(String cccd) {
+        String sql = "select * from Customer where CCCD = ?";
+        try (PreparedStatement st = con.prepareStatement(sql);) {
+            st.setString(1, cccd);
+            try (ResultSet rs = st.executeQuery();) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
 
     public void updateCustomerInfo(String username, String fullname,
             String phoneNumber, int gender) {
@@ -188,6 +205,34 @@ public class CustomerDAO {
             st.setString(2, customer.getEmail());
             st.setBoolean(3, customer.getGender());
             st.setBoolean(4, customer.getActivate());
+
+            st.executeUpdate();
+
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    //insert into customer exception customerId
+    
+    public int insertCustomerExceptionId(Customer customer) {
+        String sql = """
+                     insert into Customer (FullName,Email,Gender,activate,RoleId,CCCD,PhoneNumber)\r
+                     values (?,?,?,?,?,?,?)""";
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setString(1, customer.getFullName());
+            st.setString(2, customer.getEmail());
+            st.setBoolean(3, customer.getGender());
+            st.setBoolean(4, customer.getActivate());
+            st.setInt(5, customer.getRole().getRoleId());
+            st.setString(6, customer.getCCCD());
+            st.setString(7, customer.getPhoneNumber());
 
             st.executeUpdate();
 

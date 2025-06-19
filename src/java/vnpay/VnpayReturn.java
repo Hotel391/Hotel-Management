@@ -77,7 +77,8 @@ public class VnpayReturn extends HttpServlet {
                 } else {
                     if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                         booking.setStatus("Completed CheckOut");
-                        int totalPrice = (int) session.getAttribute("totalPriceUpdate");
+                        double totalPriceDouble = (double) session.getAttribute("totalPriceUpdate");
+                        int totalPrice = (int) totalPriceDouble;
                         booking.setTotalPrice(totalPrice);
                         dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
                         transSuccess = true;

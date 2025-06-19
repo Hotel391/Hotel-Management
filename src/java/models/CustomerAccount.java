@@ -1,6 +1,6 @@
 package models;
 
-public class CustomerAccount {
+public class CustomerAccount implements AccountUser{
 
     private String username;
     private String password;
@@ -15,6 +15,7 @@ public class CustomerAccount {
         this.customer = customer;
     }
 
+    @Override
     public String getUsername() {
         return username;
     }
@@ -23,6 +24,7 @@ public class CustomerAccount {
         this.username = username;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }

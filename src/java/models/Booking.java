@@ -7,7 +7,7 @@ public class Booking {
     private int bookingId;
     private int totalPrice;
     private Date payDay;
-    private String status;  
+    private String status;
     private Customer customer;
     private PaymentMethod paymentMethod;
 
@@ -70,6 +70,10 @@ public class Booking {
     public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return "Booking{" + "bookingId=" + bookingId + ", totalPrice=" + totalPrice + ", payDay=" + payDay + ", status=" + status + ", customer=" + customer + ", paymentMethod=" + paymentMethod + '}';
+    }
+
 }

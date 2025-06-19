@@ -12,7 +12,6 @@ public class Encryption {
 
     private Encryption() {
     }
-    
 
     public static String toSHA256(String input) {
         try {
@@ -32,7 +31,8 @@ public class Encryption {
             return hexString.toString();
 
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-256 algorithm not found", e);
+            System.err.println("Error: SHA-256 algorithm not found - " + e.getMessage());
+            return "";
         }
     }
 }

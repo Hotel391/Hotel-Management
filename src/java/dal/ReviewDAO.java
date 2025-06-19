@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ReviewDAO {
@@ -47,10 +48,9 @@ public class ReviewDAO {
                 + "    CustomerAccount ca ON r.Username = ca.Username\n"
                 + "JOIN \n"
                 + "    Customer c ON ca.CustomerId = c.CustomerId\n"
-                + "ORDER BY r.[Date] DESC;";
-        List<Review> listReview = new ArrayList<>();
+                + "    ORDER BY r.[Date] DESC;";
+        List<Review> listReview = Collections.synchronizedList(new ArrayList<>());
         try (PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
-
             while (rs.next()) {
                 Booking b = new Booking();
                 BookingDetail bd = new BookingDetail();
@@ -109,7 +109,6 @@ public class ReviewDAO {
             for (int i = 0; i < params.size(); i++) {
                 ptm.setObject(i + 1, params.get(i));
             }
-
             try (ResultSet rs = ptm.executeQuery()) {
                 while (rs.next()) {
                     Booking b = new Booking();

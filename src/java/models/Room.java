@@ -1,7 +1,8 @@
 package models;
 
 public class Room {
-
+    public static final boolean STATUS_CLEANING=true;
+    
     private int roomNumber;
     private boolean isCleaner;
     private boolean isActive;

@@ -26,7 +26,7 @@ public class Admin extends HttpServlet {
         HttpSession session = request.getSession();
         Employee employeeInfo = (Employee) session.getAttribute("employeeInfo");
         String username = employeeInfo.getUsername();
-        session.setAttribute("username", username);
+//        session.setAttribute("username", username);
 
         if (service == null) {
             service = "viewAll";

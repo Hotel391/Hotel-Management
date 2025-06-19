@@ -12,7 +12,7 @@
     </head>
     <body class="bg-light">
         <div class="container mt-4">
-            <a href="${pageContext.request.contextPath}/admin/dashboard" class="btn btn-outline-primary">Back to Dashboard</a>
+            <a href="${pageContext.request.contextPath}/manager/dashboard" class="btn btn-outline-primary">Back to Dashboard</a>
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white text-center">
                     <h3 class="mb-0">Manager Profile</h3>

@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import models.Customer;
 import models.CustomerAccount;
-import models.Employee;
 import utility.Encryption;
 import utility.Validation;
 
@@ -63,11 +62,11 @@ public class CustomerProfile extends HttpServlet {
                         break;
                     }
                 }
-
+                
                 List<String> employees = dal.AdminDao.getInstance().getAllUsernames();
                 for (String un : employees) {
-                    if (un.equalsIgnoreCase(newUserName)) {
-                        request.setAttribute("usernameError", "username này đã tồn tại");
+                    if (un.equalsIgnoreCase(username)) {
+                        request.setAttribute("usernameError", "Username already exists.");
                         hasError = true;
                         break;
                     }
@@ -131,7 +130,7 @@ public class CustomerProfile extends HttpServlet {
                     return;
                 }
                 dal.CustomerAccountDAO.getInstance().changePassword(newPassWordSh, username);
-                response.sendRedirect(request.getContextPath() + "/customerProfile?service=info&username=" + username);
+                response.sendRedirect(request.getContextPath() + "/customer/profile?service=info&username=" + username);
             }
 
         }

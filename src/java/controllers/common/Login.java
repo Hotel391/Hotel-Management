@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controllers.common;
 
 import dal.AccountGoogleDAO;
@@ -15,11 +11,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Random;
 import models.AccountGoogle;
 import models.Customer;
 import models.CustomerAccount;
 import models.Employee;
 import models.Role;
+import utility.Validation;
 
 /**
  *
@@ -48,8 +46,6 @@ public class Login extends HttpServlet {
 
         String state = request.getParameter("state");
 
-        System.out.println("state: " + state);
-
         if (service == null) {
             service = "login";
         }
@@ -75,7 +71,7 @@ public class Login extends HttpServlet {
             if (customerInfo != null) {
                 System.out.println("Info: " + customerInfo);
                 session.setAttribute("customerInfo", customerInfo);
-                response.sendRedirect("home");
+                response.sendRedirect("customer/home");
                 return;
             }
 
@@ -92,10 +88,10 @@ public class Login extends HttpServlet {
                         response.sendRedirect("manager/dashboard");
                         break;
                     case 2:
-                        response.sendRedirect("receptionistPage");
+                        response.sendRedirect("receptionist/page");
                         break;
                     case 3:
-                        response.sendRedirect("cleanerPage");
+                        response.sendRedirect("cleaner/page");
                         break;
                     default:
                         request.getRequestDispatcher("View/Login.jsp").forward(request, response);
@@ -103,8 +99,11 @@ public class Login extends HttpServlet {
                 }
                 return;
             }
-
-            request.setAttribute("error", "Wrong username or password");
+            if (Validation.checkFormatException(username, "EMAIL")) {
+                request.setAttribute("error", "Wrong email or password");
+            } else {
+                request.setAttribute("error", "Wrong username or password");
+            }
             request.getRequestDispatcher("View/Login.jsp").forward(request, response);
         }
 
@@ -115,7 +114,7 @@ public class Login extends HttpServlet {
 
             AccountGoogle userInfo = AccountGoogleDAO.getInstance().getUserInfo(accessToken);
 
-            if (CustomerDAO.getInstance().checkExistedEmail(userInfo.getEmail()) == false) {
+            if (!CustomerDAO.getInstance().checkExistedEmail(userInfo.getEmail())) {
                 Customer customerInfo = new Customer();
 
                 customerInfo.setFullName(userInfo.getName());
@@ -161,47 +160,34 @@ public class Login extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
 
-    private String generateRandomString(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    private String generateRandomString(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        StringBuilder result = new StringBuilder();
+        Random random = new Random();
+
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(characters.length());
+            result.append(characters.charAt(index));
+        }
+
+        return result.toString();
     }
 
 }

@@ -39,16 +39,15 @@ public class AccountGoogleDAO {
                 .execute().returnContent().asString();
 
         JsonObject jobj = new Gson().fromJson(response, JsonObject.class);
-        String accessToken = jobj.get("access_token").toString().replaceAll("\"", "");
-        return accessToken;
+
+        return jobj.get("access_token").toString().replaceAll("\"", "");
     }
 
     public AccountGoogle getUserInfo(final String accessToken) throws ClientProtocolException, IOException {
         String link = Constants.GOOGLE_LINK_GET_USER_INFO + accessToken;
         String response = Request.Get(link).execute().returnContent().asString();
 
-        AccountGoogle googlePojo = new Gson().fromJson(response, AccountGoogle.class);
 
-        return googlePojo;
+        return new Gson().fromJson(response, AccountGoogle.class);
     }
 }

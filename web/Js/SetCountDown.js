@@ -1,7 +1,5 @@
 const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get("resend") === 'true') {
     startCooldown(60);
-}
 
 function startCooldown(seconds) {
     const resendLink = document.getElementById("resendWrapper");

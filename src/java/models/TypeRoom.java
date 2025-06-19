@@ -10,6 +10,7 @@ public class TypeRoom {
     private String description;
     private int price;
     private List<RoomNService> services = new ArrayList<>();
+    private List<Service> otherServices = new ArrayList<>();
     
     // Constructors
     public TypeRoom() {
@@ -66,4 +67,21 @@ public class TypeRoom {
     public void addRoomNService(RoomNService rns){
         this.services.add(rns);
     }
+
+    public List<Service> getOtherServices() {
+        return otherServices;
+    }
+
+    public void setOtherServices(List<Service> otherServices) {
+        this.otherServices = otherServices;
+    }
+    
+    
+
+    @Override
+    public String toString() {
+        return "TypeRoom{" + "typeId=" + typeId + ", typeName=" + typeName + ", description=" + description + ", price=" + price + ", services=" + services + '}';
+    }
+    
+    
 }

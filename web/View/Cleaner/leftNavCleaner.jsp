@@ -12,15 +12,7 @@
     </div>
     <div class="nav-navigation">
         <div class="nav-links">
-            <ul class="nav-list">
-                <li>
-                    
-                        <span><i class="bi bi-speedometer2"></i></span>Dashboard
-                   
-                </li>
-                <li><a href="#">
-                        <span><i class="bi bi-person-badge"></i></span>change room's </a></li>
-            </ul>
+
         </div>
         <div class="contact-container">
             <div class="contact-us text-center">
@@ -30,7 +22,7 @@
             </div>
         </div>
         <div class="nav-footer text-center">
-            <p>Hotel Admin Dashboard</p>
+            <p>Hotel Cleaner Dashboard</p>
         </div>
     </div>
 </div>

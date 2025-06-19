@@ -27,7 +27,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#">Management Role</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/roles">Management Role</a>
                             </li>
                         </ul>
 
@@ -96,7 +96,7 @@
                     <div class="modal fade" id="addRoleModal" tabindex="-1" aria-labelledby="addRoleModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/view/roles?action=add" novalidate>
+                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/manager/roles?action=add" novalidate>
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addRoleModalLabel">Add New Role</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -118,7 +118,7 @@
                     <!-- Edit Role Modal -->
                     <div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
-                            <form id="editRoleForm" method="post" action="${pageContext.request.contextPath}/view/roles?action=update" class="modal-content">
+                            <form id="editRoleForm" method="post" action="${pageContext.request.contextPath}/manager/roles?action=update" class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="editRoleModalLabel">Edit Role</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -138,7 +138,7 @@
                     <!-- Delete Role Modal -->
                     <div class="modal fade" id="deleteRoleModal" tabindex="-1" aria-labelledby="deleteRoleModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
-                            <form id="deleteRoleForm" method="post" action="${pageContext.request.contextPath}/view/roles?action=delete" class="modal-content">
+                            <form id="deleteRoleForm" method="post" action="${pageContext.request.contextPath}/manager/roles?action=delete" class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="deleteRoleModalLabel">Confirm Delete</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -164,21 +164,16 @@
         <%--another in following--%>
         <script
             <script>
-                                        // Xem Role
                                         function viewRole(id, name) {
                                             document.getElementById('viewRoleId').innerText = id;
                                             document.getElementById('viewRoleName').innerText = name;
                                             new bootstrap.Modal(document.getElementById('viewRoleModal')).show();
                                         }
-
-                                        // Sửa Role
                                         function openEditModal(id, name) {
                                             document.getElementById('editRoleId').value = id;
                                             document.getElementById('editRoleName').value = name;
                                             new bootstrap.Modal(document.getElementById('editRoleModal')).show();
                                         }
-
-                                        // Xóa Role
                                         function openDeleteModal(id) {
                                             document.getElementById('deleteRoleId').value = id;
                                             new bootstrap.Modal(document.getElementById('deleteRoleModal')).show();

@@ -34,7 +34,7 @@
                             <input type="hidden" name="oldSearch" value="${oldSearch}">
                             <input type="text" class="form-control" name="search" placeholder="Nhập số phòng..." value="${param.search}">
                             <button class="btn btn-outline-primary" type="submit">Search</button>
-                            <a class="btn btn-outline-secondary" href="stayingRoom">Clear</a>
+                            <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/receptionist/checkoutRoom">Clear</a>
                         </div>
                     </form>
                     <table id="roomTable" class="table table-bordered table-hover text-center align-middle">
@@ -55,8 +55,9 @@
                                 <td>${ckl.value.phoneNumber}</td>
                                 <td>${ckl.key.room.roomNumber}</td>
                                 <td>
-                                    <form action="${requestScope.request.contextPath}/receptionist/checkoutRoom" method="post">
-                                        <input type="hidden" name="checkout" value="checkout">
+                                    <form action="${pageContext.request.contextPath}/receptionist/checkoutRoom" method="post">
+                                        <input type="hidden" name="service" value="checkout">
+                                        <input type="hidden" name="bookingId" value="${ckl.key.booking.bookingId}">
                                         <button type="submit" class="btn btn-sm btn-warning">
                                             Checkout
                                         </button>
@@ -67,30 +68,7 @@
                         </tbody>
                     </table>
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span></span>
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination mb-0">
-                                <c:if test="${currentPage > 1}">
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page=${currentPage - 1}&search=${param.search}&oldSearch=${oldSearch}">Previous</a>
-                                    </li>
-                                </c:if>
-
-                                <c:forEach var="i" begin="1" end="${totalPages}">
-                                    <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                        <a class="page-link" href="?page=${i}&search=${param.search}&oldSearch=${oldSearch}">${i}</a>
-                                    </li>
-                                </c:forEach>
-
-                                <c:if test="${currentPage < totalPages}">
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page=${currentPage + 1}&search=${param.search}&oldSearch=${oldSearch}">Next</a>
-                                    </li>
-                                </c:if>
-                            </ul>
-                        </nav>
-                    </div>
+                    
                 </div>
             </div>
         </div>        

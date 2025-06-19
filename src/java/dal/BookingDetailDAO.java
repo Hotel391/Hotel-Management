@@ -72,6 +72,7 @@ public class BookingDetailDAO {
                 bookingDetail.setEndDate(rs.getDate("EndDate"));
                 bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
                 bookingDetail.setServices(ServiceDAO.getInstance().getServicesByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetail.setBooking(BookingDAO.getInstance().getBookingByBookingId(rs.getInt("BookingId")));
                 bookingDetails.add(bookingDetail);
             }
         } catch (SQLException e) {

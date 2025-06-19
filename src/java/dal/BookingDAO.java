@@ -217,7 +217,7 @@ public class BookingDAO {
 
     //get amount of booking by customerId
     public int getBookingCountByCustomerId(int customerId) {
-        String sql = "SELECT COUNT(*) FROM Booking WHERE CustomerID = ? and status = 'Completed'";
+        String sql = "SELECT COUNT(*) FROM Booking WHERE CustomerID = ? and status = 'Completed CheckOut'";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, customerId);
             try (ResultSet rs = st.executeQuery()) {
@@ -234,7 +234,7 @@ public class BookingDAO {
     //getBookingByCustomerId pagination
     public List<Booking> getBookingByCustomerId(int customerId, int page, int pageSize) {
         List<Booking> bookings = new ArrayList<>();
-        String sql = "SELECT * FROM Booking WHERE CustomerID = ? AND Status = 'Completed' ORDER BY BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT * FROM Booking WHERE CustomerID = ? AND Status = 'Completed CheckOut' ORDER BY BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, customerId);
@@ -263,7 +263,7 @@ public class BookingDAO {
     //getBookingByCustomerId pagination and filter by start date and end date
     public List<Booking> getBookingByCustomerIdAndDate(int customerId, int page, int pageSize, Date startDate, Date endDate) {
         List<Booking> bookings = new ArrayList<>();
-        String sql = "SELECT * FROM Booking WHERE CustomerID = ? AND PayDay >= ? AND PayDay <= ? AND Status = 'Completed' ORDER BY BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT * FROM Booking WHERE CustomerID = ? AND PayDay >= ? AND PayDay <= ? AND Status = 'Completed CheckOut' ORDER BY BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         System.out.println(sql);
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, customerId);
@@ -294,7 +294,7 @@ public class BookingDAO {
 
     //total booking filter by customerId, start date and end date
     public int getTotalBookingByCustomerIdAndDate(int customerId, Date startDate, Date endDate) {
-        String sql = "SELECT COUNT(*) FROM Booking WHERE CustomerID = ? AND PayDay >= ? AND PayDay <= ? And Status = 'Completed'";
+        String sql = "SELECT COUNT(*) FROM Booking WHERE CustomerID = ? AND PayDay >= ? AND PayDay <= ? And Status = 'Completed CheckOut'";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, customerId);
             st.setDate(2, startDate);
@@ -313,7 +313,7 @@ public class BookingDAO {
     //get booking by payday
     public List<Booking> getBookingByPayDay(Date payDay) {
         List<Booking> bookings = new ArrayList<>();
-        String sql = "SELECT * FROM Booking WHERE PayDay = ? and Status = 'Completed'";
+        String sql = "SELECT * FROM Booking WHERE PayDay = ? and Status = 'Completed CheckOut'";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setDate(1, payDay);
             try (ResultSet rs = st.executeQuery()) {

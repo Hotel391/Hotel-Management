@@ -39,7 +39,6 @@ public class BookingDetailDAO {
         return 0;
     }
 
-    //get booking detail by booking id
     public List<BookingDetail> getBookingDetailByBookingId(Booking booking) {
         List<BookingDetail> bookingDetails = new ArrayList<>();
         String sql = "SELECT * FROM BookingDetail WHERE BookingId = ?";
@@ -78,6 +77,7 @@ public class BookingDetailDAO {
                 bookingDetails.add(bookingDetail);
             }
         } catch (SQLException e) {
+            System.out.println(e);
         }
         return bookingDetails;
     }
@@ -116,7 +116,6 @@ public class BookingDetailDAO {
         } catch (SQLException e) {
         }
         return bookingDetails;
-
     }
 
     public int getTotalStayingRooms(String search) {
@@ -145,6 +144,7 @@ public class BookingDetailDAO {
         }
         return 0;
     }
+
     public int insertNewBookingDetail(BookingDetail detail) {
         String sql = "INSERT INTO [dbo].[BookingDetail] "
                 + "([StartDate], [EndDate], [BookingId], [RoomNumber]) "
@@ -186,7 +186,7 @@ public class BookingDetailDAO {
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, bookingId);
 
-            try (ResultSet rs = ptm.executeQuery();) {
+            try (ResultSet rs = ptm.executeQuery()) {
                 if (rs.next()) {
                     BookingDetail bookingDetail = new BookingDetail();
                     Booking booking = new Booking();
@@ -206,5 +206,4 @@ public class BookingDetailDAO {
         }
         return null;
     }
-
 }

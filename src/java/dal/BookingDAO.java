@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import models.Booking;
 import java.sql.Date;
-import dal.CustomerDAO;
-import dal.PaymentMethodDAO;
 
 public class BookingDAO {
 
@@ -273,7 +271,6 @@ public class BookingDAO {
             st.setInt(5, pageSize);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-
                     Booking booking = new Booking();
                     booking.setBookingId(rs.getInt("BookingID"));
                     booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
@@ -308,7 +305,6 @@ public class BookingDAO {
         }
         return 0;
     }
-    
 
     public int insertNewBooking(Booking booking) {
         String sql = "INSERT INTO [dbo].[Booking]\n"

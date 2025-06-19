@@ -61,7 +61,7 @@ public class ServiceDAO {
             ps.setInt(1, serviceId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            //
+            e.printStackTrace();
         }
     }
 
@@ -86,7 +86,7 @@ public class ServiceDAO {
                 + "            ,[Price])\n"
                 + "     VALUES(?, ?)";
         int n = 0;
-        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
             ptm.setString(1, serviceName);
             ptm.setInt(2, price);
             n = ptm.executeUpdate();
@@ -99,7 +99,8 @@ public class ServiceDAO {
     public void deleteService(int roomNumber) {
         String sql = "DELETE FROM [dbo].[Service]\n"
                 + "      WHERE ServiceId=?";
-        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+
+        try (PreparedStatement ptm = con.prepareStatement(sql);) {
             ptm.setInt(1, roomNumber);
             ptm.executeUpdate();
         } catch (SQLException ex) {
@@ -107,6 +108,27 @@ public class ServiceDAO {
         }
     }
     
+     public List<Service> getServicesNotInTypeRoom(TypeRoom typeRoom) {
+        List<Service> services = new ArrayList<>();
+        String sql = "SELECT * FROM Service WHERE ServiceId NOT IN (SELECT ServiceId FROM RoomNService WHERE TypeId = ?)";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, typeRoom.getTypeId());
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Service service = new Service();
+                    service.setServiceId(rs.getInt("ServiceId"));
+                    service.setServiceName(rs.getString("ServiceName"));
+                    service.setPrice(rs.getInt("Price"));
+                    services.add(service);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return services;
+    }
+     
      //get service by booking detail id
      
     public List<Service> getServicesByBookingDetailId(int bookingDetailId) {
@@ -177,69 +199,49 @@ public class ServiceDAO {
         return list;
     }
 
-    public List<Service> getServicesNotInTypeRoom(TypeRoom typeRoom) {
-        List<Service> services = new ArrayList<>();
-        String sql = "SELECT * FROM Service WHERE ServiceId NOT IN (SELECT ServiceId FROM RoomNService WHERE TypeId = ?)";
-        try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, typeRoom.getTypeId());
-            try (ResultSet rs = st.executeQuery()) {
-                while (rs.next()) {
-                    Service service = new Service();
-                    service.setServiceId(rs.getInt("ServiceId"));
-                    service.setServiceName(rs.getString("ServiceName"));
-                    service.setPrice(rs.getInt("Price"));
-                    services.add(service);
-                }
-            }
-        } catch (SQLException e) {
-            //
-        }
-        return services;
-    }
-
     public List<DetailService> getServiceByBookingDetailId(int bookingDetailId) {
         String sql = """
-                    select s.*,ds.quantity from BookingDetail bd 
-                    join DetailService ds on ds.BookingDetailId=bd.BookingDetailId
-                    join Service s on s.ServiceId=ds.ServiceId
-                    where bd.BookingDetailId=?""";
+            SELECT s.*, ds.quantity 
+            FROM BookingDetail bd
+            JOIN DetailService ds ON ds.BookingDetailId = bd.BookingDetailId
+            JOIN Service s ON s.ServiceId = ds.ServiceId
+            WHERE bd.BookingDetailId = ?""";
         List<DetailService> list = Collections.synchronizedList(new ArrayList<>());
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, bookingDetailId);
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
                 DetailService ds = new DetailService();
-                ds.setService(new Service(rs.getInt(1), 
-                                rs.getString(2), 
-                                rs.getInt(3)));
+                ds.setService(new Service(rs.getInt(1), rs.getString(2), rs.getInt(3)));
                 ds.setQuantity(rs.getInt(5));
                 list.add(ds);
             }
         } catch (SQLException e) {
-            //
+            // handle exception if needed
         }
         return list;
     }
 
     public List<Service> getServiceNotInBookingDetail(int bookingDetailId) {
         String sql = """
-                     select s.ServiceId,s.ServiceName,s.Price from Service s
-                     where IsActive=1 and NOT EXISTS(
-                         select ds.ServiceId from BookingDetail bd 
-                         join DetailService ds on ds.BookingDetailId=bd.BookingDetailId
-                         where bd.BookingDetailId=? and s.ServiceId=ds.ServiceId)""";
+            SELECT s.ServiceId, s.ServiceName, s.Price 
+            FROM Service s
+            WHERE IsActive = 1 
+              AND NOT EXISTS (
+                  SELECT ds.ServiceId 
+                  FROM BookingDetail bd 
+                  JOIN DetailService ds ON ds.BookingDetailId = bd.BookingDetailId
+                  WHERE bd.BookingDetailId = ? AND s.ServiceId = ds.ServiceId
+              )""";
         List<Service> list = Collections.synchronizedList(new ArrayList<>());
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, bookingDetailId);
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
-                Service s = new Service(rs.getInt(1), 
-                                        rs.getString(2), 
-                                        rs.getInt(3));
-                list.add(s);
+                list.add(new Service(rs.getInt(1), rs.getString(2), rs.getInt(3)));
             }
         } catch (SQLException e) {
-            //
+            // handle exception if needed
         }
         return list;
     }
@@ -252,7 +254,7 @@ public class ServiceDAO {
                 serviceIds.add(rs.getInt("ServiceId"));
             }
         } catch (SQLException e) {
-            //
+            e.printStackTrace(); // or log properly
         }
         return serviceIds;
     }
@@ -265,13 +267,14 @@ public class ServiceDAO {
             ptm.setInt(3, serviceId);
             ptm.executeUpdate();
         } catch (SQLException e) {
-            //
+            // handle exception
         }
+
         sql = """
-            update BookingDetail
-            set TotalAmount=TotalAmount+(?-?)*
-                (select Price from Service where ServiceId=?)
-            where BookingDetailId=?""";
+            UPDATE BookingDetail
+            SET TotalAmount = TotalAmount + (? - ?) * 
+                (SELECT Price FROM Service WHERE ServiceId = ?)
+            WHERE BookingDetailId = ?""";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, quantity);
             ptm.setInt(2, oldQuantity);
@@ -279,11 +282,13 @@ public class ServiceDAO {
             ptm.setInt(4, bookingDetailId);
             ptm.executeUpdate();
         } catch (SQLException e) {
-            //
+            // handle exception
         }
+
         sql = """
             UPDATE DetailService
-            SET PriceAtTime = PriceAtTime + (? - ?) * (SELECT Price FROM Service WHERE ServiceId = ?)
+            SET PriceAtTime = PriceAtTime + (? - ?) * 
+                (SELECT Price FROM Service WHERE ServiceId = ?)
             WHERE BookingDetailId = ? AND ServiceId = ?""";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, quantity);
@@ -293,7 +298,7 @@ public class ServiceDAO {
             ptm.setInt(5, serviceId);
             ptm.executeUpdate();
         } catch (SQLException e) {
-            //
+            // handle exception
         }
     }
 
@@ -304,27 +309,28 @@ public class ServiceDAO {
             ptm.setInt(2, serviceId);
             ptm.executeUpdate();
         } catch (SQLException e) {
-            //
+            // handle exception
         }
-        sql = """ 
-            update BookingDetail
-            set TotalAmount=TotalAmount-? *
-                (select Price from Service where ServiceId=?)
-            where BookingDetailId=?""";
+
+        sql = """
+            UPDATE BookingDetail
+            SET TotalAmount = TotalAmount - ? * 
+                (SELECT Price FROM Service WHERE ServiceId = ?)
+            WHERE BookingDetailId = ?""";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, oldQuantity);
             ptm.setInt(2, serviceId);
             ptm.setInt(3, bookingDetailId);
             ptm.executeUpdate();
         } catch (SQLException e) {
-            //
+            // handle exception
         }
     }
 
     public void insertDetailService(int bookingDetailId, int serviceId, int quantity) {
         String sql = """
-                    INSERT INTO DetailService (BookingDetailId, ServiceId, quantity,PriceAtTime) 
-                        VALUES (?, ?, ?, ? * (SELECT Price FROM Service WHERE ServiceId = ?))""";
+            INSERT INTO DetailService (BookingDetailId, ServiceId, quantity, PriceAtTime) 
+            VALUES (?, ?, ?, ? * (SELECT Price FROM Service WHERE ServiceId = ?))""";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, bookingDetailId);
             ptm.setInt(2, serviceId);
@@ -333,20 +339,22 @@ public class ServiceDAO {
             ptm.setInt(5, serviceId);
             ptm.executeUpdate();
         } catch (SQLException e) {
-            //
+            // handle exception
         }
+
         sql = """
-            update BookingDetail
-            set TotalAmount=TotalAmount+ ?*
-                (select Price from Service where ServiceId=?)
-            where BookingDetailId=?""";
+            UPDATE BookingDetail
+            SET TotalAmount = TotalAmount + ? * 
+                (SELECT Price FROM Service WHERE ServiceId = ?)
+            WHERE BookingDetailId = ?""";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, quantity);
             ptm.setInt(2, serviceId);
             ptm.setInt(3, bookingDetailId);
             ptm.executeUpdate();
         } catch (SQLException e) {
-            //
+            // handle exception
         }
     }
+
 }

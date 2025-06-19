@@ -308,7 +308,6 @@ public class CustomerDAO {
         }
         return false;
     }
-    
     //get customer by phoneNumber
     
     public Customer getCustomerByPhoneNumber(String phoneNumber) {

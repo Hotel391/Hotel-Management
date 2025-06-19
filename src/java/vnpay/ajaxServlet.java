@@ -40,8 +40,6 @@ public class ajaxServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         doPost(req, resp);
     }
-    
-    
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -53,11 +51,17 @@ public class ajaxServlet extends HttpServlet {
         int bookingId = 0;
 
         if (status.equals("checkIn")) {
-            totalPrice = (int) session.getAttribute("totalPrice");
+            Object obj = session.getAttribute("totalPrice");
+            if (obj instanceof Double) {
+                totalPrice = ((Double) obj).intValue();
+            }
             int customerId = (int) session.getAttribute("customerId");
-            Date startDate = (Date) session.getAttribute("startDate");
-            Date endDate = (Date) session.getAttribute("endDate");
-            int roomNumber = (int) session.getAttribute("roomNumber");
+            String startDateStr = (String) session.getAttribute("startDate");
+            String endDateStr = (String) session.getAttribute("endDate");
+
+            Date startDate = Date.valueOf(startDateStr); 
+            Date endDate = Date.valueOf(endDateStr);
+            int roomNumber = Integer.parseInt((String)session.getAttribute("roomNumber"));
 
             Booking booking = new Booking();
             Customer customer = new Customer();
@@ -108,7 +112,6 @@ public class ajaxServlet extends HttpServlet {
             session.setAttribute("totalPriceUpdate", totalAmount);
             session.removeAttribute("bookingId");
         }
-
 
         String vnp_Version = "2.1.0"; // Phiên bản API của VNPay
         String vnp_Command = "pay"; // Lệnh yêu cầu, ở đây là thanh toán

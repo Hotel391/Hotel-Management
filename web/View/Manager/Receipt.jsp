@@ -46,8 +46,6 @@
                                 <input type="hidden" name="customerId" value="${customerId}">
                                 <button type="submit" class="btn btn-primary">Filter</button>
                             </form>
-
-
                         </div>
                         <c:if test="${not empty error}"> 
                             <p class="alert alert-danger">${error}</p>

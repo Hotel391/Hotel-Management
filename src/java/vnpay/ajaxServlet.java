@@ -39,6 +39,9 @@ public class ajaxServlet extends HttpServlet {
          resp.sendRedirect("cart");//create cart servlet
          return;
         }
+        HttpSession session = req.getSession();
+        String status = req.getParameter("status");
+        session.setAttribute("status", status);
         int amountDouble = Integer.parseInt(req.getParameter("totalBill"));
         
         //Gia su user login co id = 1

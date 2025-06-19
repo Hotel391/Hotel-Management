@@ -90,7 +90,7 @@
                                                 <i class="bi bi-eye"></i> View Details
                                             </button>
                                             <!-- Book Room Button -->
-                                            <a href="${pageContext.request.contextPath}/receptionist/roomInfomation?startDate=<c:out value='${startDateSearch}'/>&endDate=<c:out value='${endDateSearch}'/>&roomNumber=<c:out value='${room.roomNumber}'/>&typeRoomId=<c:out value='${typeRoomIdSearch}'/>" class="btn btn-sm btn-primary" data-action="book-room">
+                                            <a href="${pageContext.request.contextPath}/receptionist/searchRoom?checkIn=checkIn&startDate=<c:out value='${startDateSearch}'/>&endDate=<c:out value='${endDateSearch}'/>&roomNumber=<c:out value='${room.roomNumber}'/>&typeRoomId=<c:out value='${typeRoomIdSearch}'/>" class="btn btn-sm btn-primary" data-action="book-room">
                                                 Book Room
                                             </a>
                                         </td>

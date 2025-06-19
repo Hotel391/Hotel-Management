@@ -16,7 +16,7 @@
 <body style="background-color: #f4f4f4; font-family: Arial, sans-serif; margin: 0; padding: 20px;">
 
 
-    <div onclick="location.href='${request.getContextPath() + "/receptionist/receipt"}'" style="cursor:pointer;">Xem hóa đơn</div>
+    <div onclick="location.href='${pageContext.request.contextPath}/receptionist/receipt'" style="cursor:pointer;">Xem hóa đơn</div>
     
     <section style="margin-top: 50px; text-align: center;">
         <div>

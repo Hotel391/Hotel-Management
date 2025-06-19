@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import models.BookingDetail;
 import models.Customer;
 import models.CustomerAccount;
 import models.Role;
@@ -431,5 +433,33 @@ public class CustomerDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public Customer getCustomersByBookingDetailId(int bookingDetailId) {
+        String sql = """
+            SELECT c.CustomerId, c.FullName, c.PhoneNumber, c.Email, c.Gender
+            FROM Customer c
+            JOIN Booking b ON b.CustomerId = c.CustomerId
+            JOIN BookingDetail bd ON bd.BookingId = b.BookingId
+            WHERE bd.BookingDetailId = ?
+        """;
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingDetailId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    customer.setFullName(rs.getString("FullName"));
+                    customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                    customer.setEmail(rs.getString("Email"));
+                    customer.setGender(rs.getBoolean("Gender"));
+                    return customer;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

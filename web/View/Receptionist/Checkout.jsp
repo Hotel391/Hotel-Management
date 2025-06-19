@@ -50,11 +50,11 @@
                     <div class="booking-content">
                         <div class="booking-detail">
                             <div class="date-info">
-                                <p>Ngày checkin: 19-06-2025</p>
-                                <p>Ngày checkout: 22-06-2025</p>
+                                <p>Ngày checkin: ${sessionScope.startDate}</p>
+                                <p>Ngày checkout: ${sessionScope.endDate}</p>
                             </div>
                             <div class="roomNService">
-                                <div class="room">Số phòng: 209 - Delexe room</div>
+                                <div class="room">Số phòng: ${sessionScope.roomNumber} - Delexe room</div>
                                 <div class="service">
                                     <!-- Button trigger modal -->
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
@@ -80,7 +80,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="totalPrice">Tổng tiền cần thanh toán: 1,000,000 VNĐ</div>
+                                <div class="totalPrice">Tổng tiền cần thanh toán: ${sessionScope.totalPrice} VNĐ</div>
                         </div>
                     </div>
                     <c:choose>

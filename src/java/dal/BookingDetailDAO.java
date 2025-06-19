@@ -1,5 +1,6 @@
 package dal;
 
+import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -76,7 +77,6 @@ public class BookingDetailDAO {
                 bookingDetails.add(bookingDetail);
             }
         } catch (SQLException e) {
-            //
         }
         return bookingDetails;
     }
@@ -144,4 +144,66 @@ public class BookingDetailDAO {
         }
         return 0;
     }
+    public int insertNewBookingDetail(BookingDetail detail) {
+        String sql = "INSERT INTO [dbo].[BookingDetail] "
+                + "([StartDate], [EndDate], [BookingId], [RoomNumber]) "
+                + "VALUES (?, ?, ?, ?)";
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setDate(1, detail.getStartDate());
+            st.setDate(2, detail.getEndDate());
+            st.setInt(3, detail.getBooking().getBookingId());
+            st.setInt(4, detail.getRoom().getRoomNumber());
+            st.executeUpdate();
+
+            try (ResultSet generatedKeys = st.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Creating BookingDetail failed, no ID obtained.");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error inserting BookingDetail: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    public BookingDetail getBookingDetalByBookingId(int bookingId) {
+        String sql = """
+                     SELECT 
+                         b.BookingId,
+                         bd.BookingDetailId,
+                         b.TotalPrice,
+                         bd.TotalAmount
+                     FROM 
+                         Booking b
+                     JOIN 
+                         BookingDetail bd ON b.BookingId = bd.BookingId
+                     WHERE 
+                         b.BookingId = ?;""";
+
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, bookingId);
+
+            try (ResultSet rs = ptm.executeQuery();) {
+                if (rs.next()) {
+                    BookingDetail bookingDetail = new BookingDetail();
+                    Booking booking = new Booking();
+                    booking.setBookingId(rs.getInt(1));
+                    bookingDetail.setBookingDetailId(rs.getInt(2));
+                    booking.setTotalPrice(rs.getInt(3));
+                    bookingDetail.setBooking(booking);
+                    bookingDetail.setTotalAmount(rs.getInt(4));
+                    return bookingDetail;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

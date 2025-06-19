@@ -6,7 +6,8 @@
 package vnpay;
 
 import dal.BookingDAO;
-import java.io.IOException;import java.net.URLEncoder;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,8 +23,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.sql.Date;
 import models.Booking;
+import models.BookingDetail;
 import models.Customer;
+import models.DetailService;
+import models.Room;
 
 /**
  *
@@ -32,52 +37,88 @@ import models.Customer;
 public class ajaxServlet extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String bankCode = req.getParameter("bankCode");
-        if(req.getParameter("totalBill") == null) {
-         resp.sendRedirect("cart");//create cart servlet
-         return;
-        }
+
         HttpSession session = req.getSession();
-        String status = req.getParameter("status");
-        session.setAttribute("status", status);
-        int amountDouble = Integer.parseInt(req.getParameter("totalBill"));
-        
-        //Gia su user login co id = 1
-        //phan id user se lay tu sesson (user dang login)
-        int customerId = 2;
-        
-//        Booking order = new Booking();
-//        Customer customer = new Customer();
-//        customer.setCustomerId(customerId);
-//        order.setCustomer(customer);
-//        order.setTotalPrice(amountDouble);
-//        
-//        int bookingId = dal.BookingDAO.getInstance().insertNewBooking(order);
-        int bookingId = Integer.parseInt(req.getParameter("bookingId"));
-        
-        if(bookingId < 1) {
-          resp.sendRedirect("cart");
-          return;
+        String status = (String) session.getAttribute("status");
+        int totalPrice = 0;
+        int bookingId = 0;
+
+        if (status.equals("checkIn")) {
+            totalPrice = (int) session.getAttribute("totalPrice");
+            int customerId = (int) session.getAttribute("customerId");
+            Date startDate = (Date) session.getAttribute("startDate");
+            Date endDate = (Date) session.getAttribute("endDate");
+            int roomNumber = (int) session.getAttribute("roomNumber");
+
+            Booking booking = new Booking();
+            Customer customer = new Customer();
+            customer.setCustomerId(customerId);
+            booking.setCustomer(customer);
+            booking.setTotalPrice(totalPrice);
+            bookingId = dal.BookingDAO.getInstance().insertNewBooking(booking);
+
+            BookingDetail bookingDetail = new BookingDetail();
+            Room room = new Room();
+            Booking booking1 = new Booking();
+            bookingDetail.setStartDate(startDate);
+            bookingDetail.setEndDate(endDate);
+            room.setRoomNumber(roomNumber);
+            bookingDetail.setRoom(room);
+            booking1.setBookingId(bookingId);
+            bookingDetail.setBooking(booking1);
+            int bookingDetailId = dal.BookingDetailDAO.getInstance().insertNewBookingDetail(bookingDetail);
+
+            List<DetailService> listDetailService = (List<DetailService>) session.getAttribute("listService");
+            if (listDetailService != null) {
+                for (DetailService detail : listDetailService) {
+                    int serviceId = detail.getService().getServiceId();
+                    int quantity = detail.getQuantity();
+                    int priceAtTime = detail.getService().getPrice();
+                    int tottalPriceAtTimeOfOneService = quantity * priceAtTime;
+                    dal.DetailServiceDAO.getInstance().insertDetailService(bookingDetailId,
+                            serviceId, quantity, tottalPriceAtTimeOfOneService);
+                }
+            }
+            session.removeAttribute("listService");
+            session.removeAttribute("totalPrice");
+            session.removeAttribute("customerId");
+            session.removeAttribute("startDate");
+            session.removeAttribute("endDate");
+            session.removeAttribute("roomNumber");
+
+        } else if (status.equals("checkOut")) {
+            bookingId = (int) session.getAttribute("bookingId");
+            BookingDetail bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetalByBookingId(bookingId);
+            int totalPricePaidAmount = bookingDetail.getBooking().getTotalPrice();
+            int totalAmount = bookingDetail.getTotalAmount();
+            if (totalPricePaidAmount == totalAmount) {
+                resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
+            }
+            totalPrice = totalAmount - totalPricePaidAmount;
+            session.setAttribute("totalPriceUpdate", totalAmount);
         }
-        String vnp_Version = "2.1.0";
-        String vnp_Command = "pay";
-        String orderType = "other";
-        
-        long amount = (long) (amountDouble * 100);
-        String vnp_TxnRef = bookingId+"";//dky ma rieng
-        String vnp_IpAddr = Config.getIpAddress(req);
+
+
+        String vnp_Version = "2.1.0"; // Phiên bản API của VNPay
+        String vnp_Command = "pay"; // Lệnh yêu cầu, ở đây là thanh toán
+        String orderType = "other"; // Loại hàng hóa
+
+        long amount = (long) (totalPrice * 100);
+        String vnp_TxnRef = bookingId + "";//dky ma rieng
+        String vnp_IpAddr = Config.getIpAddress(req); // Lấy địa chỉ IP của client
 
         String vnp_TmnCode = Config.vnp_TmnCode;
-        
+
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", vnp_Version);
         vnp_Params.put("vnp_Command", vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
         vnp_Params.put("vnp_Amount", String.valueOf(amount));
         vnp_Params.put("vnp_CurrCode", "VND");
-        
+
         if (bankCode != null && !bankCode.isEmpty()) {
             vnp_Params.put("vnp_BankCode", bankCode);
         }
@@ -98,11 +139,11 @@ public class ajaxServlet extends HttpServlet {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
-        
+
         cld.add(Calendar.MINUTE, 15);
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
-        
+
         List fieldNames = new ArrayList(vnp_Params.keySet());
         Collections.sort(fieldNames);
         StringBuilder hashData = new StringBuilder();

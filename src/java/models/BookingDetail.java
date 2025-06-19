@@ -25,7 +25,6 @@ public class BookingDetail {
         this.services = services;
     }
     
-    
 
     public BookingDetail(int bookingDetailId, Date startDate, Date endDate, Booking booking, Room room) {
         this.bookingDetailId = bookingDetailId;

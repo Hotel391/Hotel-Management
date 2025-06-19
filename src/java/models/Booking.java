@@ -8,7 +8,7 @@ public class Booking {
     private int totalPrice;
     private int paidAmount;
     private Date payDay;
-    private String status;  
+    private String status;
     private Customer customer;
     private PaymentMethod paymentMethod;
 
@@ -87,6 +87,4 @@ public class Booking {
     public String toString() {
         return "Booking{" + "bookingId=" + bookingId + ", totalPrice=" + totalPrice + ", payDay=" + payDay + ", status=" + status + ", customer=" + customer + ", paymentMethod=" + paymentMethod + '}';
     }
-    
-    
 }

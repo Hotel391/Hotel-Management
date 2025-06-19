@@ -38,6 +38,7 @@ public class VnpayReturn extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession();
+
         try (PrintWriter out = response.getWriter()) {
             Map fields = new HashMap();
             for (Enumeration params = request.getParameterNames(); params.hasMoreElements();) {
@@ -64,23 +65,30 @@ public class VnpayReturn extends HttpServlet {
                 Booking booking = new Booking();
                 booking.setBookingId(Integer.parseInt(bookingId));
                 String status = (String) session.getAttribute("status");
-                boolean transSuccess = false;
-                if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-                    //update banking system
-                    if (status.equals("checkIn")) {
-                        booking.setStatus("Processing");
-                        transSuccess = true;
+                
+
+                if (status.equals("checkIn")) {
+                    if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
+                        booking.setStatus("Completed CheckIn");
+                        
                     } else {
-                        booking.setStatus("Completed");
-                        transSuccess = true;
+                        booking.setStatus("Failed");
                     }
                 } else {
-                    booking.setStatus("Failed");
+                    if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
+                        booking.setStatus("Completed CheckOut");
+                        int totalPrice = (int) session.getAttribute("totalPriceUpdate");
+                        booking.setTotalPrice(totalPrice);
+                        dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
+                        
+                    } else {
+                        booking.setStatus("Completed CheckIn");
+                    }
                 }
                 System.out.println(booking.getStatus());
+                session.removeAttribute("status");
                 dal.BookingDAO.getInstance().updateBookingStatus(booking);
-                request.setAttribute("transResult", transSuccess);
-                request.getRequestDispatcher("paymentResult.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath()+"/receptionist/receipt");
             } else {
                 //RETURN PAGE ERROR
                 System.out.println("GD KO HOP LE (invalid signature)");

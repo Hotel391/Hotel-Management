@@ -15,6 +15,8 @@ import models.Customer;
 import models.Role;
 import utility.Validation;
 import dal.CustomerDAO;
+import jakarta.servlet.http.HttpSession;
+import java.sql.Date;
 import models.Booking;
 
 /**
@@ -39,26 +41,48 @@ public class Checkout extends HttpServlet {
 
         String service = request.getParameter("service");
 
+        HttpSession session = request.getSession(true);
+        
+//        Date startDate = Date.valueOf((String)session.getAttribute("startDate"));
+        
+//        Date endDate = Date.valueOf((String) session.getAttribute("endDate"));
+
+
         if (service == null) {
             service = "view";
         }
 
         if ("view".equals(service)) {
-            String roomNumber = request.getParameter("roomNumber");
-            String totalAmount = request.getParameter("totalAmount");
+            String search = request.getParameter("search");
+
+            System.out.println(search);
+
+            if (search != null && !search.trim().isEmpty()) {
+
+                String phone = request.getParameter("phoneSearch");
+
+                if (!Validation.validateField(request, "searchError", phone, "PHONE_NUMBER", "Search", "SDT không hợp lệ")) {
+
+                    Customer existedCustomer = CustomerDAO.getInstance().getCustomerByPhoneNumber(phone);
+
+                    if (existedCustomer != null) {
+                        request.setAttribute("existedCustomer", existedCustomer);
+                    } else if (phone != null && !phone.isEmpty()) {
+                        request.setAttribute("newCustomer", "Khách hàng mới");
+                    }
+                }
+            }
             request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
+
         }
 
-        if ("book".equals(service)) {
-            
-            String roomNumber = request.getParameter("roomNumber");
-            String totalAmount = request.getParameter("totalAmount");
+        if ("addNew".equals(service)) {
 
             boolean check = false;
 
             String genderValue = request.getParameter("gender");
-            
-            if(genderValue == null || genderValue.isEmpty()){
+
+            if (genderValue == null || genderValue.isEmpty()) {
                 check = true;
                 request.setAttribute("genderError", "Vui lòng chọn giới tính");
             }
@@ -111,15 +135,24 @@ public class Checkout extends HttpServlet {
                 customer.setRole(new Role(2));
                 customer.setGender(genderValue.equals("Male"));
                 customer.setActivate(true);
-                
-               int checkUpdate = CustomerDAO.getInstance().insertCustomerExceptionId(customer);
-               
-                System.out.println(checkUpdate);
-            }else{
+
+                int checkUpdate = CustomerDAO.getInstance().insertCustomerExceptionId(customer);
+
+                session.setAttribute("customerId", checkUpdate);
+            } else {
                 request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
             }
 
         }
+        
+        if("isExisted".equals(service)){
+            String phone = request.getParameter("phone");
+            
+            Customer existedCustomer = CustomerDAO.getInstance().getCustomerByPhoneNumber(phone);
+            
+            session.setAttribute("customerId", existedCustomer.getCustomerId());
+        }
+        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -27,111 +27,77 @@
                 <c:set var="title" value="Checkout" scope="request"/>
                 <jsp:include page="topNavReceptionist.jsp" />
                 <div class="main-content">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <form method="post" action="${pageContext.request.contextPath}/receptionist/checkout" class="d-flex gap-2">
+                            <label class="input-group-text" for="startDate">SDT</label>
+                            <input type="number" name="phoneSearch" value="${param.phoneSearch}" class="form-control search-input" required/>
+                            <input type="hidden" name="search" value="searchPhone">
+                            <button type="submit" class="btn btn-primary">Check</button>
+                            <a href="${pageContext.request.contextPath}/receptionist/checkout" class="btn btn-primary">Reset</a>
+                        </form>
+                    </div>
+                    <c:if test="${not empty searchError}">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <p class="alert alert-danger">${searchError}</p>
+                        </div>
+                    </c:if>
+                    <c:if test="${not empty newCustomer}">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <p class="alert alert-success">${newCustomer}</p>
+                        </div>
+                    </c:if>
+                    <h2 class="info-title">Thông tin đặt phòng</h2>
+                    <div class="booking-content">
+                        <div class="booking-detail">
+                            <div class="date-info">
+                                <p>Ngày checkin: 19-06-2025</p>
+                                <p>Ngày checkout: 22-06-2025</p>
+                            </div>
+                            <div class="roomNService">
+                                <div class="room">Số phòng: 209 - Delexe room</div>
+                                <div class="service">
+                                    <!-- Button trigger modal -->
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                        Dịch vụ
+                                    </button>
 
-                    <div class="checkout-content">
-                        <div class="customer-info">
-                            <form action="">
-                                <h2 class="info-title">Thông tin khách hàng</h2>
-                                <div class="gender">
-                                    <div class="gender_content">
-                                        <input name="gender" value="Male" ${param.gender.equals("Male") ? 'checked' : ''} type="radio" />
-                                        <label for="male">Anh</label>
-                                    </div>
-
-                                    <div class="gender_content">
-                                        <input name="gender" value="Female" ${param.gender.equals("Female") ? 'checked' : ''} type="radio" />
-                                        <label for="female">Chị</label>
-                                    </div>
-
-                                </div>
-
-                                <c:if test="${not empty genderError}">
-                                    <p class="error">${genderError}</p>
-                                </c:if>
-                                <div class="info_input">
-                                    <div class="form_row">
-                                        <div class="checkout_detail">
-                                            <label style="display: none" for="fullname">Họ tên</label>
-                                            <input placeholder="Họ tên *" 
-                                                   type="text" 
-                                                   name="fullName" 
-                                                   value="${param.fullName}" required/>
-                                            
-                                                <c:if test="${not empty nameError}">
-                                                    <p class="error">${nameError}</p>
-                                                </c:if>
-                                                
-                                        </div>
-                                        <div class="checkout_detail">
-                                            <label style="display: none" for="phone">SĐT</label>
-                                            <input placeholder="SĐT *" 
-                                                   type="number" id="phone" 
-                                                   name="phone" 
-                                                   value="${param.phone}"
-                                                   required/>
-                                            <c:if test="${not empty phoneError}">
-                                                <p class="error">${phoneError}</p>
-                                            </c:if>
-                                        </div>
-                                    </div>
-
-                                    <div class="form_row">
-                                        <div class="checkout_detail">
-                                            <label style="display: none" for="cccd">CCCD</label>
-                                            <input type="text" 
-                                                   id="cccd" 
-                                                   name="cccd" 
-                                                   placeholder="CCCD *" 
-                                                   value="${param.cccd}"
-                                                   required/>
-                                            <c:if test="${not empty cccdError}">
-                                                <p class="error">${cccdError}</p>
-                                            </c:if>
-                                        </div>
-
-
-                                        <div class="checkout_detail">
-                                            <label style="display: none" for="email">Email:</label>
-                                            <input type="text" 
-                                                   id="email" 
-                                                   name="email" 
-                                                   placeholder="Email *" 
-                                                   value="${param.email}"
-                                                   required/>
-                                            <c:if test="${not empty emailError}">
-                                                <p class="error">${emailError}</p>
-                                            </c:if>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    ...
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="button" class="btn btn-primary">Save changes</button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="info_input">
-
-                                    <label style="display: none" for="Address">Address</label>
-                                    <input type="text" 
-                                           id="address" 
-                                           name="address" 
-                                           placeholder="Địa chỉ *" 
-                                           value="${param.address}"
-                                           required/>
-
-
-                                </div>
-                                <c:if test="${not empty addressError}">
-                                    <p class="error">${addressError}</p>
-                                </c:if>
-                                <div class="btn-submit">
-                                    <input type="hidden" name="service" value="book">
-                                    <button class="btn btn-danger">Đặt phòng</button>
-                                </div>
-                            </form>
+                            </div>
+                            <div class="totalPrice">Tổng tiền cần thanh toán: 1,000,000 VNĐ</div>
                         </div>
                     </div>
-
+                    <c:choose>
+                        <c:when test="${not empty existedCustomer}">
+                            <c:set value="${existedCustomer}" var="ec" scope="request"/>
+                            <jsp:include page="ExistedCustomer.jsp" />
+                        </c:when>
+                        <c:otherwise>
+                            <jsp:include page="AddCustomerInfo.jsp"/>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
-        </div>        
-        <%--script for dashboard--%>
+        </div>      
 
+        <%--script for dashboard--%>
         <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
         <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
         <%--another in following--%>

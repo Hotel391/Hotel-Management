@@ -306,6 +306,33 @@ public class CustomerDAO {
         }
         return false;
     }
+    
+    //get customer by phoneNumber
+    
+    public Customer getCustomerByPhoneNumber(String phoneNumber) {
+        String sql = "SELECT * FROM Customer WHERE PhoneNumber = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, phoneNumber);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    customer.setFullName(rs.getString("FullName"));
+                    customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                    customer.setEmail(rs.getString("Email"));
+                    customer.setGender(rs.getBoolean("Gender"));
+                    customer.setCCCD(rs.getString("CCCD"));
+                    customer.setActivate(rs.getBoolean("activate"));
+                    customer.setRole(new Role(rs.getInt("RoleId")));
+                    System.out.println("cus: " + customer);
+                    return customer;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     //get customer by booking detail id
     public Customer getCustomerByBookingDetailId(int bookingDetailId) {

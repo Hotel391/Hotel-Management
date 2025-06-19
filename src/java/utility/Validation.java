@@ -32,7 +32,7 @@ public class Validation {
         regexMap.put("TYPE_ROOM_NAME_BASIC", Pattern.compile("^[a-zA-Z\\s]+$"));
         regexMap.put("ROOM_PRICE_INT", Pattern.compile("^[1-9]\\d{0,7}$"));
         regexMap.put("DESCRIPTION", Pattern.compile("^[\\p{L}\\d\\s,./-]{5,255}$"));
-        regexMap.put("CCCD", Pattern.compile("^\\d{12}$"));
+        regexMap.put("CCCD", Pattern.compile("^\\d{3}-\\d{2}-\\d{4}$"));
     }
 
     public static boolean checkFormatException(String input, String pattern) {

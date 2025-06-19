@@ -114,8 +114,11 @@ public class Customer {
     public void setCustomerAccount(CustomerAccount customerAccount) {
         this.customerAccount = customerAccount;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return "Customer{" + "customerId=" + customerId + ", fullName=" + fullName + ", phoneNumber=" + phoneNumber + ", email=" + email + ", gender=" + gender + ", CCCD=" + CCCD + ", activate=" + activate + ", role=" + role + ", customerAccount=" + customerAccount + '}';
+    }
     
     
 }

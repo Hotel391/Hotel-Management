@@ -39,63 +39,58 @@ public class VnpayReturn extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         HttpSession session = request.getSession();
 
-        try (PrintWriter out = response.getWriter()) {
-            Map fields = new HashMap();
-            for (Enumeration params = request.getParameterNames(); params.hasMoreElements();) {
-                String fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII.toString());
-                String fieldValue = URLEncoder.encode(request.getParameter(fieldName), StandardCharsets.US_ASCII.toString());
-                if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                    fields.put(fieldName, fieldValue);
-                }
-            }
-
-            String vnp_SecureHash = request.getParameter("vnp_SecureHash");
-            if (fields.containsKey("vnp_SecureHashType")) {
-                fields.remove("vnp_SecureHashType");
-            }
-            if (fields.containsKey("vnp_SecureHash")) {
-                fields.remove("vnp_SecureHash");
-            }
-            String signValue = Config.hashAllFields(fields);
-            if (signValue.equals(vnp_SecureHash)) {
-                String paymentCode = request.getParameter("vnp_TransactionNo");
-
-                String bookingId = request.getParameter("vnp_TxnRef");
-
-                Booking booking = new Booking();
-                booking.setBookingId(Integer.parseInt(bookingId));
-                String status = (String) session.getAttribute("status");
-                boolean transSuccess = false;
-
-                if (status.equals("checkIn")) {
-                    if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-                        booking.setStatus("Completed CheckIn");
-                        transSuccess = true;
-                    } else {
-                        booking.setStatus("Failed");
-                    }
-                } else {
-                    if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-                        booking.setStatus("Completed CheckOut");
-                        int totalPrice = (int) session.getAttribute("totalPriceUpdate");
-                        booking.setTotalPrice(totalPrice);
-                        dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
-                        transSuccess = true;
-                    } else {
-                        booking.setStatus("Completed CheckIn");
-                    }
-                }
-//                System.out.println(booking.getStatus());
-                session.removeAttribute("status");
-                dal.BookingDAO.getInstance().updateBookingStatus(booking);
-//                response.sendRedirect(request.getContextPath() + "/receptionist/receipt");
-                request.setAttribute("transResult", transSuccess);
-                request.getRequestDispatcher("paymentResult.jsp").forward(request, response);
-            } else {
-                //RETURN PAGE ERROR
-                System.out.println("GD KO HOP LE (invalid signature)");
+        Map<String, String> fields = new HashMap<>();
+        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
+            String fieldName = URLEncoder.encode(params.nextElement(), StandardCharsets.US_ASCII.toString());
+            String fieldValue = URLEncoder.encode(request.getParameter(fieldName), StandardCharsets.US_ASCII.toString());
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                fields.put(fieldName, fieldValue);
             }
         }
+
+        String vnp_SecureHash = request.getParameter("vnp_SecureHash");
+        fields.remove("vnp_SecureHashType");
+        fields.remove("vnp_SecureHash");
+
+        String signValue = Config.hashAllFields(fields);
+        if (signValue.equals(vnp_SecureHash)) {
+            String paymentCode = request.getParameter("vnp_TransactionNo");
+
+            String bookingId = request.getParameter("vnp_TxnRef");
+
+            Booking booking = new Booking();
+            booking.setBookingId(Integer.parseInt(bookingId));
+            String status = (String) session.getAttribute("status");
+            boolean transSuccess = false;
+
+            if (status.equals("checkIn")) {
+                if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
+                    booking.setStatus("Completed CheckIn");
+                    transSuccess = true;
+                } else {
+                    booking.setStatus("Failed");
+                }
+            } else {
+                if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
+                    booking.setStatus("Completed CheckOut");
+                    int totalPrice = (int) session.getAttribute("totalPriceUpdate");
+                    booking.setTotalPrice(totalPrice);
+                    dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
+                    transSuccess = true;
+                } else {
+                    booking.setStatus("Completed CheckIn");
+                }
+            }
+
+            session.removeAttribute("status");
+            dal.BookingDAO.getInstance().updateBookingStatus(booking);
+            request.setAttribute("transResult", transSuccess);
+            request.getRequestDispatcher("/paymentResult.jsp").forward(request, response);
+        } else {
+            //RETURN PAGE ERROR
+            System.out.println("GD KO HOP LE (invalid signature)");
+        }
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

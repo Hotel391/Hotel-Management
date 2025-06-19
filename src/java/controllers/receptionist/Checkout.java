@@ -149,7 +149,7 @@ public class Checkout extends HttpServlet {
 
         }
         
-        if("isExisted".equals(service)){
+        if("addExisted".equals(service)){
             String phone = request.getParameter("phone");
             
             Customer existedCustomer = CustomerDAO.getInstance().getCustomerByPhoneNumber(phone);

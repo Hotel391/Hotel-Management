@@ -40,23 +40,18 @@ public class ajaxServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String bankCode = req.getParameter("bankCode");
-//        if (req.getParameter("totalPrice") == null) {
-//            resp.sendRedirect("cart");//create cart servlet
-//            return;
-//        }
+
         HttpSession session = req.getSession();
         String status = (String) session.getAttribute("status");
         int totalPrice = 0;
-        //Gia su user login co id = 1
-        //phan id user se lay tu sesson (user dang login)
-        int customerId = 2;
         int bookingId = 0;
 
         if (status.equals("checkIn")) {
-            totalPrice = (Integer) session.getAttribute("totalPrice");
+            totalPrice = (int) session.getAttribute("totalPrice");
+            int customerId = (int) session.getAttribute("customerId");
             Date startDate = (Date) session.getAttribute("startDate");
             Date endDate = (Date) session.getAttribute("endDate");
-            int roomNumber = (Integer) session.getAttribute("roomNumber");
+            int roomNumber = (int) session.getAttribute("roomNumber");
 
             Booking booking = new Booking();
             Customer customer = new Customer();
@@ -87,21 +82,26 @@ public class ajaxServlet extends HttpServlet {
                             serviceId, quantity, tottalPriceAtTimeOfOneService);
                 }
             }
-            session.removeAttribute("listDetailService");
+            session.removeAttribute("listService");
+            session.removeAttribute("totalPrice");
+            session.removeAttribute("customerId");
+            session.removeAttribute("startDate");
+            session.removeAttribute("endDate");
+            session.removeAttribute("roomNumber");
 
         } else if (status.equals("checkOut")) {
-            bookingId = Integer.parseInt(req.getParameter("bookingId"));
+            bookingId = (int) session.getAttribute("bookingId");
             BookingDetail bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetalByBookingId(bookingId);
             int totalPricePaidAmount = bookingDetail.getBooking().getTotalPrice();
             int totalAmount = bookingDetail.getTotalAmount();
+            if (totalPricePaidAmount == totalAmount) {
+                resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
+            }
             totalPrice = totalAmount - totalPricePaidAmount;
             session.setAttribute("totalPriceUpdate", totalAmount);
         }
 
-        if (bookingId < 1) {
-            resp.sendRedirect("cart");
-            return;
-        }
+
         String vnp_Version = "2.1.0"; // Phiên bản API của VNPay
         String vnp_Command = "pay"; // Lệnh yêu cầu, ở đây là thanh toán
         String orderType = "other"; // Loại hàng hóa

@@ -65,12 +65,12 @@ public class VnpayReturn extends HttpServlet {
                 Booking booking = new Booking();
                 booking.setBookingId(Integer.parseInt(bookingId));
                 String status = (String) session.getAttribute("status");
-                boolean transSuccess = false;
+                
 
                 if (status.equals("checkIn")) {
                     if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                         booking.setStatus("Completed CheckIn");
-                        transSuccess = true;
+                        
                     } else {
                         booking.setStatus("Failed");
                     }
@@ -80,32 +80,15 @@ public class VnpayReturn extends HttpServlet {
                         int totalPrice = (int) session.getAttribute("totalPriceUpdate");
                         booking.setTotalPrice(totalPrice);
                         dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
-                        transSuccess = true;
+                        
                     } else {
                         booking.setStatus("Completed CheckIn");
                     }
                 }
-
-//                if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-//                    //update banking system
-//                    if (status.equals("checkIn")) {
-//                        booking.setStatus("Completed CheckIn");
-//                        transSuccess = true;
-//                    } else {
-//                        booking.setStatus("Completed CheckOut");
-//                        int totalPrice = (int) session.getAttribute("totalPriceUpdate");
-//                        booking.setTotalPrice(totalPrice);
-//                        dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
-//                        transSuccess = true;
-//                    }
-//                } else {
-//                    booking.setStatus("Failed");
-//                }
                 System.out.println(booking.getStatus());
                 session.removeAttribute("status");
                 dal.BookingDAO.getInstance().updateBookingStatus(booking);
-                request.setAttribute("transResult", transSuccess);
-                request.getRequestDispatcher("paymentResult.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath()+"/receptionist/receipt");
             } else {
                 //RETURN PAGE ERROR
                 System.out.println("GD KO HOP LE (invalid signature)");

@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -49,7 +50,7 @@ public class ReceiptReceiptionist extends HttpServlet {
 
         if ("view".equals(service)) {
 
-            Date today = Date.valueOf("2024-12-31");
+            Date today = Date.valueOf(LocalDate.now());
 
             List<Booking> bookingList;
 

@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import models.Booking;
 import java.sql.Date;
+import dal.CustomerDAO;
+import dal.PaymentMethodDAO;
 
 public class BookingDAO {
 
@@ -102,6 +104,29 @@ public class BookingDAO {
         } catch (SQLException e) {
         }
         return result;
+    }
+
+    //get Booking by booking id
+    public Booking getBookingByBookingId(int bookingId) {
+        String sql = "SELECT * FROM Booking WHERE BookingID = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    Booking booking = new Booking();
+                    booking.setBookingId(rs.getInt("BookingID"));
+                    booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerID")));
+                    booking.setPayDay(rs.getDate("PayDay"));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
+                    booking.setStatus(rs.getString("Status"));
+                    booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
+                    return booking;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public Map<String, BigInteger> totalMoneyInQuarters(int startYear, int startQuarter, int endYear, int endQuarter) {
@@ -193,7 +218,7 @@ public class BookingDAO {
 
     //get amount of booking by customerId
     public int getBookingCountByCustomerId(int customerId) {
-        String sql = "SELECT COUNT(*) FROM Booking WHERE CustomerID = ?";
+        String sql = "SELECT COUNT(*) FROM Booking WHERE CustomerID = ? and status = 'Completed'";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, customerId);
             try (ResultSet rs = st.executeQuery()) {
@@ -210,7 +235,7 @@ public class BookingDAO {
     //getBookingByCustomerId pagination
     public List<Booking> getBookingByCustomerId(int customerId, int page, int pageSize) {
         List<Booking> bookings = new ArrayList<>();
-        String sql = "SELECT * FROM Booking WHERE CustomerID = ? ORDER BY BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT * FROM Booking WHERE CustomerID = ? AND Status = 'Completed' ORDER BY BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, customerId);
@@ -238,7 +263,7 @@ public class BookingDAO {
     //getBookingByCustomerId pagination and filter by start date and end date
     public List<Booking> getBookingByCustomerIdAndDate(int customerId, int page, int pageSize, Date startDate, Date endDate) {
         List<Booking> bookings = new ArrayList<>();
-        String sql = "SELECT * FROM Booking WHERE CustomerID = ? AND PayDay >= ? AND PayDay <= ? ORDER BY BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        String sql = "SELECT * FROM Booking WHERE CustomerID = ? AND PayDay >= ? AND PayDay <= ? AND Status = 'Completed' ORDER BY BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
         System.out.println(sql);
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, customerId);
@@ -265,9 +290,10 @@ public class BookingDAO {
         }
         return bookings;
     }
-    
+
+    //total booking filter by customerId, start date and end date
     public int getTotalBookingByCustomerIdAndDate(int customerId, Date startDate, Date endDate) {
-        String sql = "SELECT COUNT(*) FROM Booking WHERE CustomerID = ? AND PayDay >= ? AND PayDay <= ?";
+        String sql = "SELECT COUNT(*) FROM Booking WHERE CustomerID = ? AND PayDay >= ? AND PayDay <= ? And Status = 'Completed'";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, customerId);
             st.setDate(2, startDate);
@@ -338,6 +364,30 @@ public class BookingDAO {
             System.out.println(ex);
         }
         return false;
+    }
+
+    //get booking by payday
+    public List<Booking> getBookingByPayDay(Date payDay) {
+        List<Booking> bookings = new ArrayList<>();
+        String sql = "SELECT * FROM Booking WHERE PayDay = ? and Status = 'Completed'";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setDate(1, payDay);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Booking booking = new Booking();
+                    booking.setBookingId(rs.getInt("BookingID"));
+                    booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
+                    booking.setPayDay(rs.getDate("PayDay"));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
+                    booking.setStatus(rs.getString("status"));
+                    booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
+                    bookings.add(booking);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
     }
 
 }

@@ -4,6 +4,8 @@
  */
 package controllers.receptionist;
 
+import dal.BookingDAO;
+import dal.BookingDetailDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,22 +14,19 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import models.BookingDetail;
-import models.Customer;
-import dal.BookingDetailDAO;
-import dal.CustomerDAO;
-import jakarta.servlet.http.HttpSession;
-import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
+import models.Booking;
+import models.BookingDetail;
 
 /**
  *
  * @author Hai Long
  */
-@WebServlet(name = "CheckoutRoom", urlPatterns = {"/receptionist/checkoutRoom"})
-public class CheckoutRoom extends HttpServlet {
+@WebServlet(name = "ReceiptReceiptionist", urlPatterns = {"/receptionist/receipt"})
+public class ReceiptReceiptionist extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,54 +40,33 @@ public class CheckoutRoom extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
-        HttpSession session = request.getSession(true);
-        
+
         String service = request.getParameter("service");
-        
+
         if (service == null) {
             service = "view";
         }
-        
+
         if ("view".equals(service)) {
-            
-            long millis = System.currentTimeMillis();
-            
-            Date currentDate = new Date(millis);
-            
-            System.out.println(currentDate);
-            
-            HashMap<BookingDetail, Customer> checkoutInfor = new LinkedHashMap<>();
-            
-            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(Date.valueOf("2024-12-31"));
-            
-            System.out.println(checkoutList);
-            
-            for (BookingDetail bookingDetail : checkoutList) {
-                Customer customerCheckout = CustomerDAO.getInstance().getCustomerByBookingDetailId(bookingDetail.getBookingDetailId());
-                checkoutInfor.put(bookingDetail, customerCheckout);
+
+            Date today = Date.valueOf("2021-06-24");
+
+            List<Booking> bookingList;
+
+            HashMap<Booking, List<BookingDetail>> detailList = new LinkedHashMap<>();
+
+            bookingList = BookingDAO.getInstance().getBookingByPayDay(today);
+
+            for (Booking booking : bookingList) {
+                detailList.put(booking, BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking));
             }
-            
-            System.out.println(checkoutInfor);
-            
-            request.setAttribute("today", currentDate);
-            
-            request.setAttribute("checkoutList", checkoutInfor);
-            
-            request.getRequestDispatcher("/View/Receptionist/CheckoutRoom.jsp").forward(request, response);
+            request.setAttribute("bookList", bookingList);
+
+            request.setAttribute("detailList", detailList);
+
+            request.getRequestDispatcher("/View/Receptionist/ReceiptInReceiptionist.jsp").forward(request, response);
         }
-        
-        if ("checkout".equals(service)) {
-            int bookingId = Integer.parseInt(request.getParameter("bookingId"));
-            
-            session.setAttribute("bookingId", bookingId);
-            
-            session.setAttribute("status", "checkOut");
-            
-            response.sendRedirect(request.getContextPath() + "/receptionist/checkoutRoom");
-            
-        }
-        
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -35,7 +35,6 @@ import models.Room;
  * @author CTT VNPAY
  */
 public class ajaxServlet extends HttpServlet {
-    
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)

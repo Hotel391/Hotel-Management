@@ -20,7 +20,7 @@ import models.Employee;
  *
  * @author HieuTT
  */
-//@WebFilter(filterName = "FilterNoURL", urlPatterns = {"/*"})
+@WebFilter(filterName = "FilterNoURL", urlPatterns = {"/*"})
 public class FilterNoURL implements Filter {
 
     private static final boolean debug = true;
@@ -192,7 +192,7 @@ public class FilterNoURL implements Filter {
             case 2 ->
                 res.sendRedirect(req.getContextPath() + "/receptionist/page");
             case 3 ->
-                res.sendRedirect(req.getContextPath() + "/home");
+                res.sendRedirect(req.getContextPath() + "/cleaner/page");
             default -> {
                 res.sendRedirect(req.getContextPath() + "home");
             }

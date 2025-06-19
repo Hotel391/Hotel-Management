@@ -105,7 +105,6 @@
     <welcome-file-list>
         <welcome-file>login</welcome-file>
     </welcome-file-list>
-    
     <servlet>
         <servlet-name>ajaxServlet</servlet-name>
         <servlet-class>vnpay.ajaxServlet</servlet-class>
@@ -123,5 +122,4 @@
         <servlet-name>VnpayReturn</servlet-name>
         <url-pattern>/vnpayReturn</url-pattern>
     </servlet-mapping>
-
 </web-app>

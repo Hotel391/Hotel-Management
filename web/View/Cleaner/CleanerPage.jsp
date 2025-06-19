@@ -109,20 +109,27 @@
     <%--another in following--%>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.getElementById('cleanForm').addEventListener('submit', function (e) {
-            const checkboxes = document.querySelectorAll('input[name="roomIds"]:checked');
-            if (checkboxes.length === 0) {
-                e.preventDefault();
-                alert('Vui lòng chọn ít nhất 1 phòng để đánh dấu đã dọn.');
-            }
-        });
-        const socket = new WebSocket("ws://" + location.host + "${pageContext.request.contextPath}/roomStatus");
+                        document.getElementById('cleanForm').addEventListener('submit', function (e) {
+                            const checkboxes = document.querySelectorAll('input[name="roomIds"]:checked');
+                            if (checkboxes.length === 0) {
+                                e.preventDefault();
+                                alert('Vui lòng chọn ít nhất 1 phòng để đánh dấu đã dọn.');
+                                return;
+                            }
 
-        socket.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            if (${startFloor * 1000} < data.roomId && data.roomId <= ${ (endFloor + 1) * 1000 }) {
-                location.reload();
-            }
-        };
+                            const roomList = Array.from(checkboxes).map(cb => cb.value).join(', ');
+                            const confirmMsg = 'Bạn có chắc chắn đã dọn các phòng:'+roomList+' không?';
+                            if (!confirm(confirmMsg)) {
+                                e.preventDefault();
+                            }
+                        });
+                        const socket = new WebSocket("ws://" + location.host + "${pageContext.request.contextPath}/roomStatus");
+
+                        socket.onmessage = function (event) {
+                            const data = JSON.parse(event.data);
+                            if (${startFloor * 1000} < data.roomId && data.roomId <= ${ (endFloor + 1) * 1000 }) {
+                                location.reload();
+                            }
+                        };
     </script>
 </html>

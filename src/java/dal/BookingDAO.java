@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import models.Booking;
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class BookingDAO {
 
@@ -315,7 +316,7 @@ public class BookingDAO {
                 + "     VALUES(?, ?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
 
-            st.setDate(1, java.sql.Date.valueOf(java.time.LocalDate.now()));
+            st.setDate(1, Date.valueOf(LocalDate.now()));
             st.setInt(2, booking.getCustomer().getCustomerId());
             st.setInt(3, 1);
             st.setInt(4, booking.getPaidAmount());
@@ -349,12 +350,13 @@ public class BookingDAO {
     }
     public boolean updateBookingTotalPrice(Booking booking) {
         String sql = "UPDATE [dbo].[Booking]\n"
-                + "   SET [TotalPrice] = ?\n"
+                + "   SET [TotalPrice] = ? , [PayDay] = ?\n"
                 + " WHERE [BookingId] = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, booking.getTotalPrice()); 
-            st.setInt(2, booking.getBookingId());
+            st.setDate(2, Date.valueOf(LocalDate.now()));
+            st.setInt(3, booking.getBookingId());
             return st.executeUpdate() > 0;
         } catch (SQLException ex) {
             System.out.println(ex);

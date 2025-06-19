@@ -46,7 +46,7 @@ public class SearchRoom extends HttpServlet {
             double totalPrice = calculateTotalPrice(typeRoomIdStr, startDateStr, endDateStr);
             session.setAttribute("totalPrice", totalPrice);
 
-            response.sendRedirect(request.getContextPath() + "/receptionist/searchRoom");
+            response.sendRedirect(request.getContextPath() + "/receptionist/checkout");
             return;
         }
 

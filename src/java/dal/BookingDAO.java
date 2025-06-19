@@ -290,5 +290,20 @@ public class BookingDAO {
         }
         return 0;
     }
+    
+     public boolean updateBookingStatus(Booking booking) {
+        String sql = "UPDATE [dbo].[Booking]\n"
+                + "   SET [Status] = ?\n"
+                + " WHERE BookingId = ?";
+        try {
+            PreparedStatement st = con.prepareStatement(sql);
+            st.setString(1, booking.getStatus());
+            st.setInt(2, booking.getBookingId());
+            return st.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return false;
+    }
 
 }

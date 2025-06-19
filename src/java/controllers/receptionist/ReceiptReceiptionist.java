@@ -49,7 +49,7 @@ public class ReceiptReceiptionist extends HttpServlet {
 
         if ("view".equals(service)) {
 
-            Date today = Date.valueOf("2021-06-24");
+            Date today = Date.valueOf("2024-12-31");
 
             List<Booking> bookingList;
 

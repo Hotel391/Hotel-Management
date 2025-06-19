@@ -65,12 +65,11 @@ public class VnpayReturn extends HttpServlet {
                 Booking booking = new Booking();
                 booking.setBookingId(Integer.parseInt(bookingId));
                 String status = (String) session.getAttribute("status");
-                
 
                 if (status.equals("checkIn")) {
                     if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                         booking.setStatus("Completed CheckIn");
-                        
+
                     } else {
                         booking.setStatus("Failed");
                     }
@@ -80,15 +79,15 @@ public class VnpayReturn extends HttpServlet {
                         int totalPrice = (int) session.getAttribute("totalPriceUpdate");
                         booking.setTotalPrice(totalPrice);
                         dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
-                        
+
                     } else {
                         booking.setStatus("Completed CheckIn");
                     }
                 }
-                System.out.println(booking.getStatus());
+//                System.out.println(booking.getStatus());
                 session.removeAttribute("status");
                 dal.BookingDAO.getInstance().updateBookingStatus(booking);
-                response.sendRedirect(request.getContextPath()+"/receptionist/receipt");
+                response.sendRedirect(request.getContextPath() + "/receptionist/receipt");
             } else {
                 //RETURN PAGE ERROR
                 System.out.println("GD KO HOP LE (invalid signature)");

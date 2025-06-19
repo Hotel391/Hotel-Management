@@ -8,6 +8,7 @@ public class Booking {
     private int totalPrice;
     private Date payDay;
     private String status;
+    private int paidAmount;
     private Customer customer;
     private PaymentMethod paymentMethod;
 
@@ -22,6 +23,15 @@ public class Booking {
         this.customer = customer;
         this.paymentMethod = paymentMethod;
     }
+
+    public int getPaidAmount() {
+        return paidAmount;
+    }
+
+    public void setPaidAmount(int paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+    
 
     public int getBookingId() {
         return bookingId;

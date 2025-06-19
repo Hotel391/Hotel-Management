@@ -99,10 +99,10 @@ public class StayingRoom extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int bookingDetailId = Integer.parseInt(request.getParameter("bookingDetailId"));
+        String bookingDetailId = request.getParameter("bookingDetailId");
         String action = request.getParameter("action");
         if ("updateServices".equals(action)) {
-            handleUpdateServices(request, bookingDetailId);
+            handleUpdateServices(request, Integer.parseInt(bookingDetailId));
         } else {
             handleUpdateStatus(request);
         }
@@ -167,7 +167,7 @@ public class StayingRoom extends HttpServlet {
         RoomStatusSocket.broadcast("{\"roomId\":" + roomId + "}");
     }
 
-    private String buildRedirectUrl(HttpServletRequest request, String action, int bookingDetailId) {
+    private String buildRedirectUrl(HttpServletRequest request, String action, String bookingDetailId) {
         StringBuilder url = new StringBuilder(request.getContextPath() + "/receptionist/stayingRoom");
         String page = request.getParameter("page");
         String search = request.getParameter("search");

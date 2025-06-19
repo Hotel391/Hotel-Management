@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Filter.java to edit this template
- */
 package filter;
 
 import java.io.IOException;
@@ -18,28 +14,29 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import models.Employee;
 
 /**
  *
  * @author HieuTT
  */
-//@WebFilter(filterName = "BlockJsp", urlPatterns = {"/*"})
-public class BlockJsp implements Filter {
-    
+@WebFilter(filterName = "Cleaner", urlPatterns = {"/cleaner/*"})
+public class Cleaner implements Filter {
+
     private static final boolean debug = true;
 
     // The filter configuration object we are associated with.  If
     // this value is null, this filter instance is not currently
     // configured. 
     private FilterConfig filterConfig = null;
-    
-    public BlockJsp() {
-    }    
-    
+
+    public Cleaner() {
+    }
+
     private void doBeforeProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
-            log("BlockJsp:DoBeforeProcessing");
+            log("Cleaner:DoBeforeProcessing");
         }
 
         // Write code here to process the request and/or response before
@@ -62,12 +59,12 @@ public class BlockJsp implements Filter {
 	    log(buf.toString());
 	}
          */
-    }    
-    
+    }
+
     private void doAfterProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
-            log("BlockJsp:DoAfterProcessing");
+            log("Cleaner:DoAfterProcessing");
         }
 
         // Write code here to process the request and/or response after
@@ -101,16 +98,48 @@ public class BlockJsp implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
-        
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-        String uri = req.getServletPath();
-        //chua dang nhap
-        if (uri.endsWith(".jsp")) {
-            res.sendRedirect(req.getContextPath() + "/customer/home");
+        HttpSession session = req.getSession(false);
+
+        Object employeeObj = (session != null) ? session.getAttribute("employeeInfo") : null;
+        Object customerObj = (session != null) ? session.getAttribute("customerInfo") : null;
+
+        if (employeeObj == null && customerObj == null) {
+            res.sendRedirect(req.getContextPath() + "/login");
             return;
         }
+
+        if (customerObj != null) {
+            res.sendRedirect(req.getContextPath() + "/home");
+            return;
+        }
+
+        Employee employee = (Employee) employeeObj;
+        int roleId = employee.getRole().getRoleId(); // 3: Cleaner
+
+        if (roleId != 3) {
+            redirectByRole(req, res, roleId);
+            return;
+        }
+
         chain.doFilter(request, response);
+    }
+
+    private void redirectByRole(HttpServletRequest req, HttpServletResponse res, int roleId)
+            throws IOException {
+        switch (roleId) {
+            case 0 ->
+                res.sendRedirect(req.getContextPath() + "/admin/page");
+            case 1 ->
+                res.sendRedirect(req.getContextPath() + "/manager/dashboard");
+            case 2 ->
+                res.sendRedirect(req.getContextPath() + "/receptionist/page");
+            case 3 ->
+                res.sendRedirect(req.getContextPath() + "/cleaner/page"); // optional
+            default ->
+                res.sendRedirect(req.getContextPath() + "/home");
+        }
     }
 
     /**
@@ -132,17 +161,17 @@ public class BlockJsp implements Filter {
     /**
      * Destroy method for this filter
      */
-    public void destroy() {        
+    public void destroy() {
     }
 
     /**
      * Init method for this filter
      */
-    public void init(FilterConfig filterConfig) {        
+    public void init(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
         if (filterConfig != null) {
-            if (debug) {                
-                log("BlockJsp:Initializing filter");
+            if (debug) {
+                log("Cleaner:Initializing filter");
             }
         }
     }
@@ -153,27 +182,27 @@ public class BlockJsp implements Filter {
     @Override
     public String toString() {
         if (filterConfig == null) {
-            return ("BlockJsp()");
+            return ("Cleaner()");
         }
-        StringBuffer sb = new StringBuffer("BlockJsp(");
+        StringBuffer sb = new StringBuffer("Cleaner(");
         sb.append(filterConfig);
         sb.append(")");
         return (sb.toString());
     }
-    
+
     private void sendProcessingError(Throwable t, ServletResponse response) {
-        String stackTrace = getStackTrace(t);        
-        
+        String stackTrace = getStackTrace(t);
+
         if (stackTrace != null && !stackTrace.equals("")) {
             try {
                 response.setContentType("text/html");
                 PrintStream ps = new PrintStream(response.getOutputStream());
-                PrintWriter pw = new PrintWriter(ps);                
+                PrintWriter pw = new PrintWriter(ps);
                 pw.print("<html>\n<head>\n<title>Error</title>\n</head>\n<body>\n"); //NOI18N
 
                 // PENDING! Localize this for next official release
-                pw.print("<h1>The resource did not process correctly</h1>\n<pre>\n");                
-                pw.print(stackTrace);                
+                pw.print("<h1>The resource did not process correctly</h1>\n<pre>\n");
+                pw.print(stackTrace);
                 pw.print("</pre></body>\n</html>"); //NOI18N
                 pw.close();
                 ps.close();
@@ -190,7 +219,7 @@ public class BlockJsp implements Filter {
             }
         }
     }
-    
+
     public static String getStackTrace(Throwable t) {
         String stackTrace = null;
         try {
@@ -204,9 +233,9 @@ public class BlockJsp implements Filter {
         }
         return stackTrace;
     }
-    
+
     public void log(String msg) {
-        filterConfig.getServletContext().log(msg);        
+        filterConfig.getServletContext().log(msg);
     }
-    
+
 }

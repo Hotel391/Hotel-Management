@@ -313,7 +313,7 @@ public class BookingDAO {
                 + "           ,[CustomerId]\n"
                 + "           ,[PaymentMethodId]\n"
                 + "           ,[PaidAmount])\n"
-                + "     VALUES(?, ?, ?)";
+                + "     VALUES(?, ?, ?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
 
             st.setDate(1, Date.valueOf(LocalDate.now()));

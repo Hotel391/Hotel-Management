@@ -106,6 +106,12 @@ public class ajaxServlet extends HttpServlet {
             int PaidAmount = bookingDetail.getBooking().getPaidAmount();
             int totalAmount = bookingDetail.getTotalAmount();
             if (PaidAmount == totalAmount) {
+                Booking booking =new Booking();
+                booking.setBookingId(bookingId);
+                booking.setTotalPrice(totalAmount);
+                dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
+                booking.setStatus("Completed CheckOut");
+                dal.BookingDAO.getInstance().updateBookingStatus(booking);
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
                 return;
             }
@@ -119,7 +125,12 @@ public class ajaxServlet extends HttpServlet {
         String orderType = "other"; // Loại hàng hóa
 
         long amount = (long) (totalPrice * 100);
-        String vnp_TxnRef = bookingId + "";//dky ma rieng
+        String vnp_TxnRef = null;
+        if ("checkIn".equals(status)) {
+            vnp_TxnRef = bookingId + "_CI";//dky ma rieng
+        } else {
+            vnp_TxnRef = bookingId + "_CO";
+        }
         String vnp_IpAddr = Config.getIpAddress(req); // Lấy địa chỉ IP của client
 
         String vnp_TmnCode = Config.vnp_TmnCode;

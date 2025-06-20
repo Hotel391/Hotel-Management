@@ -1,7 +1,3 @@
-<%-- 
-    Author     : SONNAM
---%>
-
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
@@ -44,20 +40,22 @@
                                 <div class="row w-100">
                                     <div class="col-md-3">
                                         <label for="startDate">Start Date:</label>
-                                        <input type="date" name="startDate" id="startDate" class="form-control" value="<c:out value='${startDateSearch}' default='' />" />
-                                        <input type="hidden" name="startDate" value="<c:out value='${startDateSearch}' default='' />" />
+                                        <input type="date" name="startDate" id="startDate" class="form-control" 
+                                               value="<c:out value='${startDateSearch}' default='' />" />
                                     </div>
                                     <div class="col-md-3">
                                         <label for="endDate">End Date:</label>
-                                        <input type="date" name="endDate" id="endDate" class="form-control" value="<c:out value='${endDateSearch}' default='' />" />
-                                        <input type="hidden" name="endDate" value="<c:out value='${endDateSearch}' default='' />" />
+                                        <input type="date" name="endDate" id="endDate" class="form-control" 
+                                               value="<c:out value='${endDateSearch}' default='' />" />
                                     </div>
                                     <div class="col-md-4">
                                         <label for="typeRoomId">Type Room:</label>
                                         <select name="typeRoomId" id="typeRoomId" class="form-select">
                                             <option value="" ${empty typeRoomIdSearch ? 'selected' : ''}>All Types</option>
                                             <c:forEach var="type" items="${typeRooms}">
-                                                <option value="${type.typeId}" ${type.typeId == typeRoomIdSearch ? 'selected' : ''}><c:out value="${type.typeName}"/></option>
+                                                <option value="${type.typeId}" ${type.typeId == typeRoomIdSearch ? 'selected' : ''}>
+                                                    <c:out value="${type.typeName}"/>
+                                                </option>
                                             </c:forEach>
                                         </select>
                                         <input type="hidden" name="typeRoomId" value="<c:out value='${typeRoomIdSearch}' default='' />" />
@@ -174,6 +172,11 @@
                         }
                     });
                 });
+
+                window.onload = function() {
+                    const today = new Date().toISOString().split('T')[0];  
+                    document.getElementById('startDate').value = today;
+                };
             </script>
     </body>
 </html>

@@ -56,13 +56,14 @@ public class VnpayReturn extends HttpServlet {
         if (signValue.equals(vnp_SecureHash)) {
             String paymentCode = request.getParameter("vnp_TransactionNo");
 
-            String bookingId = request.getParameter("vnp_TxnRef");
+            String vnp_TxnRef = request.getParameter("vnp_TxnRef"); // VD: "123_CI" hoặc "123_CO"
+            String bookingIdStr = vnp_TxnRef.split("_")[0];
+            int bookingId = Integer.parseInt(bookingIdStr);
 
             Booking booking = new Booking();
-            booking.setBookingId(Integer.parseInt(bookingId));
+            booking.setBookingId((bookingId));
             String status = (String) session.getAttribute("status");
             boolean transSuccess = false;
-
             if ("checkIn".equals(status)) {
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     booking.setStatus("Completed CheckIn");

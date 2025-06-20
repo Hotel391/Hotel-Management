@@ -60,7 +60,7 @@ public class CheckoutRoom extends HttpServlet {
             
             HashMap<BookingDetail, Customer> checkoutInfor = new LinkedHashMap<>();
             
-            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(Date.valueOf("2025-06-27"));
+            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(Date.valueOf("2025-06-22"));
             
             System.out.println(checkoutList);
             

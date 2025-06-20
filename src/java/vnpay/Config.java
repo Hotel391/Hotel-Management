@@ -22,9 +22,9 @@ import jakarta.servlet.http.HttpServletRequest;
 public class Config {
 
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "https://8b1e-2001-ee0-7006-8411-3875-b884-9d01-500.ngrok-free.app/fptHotel/vnpayReturn";
-    public static String vnp_TmnCode = "YPCYZ5YS";
-    public static String secretKey = "7WYSTPE1IQP4MWPMCLOR07IQCL7RQ73A";
+    public static String vnp_ReturnUrl = "https://e858-2401-d800-fcc6-22d2-dd04-111f-1d24-8058.ngrok-free.app/fptHotel/vnpayReturn";
+    public static String vnp_TmnCode = "Z24V1IZB";
+    public static String secretKey = "XOC0TVRAMJGAG5O0AHEY18D0HYNWCYQX";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
     public static String md5(String message) {

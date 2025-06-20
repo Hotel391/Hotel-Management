@@ -120,10 +120,11 @@ public class BookingDetailDAO {
 
     public int getTotalStayingRooms(String search) {
         String sql = """
-                    select COUNT(*) from Room r
-                    join BookingDetail bd on bd.RoomNumber=r.RoomNumber
-                    join TypeRoom tr on tr.TypeId=r.TypeId
-                    WHERE bd.StartDate<= CAST(GETDATE() AS DATE) and bd.EndDate>=CAST(GETDATE() AS DATE)
+                    select bd.BookingDetailId, bd.StartDate, bd.EndDate, bd.TotalAmount, r.RoomNumber, r.isCleaner from BookingDetail bd
+                    join Room r on r.RoomNumber=bd.RoomNumber
+                    join Booking b on b.BookingId=bd.BookingId
+                    WHERE bd.StartDate<= CAST(GETDATE() AS DATE) and bd.EndDate>=CAST(GETDATE() AS DATE) and
+                    	 b.Status not like 'Completed CheckOut'
                      """;
 
         if (search != null && !search.isEmpty()) {
@@ -148,7 +149,7 @@ public class BookingDetailDAO {
     public int insertNewBookingDetail(BookingDetail detail) {
         String sql = "INSERT INTO [dbo].[BookingDetail] "
                 + "([StartDate], [EndDate], [BookingId], [RoomNumber], [TotalAmount]) "
-                + "VALUES (?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             st.setDate(1, detail.getStartDate());
             st.setDate(2, detail.getEndDate());

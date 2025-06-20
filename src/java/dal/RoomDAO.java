@@ -95,11 +95,11 @@ public class RoomDAO {
                 if (rs.next()) {
 
                     Room room = new Room();
-                    
+
                     room.setIsCleaner(rs.getBoolean("isCleaner"));
-                    
+
                     room.setRoomNumber(rs.getInt("RoomNumber"));
-                    
+
                     room.setTypeRoom(TypeRoomDAO.getInstance().getTypeRoomById(rs.getInt("typeId")));
 
                     return room;
@@ -515,7 +515,7 @@ public class RoomDAO {
                 typeRoom.setTypeId(rs.getInt("TypeId"));
                 typeRoom.setTypeName(rs.getString("TypeName"));
                 typeRoom.setPrice(rs.getInt("Price"));
-                typeRoom.setDescription(rs.getString("Description"));  // Mô tả phòng
+                typeRoom.setDescription(rs.getString("Description"));
 
                 room.setTypeRoom(typeRoom);
 
@@ -558,26 +558,25 @@ public class RoomDAO {
         return services;
     }
 
-   public Service getServiceById(int serviceId) {
-    Service service = null;
-    String query = "SELECT * FROM [Service] WHERE ServiceId = ?";
+    public Service getServiceById(int serviceId) {
+        Service service = null;
+        String query = "SELECT * FROM [Service] WHERE ServiceId = ?";
 
-    try (PreparedStatement ps = con.prepareStatement(query)) {
-        ps.setInt(1, serviceId); 
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                service = new Service();
-                service.setServiceId(rs.getInt("ServiceId"));
-                service.setServiceName(rs.getString("ServiceName"));
-                service.setPrice(rs.getInt("Price"));  
+        try (PreparedStatement ps = con.prepareStatement(query)) {
+            ps.setInt(1, serviceId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    service = new Service();
+                    service.setServiceId(rs.getInt("ServiceId"));
+                    service.setServiceName(rs.getString("ServiceName"));
+                    service.setPrice(rs.getInt("Price"));
+                }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return service;
     }
-    return service;
-}
-
 
     public int countAvailableRooms(java.sql.Date startDate, java.sql.Date endDate, Integer typeRoomId) {
         StringBuilder queryBuilder = new StringBuilder("""
@@ -615,6 +614,24 @@ public class RoomDAO {
         }
 
         return 0;
+    }
+
+    public Integer getTypeIdByRoomNumber(int roomNumber) {
+        Integer typeId = null;
+        String query = "SELECT TypeId FROM Room WHERE RoomNumber = ?";
+
+        try (PreparedStatement ps = con.prepareStatement(query)) {
+            ps.setInt(1, roomNumber);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                typeId = rs.getInt("TypeId");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return typeId;
     }
 
 }

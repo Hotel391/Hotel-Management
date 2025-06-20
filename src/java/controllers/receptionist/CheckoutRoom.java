@@ -5,7 +5,6 @@
 package controllers.receptionist;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -19,7 +18,6 @@ import models.Customer;
 import dal.BookingDetailDAO;
 import dal.CustomerDAO;
 import jakarta.servlet.http.HttpSession;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 
 /**
@@ -56,11 +54,9 @@ public class CheckoutRoom extends HttpServlet {
             
             Date currentDate = new Date(millis);
             
-            System.out.println(currentDate);
-            
             HashMap<BookingDetail, Customer> checkoutInfor = new LinkedHashMap<>();
             
-            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(Date.valueOf("2024-12-31"));
+            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(currentDate);
             
             System.out.println(checkoutList);
             

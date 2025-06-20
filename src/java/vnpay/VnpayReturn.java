@@ -56,14 +56,15 @@ public class VnpayReturn extends HttpServlet {
         if (signValue.equals(vnp_SecureHash)) {
             String paymentCode = request.getParameter("vnp_TransactionNo");
 
-            String bookingId = request.getParameter("vnp_TxnRef");
+            String vnp_TxnRef = request.getParameter("vnp_TxnRef"); // VD: "123_CI" hoặc "123_CO"
+            String bookingIdStr = vnp_TxnRef.split("_")[0];
+            int bookingId = Integer.parseInt(bookingIdStr);
 
             Booking booking = new Booking();
-            booking.setBookingId(Integer.parseInt(bookingId));
+            booking.setBookingId((bookingId));
             String status = (String) session.getAttribute("status");
             boolean transSuccess = false;
-
-            if (status.equals("checkIn")) {
+            if ("checkIn".equals(status)) {
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     booking.setStatus("Completed CheckIn");
                     request.setAttribute("pageChange", "checkIn");
@@ -83,6 +84,10 @@ public class VnpayReturn extends HttpServlet {
                     booking.setStatus("Completed CheckIn");
                 }
             }
+            
+            int roomNumber = (int) session.getAttribute("roomNumber");
+            dal.RoomDAO.getInstance().updateRoomStatus(roomNumber, false);
+            session.removeAttribute("roomNumber");
             session.removeAttribute("status");
             dal.BookingDAO.getInstance().updateBookingStatus(booking);
             request.setAttribute("transResult", transSuccess);

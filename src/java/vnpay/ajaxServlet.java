@@ -105,11 +105,19 @@ public class ajaxServlet extends HttpServlet {
             BookingDetail bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetalByBookingId(bookingId);
             int PaidAmount = bookingDetail.getBooking().getPaidAmount();
             int totalAmount = bookingDetail.getTotalAmount();
+            dal.RoomDAO.getInstance().updateRoomStatus(bookingDetail.getRoom().getRoomNumber(), false);
             if (PaidAmount == totalAmount) {
+                Booking booking =new Booking();
+                booking.setBookingId(bookingId);
+                booking.setTotalPrice(totalAmount);
+                dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
+                booking.setStatus("Completed CheckOut");
+                dal.BookingDAO.getInstance().updateBookingStatus(booking);
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
                 return;
             }
             totalPrice = totalAmount - PaidAmount;
+            session.setAttribute("roomNumber", bookingDetail.getRoom().getRoomNumber());
             session.setAttribute("totalPriceUpdate", totalAmount);
             session.removeAttribute("bookingId");
         }
@@ -119,7 +127,12 @@ public class ajaxServlet extends HttpServlet {
         String orderType = "other"; // Loại hàng hóa
 
         long amount = (long) (totalPrice * 100);
-        String vnp_TxnRef = bookingId + "";//dky ma rieng
+        String vnp_TxnRef = null;
+        if ("checkIn".equals(status)) {
+            vnp_TxnRef = bookingId + "_CI";//dky ma rieng
+        } else {
+            vnp_TxnRef = bookingId + "_CO";
+        }
         String vnp_IpAddr = Config.getIpAddress(req); // Lấy địa chỉ IP của client
 
         String vnp_TmnCode = Config.vnp_TmnCode;

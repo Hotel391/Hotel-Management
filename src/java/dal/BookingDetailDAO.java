@@ -147,13 +147,14 @@ public class BookingDetailDAO {
 
     public int insertNewBookingDetail(BookingDetail detail) {
         String sql = "INSERT INTO [dbo].[BookingDetail] "
-                + "([StartDate], [EndDate], [BookingId], [RoomNumber]) "
+                + "([StartDate], [EndDate], [BookingId], [RoomNumber], [TotalAmount]) "
                 + "VALUES (?, ?, ?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             st.setDate(1, detail.getStartDate());
             st.setDate(2, detail.getEndDate());
             st.setInt(3, detail.getBooking().getBookingId());
             st.setInt(4, detail.getRoom().getRoomNumber());
+            st.setInt(5, detail.getTotalAmount());
             st.executeUpdate();
 
             try (ResultSet generatedKeys = st.getGeneratedKeys()) {

@@ -79,6 +79,7 @@ public class ajaxServlet extends HttpServlet {
             bookingDetail.setRoom(room);
             booking1.setBookingId(bookingId);
             bookingDetail.setBooking(booking1);
+            bookingDetail.setTotalAmount(totalPrice);
             int bookingDetailId = dal.BookingDetailDAO.getInstance().insertNewBookingDetail(bookingDetail);
 
             List<DetailService> listDetailService = (List<DetailService>) session.getAttribute("listService");

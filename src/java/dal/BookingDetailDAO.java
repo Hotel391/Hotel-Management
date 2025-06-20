@@ -25,6 +25,7 @@ public class BookingDetailDAO {
         }
         return instance;
     }
+
     public int checkinCount() {
         String sql = "SELECT COUNT(*) FROM BookingDetail";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
@@ -58,10 +59,10 @@ public class BookingDetailDAO {
         return bookingDetails;
     }
 
-    
     public List<BookingDetail> getBookingDetailByEndDate(Date endDate) {
         List<BookingDetail> bookingDetails = new ArrayList<>();
-        String sql = "SELECT * FROM BookingDetail WHERE EndDate = ? and status != 'Completed CheckOut' ORDER BY roomNumber";
+        String sql = "select bd.* from Booking b join BookingDetail bd on b.BookingId = bd.BookingId\n"
+                + " where  EndDate = ? and b.Status != 'Completed CheckOut' order by RoomNumber";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setDate(1, endDate);
             ResultSet rs = st.executeQuery();

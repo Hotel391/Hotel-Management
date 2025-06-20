@@ -6,6 +6,7 @@ import java.util.List;
 public class BookingDetail {
 
     private int bookingDetailId;
+    private int totalAmount;
     private Date startDate;
     private Date endDate;
     private Booking booking;
@@ -23,7 +24,6 @@ public class BookingDetail {
         this.room = room;
         this.services = services;
     }
-    
     
 
     public BookingDetail(int bookingDetailId, Date startDate, Date endDate, Booking booking, Room room) {
@@ -82,6 +82,13 @@ public class BookingDetail {
         this.room = room;
     }
 
+    public int getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(int totalAmount) {
+        this.totalAmount = totalAmount;
+    }
     @Override
     public String toString() {
         return "BookingDetail{" + "bookingDetailId=" + bookingDetailId + ", startDate=" + startDate + ", endDate=" + endDate + ", booking=" + booking + ", room=" + room + '}';

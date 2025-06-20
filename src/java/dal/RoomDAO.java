@@ -65,27 +65,6 @@ public class RoomDAO {
         return 0;
     }
 
-    public int RoomBookedCount() {
-        String sql = """
-                     SELECT COUNT(*) \r
-                     FROM Room r\r
-                     WHERE EXISTS (\r
-                         SELECT 1 FROM BookingDetail bd \r
-                     \tWHERE bd.RoomNumber = r.RoomNumber and \r
-                     \tCONVERT(DATE, GETDATE()) >= bd.StartDate\r
-                           and CONVERT(DATE, GETDATE()) < bd.EndDate\r
-                     )\r
-                     """;
-
-        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (SQLException e) {
-        }
-        return 0;
-    }
-
     public int roomBookedCount() {
         String sql = """
                      SELECT COUNT(*) \r
@@ -107,7 +86,6 @@ public class RoomDAO {
         return 0;
     }
 
-    //get room by room number
     public Room getRoomByNumber(int roomNumber) {
         String sql = "SELECT * from room where roomNumber = ?";
 
@@ -117,11 +95,11 @@ public class RoomDAO {
                 if (rs.next()) {
 
                     Room room = new Room();
-
+                    
                     room.setIsCleaner(rs.getBoolean("isCleaner"));
-
+                    
                     room.setRoomNumber(rs.getInt("RoomNumber"));
-
+                    
                     room.setTypeRoom(TypeRoomDAO.getInstance().getTypeRoomById(rs.getInt("typeId")));
 
                     return room;

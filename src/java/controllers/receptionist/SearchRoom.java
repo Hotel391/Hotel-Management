@@ -33,7 +33,6 @@ public class SearchRoom extends HttpServlet {
         request.setAttribute("currentPage", page);
         request.setAttribute("typeRooms", RoomDAO.getInstance().getAllTypeRoom());
 
-
         String checkInAction = request.getParameter("checkIn");
         if (checkInAction != null) {
             String roomNumber = request.getParameter("roomNumber");
@@ -46,7 +45,7 @@ public class SearchRoom extends HttpServlet {
             double totalPrice = calculateTotalPrice(typeRoomIdStr, startDateStr, endDateStr);
             session.setAttribute("totalPrice", totalPrice);
 
-            response.sendRedirect(request.getContextPath() + "/receptionist/searchRoom");
+            response.sendRedirect(request.getContextPath() + "/receptionist/checkout");
             return;
         }
 
@@ -62,7 +61,13 @@ public class SearchRoom extends HttpServlet {
                 return;
             }
 
-            if (startDate.compareTo(new Date()) < 0) {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            String todayStr = sdf.format(new Date()); 
+
+            java.sql.Date startDateObj = java.sql.Date.valueOf(startDateStr); 
+            String startDateStrOnly = sdf.format(startDateObj); 
+
+            if (startDateStrOnly.compareTo(todayStr) < 0) {
                 request.setAttribute("errorMessage", "Start date cannot be before today.");
                 showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
                 return;
@@ -98,11 +103,11 @@ public class SearchRoom extends HttpServlet {
 
     private double calculateTotalPrice(String typeRoomIdStr, String startDateStr, String endDateStr) {
 
-        double basePrice = TypeRoomDAO.getInstance().getPriceByTypeId(Integer.parseInt(typeRoomIdStr));  
+        double basePrice = TypeRoomDAO.getInstance().getPriceByTypeId(Integer.parseInt(typeRoomIdStr));
 
         java.sql.Date startDate = java.sql.Date.valueOf(startDateStr);
         java.sql.Date endDate = java.sql.Date.valueOf(endDateStr);
-        
+
         long numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
 
         double totalRoomPrice = basePrice * numberOfNights;
@@ -111,7 +116,7 @@ public class SearchRoom extends HttpServlet {
     }
 
     private void showSearchRoom(HttpServletRequest request, HttpServletResponse response,
-                                String startDateStr, String endDateStr, String typeRoomIdStr, String pageStr)
+            String startDateStr, String endDateStr, String typeRoomIdStr, String pageStr)
             throws ServletException, IOException {
         request.setAttribute("startDateSearch", startDateStr);
         request.setAttribute("endDateSearch", endDateStr);

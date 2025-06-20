@@ -41,19 +41,21 @@
                         <thead class="table-primary">
                             <tr>
                                 <th>Số phòng</th>
-                                <th>Loại phòng</th>
                                 <th>Giá</th>
+                                <th>Ngày trả phòng</th>
                                 <th>Trạng thái</th>
                                 <th>Action</th>
                                 <th>Service</th>
+                                <th>Customer</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="room" items="${stayingRooms}">
+                            <c:forEach var="bd" items="${bookingDetails}">
+                                <c:set var="room" value="${bd.room}" />
                                 <tr id="room-${room.roomNumber}">
                                     <td>${room.roomNumber}</td>
-                                    <td>${room.typeRoom.typeName}</td>
-                                    <td>${room.typeRoom.price}</td>
+                                    <td>${bd.totalAmount}</td>
+                                    <td>${bd.endDate}</td>
                                     <td>
                                         <span
                                             class="badge ${room.isCleaner ? 'bg-success' : 'bg-warning text-dark'}">
@@ -74,19 +76,25 @@
                                         </form>
                                     </td>
                                     <td>
-                                        <a href="stayingRoom?action=view&roomNumber=${room.roomNumber}&totalPages=${totalPages}&page=${currentPage}&search=${param.search}&oldSearch=${oldSearch}"
+                                        <a href="stayingRoom?action=viewService&bookingDetailId=${bd.bookingDetailId}&totalPages=${totalPages}&page=${currentPage}&search=${param.search}&oldSearch=${oldSearch}"
                                            class="btn btn-sm btn-outline-info me-1">
                                             <i class="bi bi-eye"></i> View
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="stayingRoom?action=viewCustomer&bookingDetailId=${bd.bookingDetailId}&totalPages=${totalPages}&page=${currentPage}&search=${param.search}&oldSearch=${oldSearch}"
+                                           class="btn btn-sm btn-outline-info me-1">
+                                            <i class="bi bi-eye"></i> Details
                                         </a>
                                     </td>
                                 </tr>
                             </c:forEach>
                         </tbody>
                     </table>
-                    <c:if test="${action eq 'view'}">
-                        <form method="post" onsubmit="return confirm('Bạn có chắc muốn thay đổi?')">
+                    <c:if test="${action eq 'viewService'}">
+                        <form method="post" action="stayingRoom" onsubmit="return confirm('Bạn có chắc muốn thay đổi?')">
                             <input type="hidden" name="action" value="updateServices" />
-                            <input type="hidden" name="roomNumber" value="${param.roomNumber}" />
+                            <input type="hidden" name="bookingDetailId" value="${param.bookingDetailId}" />
                             <input type="hidden" name="page" value="${param.page}" />
                             <input type="hidden" name="search" value="${param.search}" />
                             <input type="hidden" name="oldSearch" value="${param.oldSearch}" />
@@ -116,12 +124,8 @@
                                                                     <span class="text-muted">-
                                                                         ${ds.service.price} VNĐ</span>
                                                                 </label>
-                                                                <input type="hidden" name="oldQuantity"
-                                                                       value="${ds.quantity}" />
-                                                                <input type="number" name="quantities"
-                                                                       value="${ds.quantity}" min="1"
-                                                                       class="form-control ms-2"
-                                                                       style="width: 90px;" />
+                                                                <input type="number" name="quantity_${ds.service.serviceId}" value="${ds.quantity}" />
+                                                                <input type="hidden" name="oldQuantity_${ds.service.serviceId}" value="${ds.quantity}" />
                                                             </div>
                                                         </c:forEach>
                                                     </ul>
@@ -169,6 +173,48 @@
                             </div>
                         </form>
                     </c:if>
+                    <c:if test="${action eq 'viewCustomer'}">
+                        <div class="modal fade" id="customerModal" tabindex="-1" aria-modal="true" role="dialog">
+                            <div class="modal-dialog modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Thông tin khách hàng</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table class="table table-borderless">
+                                            <tbody>
+                                                <tr>
+                                                    <th>Họ tên</th>
+                                                    <td>${customer.fullName}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Số điện thoại</th>
+                                                    <td>${customer.phoneNumber}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Email</th>
+                                                    <td>${customer.email}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Giới tính</th>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${customer.gender}">Nam</c:when>
+                                                            <c:otherwise>Nữ</c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Đóng</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:if>
                     <div class="d-flex justify-content-between align-items-center">
                         <span></span>
                         <nav aria-label="Page navigation">
@@ -199,6 +245,10 @@
                 </div>
             </div>
         </div>
+        <div id="success-alert" class="alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-4"
+             role="alert" style="z-index: 9999; display: none;">
+            Cập nhật dịch vụ thành công!
+        </div>
     </body>
     <%--script for dashboard--%>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -211,7 +261,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
             integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
     crossorigin="anonymous"></script>
-    <c:if test="${action eq 'view'}">
+    <c:if test="${action eq 'viewService'}">
         <script>
                             document.addEventListener('DOMContentLoaded', function () {
                                 const modal = new bootstrap.Modal(document.getElementById('serviceModal'));
@@ -219,8 +269,51 @@
                             });
         </script>
     </c:if>
+    <c:if test="${action eq 'viewCustomer'}">
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const modal = new bootstrap.Modal(document.getElementById('customerModal'));
+                modal.show();
+            });
+        </script>
+    </c:if>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+
+            if (success === '1') {
+                const alertBox = document.getElementById('success-alert');
+                alertBox.style.display = 'block';
+                setTimeout(() => {
+                    alertBox.classList.remove('show');
+                    alertBox.classList.add('hide');
+                    setTimeout(() => alertBox.style.display = 'none', 500); // remove from flow
+                }, 3000);
+            }
+
+            document.querySelectorAll('input[name="otherServiceIds"]').forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    const quantityInput = this.closest('.form-check').querySelector('input[name="otherQuantities"]');
+                    if (this.checked) {
+                        quantityInput.value = 1;
+                        quantityInput.disabled = false;
+                    } else {
+                        quantityInput.value = '';
+                        quantityInput.disabled = true;
+                    }
+                });
+            });
+
+            // Mặc định disable ô input nếu chưa được tick
+            document.querySelectorAll('input[name="otherServiceIds"]').forEach(function (checkbox) {
+                const quantityInput = checkbox.closest('.form-check').querySelector('input[name="otherQuantities"]');
+                if (!checkbox.checked) {
+                    quantityInput.disabled = true;
+                }
+            });
+
+
             const socket = new WebSocket("ws://" + location.host + "${pageContext.request.contextPath}/roomStatus");
 
             socket.onmessage = function (event) {

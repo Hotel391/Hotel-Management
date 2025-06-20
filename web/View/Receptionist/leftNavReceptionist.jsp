@@ -17,7 +17,7 @@
         <div class="nav-links">
             <ul class="nav-list">
                 <li><a href="${pageContext.request.contextPath}/receptionist/viewBookingList"><span><i class="bi bi-list-ul"></i></span>View Booking List</a></li>
-                <li><a href="${pageContext.request.contextPath}/receptionist/viewCheckoutRoom"><span><i class="bi bi-door-open"></i></span>View Checkout Room</a></li>
+                <li><a href="${pageContext.request.contextPath}/receptionist/checkoutRoom"><span><i class="bi bi-door-open"></i></span>View Checkout Room</a></li>
                 <li><a href="${pageContext.request.contextPath}/receptionist/searchRoom"><span><i class="bi bi-search"></i></span>Search Room</a></li>
                 <li><a href="${pageContext.request.contextPath}/receptionist/stayingRoom"><span><i class="bi bi-house-door"></i></span>Staying Room</a></li>
             </ul>

@@ -337,5 +337,4 @@ public class TypeRoomDAO {
 
         return price;
     }
-
 }

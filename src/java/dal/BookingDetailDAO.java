@@ -87,7 +87,9 @@ public class BookingDetailDAO {
         StringBuilder sql = new StringBuilder("""
                 select bd.BookingDetailId, bd.StartDate, bd.EndDate, bd.TotalAmount, r.RoomNumber, r.isCleaner from BookingDetail bd
                 join Room r on r.RoomNumber=bd.RoomNumber
-                WHERE bd.StartDate<= CAST(GETDATE() AS DATE) and bd.EndDate>=CAST(GETDATE() AS DATE)""");
+                join Booking b on b.BookingId=bd.BookingId
+                WHERE bd.StartDate<= CAST(GETDATE() AS DATE) and bd.EndDate>=CAST(GETDATE() AS DATE) and 
+                    b.Status not like 'Completed CheckOut'""");
         if (search != null && !search.isEmpty()) {
             sql.append(" AND r.RoomNumber LIKE ?");
         }
@@ -120,11 +122,12 @@ public class BookingDetailDAO {
 
     public int getTotalStayingRooms(String search) {
         String sql = """
-                    select bd.BookingDetailId, bd.StartDate, bd.EndDate, bd.TotalAmount, r.RoomNumber, r.isCleaner from BookingDetail bd
-                    join Room r on r.RoomNumber=bd.RoomNumber
+                    select COUNT(*) from Room r
+                    join BookingDetail bd on bd.RoomNumber=r.RoomNumber
+                    join TypeRoom tr on tr.TypeId=r.TypeId
                     join Booking b on b.BookingId=bd.BookingId
                     WHERE bd.StartDate<= CAST(GETDATE() AS DATE) and bd.EndDate>=CAST(GETDATE() AS DATE) and
-                    	 b.Status not like 'Completed CheckOut'
+                        b.Status not like 'Completed CheckOut'
                      """;
 
         if (search != null && !search.isEmpty()) {

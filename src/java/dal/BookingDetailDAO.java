@@ -181,7 +181,8 @@ public class BookingDetailDAO {
                          b.BookingId,
                          bd.BookingDetailId,
                          b.PaidAmount,
-                         bd.TotalAmount
+                         bd.TotalAmount, 
+                         bd.RoomNumber
                      FROM 
                          Booking b
                      JOIN 
@@ -201,6 +202,9 @@ public class BookingDetailDAO {
                     booking.setPaidAmount(rs.getInt(3));
                     bookingDetail.setBooking(booking);
                     bookingDetail.setTotalAmount(rs.getInt(4));
+                    Room room=new Room();
+                    room.setRoomNumber(rs.getInt(5));
+                    bookingDetail.setRoom(room);
                     return bookingDetail;
                 }
             } catch (SQLException e) {

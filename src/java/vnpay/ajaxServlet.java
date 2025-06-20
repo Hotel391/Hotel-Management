@@ -105,7 +105,7 @@ public class ajaxServlet extends HttpServlet {
             BookingDetail bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetalByBookingId(bookingId);
             int PaidAmount = bookingDetail.getBooking().getPaidAmount();
             int totalAmount = bookingDetail.getTotalAmount();
-            dal.RoomDAO.getInstance().updateRoomStatus(bookingDetail.getRoom().getRoomNumber(), false);
+            
             if (PaidAmount == totalAmount) {
                 Booking booking =new Booking();
                 booking.setBookingId(bookingId);
@@ -113,6 +113,7 @@ public class ajaxServlet extends HttpServlet {
                 dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
                 booking.setStatus("Completed CheckOut");
                 dal.BookingDAO.getInstance().updateBookingStatus(booking);
+                dal.RoomDAO.getInstance().updateRoomStatus(bookingDetail.getRoom().getRoomNumber(), false);
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
                 return;
             }

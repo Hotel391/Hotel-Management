@@ -78,16 +78,21 @@ public class VnpayReturn extends HttpServlet {
                     int totalPrice = (int) session.getAttribute("totalPriceUpdate");
                     booking.setTotalPrice(totalPrice);
                     dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
+
+                    int roomNumber = (int) session.getAttribute("roomNumber");
+                    dal.RoomDAO.getInstance().updateRoomStatus(roomNumber, false);
                     request.setAttribute("pageChange", "checkOut");
                     transSuccess = true;
                 } else {
                     booking.setStatus("Completed CheckIn");
                 }
             }
+
+            session.removeAttribute("roomNumber");
             session.removeAttribute("status");
             dal.BookingDAO.getInstance().updateBookingStatus(booking);
             request.setAttribute("transResult", transSuccess);
-            
+
             request.getRequestDispatcher("/paymentResult.jsp").forward(request, response);
         } else {
             //RETURN PAGE ERROR

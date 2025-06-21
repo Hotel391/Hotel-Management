@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import models.RoomNService;
 import models.Service;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class TypeRoomDAO {
@@ -293,7 +291,7 @@ public class TypeRoomDAO {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
         return null;
     }
@@ -304,7 +302,7 @@ public class TypeRoomDAO {
             st.setInt(1, typeId);
             st.executeUpdate();
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
 
@@ -316,7 +314,7 @@ public class TypeRoomDAO {
             st.setInt(3, price);
             st.executeUpdate();
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+           ex.printStackTrace();
         }
     }
 }

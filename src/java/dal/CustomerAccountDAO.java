@@ -104,7 +104,7 @@ public class CustomerAccountDAO {
                 return ca;
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Consider logging the exception properly
+            e.printStackTrace(); 
         }
         return null;
     }

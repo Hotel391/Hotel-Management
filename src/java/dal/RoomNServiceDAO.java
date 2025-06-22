@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import models.RoomNService;
 import models.Service;
 import models.TypeRoom;
@@ -74,7 +72,7 @@ public class RoomNServiceDAO {
             st.setInt(1, typeId);
             st.executeUpdate();
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
     }
 
@@ -89,7 +87,7 @@ public class RoomNServiceDAO {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+           
         }
         return serviceIds;
     }
@@ -101,7 +99,7 @@ public class RoomNServiceDAO {
             st.setInt(2, serviceId);
             st.executeUpdate();
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+           
         }
     }
 }

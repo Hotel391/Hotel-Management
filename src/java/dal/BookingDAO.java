@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.Map;
 import models.Booking;
 import java.sql.Date;
-import dal.CustomerDAO;
-import dal.PaymentMethodDAO;
+
 
 public class BookingDAO {
 

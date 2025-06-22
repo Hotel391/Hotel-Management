@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import models.TypeRoom;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -161,7 +159,7 @@ public class ServiceDAO {
                 }
             }
         } catch (SQLException e) {
-            Logger.getLogger(ServiceDAO.class.getName()).log(Level.SEVERE, null, e);
+            
         }
         return services;
     }

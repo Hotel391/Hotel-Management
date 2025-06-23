@@ -82,10 +82,10 @@ public class StayingRoom extends HttpServlet {
 
     private void handleViewService(HttpServletRequest request)
             throws ServletException, IOException {
-        int bookingDetailId = Integer.parseInt(request.getParameter("bookingDetailId"));
-        List<DetailService> detailService = dal.ServiceDAO.getInstance().getServiceByBookingDetailId(bookingDetailId);
+        String bookingDetailId = request.getParameter("bookingDetailId");
+        List<DetailService> detailService = dal.ServiceDAO.getInstance().getServiceByBookingDetailId(Integer.parseInt(bookingDetailId));
         request.setAttribute("detailService", detailService);
-        List<Service> otherServices = dal.ServiceDAO.getInstance().getServiceNotInBookingDetail(bookingDetailId);
+        List<Service> otherServices = dal.ServiceDAO.getInstance().getServiceNotInBookingDetail(Integer.parseInt(bookingDetailId));
         request.setAttribute("otherServices", otherServices);
     }
 

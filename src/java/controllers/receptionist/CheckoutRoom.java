@@ -18,6 +18,7 @@ import models.Customer;
 import dal.BookingDetailDAO;
 import dal.CustomerDAO;
 import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 
 /**
@@ -76,6 +77,8 @@ public class CheckoutRoom extends HttpServlet {
         
         if ("checkout".equals(service)) {
             int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+            
+            Date currentDate = Date.valueOf(LocalDate.now());
             
             session.setAttribute("bookingId", bookingId);
             

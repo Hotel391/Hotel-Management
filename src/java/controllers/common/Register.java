@@ -97,13 +97,8 @@ public class Register extends HttpServlet {
                 FULLNAME_FIELD,
                 input,
                 Function.identity(),
-                List.of(
-                        new ValidationRule<>(value -> value.length() >= 2 && value.length() <= 100,
-                                "Fullname must be 2-100 characters"),
-                        new ValidationRule<>(value -> Validation.checkFormatException(value, "FULLNAME"),
-                                "Fullname just contain letters"),
-                        new ValidationRule<>(value -> !value.contains("  "),
-                                "Fullname cannot contain consecutive spaces")));
+                "FULLNAME",
+                null);
     }
 
     private boolean validateEmail(HttpServletRequest request, IRegisterService service, String input) {
@@ -112,10 +107,8 @@ public class Register extends HttpServlet {
                 EMAIL_FIELD,
                 input,
                 Function.identity(),
-                List.of(
-                        new ValidationRule<>(value -> Validation.checkFormatException(value, "EMAIL"),
-                                "Email must be in the format: user@example.com"),
-                        new ValidationRule<>(value -> !service.isEmailExists(value),
+                "EMAIL",
+                List.of(new ValidationRule<>(value -> !service.isEmailExists(value),
                                 "Email already exists")));
     }
 
@@ -125,19 +118,8 @@ public class Register extends HttpServlet {
                 USERNAME_FIELD,
                 input,
                 Function.identity(),
-                List.of(
-                        new ValidationRule<>(value -> value.length() >= 6 && value.length() <= 20,
-                                "Username must be 6-20 characters"),
-                        new ValidationRule<>(value -> Validation.checkFormatException(value, "USERNAME_FIRST_CHAR"),
-                                "Username must start with a letter"),
-                        new ValidationRule<>(
-                                value -> Validation.checkFormatException(value, "USERNAME"),
-                                "Username just can contains letters, digits, and underscores"),
-                        new ValidationRule<>(value -> !Validation.checkFormatException(value, "EMOJI"),
-                                "Username cannot contain emoji."),
-                        new ValidationRule<>(value -> Validation.checkFormatException(value, "FORBIDDEN_USERNAME"),
-                                "Username contains restricted words"),
-                        new ValidationRule<>(value -> !service.isUsernameExists(value),
+                "USERNAME",
+                List.of(new ValidationRule<>(value -> !service.isUsernameExists(value),
                                 "Username already exists")));
     }
 
@@ -147,11 +129,8 @@ public class Register extends HttpServlet {
                 PASSWORD_FIELD,
                 input,
                 Function.identity(),
-                List.of(
-                        new ValidationRule<>(value -> value.charAt(0) != ' ' && value.charAt(value.length() - 1) != ' ',
-                                "Password cannot start or end with space"),
-                        new ValidationRule<>(value -> Validation.checkFormatException(value, "PASSWORD"),
-                                "Password must contains 8 characters with lower, upper, special and digit")));
+                "PASSWORD",
+                null);
     }
 
     private boolean isErrorConfirmPassword(HttpServletRequest request, String confirmPassword, String password) {

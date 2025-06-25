@@ -111,7 +111,8 @@ public class ManagerService extends HttpServlet {
         }
 
         if (serviceName == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
-            request.setAttribute("serviceNameUpdateError", "Tên dịch vụ chỉ được chứa các chữ cái, chữ số và một khoảng trắng giữa các từ.");
+            request.setAttribute("serviceNameUpdateError", "Tên dịch vụ không được để trống,"
+                    + "Tên dịch vụ chỉ được chứa các chữ cái, chữ số và một khoảng trắng giữa các từ.");
             haveError = true;
         }
 
@@ -151,7 +152,8 @@ public class ManagerService extends HttpServlet {
         boolean haveError = false;
 
         if (serviceName == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
-            request.setAttribute("nameAddError", "Tên dịch vụ chỉ được chứa các chữ cái, chữ số và một khoảng trắng giữa các từ.");
+            request.setAttribute("nameAddError", "Tên dịch vụ không được để trống,"
+                    + " Tên dịch vụ chỉ được chứa các chữ cái, chữ số và một khoảng trắng giữa các từ.");
             haveError = true;
         }
         for (Service service : list) {

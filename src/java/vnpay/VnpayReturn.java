@@ -21,7 +21,7 @@ import models.Booking;
 
 /**
  *
- * @author HP
+ * @author TuanPC
  */
 public class VnpayReturn extends HttpServlet {
 

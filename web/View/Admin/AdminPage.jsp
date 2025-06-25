@@ -42,10 +42,11 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th>Username</th>
-                                            <th>Registration Date</th>
-                                            <th>Activate</th>
-                                            <th>Role Name</th>
-                                            <th>Delete</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Trạng thái</th>
+                                            <th>Chức vụ</th>
+                                            <th>Chuyển trạng thái</th>
+                                            <th>Xóa tài khoản</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -65,13 +66,20 @@
                                                 </td>
                                                 <td>${e.role.roleName}</td>
                                                 <td>
+                                                    <a href="${pageContext.request.contextPath}/admin/page?service=activateManager&employeeID=${e.employeeId}&activate=${not e.activate}" 
+                                                       onclick="return confirm('Bạn chắc chắn muốn đóng tài khoản này?');">
+                                                        <button type="submit" class="btn btn-sm ${e.activate ? 'btn-warning' : 'btn-success'}" title="Chuyển trạng thái">
+                                                            <i class="bi bi-power"></i>
+                                                        </button>
+                                                    </a>
+                                                </td>
+                                                <td>
                                                     <a href="${pageContext.request.contextPath}/admin/page?service=deleteManager&employeeID=${e.employeeId}" 
                                                        onclick="return confirm('Are you sure to delete?');"
                                                        class="btn btn-sm btn-danger">
                                                         <i class="bi bi-trash-fill"></i>
                                                     </a>
                                                 </td>
-
                                             </tr>
                                         </c:forEach>
                                     </tbody>

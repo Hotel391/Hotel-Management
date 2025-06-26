@@ -83,7 +83,8 @@ public class Validation {
         httpRequest.removeAttribute(attrKey);
         return false;
     }
-
+    
+    
     public static <T> boolean validateField(
             jakarta.servlet.http.HttpServletRequest req,
             String attrKey,
@@ -156,5 +157,15 @@ public class Validation {
             req.removeAttribute(attrKey);
         }
         return check;
+    }
+    
+    public static <T> boolean validateField(
+            jakarta.servlet.http.HttpServletRequest req,
+            String attrKey,
+            String fieldName,
+            String rawInput,
+            Function<String, T> parser,
+            String ruleName) {
+        return validateField(req, attrKey, fieldName, rawInput, parser, ruleName, null);
     }
 }

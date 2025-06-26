@@ -97,8 +97,7 @@ public class Register extends HttpServlet {
                 FULLNAME_FIELD,
                 input,
                 Function.identity(),
-                "FULLNAME",
-                null);
+                "FULLNAME");
     }
 
     private boolean validateEmail(HttpServletRequest request, IRegisterService service, String input) {
@@ -129,8 +128,7 @@ public class Register extends HttpServlet {
                 PASSWORD_FIELD,
                 input,
                 Function.identity(),
-                "PASSWORD",
-                null);
+                "PASSWORD");
     }
 
     private boolean isErrorConfirmPassword(HttpServletRequest request, String confirmPassword, String password) {

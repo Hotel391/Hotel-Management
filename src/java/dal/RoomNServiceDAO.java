@@ -66,10 +66,11 @@ public class RoomNServiceDAO {
         return services;
     }
 
-    public void deleteRoomNServiceByTypeId(int typeId) {
-        String sql = "DELETE FROM RoomNService WHERE typeId = ?";
+    public void deleteRoomNServiceByTypeId(int typeId, int serviceId) {
+        String sql = "DELETE FROM RoomNService WHERE typeId = ? And ServiceId = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, typeId);
+            st.setInt(2, serviceId);
             st.executeUpdate();
         } catch (SQLException ex) {
             

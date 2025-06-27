@@ -30,13 +30,13 @@ public class TypeRoomServlet extends HttpServlet {
         if ("view".equals(service)) {
             showTypeRoom(request, response);
         }
-        
-        if("addTypeRoom".equals(service)){
+
+        if ("addTypeRoom".equals(service)) {
             System.out.println("123");
             String name = request.getParameter("typeName").trim();
             String price_raw = request.getParameter("price").trim();
             String description = request.getParameter("typeDesc").trim();
-            
+
             System.out.println("desc: " + description);
 
             boolean check = false;
@@ -75,7 +75,7 @@ public class TypeRoomServlet extends HttpServlet {
                 request.setAttribute("name", name);
                 request.setAttribute("price", price_raw);
                 request.setAttribute("description", description);
-                
+
             }
             request.setAttribute("showModalAdd", "show");
             showTypeRoom(request, response);
@@ -161,7 +161,7 @@ public class TypeRoomServlet extends HttpServlet {
                     request.setAttribute("showModalDesc", typeRoomId);
                 }
             }
-            
+
             showTypeRoom(request, response);
         }
 
@@ -170,11 +170,11 @@ public class TypeRoomServlet extends HttpServlet {
 
             int typeId = Integer.parseInt(request.getParameter("typeId"));
 
+            List<Integer> currentServices = RoomNServiceDAO.getInstance().getAllServiceIdByTypeId(typeId);
+
             if (serviceItem != null) {
 
                 boolean check = false;
-
-                List<Integer> currentServices = RoomNServiceDAO.getInstance().getAllServiceIdByTypeId(typeId);
 
                 List<Integer> updateServices = new ArrayList<>();
 
@@ -192,7 +192,9 @@ public class TypeRoomServlet extends HttpServlet {
                 }
 
                 if (!check) {
-                    RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId);
+                    for (Integer serviceId : currentServices) {
+                        RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId, serviceId);
+                    }
                     for (String item : serviceItem) {
                         RoomNServiceDAO.getInstance().insertRoomNServiceByTypeId(typeId, Integer.parseInt(item));
                     }
@@ -202,16 +204,18 @@ public class TypeRoomServlet extends HttpServlet {
 
                 request.setAttribute("showModalService", typeId);
             } else {
-                RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId);
+                for (Integer serviceId : currentServices) {
+                    RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId, serviceId);
+                }
 
                 request.setAttribute("showModalService", typeId);
             }
             request.setAttribute("typeId", typeId);
             showTypeRoom(request, response);
         }
-        
-        if("deleleTypeRoom".equals(service)){
-            
+
+        if ("deleleTypeRoom".equals(service)) {
+
         }
 
     }
@@ -238,7 +242,6 @@ public class TypeRoomServlet extends HttpServlet {
 
             request.setAttribute("key", key);
         } else {
-            
 
             typeRoomTotal = dal.TypeRoomDAO.getInstance().getTypeRoomQuantity();
 

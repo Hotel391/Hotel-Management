@@ -84,12 +84,12 @@
                             <table class="table align-middle bg-white">
                                 <thead class="table-light">
                                     <tr>
-                                        <th scope="col">Room number</th>
-                                        <th scope="col">Room type</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Service</th>
-                                        <th scope="col">Is Active</th>
-                                        <th scope="col">Action</th>
+                                        <th scope="col">Số phòng</th>
+                                        <th scope="col">Loại phòng</th>
+                                        <th scope="col">Giá</th>
+                                        <th scope="col">Dịch vụ</th>
+                                        <th scope="col">Trạng thái phòng</th>
+                                        <th scope="col">Tùy chọn</th>
                                     </tr>
                                 </thead>
                                 <tbody>

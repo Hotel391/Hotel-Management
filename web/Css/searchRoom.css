@@ -56,7 +56,7 @@
 	height: 110px;
 	padding: 15px 10px;
 	margin-bottom: 0px;
-        width: 60%;
+        width: 100%;
 }
 
 .booking-form .form-control {
@@ -110,7 +110,8 @@
 
 .booking-form .form-btn {
 	padding: 15px 10px;
-	height: 110px;
+	width: 100%;
+        height: 100%;
 }
 
 .booking-form .submit-btn {

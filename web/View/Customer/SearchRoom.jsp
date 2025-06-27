@@ -5,6 +5,7 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -46,6 +47,7 @@
                 font-size: 28px;
                 color: #3c404a;
                 font-weight: 700;
+                width: 60%;
             }
             .booking-form select.form-control + .select-arrow {
                 position: absolute;
@@ -82,9 +84,50 @@
                 font-size: 52px;
                 color: #9a8067;
             }
+            .booking-form .form-btn{
+                width: 100%;
+                height: 100%;
+            }
             .booking-form .form-btn .submit-btn {
                 width: 100%;
                 height: 100%;
+            }
+
+            .price-filter-container {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin: 10px 0;
+            }
+
+            .price-input {
+                padding: 8px 12px;
+                width: 40%;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                font-size: 14px;
+            }
+
+            .price-separator {
+                font-size: 18px;
+                color: #555;
+            }
+
+            .apply-button {
+                padding: 8px 16px;
+                background-color: #E14924;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-size: 14px;
+                cursor: pointer;
+                width: 92%;
+                transition: background-color 0.3s ease;
+            }
+
+            .apply-button:hover {
+                background-color: #c93c1f;
             }
         </style>
     </head>
@@ -130,55 +173,16 @@
                 <!-- Bộ Lọc (Filter Sidebar) -->
                 <div class="col-md-3">
                     <div id="filter" class="p-2 bg-light border">
-                        <div class="border-bottom h5 text-uppercase">Filter By</div>
+                        <div class="border-bottom h5 text-uppercase">Chọn bộ lọc theo:</div>
                         <div class="box border-bottom">
                             <div class="box-label text-uppercase d-flex align-items-center">Price
-                                <button class="btn ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#inner-box" aria-expanded="false" aria-controls="inner-box">
-                                    <span class="fas fa-plus"></span>
-                                </button>
                             </div>
                             <div id="inner-box" class="collapse show">
-                                <div class="my-1">
-                                    <label class="tick">Less than 2000
-                                        <input type="checkbox" checked="checked">
-                                        <span class="check"></span>
-                                    </label>
-                                </div>
-                                <div class="my-1">
-                                    <label class="tick">2000 - 3000
-                                        <input type="checkbox">
-                                        <span class="check"></span>
-                                    </label>
-                                </div>
-                                <div class="my-1">
-                                    <label class="tick">3000 - 4500
-                                        <input type="checkbox">
-                                        <span class="check"></span>
-                                    </label>
-                                </div>
-                                <div class="my-1">
-                                    <label class="tick">4500 - 6000
-                                        <input type="checkbox">
-                                        <span class="check"></span>
-                                    </label>
-                                </div>
-                                <div class="my-1">
-                                    <label class="tick">6000 - 8000
-                                        <input type="checkbox">
-                                        <span class="check"></span>
-                                    </label>
-                                </div>
-                                <div class="my-1">
-                                    <label class="tick">8000 - 10,000
-                                        <input type="checkbox" checked>
-                                        <span class="check"></span>
-                                    </label>
-                                </div>
-                                <div class="my-1">
-                                    <label class="tick">10,000 and Above
-                                        <input type="checkbox">
-                                        <span class="check"></span>
-                                    </label>
+                                <div class="price-filter-container">
+                                    <input type="text" maxlength="13" class="price-input" placeholder="₫ TỪ" />
+                                    <span class="price-separator">–</span>
+                                    <input type="text" maxlength="13" class="price-input" placeholder="₫ ĐẾN" />
+                                    <button class="apply-button" onclick="applyFilters()">Áp Dụng</button>
                                 </div>
                             </div>
                         </div>
@@ -188,34 +192,34 @@
                 <div class="col-md-9">
                     <div id="hotels" class="bg-white p-2 border">
                         <!-- Khách Sạn 1 -->
-                        <div class="card mb-3">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="https://images.unsplash.com/photo-1580835845971-a393b73bf370?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=967&q=80" class="img-fluid rounded-start" alt="Mayflower Hibiscus Inn">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Mayflower Hibiscus Inn <small class="text-muted">Bandra, Mumbai</small></h5>
-                                        <div class="rating">
-                                            <span class="fas fa-star text-warning"></span>
-                                            <span class="fas fa-star text-warning"></span>
-                                            <span class="fas fa-star text-warning"></span>
-                                            <span class="fas fa-star text-warning"></span>
-                                            <span class="far fa-star text-warning"></span>
-                                        </div>
-                                        <p class="card-text">
-                                            <span class="badge bg-success me-1"><i class="fas fa-comment-dollar"></i> Free Cancellation</span>
-                                            <span class="badge bg-info me-1"><i class="fas fa-receipt"></i> Express check-in</span>
-                                            <span class="badge bg-primary"><i class="fas fa-concierge-bell"></i> Concierge</span>
-                                        </p>
-                                        <div class="d-flex justify-content-end">
-                                            <button class="btn btn-outline-secondary me-2 text-uppercase">Enquiry</button>
-                                            <button class="btn btn-primary text-uppercase">Book Now</button>
+                        <c:forEach var="typeRoom" items="typeRoomList">
+                            <div class="card mb-3">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        <img src="https://images.unsplash.com/photo-1580835845971-a393b73bf370?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=967&q=80" class="img-fluid rounded-start" alt="Mayflower Hibiscus Inn">
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Mayflower Hibiscus Inn <small class="text-muted">Bandra, Mumbai</small></h5>
+                                            <div class="rating">
+                                                <span class="fas fa-star text-warning"></span>
+                                                <span class="fas fa-star text-warning"></span>
+                                                <span class="fas fa-star text-warning"></span>
+                                                <span class="fas fa-star text-warning"></span>
+                                                <span class="far fa-star text-warning"></span>
+                                            </div>
+                                            <p class="card-text">
+                                                <span class="badge bg-info me-1"><i class="fas fa-receipt"></i> Express check-in</span>
+                                                <span class="badge bg-success me-1"><i class="fas fa-check-circle"></i> Available</span>
+                                            </p>
+                                            <div class="d-flex justify-content-end">
+                                                <button class="btn btn-primary text-uppercase">Book Now</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </c:forEach>
                     </div>
                 </div>
             </div>

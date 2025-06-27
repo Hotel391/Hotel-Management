@@ -82,13 +82,13 @@ public class VnpayReturn extends HttpServlet {
                     int roomNumber = (int) session.getAttribute("roomNumber");
                     dal.RoomDAO.getInstance().updateRoomStatus(roomNumber, false);
                     request.setAttribute("pageChange", "checkOut");
+                    session.removeAttribute("roomNumber");
                     transSuccess = true;
                 } else {
                     booking.setStatus("Completed CheckIn");
                 }
             }
 
-            session.removeAttribute("roomNumber");
             session.removeAttribute("status");
             dal.BookingDAO.getInstance().updateBookingStatus(booking);
             request.setAttribute("transResult", transSuccess);

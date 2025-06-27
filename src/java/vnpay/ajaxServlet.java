@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
+import java.util.Random;
 import models.Booking;
 import models.BookingDetail;
 import models.Customer;
@@ -132,7 +133,8 @@ public class ajaxServlet extends HttpServlet {
         if ("checkIn".equals(status)) {
             vnp_TxnRef = bookingId + "_CI";//dky ma rieng
         } else {
-            vnp_TxnRef = bookingId + "_CO";
+            String CO = generateRandomCodeWithUnderscore(6);
+            vnp_TxnRef = bookingId + CO;
         }
         String vnp_IpAddr = Config.getIpAddress(req); // Lấy địa chỉ IP của client
 
@@ -198,5 +200,17 @@ public class ajaxServlet extends HttpServlet {
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
         resp.sendRedirect(paymentUrl);
+    }
+    
+    public static String generateRandomCodeWithUnderscore(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder("_"); // dấu _
+        Random random = new Random();
+
+        for (int i = 0; i < length; i++) {
+            sb.append(characters.charAt(random.nextInt(characters.length())));
+        }
+
+        return sb.toString();
     }
 }

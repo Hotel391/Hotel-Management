@@ -1,5 +1,6 @@
 package controllers.manager;
 
+import dal.ServiceDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -16,6 +17,12 @@ public class ManagerService extends HttpServlet {
     private String submitt = "submit";
     private String serviceNamee = "serviceName";
 
+    private ServiceDAO dao = dal.ServiceDAO.getInstance(); // dùng thay cho ServiceDAO.getInstance()
+
+    public void setDao(ServiceDAO mockDao) {
+        this.dao = mockDao;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -24,7 +31,7 @@ public class ManagerService extends HttpServlet {
             choose = "ViewAllService";
         }
         String pageStr = request.getParameter("page");
-        List<Service> list = dal.ServiceDAO.getInstance().getAllService();
+        List<Service> list = dao.getAllService();
 
         if (choose.equals("deleteService")) {
             String serviceIdStr = request.getParameter(serviceIdd);
@@ -39,7 +46,7 @@ public class ManagerService extends HttpServlet {
                 }
             }
 
-            dal.ServiceDAO.getInstance().deleteService(serviceId);
+            dao.deleteService(serviceId);
             paginateServiceList(request, list, pageStr);
             response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=delete&success=true");
         }
@@ -55,7 +62,7 @@ public class ManagerService extends HttpServlet {
             throws ServletException, IOException {
 
         String choose = request.getParameter("choose");
-        List<Service> list = dal.ServiceDAO.getInstance().getAllService();
+        List<Service> list = dao.getAllService();
         String pageStr = request.getParameter("page");
         if (pageStr != null) {
             request.setAttribute("page", pageStr);
@@ -103,14 +110,14 @@ public class ManagerService extends HttpServlet {
         }
 
         // Không cho đổi tên nếu đã dùng
-        if (isUsed && !normalize(serviceName).equals(normalize(oldName))) {
-            request.setAttribute("canNotUpdate", "Không thể thay đổi tên vì dịch vụ đã được sử dụng.");
+        if (oldName != null && isUsed && !normalize(serviceName).equals(normalize(oldName))) {
+            request.setAttribute("canNotUpdate", "Không thể thay đổi tên dịch vụ vì dịch vụ đã được sử dụng.");
             paginateServiceList(request, list, pageStr);
             request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
             return;
         }
 
-        if (serviceName == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
+        if (serviceName.trim() == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
             request.setAttribute("serviceNameUpdateError", "Tên dịch vụ không được để trống,"
                     + "Tên dịch vụ chỉ được chứa các chữ cái, chữ số và một khoảng trắng giữa các từ.");
             haveError = true;
@@ -118,9 +125,13 @@ public class ManagerService extends HttpServlet {
 
         try {
             price = Integer.parseInt(priceStr);
-        } catch (Exception e) {
+            if (price <= 0) {
+                request.setAttribute("priceUpdateError", "Giá phải là chữ số lớn hơn hoặc bằng 0.");
+                haveError = true;
+            }
+        } catch (NumberFormatException e) {
             haveError = true;
-            request.setAttribute("priceUpdateError", "Giá phải là số lớn hơn 0");
+            request.setAttribute("priceUpdateError", "Giá phải là chữ số lớn hơn hoặc bằng 0.");
         }
 
         for (Service service : list) {
@@ -139,19 +150,19 @@ public class ManagerService extends HttpServlet {
         }
 
         Service s = new Service(serviceId, serviceName, price);
-        dal.ServiceDAO.getInstance().updateService(s);
+        dao.updateService(s);
         response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=update&success=true");
 
     }
 
-    private void insert(List<Service> list, String pageStr, HttpServletRequest request, HttpServletResponse response)
+    protected void insert(List<Service> list, String pageStr, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String serviceName = request.getParameter(serviceNamee + "Add");
         String priceStr = request.getParameter("priceServiceAdd");
         int price = 0;
         boolean haveError = false;
 
-        if (serviceName == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
+        if (serviceName.trim() == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
             request.setAttribute("nameAddError", "Tên dịch vụ không được để trống,"
                     + " Tên dịch vụ chỉ được chứa các chữ cái, chữ số và một khoảng trắng giữa các từ.");
             haveError = true;
@@ -165,12 +176,12 @@ public class ManagerService extends HttpServlet {
 
         try {
             price = Integer.parseInt(priceStr);
-            if (price < 0) {
-                request.setAttribute("priceAddError", "Giá phải là số lớn hơn 0.");
+            if (price <= 0) {
+                request.setAttribute("priceAddError", "Giá phải là chữ số lớn hơn hoặc bằng 0.");
                 haveError = true;
             }
         } catch (NumberFormatException e) {
-            request.setAttribute("priceAddError", "Giá phải là số lớn hơn 0.");
+            request.setAttribute("priceAddError", "Giá phải là chữ số lớn hơn hoặc bằng 0.");
             haveError = true;
         }
 
@@ -180,7 +191,7 @@ public class ManagerService extends HttpServlet {
             return;
         }
 
-        dal.ServiceDAO.getInstance().insertService(serviceName, price);
+        dao.insertService(serviceName, price);
         response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=add&success=true");
 
     }

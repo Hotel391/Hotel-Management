@@ -44,6 +44,7 @@
                                     <c:when test="${param.action == 'add'}">Thêm dịch vụ thành công!</c:when>
                                     <c:when test="${param.action == 'update'}">Cập nhật dịch vụ thành công!</c:when>
                                     <c:when test="${param.action == 'isActive'}">Đổi trạng thái dịch vụ thành công!</c:when>
+                                    <c:when test="${param.action == 'delete'}">Xóa dịch vụ thành công!</c:when>
                                     <c:otherwise>Thao tác thành công!</c:otherwise>
                                 </c:choose>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -60,7 +61,7 @@
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex gap-2">
-                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">+ Add New Service</button>
+                                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">+ Thêm dịch vụ</button>
                             </div>
                         </div>
 
@@ -152,7 +153,7 @@
                             <div class="modal-content">
                                 <form action="${pageContext.request.contextPath}/manager/service?choose=updateService" method="post">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="updateServiceModalLabel">Update Service</h5>
+                                        <h5 class="modal-title" id="updateServiceModalLabel">Cập nhật dịch vụ</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
 
@@ -166,14 +167,14 @@
 
                                         <!-- Service Name -->
                                         <div class="mb-3">
-                                            <label for="serviceName" class="form-label">Service Name</label>
+                                            <label for="serviceName" class="form-label">Tên dịch vụ</label>
                                             <input type="text" class="form-control" id="serviceName" name="serviceName" required
                                                    value="${param.serviceName}" />
                                         </div>
 
                                         <!-- Price -->
                                         <div class="mb-3">
-                                            <label for="price" class="form-label">Price (VND)</label>
+                                            <label for="price" class="form-label">Giá (VND)</label>
                                             <input type="number" class="form-control" id="price" name="price" required min="0"
                                                    value="${param.price}" />
                                         </div>
@@ -186,7 +187,7 @@
                                     </div>
 
                                     <div class="modal-footer">
-                                        <button type="submit" class="btn btn-success" value="submit" name="submit">Update</button>
+                                        <button type="submit" class="btn btn-success" value="submit" name="submit">Cập nhật</button>
                                         <input type="reset" name="reset" value="Reset"/>
                                         <input type="hidden" name="choose" value="updateService"/>
                                         <input type="hidden" name="page" value="${currentPage}" />
@@ -203,17 +204,17 @@
                             <div class="modal-content">
                                 <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/manager/service?choose=insertService" novalidate>
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="addRoleModalLabel">Add New Service</h5>
+                                        <h5 class="modal-title" id="addRoleModalLabel">Thêm dịch vụ mới</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
 
                                     <div class="modal-body">
                                         <div class="mb-3">
-                                            <label for="roomNumberer" class="form-label">Service Name</label>
+                                            <label for="roomNumberer" class="form-label">Tên dịch vụ</label>
                                             <input type="text" id="newServiceNameAdd" name="serviceNameAdd" class="form-control" value="${param.serviceNameAdd}" required="">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="roomTypeSelect" class="form-label">Price</label>
+                                            <label for="roomTypeSelect" class="form-label">Giá (VNĐ)</label>
                                             <input type="number" id="newServicePriceAdd" name="priceServiceAdd" class="form-control"  value="${param.priceServiceAdd}" min="0" required="">
                                         </div>
                                         <c:if test="${not empty requestScope.nameAddError}">
@@ -224,7 +225,7 @@
                                         </c:if>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="submit" name="submit" class="btn btn-success" value="Add new service"/>
+                                        <input type="submit" name="submit" class="btn btn-success" value="Thêm dịch vụ"/>
                                         <input type="reset" name="reset" value="Reset"/>
                                         <input type="hidden" name="choose" value="insertService"/>
                                         <input type="hidden" name="page" value="${currentPage}" />
@@ -252,8 +253,8 @@
                                         <input type="hidden" id="serviceIdDeleteInput" name="serviceId" />
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                        <button type="submit" class="btn btn-danger">Xóa</button>
                                         <input type="hidden" name="choose" value="deleteService"/>
                                         <input type="hidden" name="page" value="${currentPage}" />
 

@@ -198,4 +198,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     transform: scale(1.5); 
 }
 
+.service-card .service-quantity .in-quantity {
+    border-radius: 5px;
+    border: none;
+}
+
 

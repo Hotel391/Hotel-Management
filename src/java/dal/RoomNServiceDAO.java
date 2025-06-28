@@ -93,11 +93,12 @@ public class RoomNServiceDAO {
         return serviceIds;
     }
 
-    public void insertRoomNServiceByTypeId(int typeId, int serviceId) {
-        String sql = "INSERT INTO RoomNService(typeId, serviceId) VALUES(?, ?)";
+    public void insertRoomNServiceByTypeId(int typeId, int serviceId, int quantity) {
+        String sql = "INSERT INTO RoomNService(typeId, serviceId, quantity) VALUES(?, ?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, typeId);
             st.setInt(2, serviceId);
+            st.setInt(3, quantity);
             st.executeUpdate();
         } catch (SQLException ex) {
            

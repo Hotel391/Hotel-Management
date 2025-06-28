@@ -78,11 +78,32 @@ public class TypeRoomDAO {
         }
         return null;
     }
-
+    
     public TypeRoom getTypeRoomByName(String typeName) {
         String sql = "SELECT TypeId, TypeName, Description, Price FROM TypeRoom WHERE TypeName = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, typeName);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt(1));
+                    typeRoom.setTypeName(rs.getString(2));
+                    typeRoom.setDescription(rs.getString(3));
+                    typeRoom.setPrice(rs.getInt(4));
+                    return typeRoom;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public TypeRoom getTypeRoomByNameAndId(String typeName, int typeId) {
+        String sql = "SELECT TypeId, TypeName, Description, Price FROM TypeRoom WHERE TypeName = ? And TypeId != ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, typeName);
+            st.setInt(2, typeId);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
                     TypeRoom typeRoom = new TypeRoom();
@@ -299,14 +320,16 @@ public class TypeRoomDAO {
         return null;
     }
 
-    public TypeRoom getTypeRoomByNameAndPrice(String typeName, int price) {
-        String sql = "SELECT typeName, price FROM TypeRoom WHERE typeName = ? AND price = ?";
+    public TypeRoom getTypeRoomByNameAndPrice(int typeId, String typeName, int price) {
+        String sql = "SELECT typeId, typeName, price FROM TypeRoom WHERE typeId = ? and typeName = ? AND price = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setString(1, typeName);
-            st.setInt(2, price);
+            st.setInt(1, typeId);
+            st.setString(2, typeName);
+            st.setInt(3, price);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
                     TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt("typeId"));
                     typeRoom.setTypeName(rs.getString("typeName"));
                     typeRoom.setPrice(rs.getInt("price"));
                     return typeRoom;

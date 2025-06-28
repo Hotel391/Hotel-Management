@@ -97,9 +97,11 @@
                                 <button type="submit" class="btn btn-primary">Filter</button>
                             </form>
                         </div>
-
-                        <c:if test="${not empty error}">
-                            <div class="alert alert-danger mt-3">${error}</div>
+                                
+                                
+                        
+                        <c:if test="${not empty keyError}">
+                            <div class="alert alert-danger mt-3">${keyError}</div>
                         </c:if>
 
                         <div class="table-container">
@@ -158,10 +160,10 @@
 
 
                                             <td class="viewService">
-                                                <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#serviceModal_${trl.typeId}">
+                                                <button onclick="clearMessageService(${trl.typeId})" class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#serviceModal_${trl.typeId}">
                                                     <i class="bi bi-eye"></i> View 
                                                 </button>
-                                                <form action="${pageContext.request.contextPath}/manager/types" method="post">
+                                                <form action="${pageContext.request.contextPath}/manager/types" method="get">
                                                     <div class="modal fade services-modal" id="serviceModal_${trl.typeId}" tabindex="-1" aria-labelledby="servicesModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog modal-dialog-scrollable modal-lg">
                                                             <div class="modal-content">
@@ -200,6 +202,18 @@
                                                                                     <i class="fas fa-wifi"></i>
                                                                                 </div>
                                                                                 <div class="service-name">${rns.service.serviceName}</div>
+                                                                                <c:choose>
+                                                                                    <c:when test="${rns.service.price != 0}">
+                                                                                        <div class="service-quantity">
+                                                                                            Số lượng: <input type="number" name="serviceQuantity_${rns.service.serviceId}" value="${rns.quantity}" readonly>
+                                                                                        </div>
+                                                                                    </c:when>
+                                                                                    <c:when test="${rns.service.price == 0}">
+                                                                                        <div class="service-quantity">
+                                                                                            Số lượng: <input type="number" name="serviceQuantity_${rns.service.serviceId}" value="1" readonly>
+                                                                                        </div>
+                                                                                    </c:when>
+                                                                                </c:choose>
                                                                                 <c:if test="${rns.service.price != 0}">
                                                                                     <div class="service-price">${rns.service.price} VNĐ</div>
                                                                                 </c:if>
@@ -217,20 +231,40 @@
                                                                     <h5 class="modal-title" id="servicesModalLabel">
                                                                         Các dịch vụ khác
                                                                     </h5> 
+                                                                    <c:if test="${not empty quantityError && typeId == trl.typeId}">
+                                                                        <p class="alert alert-warning">${quantityError}</p>
+                                                                    </c:if>
                                                                     <div class="services-grid other-services">
+
                                                                         <c:forEach var="os" items="${trl.otherServices}">
                                                                             <!-- WiFi Service -->
                                                                             <div class="service-card wifi">
                                                                                 <div class="service-icon">
                                                                                     <i class="fas fa-wifi"></i>
                                                                                 </div>
-                                                                                <div class="service-name">${os.serviceName}</div>
+
+                                                                                <div class="service-name">${os.serviceName} - ${os.serviceId}</div>
+                                                                                <c:choose>
+                                                                                    <c:when test="${os.price != 0}">
+                                                                                        <div class="service-quantity" style="display: none;">
+                                                                                            <input type="number" class="in-quantity" name="serviceQuantity_${os.serviceId}"/>
+
+                                                                                        </div>
+                                                                                    </c:when>
+                                                                                    <c:when test="${os.price == 0}">
+                                                                                        <div class="service-quantity" style="display: none;">
+                                                                                            <input type="number" class="in-quantity" name="serviceQuantity_${os.serviceId}" value="1" readonly/>
+
+                                                                                        </div>
+                                                                                    </c:when>
+                                                                                </c:choose>
                                                                                 <c:if test="${os.price != 0}">
                                                                                     <div class="service-price">${os.price} VNĐ</div>
                                                                                 </c:if>
                                                                                 <c:if test="${os.price == 0}">
                                                                                     <div class="service-price">Free</div>
                                                                                 </c:if>
+
                                                                                 <div class="add-service">
                                                                                     <input name="serviceItem" class="form-check-input mt-0" type="checkbox" value="${os.serviceId}" aria-label="Checkbox for following text input">
                                                                                 </div>
@@ -298,6 +332,10 @@
                                                                             <c:if test="${not empty nameError and updateNameAndPrice == trl.typeId}">
                                                                                 <p class="alert alert-danger">${nameError}</p>
                                                                             </c:if>
+                                                                            <c:if test="${not empty nameUpdateExistedError and updateNameAndPrice == trl.typeId}">
+                                                                                <p class="alert alert-danger">${nameUpdateExistedError}</p>
+                                                                            </c:if>
+                                                                                
                                                                         </div>
 
                                                                         <div class="col-md-6">
@@ -452,7 +490,7 @@
                 <c:if test="${not empty updateMessageNameAndPrice}">
                     setTimeout(function () {
 
-                        clearMessage('${showModalEdit}');
+                        clearMessageEdit('${showModalEdit}');
 
 
                         modal.hide();
@@ -462,34 +500,23 @@
 
                 });
 
-                function clearMessage(typeId) {
-                    // Ẩn message trong modal
-                    var messageElement = document.querySelectorAll('#editTypeRoomModal_' + typeId + ' .modal-body p');
-                    console.log(messageElement);
-                    // Hoặc xóa hoàn toàn
-                    if (messageElement) {
-                        messageElement.forEach(function (element) {
-                            element.remove();
-                        });
-                    }
-                }
-                ;
+                
 
 
             </script>
         </c:if>
         <c:if test="${not empty showModalService}">
             <script>
-
+                console.log('${showModalService}');
                 window.addEventListener('load', function () {
                     var modal = new bootstrap.Modal(document.getElementById('serviceModal_${showModalService}'));
                     modal.show();
                 <c:if test="${not empty updateMessageService}">
+                    console.log('${updateMessageService}');
                     setTimeout(function () {
 
-                        clearMessage('${showModalService}');
-
-
+                        clearMessageService(${showModalService});
+                        console.log(1);
                         modal.hide();
                     }, 2000);
                 </c:if>
@@ -497,18 +524,7 @@
 
                 });
 
-                function clearMessage(typeId) {
-                    // Ẩn message trong modal
-                    var messageElement = document.querySelectorAll('#serviceModal_' + typeId + ' .modal-body p');
-                    console.log(messageElement);
-                    // Hoặc xóa hoàn toàn
-                    if (messageElement) {
-                        messageElement.forEach(function (element) {
-                            element.remove();
-                        });
-                    }
-                }
-                ;
+                
             </script>
         </c:if>
         <c:if test="${not empty showModalAdd}">
@@ -624,6 +640,65 @@
                 }
             }
             ;
+            function clearMessageService(typeId) {
+                    console.log('TypeId: ' + typeId);
+                    // Ẩn message trong modal
+                    var messageElement = document.querySelectorAll('#serviceModal_' + typeId + ' .modal-body p');
+                    console.log(messageElement);
+                    // Hoặc xóa hoàn toàn
+                    if (messageElement) {
+                        messageElement.forEach(function (element) {
+                            
+                            element.remove();
+                        });
+                    }
+                }
+                ;
+                function clearMessageEdit(typeId) {
+                    // Ẩn message trong modal
+                    var messageElement = document.querySelectorAll('#editTypeRoomModal_' + typeId + ' .modal-body p');
+                    console.log(messageElement);
+                    // Hoặc xóa hoàn toàn
+                    if (messageElement) {
+                        messageElement.forEach(function (element) {
+                            element.remove();
+                        });
+                    }
+                }
+                ;
+
+
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const serviceCheckboxes = document.querySelectorAll('input[name="serviceItem"]');
+
+                serviceCheckboxes.forEach(function (checkbox) {
+                    checkbox.addEventListener('change', function () {
+                        const serviceCard = this.closest('.service-card');
+                        if (serviceCard) {
+                            const quantityDiv = serviceCard.querySelector('.service-quantity');
+
+                            const quantityInput = serviceCard.querySelector('input[name="serviceQuantity"]');
+
+                            if (quantityDiv) {
+                                if (this.checked) {
+                                    quantityDiv.style.display = 'block';
+
+
+                                } else {
+                                    quantityDiv.style.display = 'none';
+
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+//            function resetServiceForm(typeId) {
+//
+//            }
         </script>
 
     </body>

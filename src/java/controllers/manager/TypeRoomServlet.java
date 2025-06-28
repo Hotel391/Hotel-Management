@@ -1,6 +1,7 @@
 package controllers.manager;
 
 import dal.RoomNServiceDAO;
+import dal.ServiceDAO;
 import dal.TypeRoomDAO;
 import models.TypeRoom;
 import java.io.IOException;
@@ -13,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import utility.Validation;
+import java.util.HashMap;
+import java.util.Map;
+import models.RoomNService;
 
 @WebServlet(name = "TypeRoomServlet", urlPatterns = {"/manager/types"})
 public class TypeRoomServlet extends HttpServlet {
@@ -47,7 +51,7 @@ public class TypeRoomServlet extends HttpServlet {
             }
 
             if (Validation.validateField(request, "priceError", price_raw, "ROOM_PRICE_INT",
-                    "Price", "Chỉ bao gồm chữ số")) {
+                    "Price", "Chỉ bao gồm chữ số và lớn hơn 0")) {
                 check = true;
             }
 
@@ -94,13 +98,27 @@ public class TypeRoomServlet extends HttpServlet {
             int price = 0;
 
             String typeName = request.getParameter("typeName").trim();
+            String priceRaw = request.getParameter("price").trim();
 
             if (Validation.validateField(request, "nameError", typeName, "TYPE_ROOM_NAME_BASIC",
                     "Type Name", "Chỉ bao gồm chữ cái")) {
                 check = true;
             }
 
-            String priceRaw = request.getParameter("price").trim();
+            if (TypeRoomDAO.getInstance().getTypeRoomByNameAndId(typeName, typeRoomId) != null) {
+                check = true;
+                request.setAttribute("name", typeName);
+                request.setAttribute("price", priceRaw);
+//                request.setAttribute("description", description);
+                request.setAttribute("updateNameAndPrice", typeRoomId);
+                request.setAttribute("nameUpdateExistedError", "Tên loại phòng đã tồn tại");
+                request.setAttribute("showModalEdit", typeRoomId);
+
+                request.setAttribute("key", key);
+
+                showTypeRoom(request, response);
+                return;
+            }
 
             if (Validation.validateField(request, "priceError", priceRaw, "ROOM_PRICE_INT",
                     "Price", "Chỉ bao gồm chữ số")) {
@@ -109,12 +127,21 @@ public class TypeRoomServlet extends HttpServlet {
                 price = Integer.parseInt(priceRaw);
             }
 
-            if (TypeRoomDAO.getInstance().getTypeRoomByNameAndPrice(typeName, price) != null) {
+            
+            if (TypeRoomDAO.getInstance().getTypeRoomByNameAndPrice(typeRoomId, typeName, price) != null) {
                 check = true;
                 System.out.println(check);
                 request.setAttribute("typeName", typeName);
                 request.setAttribute("price", priceRaw);
+                request.setAttribute("updateNameAndPrice", typeRoomId);
                 request.setAttribute("noChangeError", "Không có gì thay đổi");
+
+                request.setAttribute("showModalEdit", typeRoomId);
+
+                request.setAttribute("key", key);
+
+                showTypeRoom(request, response);
+                return;
             }
 
             if (!check) {
@@ -170,9 +197,60 @@ public class TypeRoomServlet extends HttpServlet {
 
             int typeId = Integer.parseInt(request.getParameter("typeId"));
 
+//            for (String string : serviceItem) {
+//                System.out.println("serviceId: " + string);
+//            }
+            String serviceQuantity[] = request.getParameterValues("serviceQuantity");
+
+//            for (String string : serviceQuantity) {
+//                System.out.println("quantity: " + string);
+//            }
+            Map<Integer, Integer> serviceQuantityMap = new HashMap<>();
+
+            if (serviceItem != null && serviceItem.length > 0) {
+
+                for (int i = 0; i < serviceItem.length; i++) {
+
+                    String serviceId = serviceItem[i];
+                    String quantity = request.getParameter("serviceQuantity_" + serviceId);
+
+                    System.out.println(serviceId + "-" + quantity);
+
+                    if (quantity == null || quantity.isEmpty()) {
+                        request.setAttribute("typeId", typeId);
+                        request.setAttribute("quantityError", "Số lượng không được để trống");
+                        request.setAttribute("showModalService", typeId);
+                        showTypeRoom(request, response);
+                        return;
+                    }
+
+                    if (Integer.parseInt(quantity) < 0) {
+                        request.setAttribute("typeId", typeId);
+                        request.setAttribute("quantityError", "Số lượng phải > 0");
+                        request.setAttribute("showModalService", typeId);
+                        showTypeRoom(request, response);
+                        return;
+                    }
+
+                    if (serviceId != null && !serviceId.isEmpty()) {
+                        int serviceIdParse = 0;
+                        try {
+                            serviceIdParse = Integer.parseInt(serviceId);
+                            int quantityValue = Integer.parseInt(quantity);
+                            serviceQuantityMap.put(serviceIdParse, quantityValue);
+                        } catch (NumberFormatException e) {
+                            serviceQuantityMap.put(serviceIdParse, 1);
+                        }
+                    }
+                }
+
+            }
+
+            System.out.println(serviceQuantityMap);
+
             List<Integer> currentServices = RoomNServiceDAO.getInstance().getAllServiceIdByTypeId(typeId);
 
-            if (serviceItem != null) {
+            if (!serviceQuantityMap.isEmpty()) {
 
                 boolean check = false;
 
@@ -185,28 +263,55 @@ public class TypeRoomServlet extends HttpServlet {
                 Collections.sort(currentServices);
                 Collections.sort(updateServices);
 
-                if (currentServices.equals(updateServices)) {
-                    check = true;
-                    System.out.println(check);
-                    request.setAttribute("noChangeServiceError", "Không có gì thay đổi");
-                }
-
+//                if (currentServices.equals(updateServices)) {
+//                    check = true;
+//                    System.out.println(check);
+//                    request.setAttribute("noChangeServiceError", "Không có gì thay đổi");
+//                }
                 if (!check) {
-                    for (Integer serviceId : currentServices) {
-                        RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId, serviceId);
+                    TypeRoom typeRoom = TypeRoomDAO.getInstance().getTypeRoomById(typeId);
+
+                    int typePrice = typeRoom.getPrice();
+
+                    List<RoomNService> roomNService = RoomNServiceDAO.getInstance().getRoomNServicesByTypeId(typeRoom);
+
+                    if (!roomNService.isEmpty()) {
+                        for (RoomNService rns : roomNService) {
+                            typePrice -= (rns.getService().getPrice() * rns.getQuantity());
+                            RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId, rns.getService().getServiceId());
+                            System.out.println("TypeRoom minus: " + typePrice);
+                        }
                     }
-                    for (String item : serviceItem) {
-                        RoomNServiceDAO.getInstance().insertRoomNServiceByTypeId(typeId, Integer.parseInt(item));
+
+//                        RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId);
+                    for (Map.Entry<Integer, Integer> entry : serviceQuantityMap.entrySet()) {
+                        System.out.println("key: " + entry.getKey() + " - value: " + entry.getValue());
+                        RoomNServiceDAO.getInstance().insertRoomNServiceByTypeId(typeId, entry.getKey(), entry.getValue());
+                        typePrice += ServiceDAO.getInstance().getServiceByServiceId(entry.getKey()).getPrice() * entry.getValue();
+                        System.out.println("type price plus: " + typePrice);
                     }
+
+                    TypeRoomDAO.getInstance().updateTypeRoom(typeRoom.getTypeId(), typeRoom.getTypeName(), typePrice);
 
                     request.setAttribute("updateMessageService", "Cập nhật dịch vụ thành công");
                 }
 
                 request.setAttribute("showModalService", typeId);
             } else {
-                for (Integer serviceId : currentServices) {
-                    RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId, serviceId);
+                TypeRoom typeRoom = TypeRoomDAO.getInstance().getTypeRoomById(typeId);
+
+                int typePrice = typeRoom.getPrice();
+
+                List<RoomNService> roomNService = RoomNServiceDAO.getInstance().getRoomNServicesByTypeId(typeRoom);
+
+                if (!roomNService.isEmpty()) {
+                    for (RoomNService rns : roomNService) {
+                        typePrice -= (rns.getService().getPrice() * rns.getQuantity());
+                        RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId, rns.getService().getServiceId());
+                        System.out.println("TypeRoom minus: " + typePrice);
+                    }
                 }
+                TypeRoomDAO.getInstance().updateTypeRoom(typeRoom.getTypeId(), typeRoom.getTypeName(), typePrice);
 
                 request.setAttribute("showModalService", typeId);
             }
@@ -232,6 +337,9 @@ public class TypeRoomServlet extends HttpServlet {
         int endPage;
 
         if (key != null && !key.trim().isEmpty()) {
+            
+            
+            
             typeRoomTotal = dal.TypeRoomDAO.getInstance().searchTypeRoom(key).size();
 
             endPage = typeRoomTotal / 5;

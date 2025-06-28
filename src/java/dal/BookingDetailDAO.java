@@ -146,4 +146,44 @@ public class BookingDetailDAO {
         }
         return 0;
     }
+
+    public int getTotalTypeRoom(Date startDate, Date endDate, Integer minPrice, Integer maxPrice) {
+        StringBuilder sql = new StringBuilder("""
+                SELECT COUNT(DISTINCT tr.TypeId) AS totalTypeRoom
+                FROM TypeRoom tr
+                JOIN Room r ON r.TypeId = tr.TypeId
+                JOIN BookingDetail bd 
+                    ON bd.RoomNumber = r.RoomNumber
+                    AND bd.StartDate <= ?
+                    AND bd.EndDate >= ?
+                WHERE 1=1
+                """);
+        if (minPrice != null) {
+            sql.append(" AND tr.Price >= ?");
+        }
+        if (maxPrice != null) {
+            sql.append(" AND tr.Price <= ?");
+        }
+        try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
+            ptm.setDate(1, startDate);
+            ptm.setDate(2, endDate);
+            if(minPrice != null) {
+                ptm.setInt(3, minPrice);
+                if (maxPrice != null) {
+                    ptm.setInt(4, maxPrice);
+                }
+            } else if (maxPrice != null) {
+                ptm.setInt(3, maxPrice);
+            }
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("totalTypeRoom");
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return 0;
+    }
+
 }

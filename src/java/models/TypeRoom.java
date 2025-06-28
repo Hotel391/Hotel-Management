@@ -14,6 +14,7 @@ public class TypeRoom {
     private int numberOfAvailableRooms;
     private double averageRating;
     private List<String> urlImages = new ArrayList<>();
+    private int numberOfReviews;
 
     // Constructors
     public TypeRoom() {
@@ -97,6 +98,15 @@ public class TypeRoom {
     }
     public void setImages(List<String> urlImages) {
         this.urlImages = urlImages;
+    }
+    public String getUriContextOfImages(){
+        return "Image/" + typeName.replace(" ", "") + "/";
+    }
+    public int getNumberOfReviews() {
+        return numberOfReviews;
+    }
+    public void setNumberOfReviews(int numberOfReviews) {
+        this.numberOfReviews = numberOfReviews;
     }
     @Override
     public String toString() {

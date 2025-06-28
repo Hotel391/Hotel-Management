@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,6 @@ import models.RoomNService;
 import models.Service;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class TypeRoomDAO {
 
@@ -319,4 +319,138 @@ public class TypeRoomDAO {
             Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize) {
+        return getAvailableTypeRooms(startDate, endDate, pageIndex, pageSize, null, null);
+    }
+
+    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, Integer minPrice, Integer maxPrice) {
+        List<TypeRoom> availableTypeRooms = Collections.synchronizedList(new ArrayList<>());
+        StringBuilder sql = new StringBuilder("""
+                SELECT * FROM (
+                    SELECT 
+                        tr.TypeId,
+                        tr.TypeName,
+                        tr.Price + COALESCE(SUM(rns.Quantity * s.Price), 0) AS Price,
+                        tr.Description,
+                        COUNT(DISTINCT CASE 
+                            WHEN bd.BookingDetailId IS NULL THEN r.RoomNumber
+                            END) AS AvailableRoomCount,
+                        AVG(rv.Rating * 1.0) AS Rating,
+                        COUNT(rv.Rating) AS numberOfReview
+                    FROM TypeRoom tr
+                    JOIN Room r ON r.TypeId = tr.TypeId
+                    LEFT JOIN BookingDetail bd 
+                        ON bd.RoomNumber = r.RoomNumber
+                        AND NOT (bd.EndDate < ? OR bd.StartDate > ?)
+                    LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
+                    LEFT JOIN Review rv ON rv.BookingDetailId = bd2.BookingDetailId
+                    LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
+                    LEFT JOIN Service s ON s.ServiceId = rns.ServiceId
+                    GROUP BY tr.TypeId, tr.TypeName, tr.Price, tr.Description
+                ) AS sub
+                WHERE 1=1
+                 """);
+        List<Object> params = new ArrayList<>();
+        params.add(startDate);
+        params.add(endDate);
+        if (minPrice != null) {
+            sql.append(" AND sub.Price >= ?");
+            params.add(minPrice);
+        }
+        if (maxPrice != null) {
+            sql.append(" AND sub.Price <= ?");
+            params.add(maxPrice);
+        }
+        sql.append(" ORDER BY sub.TypeId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        params.add((pageIndex - 1) * pageSize);
+        params.add(pageSize);
+        try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ptm.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt("TypeId"));
+                    typeRoom.setTypeName(rs.getString("TypeName"));
+                    typeRoom.setNumberOfAvailableRooms(rs.getInt("AvailableRoomCount"));
+                    typeRoom.setPrice(rs.getInt("Price"));
+                    typeRoom.setDescription(rs.getString("Description"));
+                    typeRoom.setAverageRating(rs.getDouble("Rating"));
+                    typeRoom.setNumberOfReviews(rs.getInt("numberOfReview"));
+                    typeRoom.setImages(getRoomImagesByTypeId(typeRoom.getTypeId()));
+                    availableTypeRooms.add(typeRoom);
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return availableTypeRooms;
+    }
+
+    public List<String> getRoomImagesByTypeId(int typeId) {
+        List<String> images = new ArrayList<>();
+        String sql = "SELECT Image FROM RoomImage WHERE TypeId = ?";
+
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, typeId);
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    images.add(rs.getString("Image"));
+                }
+            }
+        } catch (SQLException e) {
+        }
+        return images;
+    }
+
+    public int getTotalTypeRoom(Date startDate, Date endDate) {
+        return getTotalTypeRoom(startDate, endDate, null, null);
+    }
+
+    public int getTotalTypeRoom(Date startDate, Date endDate, Integer minPrice, Integer maxPrice) {
+        StringBuilder sql = new StringBuilder("""
+                SELECT COUNT(*) AS totalTypeRoom
+                FROM (
+                    SELECT tr.TypeId,
+                        tr.Price + COALESCE(SUM(rns.Quantity * s.Price), 0) AS Price
+                    FROM TypeRoom tr
+                    JOIN Room r ON r.TypeId = tr.TypeId
+                    LEFT JOIN BookingDetail bd 
+                        ON bd.RoomNumber = r.RoomNumber
+                        AND NOT (bd.EndDate < ? OR bd.StartDate > ?)
+                    LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
+                    LEFT JOIN Service s ON s.ServiceId = rns.ServiceId
+                    GROUP BY tr.TypeId, tr.Price
+                    ) AS t
+                WHERE 1=1
+                """);
+        List<Object> params = new ArrayList<>();
+        params.add(startDate);
+        params.add(endDate);
+        if (minPrice != null) {
+            sql.append(" AND t.Price >= ?");
+            params.add(minPrice);
+        }
+        if (maxPrice != null) {
+            sql.append(" AND t.Price <= ?");
+            params.add(maxPrice);
+        }
+        
+        try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                ptm.setObject(i + 1, params.get(i));
+            }
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("totalTypeRoom");
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return 0;
+    }
+
 }

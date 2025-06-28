@@ -125,17 +125,16 @@ public class Validation {
             Function<String, T> parser,
             String ruleName,
             List<ValidationRule<T>> moreRule) {
-        boolean check = false;
         if (rawInput == null || rawInput.trim().isEmpty()) {
             req.setAttribute(attrKey, fieldName + " is required.");
-            check = true;
+            return true;
         }
         T value = null;
         try {
             value = parser.apply(rawInput);
         } catch (Exception e) {
             req.setAttribute(attrKey, "Invalid input format.");
-            check = true;
+            return true;
         }
         List<ValidationRule<T>> baseRules = (List<ValidationRule<T>>) (List<?>) ruleCheck.get(ruleName);
         List<ValidationRule<T>> rules = new ArrayList<>();
@@ -149,14 +148,11 @@ public class Validation {
         for (ValidationRule<T> rule : rules) {
             if (!rule.isValid(value)) {
                 req.setAttribute(attrKey, rule.getErrorMessage());
-                check = true;
-                break;
+                return true;
             }
         }
-        if (!check) {
-            req.removeAttribute(attrKey);
-        }
-        return check;
+        req.removeAttribute(attrKey);
+        return false;
     }
     
     public static <T> boolean validateField(
@@ -167,5 +163,30 @@ public class Validation {
             Function<String, T> parser,
             String ruleName) {
         return validateField(req, attrKey, fieldName, rawInput, parser, ruleName, null);
+    }
+    
+    public static <T> T readPriceInput(
+            jakarta.servlet.http.HttpServletRequest req,
+            String attrKey,
+            String rawInput,
+            Function<String, T> parser,
+            List<ValidationRule<T>> rules) {
+        if(rawInput == null || rawInput.trim().isEmpty()) {
+            return null;
+        }
+        T value;
+        try {
+            value = parser.apply(rawInput);
+        } catch (Exception e) {
+            req.setAttribute(attrKey, "Invalid input format.");
+            return null;
+        }
+        for (ValidationRule<T> rule : rules) {
+            if (!rule.isValid(value)) {
+                req.setAttribute(attrKey, rule.getErrorMessage());
+                return null;
+            }
+        }
+        return value;
     }
 }

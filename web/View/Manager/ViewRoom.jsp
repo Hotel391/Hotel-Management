@@ -33,7 +33,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/room">Management Room</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/room">Quản lí phòng</a>
                             </li>
                         </ul>
 
@@ -55,16 +55,16 @@
                             <!--form add new room-->
                             <div class="d-flex gap-2">
                                 <button class="btn btn-success" data-bs-toggle="modal" 
-                                        data-bs-target="#addRoomModal">+ Add New room</button>
+                                        data-bs-target="#addRoomModal">+ Tạo phòng mới</button>
                             </div>
 
                             <!--form search-->
                             <form method="get" action="${pageContext.request.contextPath}/manager/room?choose=search" class="d-flex gap-2">
                                 <input type="number" name="roomNumberSearch"" 
-                                       class="form-control search-input" placeholder="Room number" min="0" />
+                                       class="form-control search-input" placeholder="Số phòng" min="0" />
 
                                 <select id="roomTypeSelect" name="typeRoomIdSearch" class="form-select">
-                                    <option value="">-- All room types --</option> <!-- All rooms -->
+                                    <option value="">-- Tất cả loại phòng --</option> <!-- All rooms -->
                                     <c:forEach var="type" items="${requestScope.typeRoom}">
                                         <option value="${type.typeId}"
                                                 <c:if test="${param.typeRoomId == type.typeId}">selected</c:if>>
@@ -73,7 +73,7 @@
                                     </c:forEach>
                                 </select>
 
-                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <button type="submit" class="btn btn-primary">Tìm</button>
                                 <a class="btn btn-secondary" href="${pageContext.request.contextPath}/manager/room">Reset</a>
                                 <input type="hidden" name="choose" value="search">
                             </form>

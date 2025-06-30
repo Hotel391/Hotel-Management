@@ -33,7 +33,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/service">Management service</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/service">Quản lí dịch vụ</a>
                             </li>
                         </ul>
 

@@ -29,12 +29,12 @@
                         <div class="container-fluid p-4">
                             <ul class="nav nav-tabs mb-3">
                                 <li class="nav-item">
-                                    <a class="nav-link active" href="${pageContext.request.contextPath}/admin/page">Management manager account</a>
+                                    <a class="nav-link active" href="${pageContext.request.contextPath}/admin/page">Quản lí tài khoản manager</a>
                                 </li>
                             </ul>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addManagerAccountModal">+ Add New Manager Account</button>
+                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addManagerAccountModal">+ Tạo mới tài khoản quản lí</button>
                                 </div>
                             </div>
                             <div class="table-container">

@@ -94,7 +94,7 @@
                                 <div class="modal-content">
                                     <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/admin/page" novalidate>
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="addRoleModalLabel">Add New Service</h5>
+                                            <h5 class="modal-title" id="addRoleModalLabel">Thêm mới tài khoản manager</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
 
@@ -131,9 +131,9 @@
 
                                         </div>
                                         <div class="modal-footer">
-                                            <input type="submit" name="submit" class="btn btn-success" value="Add manager account"/>
+                                            <input type="submit" name="submit" class="btn btn-success" value="Thêm"/>
                                             <input type="reset" name="reset" value="Reset"/>
-                                            <input type="hidden" name="page" value="${currentPage}" />
+                                            <!--<input type="hidden" name="page" value="${currentPage}" />-->
                                             <input type="hidden" name="service" value="add">
                                         </div>
 

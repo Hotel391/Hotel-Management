@@ -31,7 +31,20 @@ public class ManagerService extends HttpServlet {
             choose = "ViewAllService";
         }
         String pageStr = request.getParameter("page");
-        List<Service> list = dao.getAllService();
+        List<Service> list;
+
+        String serviceNameSearch = request.getParameter("serviceNameSearch");
+        if (serviceNameSearch == null || serviceNameSearch.trim().isEmpty() || "null".equalsIgnoreCase(serviceNameSearch)) {
+            list = dao.getAllService();
+            paginateServiceList(request, list, pageStr);
+        } else {
+            list = dal.ServiceDAO.getInstance().searchAllService(serviceNameSearch);
+            paginateServiceList(request, list, pageStr);
+        }
+
+        if (choose.equals("search")) {
+            request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
+        }
 
         if (choose.equals("deleteService")) {
             String serviceIdStr = request.getParameter(serviceIdd);
@@ -48,7 +61,7 @@ public class ManagerService extends HttpServlet {
 
             dao.deleteService(serviceId);
             paginateServiceList(request, list, pageStr);
-            response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=delete&success=true");
+            response.sendRedirect(request.getContextPath() + "/manager/service?choose=search&serviceNameSearch="+serviceNameSearch+"&page=" + pageStr + "&action=delete&success=true");
         }
         //list all service
         if (choose.equals("ViewAllService")) {
@@ -62,32 +75,35 @@ public class ManagerService extends HttpServlet {
             throws ServletException, IOException {
 
         String choose = request.getParameter("choose");
-        List<Service> list = dao.getAllService();
+        List<Service> list;
         String pageStr = request.getParameter("page");
-        if (pageStr != null) {
-            request.setAttribute("page", pageStr);
+        String serviceNameSearch = request.getParameter("serviceNameSearch");
+
+        if (serviceNameSearch == null || serviceNameSearch.trim().isEmpty()) {
+            list = dao.getAllService();
+        } else {
+            list = dao.searchAllService(serviceNameSearch);
         }
 
-        if (choose.equals("search")) {
-            paginateServiceList(request, list, pageStr);
-            request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
+        if (pageStr != null) {
+            request.setAttribute("page", pageStr);
         }
 
         if ("toggleStatus".equals(choose)) {
             int serviceId = Integer.parseInt(request.getParameter(serviceIdd));
             dal.ServiceDAO.getInstance().toggleServiceStatus(serviceId);
-            response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=isActive&success=true");
+            response.sendRedirect(request.getContextPath() + "/manager/service?choose=search&serviceNameSearch=" + serviceNameSearch + "&page=" + pageStr + "&action=isActive&success=true");
         }
 
         //insert, update service
         if (choose.equals("insertService")) {
-            insert(list, pageStr, request, response);
+            insert(list, pageStr, serviceNameSearch, request, response);
         } else if (choose.equals("updateService")) {
-            update(list, pageStr, request, response);
+            update(list, pageStr, serviceNameSearch, request, response);
         }
     }
 
-    private void update(List<Service> list, String pageStr, HttpServletRequest request, HttpServletResponse response)
+    private void update(List<Service> list, String pageStr, String serviceNameSearch, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String serviceIdStr = request.getParameter(serviceIdd);
         String serviceName = request.getParameter(serviceNamee);
@@ -117,7 +133,7 @@ public class ManagerService extends HttpServlet {
             return;
         }
 
-        if (serviceName.trim() == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
+        if (serviceName == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
             request.setAttribute("serviceNameUpdateError", "Tên dịch vụ không được để trống,"
                     + "Tên dịch vụ chỉ được chứa các chữ cái, chữ số và một khoảng trắng giữa các từ.");
             haveError = true;
@@ -151,18 +167,18 @@ public class ManagerService extends HttpServlet {
 
         Service s = new Service(serviceId, serviceName, price);
         dao.updateService(s);
-        response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=update&success=true");
+        response.sendRedirect(request.getContextPath() + "/manager/service?choose=search&serviceNameSearch=" + serviceNameSearch + "&page=" + pageStr + "&action=update&success=true");
 
     }
 
-    protected void insert(List<Service> list, String pageStr, HttpServletRequest request, HttpServletResponse response)
+    protected void insert(List<Service> list, String pageStr, String serviceNameSearch, HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String serviceName = request.getParameter(serviceNamee + "Add");
         String priceStr = request.getParameter("priceServiceAdd");
         int price = 0;
         boolean haveError = false;
 
-        if (serviceName.trim() == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
+        if (serviceName == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
             request.setAttribute("nameAddError", "Tên dịch vụ không được để trống,"
                     + " Tên dịch vụ chỉ được chứa các chữ cái, chữ số và một khoảng trắng giữa các từ.");
             haveError = true;
@@ -192,7 +208,7 @@ public class ManagerService extends HttpServlet {
         }
 
         dao.insertService(serviceName, price);
-        response.sendRedirect(request.getContextPath() + "/manager/service?page=" + pageStr + "&action=add&success=true");
+        response.sendRedirect(request.getContextPath() + "/manager/service?choose=search&serviceNameSearch=" + serviceNameSearch + "&page=" + pageStr + "&action=add&success=true");
 
     }
 

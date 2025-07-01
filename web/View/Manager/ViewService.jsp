@@ -63,6 +63,14 @@
                             <div class="d-flex gap-2">
                                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">+ Thêm dịch vụ</button>
                             </div>
+                            <!--form search-->
+                            <form method="get" action="${pageContext.request.contextPath}/manager/service?choose=search" class="d-flex gap-2">
+                                <input type="text" name="serviceNameSearch"" 
+                                       class="form-control search-input" placeholder="Tên dịch vụ" value="${param.serviceNameSearch}"/>
+                                <button type="submit" class="btn btn-primary">Tìm</button>
+                                <a class="btn btn-secondary" href="${pageContext.request.contextPath}/manager/service">Reset</a>
+                                <input type="hidden" name="choose" value="search">
+                            </form>
                         </div>
 
                         <!--Danh sách service-->
@@ -114,6 +122,7 @@
                                             <td><form method="post" action="${pageContext.request.contextPath}/manager/service" style="display:inline;">
                                                     <input type="hidden" name="serviceId" value="${s.serviceId}" />
                                                     <input type="hidden" name="choose" value="toggleStatus">
+                                                    <input type="hidden" name="serviceNameSearch" value="${param.serviceNameSearch}">
                                                     <input type="hidden" name="page" value="${currentPage}" />
                                                     <button type="submit" class="btn btn-sm ${s.isActive ? 'btn-warning' : 'btn-success'}" title="Chuyển trạng thái">
                                                         <i class="bi bi-power"></i>
@@ -132,7 +141,7 @@
                                     <ul class="pagination">
                                         <c:forEach begin="1" end="${totalPages}" var="i">
                                             <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                                <form action="${pageContext.request.contextPath}/manager/service" method="post">
+                                                <form action="${pageContext.request.contextPath}/manager/service" method="get">
                                                     <input type="hidden" name="choose" value="search">
                                                     <button class="page-link">${i}</button>
                                                     <input type="hidden" name="page" value="${i}" />
@@ -189,6 +198,7 @@
                                     <div class="modal-footer">
                                         <button type="submit" class="btn btn-success" value="submit" name="submit">Cập nhật</button>
                                         <input type="reset" name="reset" value="Reset"/>
+                                        <input type="hidden" name="serviceNameSearch" value="${param.serviceNameSearch}">
                                         <input type="hidden" name="choose" value="updateService"/>
                                         <input type="hidden" name="page" value="${currentPage}" />
                                     </div>
@@ -228,6 +238,7 @@
                                         <input type="submit" name="submit" class="btn btn-success" value="Thêm dịch vụ"/>
                                         <input type="reset" name="reset" value="Reset"/>
                                         <input type="hidden" name="choose" value="insertService"/>
+                                        <input type="hidden" name="serviceNameSearch" value="${param.serviceNameSearch}">
                                         <input type="hidden" name="page" value="${currentPage}" />
 
                                     </div>
@@ -256,6 +267,7 @@
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                                         <button type="submit" class="btn btn-danger">Xóa</button>
                                         <input type="hidden" name="choose" value="deleteService"/>
+                                        <input type="hidden" name="serviceNameSearch" value="${param.serviceNameSearch}">
                                         <input type="hidden" name="page" value="${currentPage}" />
 
                                     </div>

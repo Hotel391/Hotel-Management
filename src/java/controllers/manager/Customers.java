@@ -1,6 +1,6 @@
 package controllers.manager;
 
-import controllers.admin.*;
+import controllers.manager.*;
 import dal.CustomerDAO;
 import dal.RoleDAO;
 import jakarta.servlet.ServletException;

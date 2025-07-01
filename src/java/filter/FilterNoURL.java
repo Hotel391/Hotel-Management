@@ -20,7 +20,7 @@ import models.Employee;
  *
  * @author HieuTT
  */
-//@WebFilter(filterName = "FilterNoURL", urlPatterns = {"/*"})
+@WebFilter(filterName = "FilterNoURL", urlPatterns = {"/*"})
 public class FilterNoURL implements Filter {
 
     private static final boolean debug = true;
@@ -140,14 +140,14 @@ public class FilterNoURL implements Filter {
 
         // 4. Customer trying to access employee pages
         if (isCustomerLoggedIn
-                && (uri.contains("admin") || uri.contains("receptionist")
-                || uri.contains("cleaner") || uri.contains("developer"))) {
+                && (uri.contains("manager") || uri.contains("receptionist")
+                || uri.contains("cleaner") || uri.contains("admin"))) {
             res.sendRedirect(req.getContextPath() + "/home");
             return;
         }
 
         // 5. Employee logout via customer page
-        boolean isCustomerPage = !uri.contains("admin") && !uri.contains("developer")
+        boolean isCustomerPage = !uri.contains("manager") && !uri.contains("admin")
                 && !uri.contains("receptionist") && !uri.contains("cleaner");
         if (isEmployeeLoggedIn && isCustomerPage && uri.contains("logout")) {
             Employee emp = (Employee) employee;
@@ -186,13 +186,13 @@ public class FilterNoURL implements Filter {
     private void redirectByRole(HttpServletRequest req, HttpServletResponse res, int roleId) throws IOException {
         switch (roleId) {
             case 0 ->
-                res.sendRedirect(req.getContextPath() + "/developer/page");
+                res.sendRedirect(req.getContextPath() + "/admin/page");
             case 1 ->
-                res.sendRedirect(req.getContextPath() + "/admin/dashboard");
+                res.sendRedirect(req.getContextPath() + "/manager/dashboard");
             case 2 ->
                 res.sendRedirect(req.getContextPath() + "/receptionist/page");
             case 3 ->
-                res.sendRedirect(req.getContextPath() + "/home");
+                res.sendRedirect(req.getContextPath() + "/cleaner/page");
             default -> {
                 res.sendRedirect(req.getContextPath() + "home");
             }

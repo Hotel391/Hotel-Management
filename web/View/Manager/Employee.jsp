@@ -168,7 +168,7 @@
                                             </div>
 
                                             <!-- Start/End Floor for Cleaner -->
-                                            <div class="col-md-6" id="floorFieldAdd" style="display:${param.roleId == 'Cleaner' ? 'block' : 'none'};">
+                                            <div class="col-md-6" id="floorFieldAdd" style="display:${isCleaner ? 'block' : 'none'};">
                                                 <label for="startFloor" class="form-label">Start Floor</label>
                                                 <input type="number" id="startFloor" name="startFloor" value="${param.startFloor != null ? param.startFloor : ''}" class="form-control" min="1" max="6" />
 

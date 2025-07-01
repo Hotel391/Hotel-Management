@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Filter.java to edit this template
- */
 package filter;
 
 import java.io.IOException;
@@ -22,10 +18,10 @@ import models.Employee;
 
 /**
  *
- * @author Tuan'sPC
+ * @author HieuTT
  */
-//@WebFilter(filterName = "Developer", urlPatterns = {"/developer/*"})
-public class Developer implements Filter {
+@WebFilter(filterName = "Cleaner", urlPatterns = {"/cleaner/*"})
+public class Cleaner implements Filter {
 
     private static final boolean debug = true;
 
@@ -34,13 +30,13 @@ public class Developer implements Filter {
     // configured. 
     private FilterConfig filterConfig = null;
 
-    public Developer() {
+    public Cleaner() {
     }
 
     private void doBeforeProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
-            log("Admin:DoBeforeProcessing");
+            log("Cleaner:DoBeforeProcessing");
         }
 
         // Write code here to process the request and/or response before
@@ -68,7 +64,7 @@ public class Developer implements Filter {
     private void doAfterProcessing(ServletRequest request, ServletResponse response)
             throws IOException, ServletException {
         if (debug) {
-            log("Admin:DoAfterProcessing");
+            log("Cleaner:DoAfterProcessing");
         }
 
         // Write code here to process the request and/or response after
@@ -102,45 +98,48 @@ public class Developer implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
-
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
 
-        if (session == null) {
+        Object employeeObj = (session != null) ? session.getAttribute("employeeInfo") : null;
+        Object customerObj = (session != null) ? session.getAttribute("customerInfo") : null;
+
+        if (employeeObj == null && customerObj == null) {
             res.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        if (session.getAttribute("employeeInfo") != null) {
-            Employee employee = (Employee) session.getAttribute("employeeInfo");
-            int roleId = employee.getRole().getRoleId();
-            if (roleId == 0) {
-                // Cho phép truy cập nếu đúng là developer
-                chain.doFilter(request, response);
-                return;
-            } else {
-                switch (roleId) {
-                    case 1:
-                        res.sendRedirect(req.getContextPath() + "/admin/dashboard");
-                        return;
-                    case 2:
-                        res.sendRedirect(req.getContextPath() + "/receptionist/page");
-                        return;
-                    case 3:
-                        res.sendRedirect(req.getContextPath() + "/cleaner/page");
-                        return;
-                    default:
-                        throw new AssertionError();
-                }
-            }
-        } else if (session.getAttribute("customerInfo") != null) {
+        if (customerObj != null) {
             res.sendRedirect(req.getContextPath() + "/home");
             return;
         }
 
-        res.sendRedirect(req.getContextPath() + "/login");
+        Employee employee = (Employee) employeeObj;
+        int roleId = employee.getRole().getRoleId(); // 3: Cleaner
 
+        if (roleId != 3) {
+            redirectByRole(req, res, roleId);
+            return;
+        }
+
+        chain.doFilter(request, response);
+    }
+
+    private void redirectByRole(HttpServletRequest req, HttpServletResponse res, int roleId)
+            throws IOException {
+        switch (roleId) {
+            case 0 ->
+                res.sendRedirect(req.getContextPath() + "/admin/page");
+            case 1 ->
+                res.sendRedirect(req.getContextPath() + "/manager/dashboard");
+            case 2 ->
+                res.sendRedirect(req.getContextPath() + "/receptionist/page");
+            case 3 ->
+                res.sendRedirect(req.getContextPath() + "/cleaner/page"); // optional
+            default ->
+                res.sendRedirect(req.getContextPath() + "/home");
+        }
     }
 
     /**
@@ -172,7 +171,7 @@ public class Developer implements Filter {
         this.filterConfig = filterConfig;
         if (filterConfig != null) {
             if (debug) {
-                log("Admin:Initializing filter");
+                log("Cleaner:Initializing filter");
             }
         }
     }
@@ -183,9 +182,9 @@ public class Developer implements Filter {
     @Override
     public String toString() {
         if (filterConfig == null) {
-            return ("Admin()");
+            return ("Cleaner()");
         }
-        StringBuffer sb = new StringBuffer("Admin(");
+        StringBuffer sb = new StringBuffer("Cleaner(");
         sb.append(filterConfig);
         sb.append(")");
         return (sb.toString());

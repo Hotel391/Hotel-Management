@@ -4,12 +4,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import models.BookingDetail;
 import models.Customer;
 import models.CustomerAccount;
 import models.Role;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CustomerDAO {
 
@@ -83,6 +87,23 @@ public class CustomerDAO {
         }
 
         return ca;
+    }
+    
+    //check existed cccd
+    
+    public boolean checkcccd(String cccd) {
+        String sql = "select * from Customer where CCCD = ?";
+        try (PreparedStatement st = con.prepareStatement(sql);) {
+            st.setString(1, cccd);
+            try (ResultSet rs = st.executeQuery();) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return false;
     }
 
     public void updateCustomerInfo(String username, String fullname,
@@ -199,6 +220,34 @@ public class CustomerDAO {
         }
         return 0;
     }
+    
+    //insert into customer exception customerId
+    
+    public int insertCustomerExceptionId(Customer customer) {
+        String sql = """
+                     insert into Customer (FullName,Email,Gender,activate,RoleId,CCCD,PhoneNumber)\r
+                     values (?,?,?,?,?,?,?)""";
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setString(1, customer.getFullName());
+            st.setString(2, customer.getEmail());
+            st.setBoolean(3, customer.getGender());
+            st.setBoolean(4, customer.getActivate());
+            st.setInt(5, customer.getRole().getRoleId());
+            st.setString(6, customer.getCCCD());
+            st.setString(7, customer.getPhoneNumber());
+
+            st.executeUpdate();
+
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     public List<String> getAllString(String columnName) {
         List<String> list = new ArrayList<>();
@@ -259,14 +308,65 @@ public class CustomerDAO {
         }
         return false;
     }
+    //get customer by phoneNumber
     
-     public void updateCustomerStatus(int customerId, boolean newStatus) {
+    public Customer getCustomerByPhoneNumber(String phoneNumber) {
+        String sql = "SELECT * FROM Customer WHERE PhoneNumber = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, phoneNumber);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    customer.setFullName(rs.getString("FullName"));
+                    customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                    customer.setEmail(rs.getString("Email"));
+                    customer.setGender(rs.getBoolean("Gender"));
+                    customer.setCCCD(rs.getString("CCCD"));
+                    customer.setActivate(rs.getBoolean("activate"));
+                    customer.setRole(new Role(rs.getInt("RoleId")));
+                    System.out.println("cus: " + customer);
+                    return customer;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //get customer by booking detail id
+    public Customer getCustomerByBookingDetailId(int bookingDetailId) {
+        String sql = "SELECT c.* FROM Customer c JOIN Booking b ON c.CustomerId = b.CustomerId JOIN BookingDetail bd ON b.BookingId = bd.BookingId WHERE bd.BookingDetailId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingDetailId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return new Customer(
+                            rs.getInt("CustomerId"),
+                            rs.getString("FullName"),
+                            rs.getString("PhoneNumber"),
+                            rs.getString("Email"),
+                            rs.getBoolean("Gender"),
+                            rs.getString("CCCD"),
+                            rs.getBoolean("activate"),
+                            new Role(rs.getInt("RoleId"))
+                    );
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public void updateCustomerStatus(int customerId, boolean newStatus) {
         String sql = "UPDATE Customer SET activate = ? WHERE CustomerId = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setBoolean(1, newStatus);  
-            st.setInt(2, customerId);     
-            st.executeUpdate();           
+            st.setBoolean(1, newStatus);
+            st.setInt(2, customerId);
+            st.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -283,7 +383,7 @@ public class CustomerDAO {
                     customer.setFullName(rs.getString("FullName"));
                     customer.setPhoneNumber(rs.getString("PhoneNumber"));
                     customer.setEmail(rs.getString("Email"));
-                    customer.setActivate(rs.getBoolean("activate"));                 
+                    customer.setActivate(rs.getBoolean("activate"));
                     return customer;
                 }
             }
@@ -297,12 +397,12 @@ public class CustomerDAO {
         String sql = "SELECT COUNT(*) FROM Customer";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
-                return rs.getInt(1); 
+                return rs.getInt(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return 0; 
+        return 0;
     }
 
     public List<Customer> searchCustomer(String key) {
@@ -364,7 +464,7 @@ public class CustomerDAO {
             sql += " AND (c.FullName LIKE ? OR c.PhoneNumber LIKE ? OR c.Email LIKE ?)";
         }
 
-        sql += " ORDER BY c.CustomerId OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY"; 
+        sql += " ORDER BY c.CustomerId OFFSET ? ROWS FETCH NEXT 5 ROWS ONLY";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
             int parameterIndex = 1;
@@ -376,7 +476,7 @@ public class CustomerDAO {
                 st.setString(parameterIndex++, searchKey);
             }
 
-            st.setInt(parameterIndex++, (index - 1) * 5); 
+            st.setInt(parameterIndex++, (index - 1) * 5);
 
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
@@ -397,12 +497,40 @@ public class CustomerDAO {
                     customerAccount.setUsername(rs.getString("Username"));
                     customer.setCustomerAccount(customerAccount);
 
-                    list.add(customer); 
+                    list.add(customer);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public Customer getCustomersByBookingDetailId(int bookingDetailId) {
+        String sql = """
+            SELECT c.CustomerId, c.FullName, c.PhoneNumber, c.Email, c.Gender
+            FROM Customer c
+            JOIN Booking b ON b.CustomerId = c.CustomerId
+            JOIN BookingDetail bd ON bd.BookingId = b.BookingId
+            WHERE bd.BookingDetailId = ?
+        """;
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingDetailId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    customer.setFullName(rs.getString("FullName"));
+                    customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                    customer.setEmail(rs.getString("Email"));
+                    customer.setGender(rs.getBoolean("Gender"));
+                    return customer;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

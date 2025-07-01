@@ -75,9 +75,8 @@
                                                 <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#viewCustomerModal_${customer.customerId}">
                                                     <i class="bi bi-eye"></i> Xem thông tin
                                                 </button>
-
-                                                <a href="${pageContext.request.contextPath}/admin/customers/viewBooked?customerId=${customer.customerId}" class="btn btn-sm btn-outline-primary me-1">
-                                                    <i class="bi bi-list"></i> Phòng đã đặt
+                                                <a href="${pageContext.request.contextPath}/manager/receipt?customerId=${customer.customerId}" class="btn btn-sm btn-outline-primary me-1">
+                                                    <i class="bi bi-list"></i> Xem hóa đơn
                                                 </a>
 
                                             </td>

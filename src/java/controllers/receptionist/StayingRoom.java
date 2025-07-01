@@ -99,7 +99,7 @@ public class StayingRoom extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int bookingDetailId = Integer.parseInt(request.getParameter("bookingDetailId"));
+        String bookingDetailId = request.getParameter("bookingDetailId");
         String action = request.getParameter("action");
         if ("updateServices".equals(action)) {
             handleUpdateServices(request, bookingDetailId);
@@ -111,12 +111,12 @@ public class StayingRoom extends HttpServlet {
         response.sendRedirect(redirectUrl);
     }
 
-    private void handleUpdateServices(HttpServletRequest request, int bookingDetailId)
+    private void handleUpdateServices(HttpServletRequest request, String bookingDetailId)
             throws ServletException, IOException {
         String[] serviceIds = request.getParameterValues("serviceIds");
         String[] otherServiceIds = request.getParameterValues("otherServiceIds");
         String[] otherQuantitiesStr = request.getParameterValues("otherQuantities");
-        List<DetailService> detailService = dal.ServiceDAO.getInstance().getServiceByBookingDetailId(bookingDetailId);
+        List<DetailService> detailService = dal.ServiceDAO.getInstance().getServiceByBookingDetailId(Integer.parseInt(bookingDetailId));
         if (serviceIds != null && serviceIds.length > 0) {
             updateExistingServices(request, bookingDetailId, serviceIds, detailService);
         }
@@ -126,13 +126,13 @@ public class StayingRoom extends HttpServlet {
                 int serviceId = Integer.parseInt(otherServiceIds[i]);
                 int quantity = Integer.parseInt(otherQuantitiesStr[i]);
                 if (quantity > 0) {
-                    dal.ServiceDAO.getInstance().insertDetailService(bookingDetailId, serviceId, quantity);
+                    dal.ServiceDAO.getInstance().insertDetailService(Integer.parseInt(bookingDetailId), serviceId, quantity);
                 }
             }
         }
     }
 
-    private void updateExistingServices(HttpServletRequest request, int bookingDetailId, String[] serviceIds,
+    private void updateExistingServices(HttpServletRequest request, String bookingDetailId, String[] serviceIds,
             List<DetailService> detailService) {
         Set<Integer> selectedServiceIds = new HashSet<>();
 
@@ -144,7 +144,7 @@ public class StayingRoom extends HttpServlet {
             int oldQuantity = Integer.parseInt(request.getParameter("oldQuantity_" + sid));
 
             if (quantity != oldQuantity) {
-                dal.ServiceDAO.getInstance().updateDetailService(bookingDetailId, serviceId, quantity, oldQuantity);
+                dal.ServiceDAO.getInstance().updateDetailService(Integer.parseInt(bookingDetailId), serviceId, quantity, oldQuantity);
             }
         }
 
@@ -152,7 +152,7 @@ public class StayingRoom extends HttpServlet {
             int existingServiceId = ds.getService().getServiceId();
             if (!selectedServiceIds.contains(existingServiceId)) {
                 int oldQuantity = Integer.parseInt(request.getParameter("oldQuantity_" + existingServiceId));
-                dal.ServiceDAO.getInstance().deleteServiceInBookingDetail(bookingDetailId, existingServiceId,
+                dal.ServiceDAO.getInstance().deleteServiceInBookingDetail(Integer.parseInt(bookingDetailId), existingServiceId,
                         oldQuantity);
             }
         }
@@ -167,7 +167,7 @@ public class StayingRoom extends HttpServlet {
         RoomStatusSocket.broadcast("{\"roomId\":" + roomId + "}");
     }
 
-    private String buildRedirectUrl(HttpServletRequest request, String action, int bookingDetailId) {
+    private String buildRedirectUrl(HttpServletRequest request, String action, String bookingDetailId) {
         StringBuilder url = new StringBuilder(request.getContextPath() + "/receptionist/stayingRoom");
         String page = request.getParameter("page");
         String search = request.getParameter("search");

@@ -17,6 +17,7 @@ public class DetailRoom extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        request.getRequestDispatcher("View/Customer/DetailRoom.jsp").forward(request, response);
     } 
 
     @Override

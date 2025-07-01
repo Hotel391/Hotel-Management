@@ -82,7 +82,7 @@ public class BookingDAO {
     public Map<String, BigInteger> totalMoneyInYears(int startYear, int endYear) {
         String sql = "SELECT YEAR(PayDay) AS Year, SUM(TotalPrice) AS totalMoney "
                 + "FROM Booking "
-                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed CheckOut'"
                 + "GROUP BY YEAR(PayDay) "
                 + "ORDER BY Year";
 
@@ -106,7 +106,7 @@ public class BookingDAO {
     public Map<String, BigInteger> totalMoneyInQuarters(int startYear, int startQuarter, int endYear, int endQuarter) {
         String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(QUARTER, PayDay) AS Quarter, SUM(TotalPrice) AS totalMoney "
                 + "FROM Booking "
-                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed CheckOut'"
                 + "GROUP BY YEAR(PayDay), DATEPART(QUARTER, PayDay) "
                 + "ORDER BY Year, Quarter";
 
@@ -130,7 +130,7 @@ public class BookingDAO {
     public Map<String, BigInteger> totalMoneyInMonths(int startYear, int startMonth, int endYear, int endMonth) {
         String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(Month, PayDay) AS Month, SUM(TotalPrice) AS totalMoney "
                 + "FROM Booking "
-                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed CheckOut'"
                 + "GROUP BY YEAR(PayDay), DATEPART(Month, PayDay) "
                 + "ORDER BY Year, Month";
 

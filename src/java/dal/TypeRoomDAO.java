@@ -343,6 +343,8 @@ public class TypeRoomDAO {
                     LEFT JOIN BookingDetail bd 
                         ON bd.RoomNumber = r.RoomNumber
                         AND NOT (bd.EndDate < ? OR bd.StartDate > ?)
+                    LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber AND c.isPayment = 1
+                        AND NOT (c.EndDate < ? OR c.StartDate > ?)
                     LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
                     LEFT JOIN Review rv ON rv.BookingDetailId = bd2.BookingDetailId
                     LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
@@ -352,6 +354,8 @@ public class TypeRoomDAO {
                 WHERE 1=1
                  """);
         List<Object> params = new ArrayList<>();
+        params.add(startDate);
+        params.add(endDate);
         params.add(startDate);
         params.add(endDate);
         if (minPrice != null) {
@@ -451,6 +455,65 @@ public class TypeRoomDAO {
             //
         }
         return 0;
+    }
+
+    public TypeRoom getTypeRoomByTypeId(Date checkin, Date checkout, int typeId) {
+        String sql = """
+                    SELECT 
+                        tr.TypeId,
+                        tr.TypeName,
+                        tr.Price as OriginPrice,
+                        COALESCE(SUM(rns.Quantity * s.Price), 0) AS ServicePrice,
+                        tr.Price + COALESCE(SUM(rns.Quantity * s.Price), 0) AS Price,
+                        tr.Description,
+                        COUNT(DISTINCT CASE 
+                            WHEN bd.BookingDetailId IS NULL THEN r.RoomNumber
+                            END) AS AvailableRoomCount,
+                        AVG(rv.Rating * 1.0) AS Rating,
+                        COUNT(rv.Rating) AS numberOfReview
+                    FROM TypeRoom tr
+                    JOIN Room r ON r.TypeId = tr.TypeId
+                    LEFT JOIN BookingDetail bd 
+                        ON bd.RoomNumber = r.RoomNumber
+                        AND NOT (bd.EndDate < ? OR bd.StartDate > ?)
+                    LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
+                    LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber
+                        AND c.isPayment = 1
+                        AND NOT (c.EndDate < ? OR c.StartDate > ?)
+                    LEFT JOIN Review rv ON rv.BookingDetailId = bd2.BookingDetailId
+                    LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
+                    LEFT JOIN Service s ON s.ServiceId = rns.ServiceId
+                    WHERE tr.TypeId = ?
+                    GROUP BY tr.TypeId, tr.TypeName, tr.Price, tr.Description
+        """;
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setDate(1, checkin);
+            ptm.setDate(2, checkout);
+            ptm.setDate(3, checkin);
+            ptm.setDate(4, checkout);
+            ptm.setInt(5, typeId);
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt("TypeId"));
+                    typeRoom.setTypeName(rs.getString("TypeName"));
+                    typeRoom.setOriginPrice(rs.getInt("OriginPrice"));
+                    typeRoom.setServicePrice(rs.getInt("ServicePrice"));
+                    typeRoom.setPrice(rs.getInt("Price"));
+                    typeRoom.setDescription(rs.getString("Description"));
+                    typeRoom.setNumberOfAvailableRooms(rs.getInt("AvailableRoomCount"));
+                    typeRoom.setAverageRating(rs.getDouble("Rating"));
+                    typeRoom.setNumberOfReviews(rs.getInt("numberOfReview"));
+                    typeRoom.setImages(getRoomImagesByTypeId(typeId));
+                    typeRoom.setServices(RoomNServiceDAO.getInstance().getRoomNServicesByTypeId(typeRoom));
+                    typeRoom.setReviews(ReviewDAO.getInstance().getReviewsByTypeRoomId(typeId));
+                    return typeRoom;
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return null;
     }
 
 }

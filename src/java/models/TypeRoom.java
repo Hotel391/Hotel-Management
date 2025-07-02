@@ -15,6 +15,10 @@ public class TypeRoom {
     private double averageRating;
     private List<String> urlImages = new ArrayList<>();
     private int numberOfReviews;
+    private int originPrice;
+    private int servicePrice;
+    private List<Review> reviews = new ArrayList<>();
+    private List<RoomNService> servicesOfTypeRoom = new ArrayList<>();
 
     // Constructors
     public TypeRoom() {
@@ -107,6 +111,30 @@ public class TypeRoom {
     }
     public void setNumberOfReviews(int numberOfReviews) {
         this.numberOfReviews = numberOfReviews;
+    }
+    public int getOriginPrice() {
+        return originPrice;
+    }
+    public void setOriginPrice(int originPrice) {
+        this.originPrice = originPrice;
+    }
+    public int getServicePrice() {
+        return servicePrice;
+    }
+    public void setServicePrice(int servicePrice) {
+        this.servicePrice = servicePrice;
+    }
+    public List<Review> getReviews() {
+        return reviews;
+    }
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
+    public List<RoomNService> getServicesOfTypeRoom() {
+        return servicesOfTypeRoom;
+    }
+    public void setServicesOfTypeRoom(List<RoomNService> servicesOfTypeRoom) {
+        this.servicesOfTypeRoom = servicesOfTypeRoom;
     }
     @Override
     public String toString() {

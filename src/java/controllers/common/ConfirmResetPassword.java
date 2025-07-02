@@ -91,13 +91,9 @@ public class ConfirmResetPassword extends HttpServlet {
                 "Password",
                 input,
                 Function.identity(),
-                List.of(
-                        new ValidationRule<>(value-> !Encryption.toSHA256(value).equals(oldPassword),
-                                "New password cannot be the same as old password"),
-                        new ValidationRule<>(value -> value.charAt(0) != ' ' && value.charAt(value.length() - 1) != ' ',
-                                "Password cannot start or end with space"),
-                        new ValidationRule<>(value -> Validation.checkFormatException(value, "PASSWORD"),
-                                "Password must contains 8 characters with lower, upper, special and digit")));
+                "PASSWORD",
+                List.of(new ValidationRule<>(value-> !Encryption.toSHA256(value).equals(oldPassword),
+                                "New password cannot be the same as old password")));
     }
 
     private boolean isErrorConfirmPassword(HttpServletRequest request, String confirmPassword, String password) {

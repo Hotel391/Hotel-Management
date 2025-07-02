@@ -1,13 +1,19 @@
 package controllers.common;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import models.EmailVerificationToken;
+import services.IRegisterService;
 import services.RegisterService;
 import utility.Email;
+import utility.Validation;
+import utility.ValidationRule;
 
 /**
  *
@@ -26,8 +32,7 @@ public class ForgotPassword extends HttpServlet {
             throws ServletException, IOException {
         String email = request.getParameter("email");
         RegisterService service = new RegisterService();
-        if (!service.isEmailExists(email)) {
-            request.setAttribute("errorEmail", "This email doesn't exist");
+        if (validateEmail(request, service, email)) {
             request.getRequestDispatcher("View/EnterEmailForgotPassword.jsp").forward(request, response);
             return;
         }
@@ -49,6 +54,17 @@ public class ForgotPassword extends HttpServlet {
         emailService.sendEmail(email, email, linkConfirm, "reset");
 
         response.sendRedirect("verifyEmail?email=" + email + "&type=reset");
+    }
+
+    private boolean validateEmail(HttpServletRequest request, IRegisterService service, String input) {
+        return Validation.validateField(request,
+                "errorEmail",
+                "Email",
+                input,
+                Function.identity(),
+                "EMAIL",
+                List.of(new ValidationRule<>(value -> !service.isEmailExists(value),
+                                "Email already exists")));
     }
 
     @Override

@@ -357,4 +357,30 @@ public class ServiceDAO {
         }
     }
 
+    public List<RoomNService> getAllRoomAndServiceByTypeId(int typeId){
+        String sql="""
+                select distinct s.ServiceId,s.ServiceName,s.Price, rns.quantity from TypeRoom tr
+                join RoomNService rns on rns.TypeId=tr.TypeId
+                join Service s on s.ServiceId=rns.ServiceId
+                where tr.TypeId=?
+                   """;
+        List<RoomNService> list = new ArrayList<>();
+        
+        try(PreparedStatement ptm = con.prepareStatement(sql)){
+            ptm.setInt(1, typeId);
+            ResultSet rs = ptm.executeQuery();
+            while(rs.next()){
+                RoomNService rns = new RoomNService();
+                rns.setQuantity(rs.getInt(4));
+                Service service = new Service();
+                service.setServiceId(rs.getInt(1));
+                service.setServiceName(rs.getString(2));
+                service.setPrice(rs.getInt(3));
+                rns.setService(service);
+                list.add(rns);
+            }
+        } catch (SQLException e) {
+        }
+        return list;
+    }
 }

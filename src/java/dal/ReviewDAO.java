@@ -5,6 +5,8 @@ import models.BookingDetail;
 import models.Customer;
 import models.CustomerAccount;
 import models.Review;
+import models.TypeRoom;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -131,9 +133,36 @@ public class ReviewDAO {
                 }
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            //
         }
         return listReview;
     }
 
+    public List<Review> getReviewsByTypeRoomId(int typeId) {
+        String sql = """
+                    SELECT rv.ReviewId, rv.Username, rv.Rating, rv.FeedBack, rv.Date
+                    FROM TypeRoom tr
+                    JOIN Room r ON r.TypeId = tr.TypeId
+                    JOIN BookingDetail bd ON bd.RoomNumber = r.RoomNumber
+                    JOIN Review rv ON rv.BookingDetailId = bd.BookingDetailId
+                    WHERE tr.TypeId = ?
+                     """;
+        List<Review> reviews = new ArrayList<>();
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, typeId);
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    Review review = new Review();
+                    review.setReviewId(rs.getInt("ReviewId"));
+                    review.setUsername(rs.getString("Username"));
+                    review.setRating(rs.getInt("Rating"));
+                    review.setFeedBack(rs.getString("FeedBack"));
+                    review.setDate(rs.getDate("Date"));
+                    reviews.add(review);
+                }
+            }
+        } catch (SQLException ex) {
+        }
+        return reviews;
+    }
 }

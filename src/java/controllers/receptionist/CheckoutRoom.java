@@ -5,7 +5,6 @@
 package controllers.receptionist;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -18,14 +17,14 @@ import models.BookingDetail;
 import models.Customer;
 import dal.BookingDetailDAO;
 import dal.CustomerDAO;
-import java.util.Collections;
+import jakarta.servlet.http.HttpSession;
 import java.util.LinkedHashMap;
 
 /**
  *
  * @author Hai Long
  */
-@WebServlet(name = "CheckoutRoom", urlPatterns = {"/receptionist/checkout"})
+@WebServlet(name = "CheckoutRoom", urlPatterns = {"/receptionist/checkoutRoom"})
 public class CheckoutRoom extends HttpServlet {
 
     /**
@@ -40,28 +39,26 @@ public class CheckoutRoom extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-
+        
+        HttpSession session = request.getSession(true);
+        
         String service = request.getParameter("service");
-
+        
         if (service == null) {
             service = "view";
         }
-
+        
         if ("view".equals(service)) {
-            String checkout = request.getParameter("checkout");
             
             long millis = System.currentTimeMillis();
-
+            
             Date currentDate = new Date(millis);
             
-            System.out.println(currentDate);
-
             HashMap<BookingDetail, Customer> checkoutInfor = new LinkedHashMap<>();
-
-            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(Date.valueOf("2024-12-31"));
+            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(currentDate);
             
             System.out.println(checkoutList);
-
+            
             for (BookingDetail bookingDetail : checkoutList) {
                 Customer customerCheckout = CustomerDAO.getInstance().getCustomerByBookingDetailId(bookingDetail.getBookingDetailId());
                 checkoutInfor.put(bookingDetail, customerCheckout);
@@ -72,10 +69,21 @@ public class CheckoutRoom extends HttpServlet {
             request.setAttribute("today", currentDate);
             
             request.setAttribute("checkoutList", checkoutInfor);
+            
+            request.getRequestDispatcher("/View/Receptionist/CheckoutRoom.jsp").forward(request, response);
         }
-
-        request.getRequestDispatcher("/View/Receptionist/CheckoutRoom.jsp").forward(request, response);
-
+        
+        if ("checkout".equals(service)) {
+            int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+            
+            session.setAttribute("bookingId", bookingId);
+            
+            session.setAttribute("status", "checkOut");
+            
+            response.sendRedirect(request.getContextPath() + "/payment");
+            
+        }
+        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

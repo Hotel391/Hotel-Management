@@ -31,9 +31,10 @@ public class Validation {
         regexMap.put("EMAIL", Pattern.compile("^[a-zA-Z\\d_]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$"));
         regexMap.put("PASSWORD", Pattern.compile("^(?=.*[a-z])(?=.*\\d)(?=.*[ @#$%^&+=!])[A-Za-z\\d @#$%^&+=!]{8,}"));
         regexMap.put("ADDRESS", Pattern.compile("^[\\p{L}\\d\\s,./-]{5,255}$"));
-        regexMap.put("TYPE_ROOM_NAME_BASIC", Pattern.compile("^[a-zA-Z\\s_-]{2,50}$"));
+        regexMap.put("TYPE_ROOM_NAME_BASIC", Pattern.compile("^[a-zA-Z\\s]+$"));
         regexMap.put("ROOM_PRICE_INT", Pattern.compile("^[1-9]\\d{0,7}$"));
         regexMap.put("DESCRIPTION", Pattern.compile("^[\\p{L}\\d\\s,./-]{5,255}$"));
+        regexMap.put("CCCD", Pattern.compile("^\\d{3}-\\d{2}-\\d{4}$"));
 
         ruleCheck.put("FULLNAME", List.of(
                 new ValidationRule<String>(value -> value.length() >= 2 && value.length() <= 100,
@@ -83,8 +84,7 @@ public class Validation {
         httpRequest.removeAttribute(attrKey);
         return false;
     }
-    
-    
+
     public static <T> boolean validateField(
             jakarta.servlet.http.HttpServletRequest req,
             String attrKey,
@@ -144,7 +144,7 @@ public class Validation {
         if (moreRule != null) {
             rules.addAll(moreRule);
         }
-        
+
         for (ValidationRule<T> rule : rules) {
             if (!rule.isValid(value)) {
                 req.setAttribute(attrKey, rule.getErrorMessage());
@@ -154,7 +154,7 @@ public class Validation {
         req.removeAttribute(attrKey);
         return false;
     }
-    
+
     public static <T> boolean validateField(
             jakarta.servlet.http.HttpServletRequest req,
             String attrKey,
@@ -164,14 +164,14 @@ public class Validation {
             String ruleName) {
         return validateField(req, attrKey, fieldName, rawInput, parser, ruleName, null);
     }
-    
+
     public static <T> T readPriceInput(
             jakarta.servlet.http.HttpServletRequest req,
             String attrKey,
             String rawInput,
             Function<String, T> parser,
             List<ValidationRule<T>> rules) {
-        if(rawInput == null || rawInput.trim().isEmpty()) {
+        if (rawInput == null || rawInput.trim().isEmpty()) {
             return null;
         }
         T value;

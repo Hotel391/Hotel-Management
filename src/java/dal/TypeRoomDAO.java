@@ -319,6 +319,25 @@ public class TypeRoomDAO {
             Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public double getPriceByTypeId(int typeId) {
+        double price = 0.0;
+
+        String sql = "SELECT Price FROM TypeRoom WHERE TypeId = ?";
+
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, typeId); 
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    price = rs.getDouble("Price");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return price;
+    }
 
     public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize) {
         return getAvailableTypeRooms(startDate, endDate, pageIndex, pageSize, null, null);

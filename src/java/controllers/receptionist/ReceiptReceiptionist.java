@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controllers.manager;
+package controllers.receptionist;
 
 import dal.BookingDAO;
 import dal.BookingDetailDAO;
@@ -14,8 +14,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import models.Booking;
 import models.BookingDetail;
@@ -24,8 +26,8 @@ import models.BookingDetail;
  *
  * @author Hai Long
  */
-@WebServlet(name = "Receipt", urlPatterns = {"/manager/receipt"})
-public class Receipt extends HttpServlet {
+@WebServlet(name = "ReceiptReceiptionist", urlPatterns = {"/receptionist/receipt"})
+public class ReceiptReceiptionist extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -48,83 +50,24 @@ public class Receipt extends HttpServlet {
 
         if ("view".equals(service)) {
 
-            List<Booking> bookingList = new ArrayList<>();
+            Date today = Date.valueOf(LocalDate.now());
 
-            HashMap<Booking, List<BookingDetail>> detailList = new HashMap<>();
+            List<Booking> bookingList;
 
-            int detailTotal;
+            HashMap<Booking, List<BookingDetail>> detailList = new LinkedHashMap<>();
 
-            int endPage = 0;
-            
-            int customerId = Integer.parseInt(request.getParameter("customerId"));
-
-            int indexPage = Integer.parseInt(request.getParameter("page") == null ? "1" : request.getParameter("page"));
-
-            String search = request.getParameter("search");
-
-            if (search != null && !search.isEmpty()) {
-
-                String startDate = request.getParameter("startDate");
-
-                String endDate = request.getParameter("endDate");
-
-                if (startDate == null || endDate == null || startDate.isEmpty() || endDate.isEmpty()) {
-                    request.setAttribute("error", "Fill in all information of date");
-                    bookingList = BookingDAO.getInstance().getBookingByCustomerId(customerId, indexPage, 2);
-                    detailTotal = BookingDAO.getInstance().getBookingCountByCustomerId(customerId); 
-
-                    endPage = detailTotal / 2;
-
-                    if (detailTotal % 2 != 0) {
-                        endPage++;
-                    }
-
-                } else {
-                    Date start = Date.valueOf(startDate);
-                    Date end = Date.valueOf(endDate);
-                    bookingList = BookingDAO.getInstance().getBookingByCustomerIdAndDate(customerId, indexPage, 1, start, end);
-                    detailTotal = BookingDAO.getInstance().getTotalBookingByCustomerIdAndDate(customerId, start, end);
-
-                    endPage = detailTotal / 1;
-
-                    if (detailTotal % 1 != 0) {
-                        endPage++;
-                    }
-                    request.setAttribute("search", search);
-                    
-                    request.setAttribute("start", start);
-                    
-                    request.setAttribute("end", end);
-                }
-            } else {
-                bookingList = BookingDAO.getInstance().getBookingByCustomerId(customerId, indexPage, 2);
-
-                detailTotal = BookingDAO.getInstance().getBookingCountByCustomerId(customerId);
-
-                endPage = detailTotal / 2;
-
-                if (detailTotal % 2 != 0) {
-                    endPage++;
-                }
-            }
-            
-            request.setAttribute("customerId", customerId);
-
-            request.setAttribute("endPage", endPage);
+            bookingList = BookingDAO.getInstance().getBookingByPayDay(today);
 
             for (Booking booking : bookingList) {
                 detailList.put(booking, BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking));
             }
-
             request.setAttribute("bookList", bookingList);
-
-            request.setAttribute("currentPage", indexPage);
 
             request.setAttribute("detailList", detailList);
 
-            request.getRequestDispatcher("/View/Manager/Receipt.jsp").forward(request, response);
-
+            request.getRequestDispatcher("/View/Receptionist/ReceiptInReceiptionist.jsp").forward(request, response);
         }
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

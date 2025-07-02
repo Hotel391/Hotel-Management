@@ -25,7 +25,6 @@ public class BookingDetail {
         this.services = services;
     }
     
-    
 
     public BookingDetail(int bookingDetailId, Date startDate, Date endDate, Booking booking, Room room) {
         this.bookingDetailId = bookingDetailId;
@@ -90,7 +89,6 @@ public class BookingDetail {
     public void setTotalAmount(int totalAmount) {
         this.totalAmount = totalAmount;
     }
-    
     @Override
     public String toString() {
         return "BookingDetail{" + "bookingDetailId=" + bookingDetailId + ", startDate=" + startDate + ", endDate=" + endDate + ", booking=" + booking + ", room=" + room + '}';

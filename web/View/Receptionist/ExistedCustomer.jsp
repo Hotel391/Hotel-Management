@@ -1,0 +1,88 @@
+<%-- 
+    Document   : ExistedCustomer
+    Created on : Jun 19, 2025, 3:11:26 PM
+    Author     : Hai Long
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<div class="checkout-content">
+    <div class="customer-info">
+        <form action="${pageContext.request.contextPath}/receptionist/checkout" method="post">
+            <h2 class="info-title">Thông tin khách hàng</h2>
+            <div class="gender">
+                <div class="gender_content">
+                    <input name="gender" value="Male" ${ec.gender ? 'checked' : ''} type="radio" />
+                    <label for="male">Anh</label>
+                </div>
+
+                <div class="gender_content">
+                    <input name="gender" value="Female" ${!ec.gender ? 'checked' : ''} type="radio" />
+                    <label for="female">Chị</label>
+                </div>
+
+            </div>
+
+            <div class="info_input">
+                <div class="form_row">
+                    <div class="checkout_detail">
+                        <label style="display: none" for="fullname">Họ tên</label>
+                        <input placeholder="Họ tên *" 
+                               type="text" 
+                               name="fullName" 
+                               value="${ec.fullName}" required/>
+
+                        <c:if test="${not empty nameError}">
+                            <p class="error">${nameError}</p>
+                        </c:if>
+
+                    </div>
+                    <div class="checkout_detail">
+                        <label style="display: none" for="phone">SĐT</label>
+                        <input placeholder="SĐT *" 
+                               type="number" id="phone" 
+                               name="phone" 
+                               value="${ec.phoneNumber}"
+                               required/>
+                        <c:if test="${not empty phoneError}">
+                            <p class="error">${phoneError}</p>
+                        </c:if>
+                    </div>
+                </div>
+
+                <div class="form_row">
+                    <div class="checkout_detail">
+                        <label style="display: none" for="cccd">CCCD</label>
+                        <input type="text" 
+                               id="cccd" 
+                               name="cccd" 
+                               placeholder="CCCD *" 
+                               value="${ec.CCCD}"
+                               required/>
+                        <c:if test="${not empty cccdError}">
+                            <p class="error">${cccdError}</p>
+                        </c:if>
+                    </div>
+
+
+                    <div class="checkout_detail">
+                        <label style="display: none" for="email">Email:</label>
+                        <input type="text" 
+                               id="email" 
+                               name="email" 
+                               placeholder="Email *" 
+                               value="${ec.email}"
+                               required/>
+                        <c:if test="${not empty emailError}">
+                            <p class="error">${emailError}</p>
+                        </c:if>
+                    </div>
+                </div>
+            </div>
+            <div class="btn-submit">
+                <input type="hidden" name="service" value="addExisted">
+                <button class="btn btn-danger">Đặt phòng</button>
+            </div>
+        </form>
+    </div>
+</div>
+

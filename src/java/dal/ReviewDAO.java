@@ -49,7 +49,8 @@ public class ReviewDAO {
                 + "JOIN \n"
                 + "    CustomerAccount ca ON r.Username = ca.Username\n"
                 + "JOIN \n"
-                + "    Customer c ON ca.CustomerId = c.CustomerId;";
+                + "    Customer c ON ca.CustomerId = c.CustomerId\n"
+                + "    ORDER BY r.[Date] DESC;";
         List<Review> listReview = Collections.synchronizedList(new ArrayList<>());
         try (PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
             while (rs.next()) {

@@ -41,6 +41,7 @@ public class ajaxServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         doPost(req, resp);
     }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -57,19 +58,18 @@ public class ajaxServlet extends HttpServlet {
                 totalPrice = ((Double) obj).intValue();
             }
             int customerId = (int) session.getAttribute("customerId");
-            String startDateStr = (String) session.getAttribute("startDate");
-            String endDateStr = (String) session.getAttribute("endDate");
-
-            Date startDate = Date.valueOf(startDateStr); 
-            Date endDate = Date.valueOf(endDateStr);
-            int roomNumber = Integer.parseInt((String)session.getAttribute("roomNumber"));
-
             Booking booking = new Booking();
             Customer customer = new Customer();
             customer.setCustomerId(customerId);
             booking.setCustomer(customer);
-            booking.setPaidAmount(totalPrice);
+            session.setAttribute("paidAmount", totalPrice);
             bookingId = dal.BookingDAO.getInstance().insertNewBooking(booking);
+
+            String startDateStr = (String) session.getAttribute("startDate");
+            String endDateStr = (String) session.getAttribute("endDate");
+            Date startDate = Date.valueOf(startDateStr);
+            Date endDate = Date.valueOf(endDateStr);
+            int roomNumber = Integer.parseInt((String) session.getAttribute("roomNumber"));
 
             BookingDetail bookingDetail = new BookingDetail();
             Room room = new Room();
@@ -82,6 +82,7 @@ public class ajaxServlet extends HttpServlet {
             bookingDetail.setBooking(booking1);
             bookingDetail.setTotalAmount(totalPrice);
             int bookingDetailId = dal.BookingDetailDAO.getInstance().insertNewBookingDetail(bookingDetail);
+            session.setAttribute("bookingDetailId", bookingDetailId);
 
             List<DetailService> listDetailService = (List<DetailService>) session.getAttribute("listService");
             if (listDetailService != null) {
@@ -94,21 +95,21 @@ public class ajaxServlet extends HttpServlet {
                             serviceId, quantity, tottalPriceAtTimeOfOneService);
                 }
             }
-            session.removeAttribute("listService");
-            session.removeAttribute("totalPrice");
+
             session.removeAttribute("customerId");
             session.removeAttribute("startDate");
             session.removeAttribute("endDate");
             session.removeAttribute("roomNumber");
+            session.removeAttribute("totalPrice");
 
         } else if (status.equals("checkOut")) {
             bookingId = (int) session.getAttribute("bookingId");
             BookingDetail bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetalByBookingId(bookingId);
             int PaidAmount = bookingDetail.getBooking().getPaidAmount();
             int totalAmount = bookingDetail.getTotalAmount();
-            
+
             if (PaidAmount == totalAmount) {
-                Booking booking =new Booking();
+                Booking booking = new Booking();
                 booking.setBookingId(bookingId);
                 booking.setTotalPrice(totalAmount);
                 dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
@@ -168,7 +169,7 @@ public class ajaxServlet extends HttpServlet {
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-        cld.add(Calendar.MINUTE, 15);
+        cld.add(Calendar.MINUTE, 1);
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
@@ -201,7 +202,7 @@ public class ajaxServlet extends HttpServlet {
         String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
         resp.sendRedirect(paymentUrl);
     }
-    
+
     public static String generateRandomCodeWithUnderscore(int length) {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder sb = new StringBuilder("_"); // dấu _

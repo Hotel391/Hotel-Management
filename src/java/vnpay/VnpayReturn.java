@@ -14,10 +14,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import models.Booking;
+import models.BookingDetail;
+import models.DetailService;
+import models.Room;
 
 /**
  *
@@ -63,14 +68,42 @@ public class VnpayReturn extends HttpServlet {
             Booking booking = new Booking();
             booking.setBookingId((bookingId));
             String status = (String) session.getAttribute("status");
+
             boolean transSuccess = false;
             if ("checkIn".equals(status)) {
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     booking.setStatus("Completed CheckIn");
                     request.setAttribute("pageChange", "checkIn");
                     transSuccess = true;
+
+                    Object paidAmountObj = session.getAttribute("paidAmount");
+                    int paidAmount = 0;
+                    if (paidAmountObj == null) {
+                        throw new IllegalStateException("paidAmount is missing in session");
+                    } else {
+                        paidAmount = (int) paidAmountObj;
+                    }
+
+                    booking.setPaidAmount(paidAmount);
+                    dal.BookingDAO.getInstance().updateBookingPaidAmount(booking);
+                    session.removeAttribute("paidAmount");
+                    session.removeAttribute("bookingDetailId");
+                    session.removeAttribute("listService");
+
                 } else {
                     booking.setStatus("Failed");
+                    int bookingDetailId = (int) session.getAttribute("bookingDetailId");
+                    dal.BookingDetailDAO.getInstance().deleteBookingDetailById(bookingDetailId);
+                    List<DetailService> listDetailService = (List<DetailService>) session.getAttribute("listService");
+                    if (listDetailService != null) {
+                        for (DetailService detail : listDetailService) {
+                            int serviceId = detail.getService().getServiceId();
+                            dal.DetailServiceDAO.getInstance().deleteDetailService(bookingDetailId, serviceId);
+                        }
+                    }
+                    
+                    session.removeAttribute("bookingDetailId");
+                    session.removeAttribute("listService");
                 }
             } else {
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
@@ -97,6 +130,25 @@ public class VnpayReturn extends HttpServlet {
         } else {
             //RETURN PAGE ERROR
             System.out.println("GD KO HOP LE (invalid signature)");
+
+            // Thử lấy bookingId từ vnp_TxnRef
+            String vnp_TxnRef = request.getParameter("vnp_TxnRef");
+            if (vnp_TxnRef != null && vnp_TxnRef.contains("_")) {
+                try {
+                    String bookingIdStr = vnp_TxnRef.split("_")[0];
+                    int bookingId = Integer.parseInt(bookingIdStr);
+
+                    Booking booking = new Booking();
+                    booking.setBookingId(bookingId);
+                    booking.setStatus("Failed");
+
+                    dal.BookingDAO.getInstance().updateBookingStatus(booking);
+                    request.setAttribute("transResult", false);
+                } catch (NumberFormatException e) {
+                    System.out.println("Cannot parse booking ID from vnp_TxnRef: " + vnp_TxnRef);
+                }
+            }
+            request.getRequestDispatcher("/paymentResult.jsp").forward(request, response);
         }
 
     }

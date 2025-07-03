@@ -88,7 +88,10 @@
                 <div class="col-md-9">
                     <div id="hotels" class="bg-white p-2 border">
                         <c:forEach var="typeRoom" items="${typeRooms}">
-                            <div class="card mb-3 room-card p-2" onclick="location.href='${pageContext.request.contextPath}/detailRoom?typeRoomId=${typeRoom.typeId}&checkin=${checkin}&checkout=${checkout}'">
+                            <div class="card mb-3 room-card p-2" 
+                                 draggable="true"
+                                 ondragstart="event.dataTransfer.setData('text/plain', '${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}/detailRoom?typeRoomId=${typeRoom.typeId}&checkin=${checkin}&checkout=${checkout}')"
+                                 onclick="location.href='${pageContext.request.contextPath}/detailRoom?typeRoomId=${typeRoom.typeId}&checkin=${checkin}&checkout=${checkout}'">
                                 <div class="row g-0">
                                     <div class="col-md-4">
                                         <img src="${pageContext.request.contextPath}/${typeRoom.uriContextOfImages}${typeRoom.images[0]}" alt="${typeRoom.typeName}" class="main-image" />
@@ -141,7 +144,7 @@
                                                 <span class="badge bg-success me-1"><i class="fas fa-check-circle"></i> Available: ${typeRoom.numberOfAvailableRooms}</span>
                                             </p>
                                             <p class="" style="margin-left: 86%; margin-top: 17%;">
-                                                <span class="badge bg-success me-1"> ${typeRoom.price}</span>
+                                                <span class="badge bg-success me-1"><fmt:formatNumber value="${typeRoom.price}" type="currency" currencyCode="VND" /></span>
                                             </p>
                                         </div>
                                     </div>

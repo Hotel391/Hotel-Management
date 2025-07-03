@@ -20,7 +20,7 @@ import models.Employee;
  *
  * @author HieuTT
  */
-@WebFilter(filterName="Receptionist", urlPatterns={"/receptionist/*"})
+//@WebFilter(filterName="Receptionist", urlPatterns={"/receptionist/*"})
 public class Receptionist implements Filter {
 
     private static final boolean debug = true;

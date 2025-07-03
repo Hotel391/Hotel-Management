@@ -1,5 +1,6 @@
 package dal;
 
+import java.sql.Statement;
 import models.TypeRoom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import models.RoomNService;
 import models.Service;
-import java.util.stream.Collectors;
 
 public class TypeRoomDAO {
 
@@ -47,18 +47,27 @@ public class TypeRoomDAO {
         return typeRooms;
     }
     
-    public void insertTypeRoom(TypeRoom typeRoom) {
+    
+    public int insertTypeRoom(TypeRoom typeRoom) {
         String sql = "INSERT INTO TypeRoom(TypeName, Description, Price) VALUES(?, ?, ?)";
-        try (PreparedStatement st = con.prepareStatement(sql)) {
+        int typeId = -1; // giá trị mặc định nếu thất bại
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, typeRoom.getTypeName());
             st.setString(2, typeRoom.getDescription());
             st.setInt(3, typeRoom.getPrice());
             st.executeUpdate();
+
+            // Lấy khóa chính tự động sinh (typeId)
+            ResultSet rs = st.getGeneratedKeys();
+            if (rs.next()) {
+                typeId = rs.getInt(1);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return typeId;
     }
-
+    
     public TypeRoom getTypeRoomById(int typeId) {
         String sql = "SELECT TypeId, TypeName, Description, Price FROM TypeRoom WHERE TypeId = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -232,6 +241,8 @@ public class TypeRoomDAO {
                             rs.getString(2),
                             rs.getString(3),
                             rs.getInt(4));
+                    tr.setImages(RoomImageDAO.getInstance().getRoomImagesByTypeId(rs.getInt(1)));
+                               
 
                     list.add(tr);
                 }
@@ -268,6 +279,8 @@ public class TypeRoomDAO {
 
                     tr.setServices(RoomNServiceDAO.getInstance().getRoomNServicesByTypeId(tr));
                     tr.setOtherServices(ServiceDAO.getInstance().getServicesNotInTypeRoom(tr));
+                    tr.setImages(RoomImageDAO.getInstance().getRoomImagesByTypeId(rs.getInt("typeId")));
+                    
                     list.add(tr);
                 }
             }
@@ -361,5 +374,9 @@ public class TypeRoomDAO {
         } catch (SQLException ex) {
            ex.printStackTrace();
         }
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(TypeRoomDAO.getInstance().typeRoomPagination(1, "").get(0).getImages());
     }
 }

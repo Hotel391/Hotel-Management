@@ -7,6 +7,8 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -39,11 +41,11 @@
                             </div>
                             <!-- Modal -->
                             <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModal" aria-hidden="true">
-                                <form action="${pageContext.request.contextPath}/manager/types" method="post">
+                                <form action="${pageContext.request.contextPath}/manager/types" method="post" enctype="multipart/form-data">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Add Type Room</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
@@ -77,6 +79,10 @@
                                                         ${param.typesDesc}
                                                     </textarea>
                                                 </div>
+                                                <div class="row g-3">
+                                                    <label for="formFile" class="form-label">Default file input example</label>
+                                                    <input class="form-control" type="file" id="formFile" multiple name="image" accept="image/*" required>
+                                                </div>
                                                 <c:if test="${not empty addSuccess}">
                                                     <p class="alert alert-success">${addSuccess}</p>
                                                 </c:if>
@@ -97,9 +103,9 @@
                                 <button type="submit" class="btn btn-primary">Filter</button>
                             </form>
                         </div>
-                                
-                                
-                        
+
+
+
                         <c:if test="${not empty keyError}">
                             <div class="alert alert-danger mt-3">${keyError}</div>
                         </c:if>
@@ -112,6 +118,8 @@
                                         <th scope="col">Price</th>
                                         <th scope="col">Description</th>
                                         <th scope="col">Service</th>
+                                        <th scope="col">Images</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -301,6 +309,66 @@
                                                 </form>
                                             </td>
                                             <td>
+                                                <!-- Button trigger modal -->
+                                                <button onclick="clearMessageImg(${trl.typeId})" type="button" class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#imageModal_${trl.typeId}">
+                                                    <i class="bi bi-eye"></i>View
+                                                </button>
+
+                                                <!-- Modal -->
+                                                <div class="modal fade imageModal" id="imageModal_${trl.typeId}" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Images of ${trl.typeName}</h1>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <c:if test="${not empty deleteImg}">
+                                                                <p class="alert alert-success">${deleteImg}</p>
+                                                            </c:if>
+                                                            <c:if test="${not empty addImg}">
+                                                                <p class="alert alert-success">${addImg}</p>
+                                                            </c:if>
+
+                                                            <div class="modal-body">
+
+                                                                <c:forEach var="img" items="${trl.images}">
+
+                                                                    <div class="typeroom-img">
+                                                                        <img src="${pageContext.request.contextPath}/Image/${fn:replace(trl.typeName, ' ', '')}/${img.image}" alt="${trl.typeName} Image"/>
+                                                                        <form action="${pageContext.request.contextPath}/manager/types" method="post">
+                                                                            <input type="hidden" name="imageId" value="${img.imageId}">
+                                                                            <input type="hidden" name="imageName" value="${img.image}">
+                                                                            <input type="hidden"  name="service" value="deleteImg">
+                                                                            <input type="hidden" name="typeId" value="${trl.typeId}">
+                                                                            <input type="hidden" name="key" value="${key}" />
+                                                                            <input type="hidden" name="page" value="${currentPage}"}>
+                                                                            <button onclick="return confirm('Bạn có chắc muốn xóa ảnh này?')" class="btn btn-primary">Delete</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </c:forEach>
+
+                                                            </div>
+                                                            <form action="${pageContext.request.contextPath}/manager/types" method="post" enctype="multipart/form-data">
+                                                                <div class="row g-0">
+                                                                    <label style="text-align: center;" for="formFile" class="form-label">Default file input example</label>
+                                                                    <input class="form-control" type="file" id="formFile" multiple name="image" accept="image/*" required>
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <input type="hidden"  name="service" value="addImg">
+                                                                    <input type="hidden" name="typeId" value="${trl.typeId}">
+                                                                    <input type="hidden" name="key" value="${key}" />
+                                                                    <input type="hidden" name="page" value="${currentPage}"}>
+                                                                    <button type="submit" class="btn btn-primary">Add image</button>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                </div>
+                                                            </form>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
                                                 <!-- Edit Employee Modal -->
                                                 <button onclick="resetFormData(${trl.typeId})" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editTypeRoomModal_${trl.typeId}">
                                                     <i class="bi bi-pencil"></i> Edit
@@ -310,7 +378,7 @@
                                                     <div class="modal-dialog modal-lg">
                                                         <div class="modal-content">
                                                             <form method="post" action="${pageContext.request.contextPath}/manager/types">
-                                                                <input type="hidden" name="service" value="updatePriceName" />
+
 
                                                                 <div class="modal-header">
                                                                     <h5 class="modal-title" id="editTypeRoomModalLabel_${trl.typeId}">Edit type room - ${trl.typeName}</h5>
@@ -335,7 +403,7 @@
                                                                             <c:if test="${not empty nameUpdateExistedError and updateNameAndPrice == trl.typeId}">
                                                                                 <p class="alert alert-danger">${nameUpdateExistedError}</p>
                                                                             </c:if>
-                                                                                
+
                                                                         </div>
 
                                                                         <div class="col-md-6">
@@ -360,8 +428,12 @@
                                                                     <c:if test="${not empty updateMessageNameAndPrice and updateNameAndPrice == trl.typeId}">
                                                                         <p class="alert alert-success">${updateMessageNameAndPrice}</p>
                                                                     </c:if>
+                                                                    <div class="upload-img">
+
+                                                                    </div>
                                                                 </div>
                                                                 <div class="modal-footer">
+                                                                    <input type="hidden" name="service" value="updatePriceName" />
                                                                     <input type="hidden" name="typeRoomId" value="${trl.typeId}" />
                                                                     <input type="hidden" name="key" value="${key}" />
                                                                     <input type="hidden" name="page" value="${currentPage}"}>
@@ -376,6 +448,7 @@
                                                 </div>
 
                                             </td>
+
                                             <td>
                                                 <!-- Delete Employee Modal -->
                                                 <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_${trl.typeId}">
@@ -402,6 +475,7 @@
                                                     </div>
                                                 </div>
                                             </td>
+
                                         </tr>
                                     </c:forEach>
                                 </tbody>
@@ -500,7 +574,7 @@
 
                 });
 
-                
+
 
 
             </script>
@@ -524,7 +598,7 @@
 
                 });
 
-                
+
             </script>
         </c:if>
         <c:if test="${not empty showModalAdd}">
@@ -558,6 +632,30 @@
                     }
                 }
                 ;
+
+
+            </script>
+        </c:if>
+        <c:if test="${not empty showModalImage}">
+            <script>
+
+                window.addEventListener('load', function () {
+                    var modal = new bootstrap.Modal(document.getElementById('imageModal_${showModalImage}'));
+                    modal.show();
+                <c:if test="${not empty deleteImg or not empty addImg}">
+                    setTimeout(function () {
+
+                        clearMessageImg(${showModalImage});
+
+
+                        modal.hide();
+                    }, 2000);
+                </c:if>
+
+
+                });
+
+
 
 
             </script>
@@ -641,31 +739,31 @@
             }
             ;
             function clearMessageService(typeId) {
-                    console.log('TypeId: ' + typeId);
-                    // Ẩn message trong modal
-                    var messageElement = document.querySelectorAll('#serviceModal_' + typeId + ' .modal-body p');
-                    console.log(messageElement);
-                    // Hoặc xóa hoàn toàn
-                    if (messageElement) {
-                        messageElement.forEach(function (element) {
-                            
-                            element.remove();
-                        });
-                    }
+                console.log('TypeId: ' + typeId);
+                // Ẩn message trong modal
+                var messageElement = document.querySelectorAll('#serviceModal_' + typeId + ' .modal-body p');
+                console.log(messageElement);
+                // Hoặc xóa hoàn toàn
+                if (messageElement) {
+                    messageElement.forEach(function (element) {
+
+                        element.remove();
+                    });
                 }
-                ;
-                function clearMessageEdit(typeId) {
-                    // Ẩn message trong modal
-                    var messageElement = document.querySelectorAll('#editTypeRoomModal_' + typeId + ' .modal-body p');
-                    console.log(messageElement);
-                    // Hoặc xóa hoàn toàn
-                    if (messageElement) {
-                        messageElement.forEach(function (element) {
-                            element.remove();
-                        });
-                    }
+            }
+            ;
+            function clearMessageEdit(typeId) {
+                // Ẩn message trong modal
+                var messageElement = document.querySelectorAll('#editTypeRoomModal_' + typeId + ' .modal-body p');
+                console.log(messageElement);
+                // Hoặc xóa hoàn toàn
+                if (messageElement) {
+                    messageElement.forEach(function (element) {
+                        element.remove();
+                    });
                 }
-                ;
+            }
+            ;
 
 
         </script>
@@ -699,6 +797,20 @@
 //            function resetServiceForm(typeId) {
 //
 //            }
+        </script>
+        <script>
+            function clearMessageImg(typeId) {
+                // Ẩn message trong modal
+                var messageElement = document.querySelectorAll('#imageModal_' + typeId + ' p');
+                console.log(messageElement);
+                // Hoặc xóa hoàn toàn
+                if (messageElement) {
+                    messageElement.forEach(function (element) {
+                        element.remove();
+                    });
+                }
+            }
+            ;
         </script>
 
     </body>

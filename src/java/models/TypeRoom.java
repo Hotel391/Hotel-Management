@@ -9,6 +9,7 @@ public class TypeRoom {
     private String typeName;
     private String description;
     private int price;
+    private List<RoomImage> images = new ArrayList<>();
     private List<RoomNService> services = new ArrayList<>();
     private List<Service> otherServices = new ArrayList<>();
     
@@ -74,6 +75,18 @@ public class TypeRoom {
 
     public void setOtherServices(List<Service> otherServices) {
         this.otherServices = otherServices;
+    }
+    
+    public List<RoomImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<RoomImage> images) {
+        this.images = images;
+    }
+
+    public void addImage(RoomImage image) {
+        this.images.add(image);
     }
     
     

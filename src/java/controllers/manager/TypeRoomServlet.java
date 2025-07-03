@@ -1,16 +1,21 @@
 package controllers.manager;
 
+import dal.RoomImageDAO;
 import dal.RoomNServiceDAO;
 import dal.ServiceDAO;
 import dal.TypeRoomDAO;
 import models.TypeRoom;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import utility.Validation;
@@ -19,6 +24,9 @@ import java.util.Map;
 import models.RoomNService;
 
 @WebServlet(name = "TypeRoomServlet", urlPatterns = {"/manager/types"})
+@MultipartConfig(fileSizeThreshold = 1024 * 1024, // 1MB
+        maxFileSize = 1024 * 1024 * 5, // 5MB
+        maxRequestSize = 1024 * 1024 * 10)
 public class TypeRoomServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -36,7 +44,7 @@ public class TypeRoomServlet extends HttpServlet {
         }
 
         if ("addTypeRoom".equals(service)) {
-            System.out.println("123");
+
             String name = request.getParameter("typeName").trim();
             String price_raw = request.getParameter("price").trim();
             String description = request.getParameter("typeDesc").trim();
@@ -63,6 +71,38 @@ public class TypeRoomServlet extends HttpServlet {
                 request.setAttribute("nameExistedError", "Tên loại phòng đã tồn tại");
             }
 
+            Collection<Part> fileParts = request.getParts();
+            HashMap<Part, String> imageParts = new HashMap<>();
+            for (Part part : fileParts) {
+                if (part.getName().equals("image") && part.getSize() > 0) {
+                    String fileName = extractFileName(part);
+                    if (fileName != null && part.getContentType() != null && part.getContentType().startsWith("image/")) {
+                        imageParts.put(part, fileName);
+                    }
+                }
+            }
+
+            if (imageParts.isEmpty()) {
+                check = true;
+                request.setAttribute("imageError", "Vui lòng chọn ít nhất 1 ảnh");
+            }
+
+//            for (Part imagePart : imageParts.keySet()) {
+//                if (imagePart.getSize() > 5 * 1024 * 1024) { // 5MB
+//                    check = true;
+//                    request.setAttribute("imageError", "Kích thước file không được vượt quá 5MB");
+//                    break;
+//                }
+//
+//                String contentType = imagePart.getContentType();
+//                if (contentType == null || !contentType.startsWith("image/")) {
+//                    check = true;
+//                    request.setAttribute("imageError", "Chỉ chấp nhận file ảnh (jpg, png, gif, etc.)");
+//                    break;
+//                }
+//            }
+            System.out.println(imageParts);
+
             if (!check) {
 
                 int price = Integer.parseInt(price_raw);
@@ -71,7 +111,13 @@ public class TypeRoomServlet extends HttpServlet {
                 typeRoom.setPrice(price);
                 typeRoom.setTypeName(name);
 
-                TypeRoomDAO.getInstance().insertTypeRoom(typeRoom);
+                int typeId = TypeRoomDAO.getInstance().insertTypeRoom(typeRoom);
+
+                for (Map.Entry<Part, String> imagePart : imageParts.entrySet()) {
+                    uploadImage(request, imagePart.getKey(), imagePart.getValue(), typeId);
+
+                    RoomImageDAO.getInstance().insertImage(typeId, imagePart.getValue());
+                }
 
                 request.setAttribute("addSuccess", "Thêm loại phòng thành công");
 
@@ -127,7 +173,6 @@ public class TypeRoomServlet extends HttpServlet {
                 price = Integer.parseInt(priceRaw);
             }
 
-            
             if (TypeRoomDAO.getInstance().getTypeRoomByNameAndPrice(typeRoomId, typeName, price) != null) {
                 check = true;
                 System.out.println(check);
@@ -323,6 +368,51 @@ public class TypeRoomServlet extends HttpServlet {
 
         }
 
+        if ("deleteImg".equals(service)) {
+            int imageId = Integer.parseInt(request.getParameter("imageId"));
+            String imageName = request.getParameter("imageName");
+            int typeId = Integer.parseInt(request.getParameter("typeId"));
+
+            deleteImage(request, imageName, typeId);
+
+            RoomImageDAO.getInstance().deleteImage(imageId);
+
+            request.setAttribute("showModalImage", typeId);
+
+            request.setAttribute("deleteImg", "Xóa ảnh thành công");
+
+            showTypeRoom(request, response);
+        }
+
+        if ("addImg".equals(service)) {
+            
+            int typeId = Integer.parseInt(request.getParameter("typeId"));
+            
+            Collection<Part> fileParts = request.getParts();
+            HashMap<Part, String> imageParts = new HashMap<>();
+            for (Part part : fileParts) {
+                if (part.getName().equals("image") && part.getSize() > 0) {
+                    String fileName = extractFileName(part);
+                    if (fileName != null && part.getContentType() != null && part.getContentType().startsWith("image/")) {
+                        imageParts.put(part, fileName);
+                    }
+                }
+            }
+            
+             for (Map.Entry<Part, String> imagePart : imageParts.entrySet()) {
+                    uploadImage(request, imagePart.getKey(), imagePart.getValue(), typeId);
+
+                    RoomImageDAO.getInstance().insertImage(typeId, imagePart.getValue());
+                }
+             
+             request.setAttribute("showModalImage", typeId);
+             
+             request.setAttribute("addImg", "Thêm ảnh thành công");
+            
+             showTypeRoom(request, response);
+            
+        }
+
     }
 
     private void showTypeRoom(HttpServletRequest request, HttpServletResponse response)
@@ -337,9 +427,7 @@ public class TypeRoomServlet extends HttpServlet {
         int endPage;
 
         if (key != null && !key.trim().isEmpty()) {
-            
-            
-            
+
             typeRoomTotal = dal.TypeRoomDAO.getInstance().searchTypeRoom(key).size();
 
             endPage = typeRoomTotal / 5;
@@ -366,11 +454,92 @@ public class TypeRoomServlet extends HttpServlet {
 
         typeRoomList = dal.TypeRoomDAO.getInstance().typeRoomPagination(indexPage, key);
 
+        for (TypeRoom typeRoom : typeRoomList) {
+            System.out.println(typeRoom.getTypeName() + ": " + typeRoom.getImages());
+        }
+
         request.setAttribute("currentPage", indexPage);
 
         request.setAttribute("typeRoomList", typeRoomList);
 
         request.getRequestDispatcher("/View/Manager/TypeRoom.jsp").forward(request, response);
+    }
+
+    private void uploadImage(HttpServletRequest request, Part filePart, String fileName, int typeId) throws IOException {
+
+        TypeRoom typeRoom = TypeRoomDAO.getInstance().getTypeRoomById(typeId);
+
+        String appPath = request.getServletContext().getRealPath("/");
+        File rootDir = new File(appPath).getParentFile().getParentFile(); // thoát khỏi /build/web
+
+        String buildPath = appPath + "Image" + File.separator + typeRoom.getTypeName().replace(" ", "");
+        String savePath = rootDir.getAbsolutePath() + File.separator + "web" + File.separator + "Image" + File.separator + typeRoom.getTypeName().replace(" ", "");
+
+        File fileBuildDir = new File(buildPath);
+        if (!fileBuildDir.exists()) {
+            fileBuildDir.mkdirs();
+        }
+
+        String fullBuildPath = buildPath + File.separator + fileName;
+
+        File fileSaveDir = new File(savePath);
+        if (!fileSaveDir.exists()) {
+            fileSaveDir.mkdirs();
+        }
+
+        String fullPath = savePath + File.separator + fileName;
+
+        System.out.println("appPath: " + appPath);
+        System.out.println("rootDir: " + rootDir);
+        System.out.println("buildPath: " + buildPath);
+        System.out.println("fulBuildPath: " + fullBuildPath);
+        System.out.println("savePath: " + savePath);
+        System.out.println("fullPath: " + fullPath);
+
+        filePart.write(fullPath);   // Lưu trong thư mục gốc
+        filePart.write(fullBuildPath);  // Lưu trong build
+    }
+
+    private void deleteImage(HttpServletRequest request, String fileName, int typeId) throws IOException {
+
+        TypeRoom typeRoom = TypeRoomDAO.getInstance().getTypeRoomById(typeId);
+
+        String appPath = request.getServletContext().getRealPath("/");
+        File rootDir = new File(appPath).getParentFile().getParentFile(); // thoát khỏi /build/web
+
+        String buildPath = appPath + "Image" + File.separator + typeRoom.getTypeName().replace(" ", "");
+        String savePath = rootDir.getAbsolutePath() + File.separator + "web" + File.separator + "Image" + File.separator + typeRoom.getTypeName().replace(" ", "");
+
+        String fullBuildPath = buildPath + File.separator + fileName;
+
+        File imageBuildFile = new File(fullBuildPath);
+        if (imageBuildFile.exists()) {
+            imageBuildFile.delete();
+        }
+
+        String fullPath = savePath + File.separator + fileName;
+        File imageWebFile = new File(fullPath);
+        if (imageWebFile.exists()) {
+            imageWebFile.delete();
+        }
+
+        System.out.println("appPath: " + appPath);
+        System.out.println("rootDir: " + rootDir);
+        System.out.println("buildPath: " + buildPath);
+        System.out.println("fulBuildPath: " + fullBuildPath);
+        System.out.println("savePath: " + savePath);
+        System.out.println("fullPath: " + fullPath);
+    }
+
+    private String extractFileName(Part part) {
+        String contentDisp = part.getHeader("content-disposition");
+        System.out.println(contentDisp);
+        for (String token : contentDisp.split(";")) {
+            if (token.trim().startsWith("filename")) {
+                return new File(token.split("=")[1].replace("\"", "")).getName();
+            }
+        }
+        return null;
     }
 
     @Override

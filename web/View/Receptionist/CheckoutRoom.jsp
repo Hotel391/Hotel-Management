@@ -28,7 +28,7 @@
                 <c:set var="title" value="Checkout Room Today" scope="request"/>
                 <jsp:include page="topNavReceptionist.jsp" />
                 <div class="main-content">
-                    <h1 class="mb-4">Danh sách phòng checkout ngày hôm nay (<fmt:formatDate value="${today}" pattern="dd-MM-yyyy"/>)</h1>
+                    <h1 class="mb-4">Danh sách phòng checkout</h1>
                     <form class="mb-3" method="get">
                         <div class="input-group" style="max-width: 400px;">
                             <input type="hidden" name="oldSearch" value="${oldSearch}">

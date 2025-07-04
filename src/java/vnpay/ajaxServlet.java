@@ -69,37 +69,50 @@ public class ajaxServlet extends HttpServlet {
             String endDateStr = (String) session.getAttribute("endDate");
             Date startDate = Date.valueOf(startDateStr);
             Date endDate = Date.valueOf(endDateStr);
-            int roomNumber = Integer.parseInt((String) session.getAttribute("roomNumber"));
+            String[] roomNumbers = (String[]) session.getAttribute("roomNumbers");
+            // Lấy Map roomServicesMap
+            Map<String, List<DetailService>> roomServicesMap
+                    = (Map<String, List<DetailService>>) session.getAttribute("roomServicesMap");
+            List<Integer> listBookingDetailId = new ArrayList<>();
+            for (String roomNumberStr : roomNumbers) {
+                int roomNumber = Integer.parseInt(roomNumberStr);
+                // Tạo BookingDetail cho từng phòng
+                BookingDetail bookingDetail = new BookingDetail();
+                Room room = new Room();
+                Booking booking1 = new Booking();
+                bookingDetail.setStartDate(startDate);
+                bookingDetail.setEndDate(endDate);
+                room.setRoomNumber(roomNumber);
+                bookingDetail.setRoom(room);
+                booking1.setBookingId(bookingId);
+                bookingDetail.setBooking(booking1);
+                bookingDetail.setTotalAmount(totalPrice);
+                int bookingDetailId = dal.BookingDetailDAO.getInstance().insertNewBookingDetail(bookingDetail);
+                listBookingDetailId.add(bookingDetailId);
 
-            BookingDetail bookingDetail = new BookingDetail();
-            Room room = new Room();
-            Booking booking1 = new Booking();
-            bookingDetail.setStartDate(startDate);
-            bookingDetail.setEndDate(endDate);
-            room.setRoomNumber(roomNumber);
-            bookingDetail.setRoom(room);
-            booking1.setBookingId(bookingId);
-            bookingDetail.setBooking(booking1);
-            bookingDetail.setTotalAmount(totalPrice);
-            int bookingDetailId = dal.BookingDetailDAO.getInstance().insertNewBookingDetail(bookingDetail);
-            session.setAttribute("bookingDetailId", bookingDetailId);
-
-            List<DetailService> listDetailService = (List<DetailService>) session.getAttribute("listService");
-            if (listDetailService != null) {
-                for (DetailService detail : listDetailService) {
-                    int serviceId = detail.getService().getServiceId();
-                    int quantity = detail.getQuantity();
-                    int priceAtTime = detail.getService().getPrice();
-                    int tottalPriceAtTimeOfOneService = quantity * priceAtTime;
-                    dal.DetailServiceDAO.getInstance().insertDetailService(bookingDetailId,
-                            serviceId, quantity, tottalPriceAtTimeOfOneService);
+                // Insert dịch vụ cho từng phòng (nếu có)
+                if (roomServicesMap != null && roomServicesMap.containsKey(roomNumberStr)) {
+                    List<DetailService> serviceList = roomServicesMap.get(roomNumberStr);
+                    for (DetailService detail : serviceList) {
+                        int serviceId = detail.getService().getServiceId();
+                        int quantity = detail.getQuantity();
+                        int priceAtTime = detail.getService().getPrice();
+                        int total = quantity * priceAtTime;
+                        dal.DetailServiceDAO.getInstance().insertDetailService(
+                                bookingDetailId, serviceId, quantity, total
+                        );
+                    }
                 }
-            }
 
+            }
+            
+            session.setAttribute("listBookingDetailId", listBookingDetailId);
+            
+            session.removeAttribute("roomServicesMap");
+            session.removeAttribute("roomNumbers");
             session.removeAttribute("customerId");
             session.removeAttribute("startDate");
             session.removeAttribute("endDate");
-            session.removeAttribute("roomNumber");
             session.removeAttribute("totalPrice");
 
         } else if (status.equals("checkOut")) {

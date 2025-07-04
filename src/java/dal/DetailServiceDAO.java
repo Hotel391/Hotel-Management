@@ -43,11 +43,10 @@ public class DetailServiceDAO {
         }
     }
 
-    public boolean deleteDetailService(int bookingDetailId, int serviceId) {
-        String sql = "DELETE FROM DetailService WHERE BookingDetailId = ? AND ServiceId = ?";
+    public boolean deleteDetailService(int bookingDetailId) {
+        String sql = "DELETE FROM DetailService WHERE BookingDetailId = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, bookingDetailId);
-            st.setInt(2, serviceId);
             int rows = st.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {

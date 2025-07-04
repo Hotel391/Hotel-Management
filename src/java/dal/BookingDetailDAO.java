@@ -171,10 +171,10 @@ public class BookingDetailDAO {
         }
     }
 
-    public boolean deleteBookingDetailById(int bookingDetailId) {
-        String sql = "DELETE FROM BookingDetail WHERE BookingDetailId = ?";
+    public boolean deleteBookingDetailByBookingId(int bookingId) {
+        String sql = "DELETE FROM BookingDetail WHERE [BookingId] = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, bookingDetailId);
+            st.setInt(1, bookingId);
             int rows = st.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {

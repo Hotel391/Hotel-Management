@@ -381,5 +381,20 @@ public class ServiceDAO {
             // handle exception
         }
     }
+    
+    public Service getServiceById(int serviceId) {
+        String sql = "SELECT ServiceId, ServiceName, Price FROM Service WHERE ServiceId = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, serviceId);
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    return new Service(rs.getInt(1), rs.getString(2), rs.getInt(3));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }

@@ -5,18 +5,27 @@ package utility.email_factory;
  * @author HieuTT
  */
 public class EmailTemplateFactory {
+    private EmailTemplateFactory() {
+        // Private constructor to prevent instantiation
+    }
     public static EmailContentBuilder getBuilder(String type){
         switch (type) {
-            case "register":
+            case "register" -> {
                 return new ConfirmEmailBuilder();
-            case "reset":
+            }
+            case "reset" -> {
                 return new ResetPasswordBuilder();
-            case "receipt":
+            }
+            case "receipt" -> {
                 return new ReceiptBuilder();
-            case "checkin":
+            }
+            case "checkin" -> {
                 return new CheckInBuilder();
-            default:
-                throw new IllegalArgumentException("Unknown email type: " + type);
+            }
+            case "employeeAccount" -> {
+                return new EmployeeAccountEmailBuilder();
+            }
+            default -> throw new IllegalArgumentException("Unknown email type: " + type);
         }
     }
 }

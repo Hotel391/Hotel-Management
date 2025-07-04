@@ -17,8 +17,8 @@ import utility.ValidationRule;
  *
  * @author HieuTT
  */
-@WebServlet(name="SearchRoom", urlPatterns={"/searchRoom"})
-public class SearchRoom extends HttpServlet {
+@WebServlet(name="SearchRoomCustomer", urlPatterns={"/searchRoom"})
+public class SearchRoomCustomer extends HttpServlet {
     private static final int PAGE_SIZE = 4;
    
     @Override

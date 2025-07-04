@@ -124,7 +124,7 @@ public class ReceiptBuilder implements EmailContentBuilder {
             receipt.append("<td>").append(i + 1).append("</td>");
             receipt.append("<td>").append(typeRoom.get(i)).append("</td>");
             receipt.append("<td>").append(quantityTypeRoom.get(i)).append("</td>");
-            receipt.append("<td>").append(quantityTypeRoom.get(i) * priceTypeRoom.get(i)).append("</td>");
+            receipt.append("<td>").append(String.format("%,d", priceTypeRoom.get(i))).append("</td>");
             receipt.append("</tr>");
         }
         receipt.append("</tbody></table>");
@@ -146,7 +146,7 @@ public class ReceiptBuilder implements EmailContentBuilder {
             receipt.append("<td>").append(i + 1).append("</td>");
             receipt.append("<td>").append(services.get(i)).append("</td>");
             receipt.append("<td>").append(serviceQuantity.get(i)).append("</td>");
-            receipt.append("<td>").append(serviceQuantity.get(i) * servicePrice.get(i)).append("</td>");
+            receipt.append("<td>").append(String.format("%,d", servicePrice.get(i))).append("</td>");
             receipt.append("</tr>");
         }
         receipt.append("""

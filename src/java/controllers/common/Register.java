@@ -7,15 +7,20 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import models.EmailVerificationToken;
 import services.IRegisterService;
 import services.RegisterService;
-import utility.Email;
+import utility.EmailService;
 import utility.Encryption;
 import utility.Validation;
 import utility.ValidationRule;
 
 public class Register extends HttpServlet {
+    private static final ExecutorService emailExecutor = Executors.newFixedThreadPool(5);
 
     private static final String FULLNAME_FIELD = "Fullname";
     private static final String EMAIL_FIELD = "Email";
@@ -77,7 +82,7 @@ public class Register extends HttpServlet {
         token.setPassword(password);
         token.setUsername(username);
 
-        Email emailService = new Email();
+        EmailService emailService = new EmailService();
         token.setToken(emailService.generateToken());
         token.setExpiryDate(emailService.expireDateTime());
         service.registerToken(token);
@@ -86,7 +91,11 @@ public class Register extends HttpServlet {
                 + request.getServerName() + ":"
                 + request.getServerPort()
                 + request.getContextPath() + "/confirmEmail?token=" + token.getToken();
-        emailService.sendEmail(email, username, linkConfirm, REGISTER_SUBJECT);
+        Map<String,Object> data=new HashMap<>();
+        data.put("username", username);
+        data.put("confirmLink",linkConfirm);
+        emailExecutor.submit(() 
+                -> emailService.sendEmail(email, "Register Account", REGISTER_SUBJECT, data));
 
         response.sendRedirect(VERIFY_EMAIL_URL + email);
     }

@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import models.EmailVerificationToken;
-import utility.Email;
+import utility.EmailService;
 
 public class EmailVerificationTokenDAO {
 
@@ -82,7 +82,7 @@ public class EmailVerificationTokenDAO {
             st.setString(1, username);
             try(ResultSet rs=st.executeQuery()) {
                 if(rs.next()){
-                    if(Email.isExpireTime(rs.getTimestamp(2).toLocalDateTime())){
+                    if(EmailService.isExpireTime(rs.getTimestamp(2).toLocalDateTime())){
                         deleteToken(rs.getInt(1));
                         return false;
                     }

@@ -71,13 +71,9 @@
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
-<<<<<<< HEAD
                                                     <c:forEach var="ds" items="${sessionScope.selectedServices}">
                                                         <p>${ds.service.serviceName} x ${ds.quantity} = ${ds.service.price * ds.quantity} VND</p>
                                                     </c:forEach>
-=======
-                                                    ...
->>>>>>> 6ac43fff6cc6151eab1167e6766699f8a373e472
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -87,11 +83,7 @@
                                     </div>
                                 </div>
                             </div>
-<<<<<<< HEAD
                             <div class="totalPrice">Tổng tiền cần thanh toán: <fmt:formatNumber value="${sessionScope.totalPrice}" type="number" groupingUsed="true"/> VNĐ</div>
-=======
-                                <div class="totalPrice">Tổng tiền cần thanh toán: <fmt:formatNumber value="${sessionScope.totalPrice}" type="number" groupingUsed="true"/> VNĐ</div>
->>>>>>> 6ac43fff6cc6151eab1167e6766699f8a373e472
                         </div>
                     </div>
                     <c:choose>

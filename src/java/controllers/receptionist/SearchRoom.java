@@ -121,13 +121,13 @@ public class SearchRoom extends HttpServlet {
                 double totalPrice = calculateTotalPriceMultiple(selectedRooms.toArray(new String[0]), startDateStr, endDateStr);
                 session.setAttribute("totalPrice", totalPrice);
 
-                Map<String, Integer> roomTypeMap = new HashMap<>();
+                Map<String, String> roomTypeMap = new HashMap<>();
                 for (String roomNumber : selectedRooms) {
                     try {
                         int roomNum = Integer.parseInt(roomNumber);
                         Room room = RoomDAO.getInstance().getRoomByNumber(roomNum);
                         if (room != null && room.getTypeRoom() != null) {
-                            roomTypeMap.put(roomNumber, room.getTypeRoom().getTypeId());
+                            roomTypeMap.put(roomNumber, room.getTypeRoom().getTypeName());
                         }
                     } catch (NumberFormatException e) {
                         System.out.println("Error parsing room number " + roomNumber + ": " + e.getMessage());

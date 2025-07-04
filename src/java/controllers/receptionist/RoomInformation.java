@@ -30,7 +30,7 @@ public class RoomInformation extends HttpServlet {
         String endDate = (String) session.getAttribute("endDate");
         String[] roomNumbers = (String[]) session.getAttribute("roomNumbers"); 
         Double totalPrice = (Double) session.getAttribute("totalPrice");
-        Map<String, Integer> roomTypeMap = (Map<String, Integer>) session.getAttribute("roomTypeMap");
+        Map<String, String> roomTypeMap = (Map<String, String>) session.getAttribute("roomTypeMap");
 
 
         if (roomNumbers == null || roomNumbers.length == 0 || roomTypeMap == null) {
@@ -52,13 +52,13 @@ public class RoomInformation extends HttpServlet {
             long numberOfNights = (endDateSql.getTime() - startDateSql.getTime()) / (1000 * 60 * 60 * 24);
 
             for (String roomNumber : roomNumbers) {
-                Integer typeId = roomTypeMap.get(roomNumber);
-                if (typeId != null) {
-                    TypeRoom typeRoom = TypeRoomDAO.getInstance().getTypeRoomById(typeId);
+                String typeName = roomTypeMap.get(roomNumbers);
+                if (typeName != null) {
+                    TypeRoom typeRoom = TypeRoomDAO.getInstance().getTypeRoomByName(typeName);
                     if (typeRoom != null) {
                         Map<String, Object> roomDetail = new HashMap<>();
                         roomDetail.put("roomNumber", roomNumber);
-                        roomDetail.put("typeName", typeRoom.getTypeName());
+                        roomDetail.put("typeName", typeName);
                         roomDetail.put("price", typeRoom.getPrice() * numberOfNights);
                         roomDetails.add(roomDetail);
                     }
@@ -90,7 +90,7 @@ public class RoomInformation extends HttpServlet {
 
         String[] roomNumbers = (String[]) session.getAttribute("roomNumbers"); 
         Double totalRoomPrice = (Double) session.getAttribute("totalPrice");
-        Map<String, Integer> roomTypeMap = (Map<String, Integer>) session.getAttribute("roomTypeMap");
+        Map<String, String> roomTypeMap = (Map<String, String>) session.getAttribute("roomTypeMap");
         if (roomNumbers == null || roomNumbers.length == 0 || totalRoomPrice == null || roomTypeMap == null) {
             request.setAttribute("errorMessage", "Booking details are missing. Please start over.");
             request.getRequestDispatcher("/View/Receptionist/RoomInformation.jsp").forward(request, response);

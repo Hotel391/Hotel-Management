@@ -138,17 +138,21 @@ public class ReviewDAO {
         return listReview;
     }
 
-    public List<Review> getReviewsByTypeRoomId(int typeId) {
-        String sql = """
-                    SELECT rv.ReviewId, rv.Username, rv.Rating, rv.FeedBack, rv.Date
-                    FROM TypeRoom tr
-                    JOIN Room r ON r.TypeId = tr.TypeId
-                    JOIN BookingDetail bd ON bd.RoomNumber = r.RoomNumber
-                    JOIN Review rv ON rv.BookingDetailId = bd.BookingDetailId
-                    WHERE tr.TypeId = ?
-                     """;
+    public List<Review> getReviewsByTypeRoomId(int typeId, String orderByClause) {
+        StringBuilder sql = new StringBuilder("""
+            SELECT rv.ReviewId, rv.Username, rv.Rating, rv.FeedBack, rv.Date
+            FROM TypeRoom tr
+            JOIN Room r ON r.TypeId = tr.TypeId
+            JOIN BookingDetail bd ON bd.RoomNumber = r.RoomNumber
+            JOIN Review rv ON rv.BookingDetailId = bd.BookingDetailId
+            WHERE tr.TypeId = ?
+        """);
+
+        if (orderByClause != null && !orderByClause.isEmpty()) {
+            sql.append(" ORDER BY ").append(orderByClause);
+        }
         List<Review> reviews = new ArrayList<>();
-        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+        try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
             ptm.setInt(1, typeId);
             try (ResultSet rs = ptm.executeQuery()) {
                 while (rs.next()) {
@@ -162,6 +166,7 @@ public class ReviewDAO {
                 }
             }
         } catch (SQLException ex) {
+            //
         }
         return reviews;
     }

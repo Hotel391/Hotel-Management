@@ -281,3 +281,23 @@ body {
     background-color: #704d2e;
     transform: translateY(-2px);
 }
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+.review-header h3 {
+    margin: 0;
+}
+.review-header form {
+    margin: 0;
+}
+.review-header .form-control {
+    width: auto;
+}
+.reviews-section .review-form-sort{
+    margin-top: 5px;
+}

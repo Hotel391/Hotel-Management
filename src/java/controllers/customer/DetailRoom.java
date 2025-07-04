@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Date;
 import models.TypeRoom;
+import services.sorting.ReviewSortFactory;
+import services.sorting.ReviewSortStrategy;
 
 /**
  *
@@ -22,11 +24,15 @@ public class DetailRoom extends HttpServlet {
         int typeId = request.getParameter("typeRoomId") != null ? Integer.parseInt(request.getParameter("typeRoomId")) : 0;
         Date checkin=request.getParameter("checkin") != null ? Date.valueOf(request.getParameter("checkin")) : null;
         Date checkout=request.getParameter("checkout") != null ? Date.valueOf(request.getParameter("checkout")) : null;
+        String sortOption= request.getParameter("sortBy") != null ? request.getParameter("sortBy") : "";
+        ReviewSortStrategy strategy=ReviewSortFactory.getStrategy(sortOption);
+        String orderByClause = strategy.getOrderByClause();
+
         if(typeId==0 || checkin == null || checkout == null) {
             response.sendRedirect("searchRoom");
             return;
         }
-        TypeRoom selectedTypeRoom = dal.TypeRoomDAO.getInstance().getTypeRoomByTypeId(checkin, checkout, typeId);
+        TypeRoom selectedTypeRoom = dal.TypeRoomDAO.getInstance().getTypeRoomByTypeId(checkin, checkout, typeId, orderByClause);
         if(selectedTypeRoom == null) {
             response.sendRedirect("searchRoom");
             return;

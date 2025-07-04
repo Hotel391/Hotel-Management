@@ -14,12 +14,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Room Details</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link rel="stylesheet" href="Css/Customer/DetailRoom.css"/>
     </head>
     <body>
         <div class="room-container">
             <div class="room-image">
-                <img src="${pageContext.request.contextPath}/${selectedTypeRoom.uriContextOfImages}${selectedTypeRoom.images[0]}" alt="Room Image" class="main">
+                <img src="${pageContext.request.contextPath}/${selectedTypeRoom.uriContextOfImages}${selectedTypeRoom.images[0]}" alt="Room" class="main">
                 <button class="nav-arrow prev" onclick="changeImage(-1)">❮</button>
                 <button class="nav-arrow next" onclick="changeImage(1)">❯</button>
                 <div class="thumbnails">
@@ -32,21 +33,54 @@
             </div>
             <div class="room-details">
                 <h2>${selectedTypeRoom.typeName}</h2>
-                <div class="rating">★★★★★ (4.9)</div>
+                <c:if test="${selectedTypeRoom.numberOfReviews > 0}">
+                    <div class="rating mb-2">
+                        <c:set var="rating" value="${selectedTypeRoom.averageRating}" />
+                        <c:set var="fullStars" value="${rating - (rating mod 1)}" />
+                        <c:set var="halfStar" value="${(rating - fullStars) >= 0.5}" />
+                        <c:set var="emptyStars" value="${5 - fullStars - (halfStar ? 1 : 0)}" />
+
+                        <!-- Sao đầy -->
+                        <c:forEach begin="1" end="${fullStars}">
+                            <span class="fas fa-star text-warning"></span>
+                        </c:forEach>
+
+                        <!-- Sao nửa -->
+                        <c:if test="${halfStar}">
+                            <span class="fas fa-star-half-alt text-warning"></span>
+                        </c:if>
+
+                        <!-- Sao rỗng -->
+                        <c:forEach begin="1" end="${emptyStars}">
+                            <span class="far fa-star text-warning"></span>
+                        </c:forEach>
+
+                        <span>(
+                            <fmt:formatNumber value="${selectedTypeRoom.averageRating}" type="number" maxFractionDigits="2" />
+                            )</span>
+                    </div>
+                    <p class="card-text">${selectedTypeRoom.numberOfReviews} bài đánh giá</p>
+                </c:if>
+                <c:if test="${selectedTypeRoom.numberOfReviews eq 0}">
+                    <p class="card-text">Chưa có đánh giá</p>
+                </c:if>
                 <div class="price"><fmt:formatNumber value="${selectedTypeRoom.price}" type="currency" currencyCode="VND" />/night</div>
                 <form>
+                    <input type="hidden" name="typeRoomId" value="${selectedTypeRoom.typeId}">
                     <div class="form-group">
-                        <label>Check-in</label>
-                        <input name="checkin" value="${param.checkin}" type="date" class="form-control" on-change="this.form.submit()">
+                        <label for="checkin">Check-in</label>
+                        <input name="checkin" value="${param.checkin}" type="date" class="form-control" onchange="this.form.submit()">
                     </div>
                     <div class="form-group">
-                        <label>Check-out</label>
-                        <input name="checkout" value="${param.checkout}" type="date" class="form-control" on-change="this.form.submit()">
+                        <label for="checkout">Check-out</label>
+                        <input name="checkout" value="${param.checkout}" type="date" class="form-control" onchange="this.form.submit()">
                     </div>
                     <div class="form-group">
-                        <label>Rooms</label>
-                        <input type="number" class="form-control" value="1" min="1">
+                        <label for="rooms">Rooms</label>
+                        <input type="number" class="form-control" value="${empty param.rooms ? 1 : param.rooms}" min="1" max="${selectedTypeRoom.numberOfAvailableRooms}" name="rooms"">
                     </div>
+                </form>
+                <form method="post">
                     <button type="submit" class="btn btn-primary">Add to cart</button>
                 </form>
             </div>
@@ -65,12 +99,35 @@
         </div>
         <div class="overview-section">
             <h3>Room Overview</h3>
-            <c:forEach var="service" items="${selectedTypeRoom.servicesOfTypeRoom}">
+            <c:forEach var="roomNService" items="${selectedTypeRoom.services}">
                 <div class="feature-item">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                    </svg>
-                    <span>${service.name}</span>
+                    <c:choose>
+                        <c:when test="${roomNService.service.serviceName.toLowerCase().contains('wifi') || roomNService.service.serviceName.toLowerCase().contains('wi-fi')}">
+                            <i class="fas fa-wifi"></i>
+                        </c:when>
+                        <c:when test="${roomNService.service.serviceName.toLowerCase().contains('đưa đón')}">
+                            <i class="fas fa-shuttle-van"></i>
+                        </c:when>
+                        <c:when test="${roomNService.service.serviceName.toLowerCase().contains('spa')}">
+                            <i class="fas fa-spa"></i>
+                        </c:when>
+                        <c:when test="${roomNService.service.serviceName.toLowerCase().contains('bể bơi')}">
+                            <i class="fas fa-swimming-pool"></i>
+                        </c:when>
+                        <c:when test="${roomNService.service.serviceName.toLowerCase().contains('thuê xe')}">
+                            <i class="fas fa-car"></i>
+                        </c:when>
+                        <c:when test="${roomNService.service.serviceName.toLowerCase().contains('ăn sáng')}">
+                            <i class="fas fa-coffee"></i>
+                        </c:when>
+                        <c:when test="${roomNService.service.serviceName.toLowerCase().contains('lễ tân')}">
+                            <i class="fas fa-concierge-bell"></i>
+                        </c:when>
+                        <c:otherwise>
+                            <i class="fas fa-check-circle"></i>
+                        </c:otherwise>
+                    </c:choose>
+                    <span>${roomNService.service.serviceName}</span>
                 </div>
             </c:forEach>
         </div>
@@ -80,7 +137,22 @@
             <div>Service Charge: <fmt:formatNumber value="${selectedTypeRoom.servicePrice}" type="currency" currencyCode="VND" /></div>
         </div>
         <div class="reviews-section">
-            <h3>${selectedTypeRoom.numberOfReviews} Reviews</h3>
+            <div class="review-header">
+                <h3>${selectedTypeRoom.numberOfReviews} Reviews</h3>
+                <form class="review-form-sort" id="reviews-section">
+                    <input type="hidden" name="typeRoomId" value="${selectedTypeRoom.typeId}">
+                    <input type="hidden" name="checkin" value="${param.checkin}">
+                    <input type="hidden" name="checkout" value="${param.checkout}">
+                    <input type="hidden" name="rooms" value="${param.rooms}">
+                    <label for="sortBy">Sắp xếp theo:</label>
+                    <select name="sortBy" class="form-control mb-3" onchange="this.form.submit()">
+                        <option value="recent" ${param.sortBy == 'recent' ? 'selected' : ''}>Gần đây nhất</option>
+                        <option value="rating_high" ${param.sortBy == 'rating_high' ? 'selected' : ''}>Đánh giá, cao đến thấp</option>
+                        <option value="rating_low" ${param.sortBy == 'rating_low' ? 'selected' : ''}>Đánh giá, thấp đến cao</option>
+                        <option value="helpful" ${param.sortBy ne 'recent' && param.sortBy ne 'rating_high' && param.sortBy ne 'rating_low' ? 'selected' : ''}>Hữu ích nhất</option>
+                    </select>
+                </form>
+            </div>
             <c:forEach var="review" items="${selectedTypeRoom.reviews}">
                 <div class="review">
                     <div class="reviewer-info">
@@ -105,23 +177,32 @@
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                            let currentImage = 0;
-                            const images = [
+                        let currentImage = 0;
+                        const images = [
             <c:forEach var="image" items="${selectedTypeRoom.images}" varStatus="status">
-                            "${pageContext.request.contextPath}/${selectedTypeRoom.uriContextOfImages}${image}"<c:if test="${!status.last}">,</c:if>
+                        "${pageContext.request.contextPath}/${selectedTypeRoom.uriContextOfImages}${image}"<c:if test="${!status.last}">,</c:if>
             </c:forEach>
-                                ];
+                            ];
 
-                                function changeImage(direction) {
-                                    if (images.length === 0)
-                                        return;
-                                    currentImage += direction;
-                                    if (currentImage < 0)
-                                        currentImage = images.length - 1;
-                                    if (currentImage >= images.length)
-                                        currentImage = 0;
-                                    document.querySelector('.main').src = images[currentImage];
+                            function changeImage(direction) {
+                                if (images.length === 0)
+                                    return;
+                                currentImage += direction;
+                                if (currentImage < 0)
+                                    currentImage = images.length - 1;
+                                if (currentImage >= images.length)
+                                    currentImage = 0;
+                                document.querySelector('.main').src = images[currentImage];
+                            }
+                            window.addEventListener('load', function () {
+                                const urlParams = new URLSearchParams(window.location.search);
+                                if (urlParams.has('sortBy')) {
+                                    const section = document.getElementById('reviews-section');
+                                    if (section) {
+                                        section.scrollIntoView({behavior: 'smooth'});
+                                    }
                                 }
+                            });
         </script>
     </body>
 </html>

@@ -41,10 +41,11 @@ public class RoomNServiceDAO {
 
     public List<RoomNService> getRoomNServicesByTypeId(TypeRoom tr) {
         List<RoomNService> services = new ArrayList<>();
-        String sql = "SELECT s.ServiceId, s.ServiceName, s.Price, rns.Quantity "
-                   + "FROM RoomNService rns "
-                   + "JOIN Service s ON rns.ServiceId = s.ServiceId "
-                   + "WHERE rns.TypeId = ?";
+        String sql = """
+                    SELECT s.ServiceId, s.ServiceName, s.Price, rns.Quantity
+                    FROM RoomNService rns
+                    JOIN Service s ON rns.ServiceId = s.ServiceId
+                    WHERE rns.TypeId = ?""";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, tr.getTypeId());
             try (ResultSet rs = st.executeQuery()) {
@@ -63,7 +64,7 @@ public class RoomNServiceDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            //
         }
         return services;
     }

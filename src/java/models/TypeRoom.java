@@ -18,7 +18,6 @@ public class TypeRoom {
     private int originPrice;
     private int servicePrice;
     private List<Review> reviews = new ArrayList<>();
-    private List<RoomNService> servicesOfTypeRoom = new ArrayList<>();
 
     // Constructors
     public TypeRoom() {
@@ -129,12 +128,6 @@ public class TypeRoom {
     }
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
-    }
-    public List<RoomNService> getServicesOfTypeRoom() {
-        return servicesOfTypeRoom;
-    }
-    public void setServicesOfTypeRoom(List<RoomNService> servicesOfTypeRoom) {
-        this.servicesOfTypeRoom = servicesOfTypeRoom;
     }
     @Override
     public String toString() {

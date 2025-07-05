@@ -81,6 +81,9 @@ public class CheckoutRoom extends HttpServlet {
         }
 
         if ("checkout".equals(service)) {
+
+            String paymentMethod = request.getParameter("paymentMethod");
+
             int bookingId = Integer.parseInt(request.getParameter("bookingId"));
 
             Booking booking = BookingDAO.getInstance().getBookingByBookingId(bookingId);
@@ -93,7 +96,7 @@ public class CheckoutRoom extends HttpServlet {
                 //write code to fine customer 10%/hour if they checkout late after 10am and before 1pm else later 1pm fine 1 day more do not use timestamp
 
                 int typePrice = TypeRoomDAO.getInstance().getTypeRoomByRoomNumber(bookingDetail.getRoom().getRoomNumber()).getPrice();
-                
+
                 System.out.println("typePrice: " + typePrice);
 
                 LocalDate endDate = bookingDetail.getEndDate().toLocalDate();
@@ -115,15 +118,22 @@ public class CheckoutRoom extends HttpServlet {
                 }
                 System.out.println("totalPrice: " + totalPrice);
                 booking.setTotalPrice(totalPrice);
-//                BookingDAO.getInstance().updateBooking(booking);
+                BookingDAO.getInstance().updateTotalPrice(booking);
 
             }
 
-            session.setAttribute("bookingId", bookingId);
+            if ("online".equals(paymentMethod)) {
 
-            session.setAttribute("status", "checkOut");
+                session.setAttribute("bookingId", bookingId);
 
-            response.sendRedirect(request.getContextPath() + "/receptionist/checkoutRoom");
+                session.setAttribute("status", "checkOut");
+
+                response.sendRedirect(request.getContextPath() + "/payment");
+
+            } else {
+                BookingDAO.getInstance().updateBookingTotalPrice(booking);
+                response.sendRedirect(request.getContextPath() + "/receptionist/receipt");
+            }
 
         }
 

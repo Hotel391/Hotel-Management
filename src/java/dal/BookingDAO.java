@@ -14,7 +14,6 @@ import java.util.Map;
 import models.Booking;
 import java.sql.Date;
 
-
 public class BookingDAO {
 
     private static BookingDAO instance;
@@ -331,6 +330,33 @@ public class BookingDAO {
             e.printStackTrace();
         }
         return bookings;
+    }
+
+    //update total price in booking
+    public void updateTotalPrice(Booking booking) {
+        String sql = "UPDATE Booking SET TotalPrice = ? WHERE BookingID = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getBookingId());
+            st.setInt(2, booking.getTotalPrice());
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean updateBookingTotalPrice(Booking booking) {
+        String sql = "UPDATE [dbo].[Booking]\n"
+                + "   SET [TotalPrice] = ? , [PayDay] = GETDATE()\n"
+                + " WHERE [BookingId] = ?";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getTotalPrice());
+            st.setInt(2, booking.getBookingId());
+            return st.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return false;
     }
 
 }

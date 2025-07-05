@@ -49,12 +49,15 @@ public class TypeRoomDAO {
     
     
     public int insertTypeRoom(TypeRoom typeRoom) {
-        String sql = "INSERT INTO TypeRoom(TypeName, Description, Price) VALUES(?, ?, ?)";
+        String sql = "INSERT INTO TypeRoom(TypeName, Description, Price, Adult, Children) VALUES(?, ?, ?, ?, ?)";
         int typeId = -1; // giá trị mặc định nếu thất bại
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, typeRoom.getTypeName());
             st.setString(2, typeRoom.getDescription());
             st.setInt(3, typeRoom.getPrice());
+            st.setInt(4, typeRoom.getMaxAdult());
+            st.setInt(5, typeRoom.getMaxChildren());
+            
             st.executeUpdate();
 
             // Lấy khóa chính tự động sinh (typeId)
@@ -256,7 +259,7 @@ public class TypeRoomDAO {
     public List<TypeRoom> typeRoomPagination(int index, String key) {
         List<TypeRoom> list = new ArrayList<>();
 
-        String sql = "SELECT typeId, typeName, Description, price FROM TypeRoom \n";
+        String sql = "SELECT * FROM TypeRoom \n";
         if (key != null && !key.isEmpty()) {
             sql += "WHERE typeName LIKE ? \n";
         }
@@ -272,10 +275,12 @@ public class TypeRoomDAO {
 
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    TypeRoom tr = new TypeRoom(rs.getInt(1),
-                            rs.getString(2),
-                            rs.getString(3),
-                            rs.getInt(4));
+                    TypeRoom tr = new TypeRoom(rs.getInt("typeId"),
+                            rs.getString("typeName"),
+                            rs.getString("description"),
+                            rs.getInt("price"),
+                            rs.getInt("Adult"),
+                            rs.getInt("Children"));
 
                     tr.setServices(RoomNServiceDAO.getInstance().getRoomNServicesByTypeId(tr));
                     tr.setOtherServices(ServiceDAO.getInstance().getServicesNotInTypeRoom(tr));
@@ -291,8 +296,24 @@ public class TypeRoomDAO {
         return list;
     }
 
+    public boolean editTypeRoom(int typeId, String typeName, int price, int maxAdult, int maxChildren) {
+        String sql = "UPDATE TypeRoom SET typeName = ?, price = ?, Adult = ?, Children = ? WHERE typeId = ? ";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, typeName);
+            st.setInt(2, price);
+            st.setInt(3, maxAdult);
+            st.setInt(4, maxChildren);
+            st.setInt(5, typeId);
+            int rowsAffected = st.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
     public boolean updateTypeRoom(int typeId, String typeName, int price) {
-        String sql = "UPDATE TypeRoom SET typeName = ?, price = ? WHERE typeId = ?";
+        String sql = "UPDATE TypeRoom SET typeName = ?, price = ? WHERE typeId = ? ";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, typeName);
             st.setInt(2, price);
@@ -333,18 +354,23 @@ public class TypeRoomDAO {
         return null;
     }
 
-    public TypeRoom getTypeRoomByNameAndPrice(int typeId, String typeName, int price) {
-        String sql = "SELECT typeId, typeName, price FROM TypeRoom WHERE typeId = ? and typeName = ? AND price = ?";
+    public TypeRoom getTypeRoomByNameAndPriceAndQuantity(int typeId, String typeName, int price, int maxAdult, int maxChildren) {
+        String sql = "SELECT typeId, typeName, price, adult, children FROM TypeRoom WHERE typeId = ? and typeName = ? AND price = ? "
+                + "AND Adult = ? AND Children = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, typeId);
             st.setString(2, typeName);
             st.setInt(3, price);
+            st.setInt(4, maxAdult);
+            st.setInt(5, maxChildren);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
                     TypeRoom typeRoom = new TypeRoom();
                     typeRoom.setTypeId(rs.getInt("typeId"));
                     typeRoom.setTypeName(rs.getString("typeName"));
                     typeRoom.setPrice(rs.getInt("price"));
+                    typeRoom.setMaxAdult(rs.getInt("Adult"));
+                    typeRoom.setMaxChildren(rs.getInt("Children"));
                     return typeRoom;
                 }
             }

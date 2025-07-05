@@ -77,7 +77,7 @@
 
                                                 <!-- Button trigger modal -->
                                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewDetail_${dl.room.roomNumber}">
-                                                    <i class="bi bi-eye"></i> View detail
+                                                    <i class="bi bi-eye"></i> View services 
                                                 </button>
                                                 <div class="modal fade" id="viewDetail_${dl.room.roomNumber}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                     <div class="modal-dialog">

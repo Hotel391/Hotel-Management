@@ -72,6 +72,23 @@
                                                         </c:if>
                                                     </div>
 
+
+                                                </div>
+                                                <div class="row g-3">
+                                                    <div class="col md-6">
+                                                        <label for="maxAdult" class="form-label">Max Adult</label>
+                                                        <input class="form-control" value="${param.maxAdult}" type="number" name="maxAdult" required>
+                                                        <c:if test="${not empty maxAdultError}">
+                                                            <p class="alert alert-danger">${maxAdultError}</p>
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="col md-6">
+                                                        <label for="maxChildren" class="form-label">Max Children</label>
+                                                        <input class="form-control" value="${param.maxChildren}" type="number" name="maxChildren" required>
+                                                        <c:if test="${not empty maxChildrenError}">
+                                                            <p class="alert alert-danger">${maxChildrenError}</p>
+                                                        </c:if>
+                                                    </div>
                                                 </div>
                                                 <div class="row g-3">
                                                     <label for="typeName" class="form-label">Type room's description</label>
@@ -90,7 +107,7 @@
                                             <div class="modal-footer">
                                                 <input type="hidden" name="service" value="addTypeRoom">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary">Save changes</button>
+                                                <button type="submit" class="btn btn-primary">Add</button>
                                             </div>
                                         </div>
                                     </div>
@@ -419,6 +436,34 @@
                                                                                 <p class="alert alert-danger">${priceError}</p>
                                                                             </c:if>
                                                                         </div>
+
+                                                                        <div class="col-md-6">
+                                                                            <label for="typeMaxAdultEdit_${trl.typeId}" class="form-label">Max Adult</label>
+                                                                            <input spellcheck="false" 
+                                                                                   type="number" 
+                                                                                   id="typeRoomEdit_${trl.typeId}" 
+                                                                                   name="maxAdult" 
+                                                                                   value="${param.maxAdult != null ? param.maxAdult : trl.maxAdult}" 
+                                                                                   data-original-value="${trl.maxAdult}"
+                                                                                   class="form-control" required />
+                                                                            <c:if test="${not empty maxAdultError and updateNameAndPrice == trl.typeId}">
+                                                                                <p class="alert alert-danger">${maxAdultError}</p>
+                                                                            </c:if>
+                                                                        </div>
+
+                                                                        <div class="col-md-6">
+                                                                            <label for="typeMaxAdultEdit_${trl.typeId}" class="form-label">Max Children</label>
+                                                                            <input spellcheck="false" 
+                                                                                   type="number" 
+                                                                                   id="typeRoomEdit_${trl.typeId}" 
+                                                                                   name="maxChildren" 
+                                                                                   value="${param.maxChildren != null ? param.maxChildren : trl.maxChildren}" 
+                                                                                   data-original-value="${trl.maxChildren}"
+                                                                                   class="form-control" required />
+                                                                            <c:if test="${not empty maxChildrenError and updateNameAndPrice == trl.typeId}">
+                                                                                <p class="alert alert-danger">${maxChildrenError}</p>
+                                                                            </c:if>
+                                                                        </div>
                                                                         <c:if test="${not empty noChangeError and updateNameAndPrice == trl.typeId}"> 
                                                                             <p class="alert alert-danger">${noChangeError}</p>
                                                                         </c:if>
@@ -683,6 +728,16 @@
                     if (descTextarea) {
                         descTextarea.value = '';
                     }
+                    
+                    var maxAdultInput = form.querySelector('input[name="maxAdult"]');
+                    if (maxAdultInput) {
+                        maxAdultInput.value = '';
+                    }
+                    
+                    var maxChildrenInput = form.querySelector('input[name="maxChildren"]');
+                    if (maxChildrenInput) {
+                        maxChildrenInput.value = '';
+                    }
 
                     // Clear all error/success messages
                     var messageElements = modal.querySelectorAll('.modal-body p.alert');
@@ -715,6 +770,18 @@
                             var originalPrice = priceInput.getAttribute('data-original-value');
                             priceInput.value = originalPrice;
                             console.log('Reset price to original:', originalPrice);
+                        }
+
+                        var maxAdultInput = form.querySelector('input[name="maxAdult"]');
+                        if (maxAdultInput) {
+                            var originalMaxAdult = maxAdultInput.getAttribute('data-original-value');
+                            maxAdultInput.value = originalMaxAdult;
+                        }
+
+                        var maxChildrenInput = form.querySelector('input[name="maxChildren"]');
+                        if (maxChildrenInput) {
+                            var originalMaxChildren = maxChildrenInput.getAttribute('data-original-value');
+                            maxChildrenInput.value = originalMaxChildren;
                         }
 
 

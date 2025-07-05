@@ -44,10 +44,15 @@ public class TypeRoomServlet extends HttpServlet {
         }
 
         if ("addTypeRoom".equals(service)) {
+            
+            int maxAdult = 0, maxChildren = 0;
 
             String name = request.getParameter("typeName").trim();
             String price_raw = request.getParameter("price").trim();
             String description = request.getParameter("typeDesc").trim();
+            String maxAdultRaw = request.getParameter("maxAdult").trim();
+            String maxChildrenRaw = request.getParameter("maxChildren").trim();
+            
 
             System.out.println("desc: " + description);
 
@@ -69,6 +74,20 @@ public class TypeRoomServlet extends HttpServlet {
                 request.setAttribute("price", price_raw);
                 request.setAttribute("description", description);
                 request.setAttribute("nameExistedError", "Tên loại phòng đã tồn tại");
+            }
+            
+            if(!maxAdultRaw.matches("^[1-9][0-9]*$")){
+                check = true;
+                request.setAttribute("maxAdultError", "Chỉ được nhập số > 0");
+            }else{
+                maxAdult = Integer.parseInt(maxAdultRaw);
+            }
+            
+            if(!maxChildrenRaw.matches("^[1-9][0-9]*$")){
+                check = true;
+                request.setAttribute("maxChildrenError", "Chỉ được nhập số > 0");
+            }else{
+                maxChildren = Integer.parseInt(maxChildrenRaw);
             }
 
             Collection<Part> fileParts = request.getParts();
@@ -110,6 +129,8 @@ public class TypeRoomServlet extends HttpServlet {
                 typeRoom.setDescription(description);
                 typeRoom.setPrice(price);
                 typeRoom.setTypeName(name);
+                typeRoom.setMaxAdult(maxAdult);
+                typeRoom.setMaxChildren(maxChildren);
 
                 int typeId = TypeRoomDAO.getInstance().insertTypeRoom(typeRoom);
 
@@ -141,18 +162,44 @@ public class TypeRoomServlet extends HttpServlet {
 
             boolean check = false;
 
-            int price = 0;
 
             String typeName = request.getParameter("typeName").trim();
             String priceRaw = request.getParameter("price").trim();
+            String maxAdultRaw = request.getParameter("maxAdult").trim();
+            
+            String maxChildrenRaw = request.getParameter("maxChildren").trim();
+            
+            System.out.println("Adult: " + maxAdultRaw);
+            
+            System.out.println("Children: " + maxChildrenRaw);
+            
+            int price = 0;
+            
+            int maxAdult = 0;
+            
+            int maxChildren = 0;
 
             if (Validation.validateField(request, "nameError", typeName, "TYPE_ROOM_NAME_BASIC",
                     "Type Name", "Chỉ bao gồm chữ cái")) {
                 check = true;
             }
+            
+            if(!maxAdultRaw.matches("^[1-9]*$")){
+                check = true;
+                request.setAttribute("maxAdultError", "Chỉ được nhập số > 0");
+            }else{
+                maxAdult = Integer.parseInt(maxAdultRaw);
+            }
+            
+            if(!maxChildrenRaw.matches("^[1-9]*$")){
+                check = true;
+                request.setAttribute("maxChildrenError", "Chỉ được nhập số > 0");
+            }else{
+                maxChildren = Integer.parseInt(maxChildrenRaw);
+            }
 
             if (TypeRoomDAO.getInstance().getTypeRoomByNameAndId(typeName, typeRoomId) != null) {
-                check = true;
+                
                 request.setAttribute("name", typeName);
                 request.setAttribute("price", priceRaw);
 //                request.setAttribute("description", description);
@@ -173,7 +220,7 @@ public class TypeRoomServlet extends HttpServlet {
                 price = Integer.parseInt(priceRaw);
             }
 
-            if (TypeRoomDAO.getInstance().getTypeRoomByNameAndPrice(typeRoomId, typeName, price) != null) {
+            if (TypeRoomDAO.getInstance().getTypeRoomByNameAndPriceAndQuantity(typeRoomId, typeName, price, maxAdult, maxChildren) != null) {
                 check = true;
                 System.out.println(check);
                 request.setAttribute("typeName", typeName);
@@ -190,7 +237,7 @@ public class TypeRoomServlet extends HttpServlet {
             }
 
             if (!check) {
-                boolean success = TypeRoomDAO.getInstance().updateTypeRoom(typeRoomId, typeName, price);
+                boolean success = TypeRoomDAO.getInstance().editTypeRoom(typeRoomId, typeName, price, maxAdult, maxChildren);
 
                 if (success) {
                     // Set attribute để hiển thị thông báo thành công

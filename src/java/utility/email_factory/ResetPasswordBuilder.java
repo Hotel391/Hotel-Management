@@ -30,7 +30,7 @@ public class ResetPasswordBuilder implements EmailContentBuilder{
                 </div>
               </body>
             </html>
-            """.replace("${username}", username).replace("confirmLink", link);
+            """.replace("${username}", username).replace("${confirmLink}", link);
     }
     
 }

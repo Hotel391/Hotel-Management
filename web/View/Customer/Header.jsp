@@ -24,8 +24,11 @@
                 <div class="cart-icon d-flex align-items-center" style="cursor: pointer;">
                     <span style="position: relative; display: inline-block;">
                         <i class="fa fa-shopping-cart" style="font-size: 22px; color: #DAA520;"></i>
-                        <span style="position: absolute; top: -10px; right: -10px; background: #ff4d4f; color: #fff; font-size: 12px; border-radius: 50%; padding: 2px 6px; font-weight: bold; min-width: 20px; text-align: center;">2</span>
-                    </span>
+                        <c:if test="${not empty sessionScope.cartItemCount}">
+                            <span style="position: absolute; top: -10px; right: -10px; background: #ff4d4f; color: #fff; font-size: 12px; border-radius: 50%; padding: 2px 6px; font-weight: bold; min-width: 20px; text-align: center;">
+                                ${sessionScope.cartItemCount}
+                            </span>
+                        </c:if>
                     <span class="text-dark" style="margin-right: 10px; margin-left: 10px;">Giỏ hàng</span>
                 </div>
 
@@ -41,7 +44,7 @@
             </div>
         </c:if>
         <c:if test="${sessionScope.customerInfo == null}">
-            <div class="d-flex flex-row align-items-center gap-3">
+            <div class="d-flex flex-row align-items-center">
                 <!-- Nút Đăng nhập -->
                 <a href="login" 
                    class="btn btn-outline-dark fw-semibold px-3 py-2"

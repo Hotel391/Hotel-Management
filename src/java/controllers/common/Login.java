@@ -71,7 +71,7 @@ public class Login extends HttpServlet {
             if (customerInfo != null) {
                 System.out.println("Info: " + customerInfo);
                 session.setAttribute("customerInfo", customerInfo);
-                response.sendRedirect("customer/home");
+                response.sendRedirect("home");
                 return;
             }
 

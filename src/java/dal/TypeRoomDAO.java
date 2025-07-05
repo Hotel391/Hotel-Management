@@ -338,7 +338,7 @@ public class TypeRoomDAO {
         return price;
     }
 
-    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, Integer minPrice, Integer maxPrice, int adult, int children) {
+    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, Integer minPrice, Integer maxPrice, int adult, int children, String orderByClause) {
         List<TypeRoom> availableTypeRooms = Collections.synchronizedList(new ArrayList<>());
         StringBuilder sql = new StringBuilder("""
                 SELECT * FROM (
@@ -392,7 +392,7 @@ public class TypeRoomDAO {
             sql.append(" AND sub.Price <= ?");
             params.add(maxPrice);
         }
-        sql.append(" ORDER BY sub.TypeId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        sql.append(" ORDER BY ").append(orderByClause).append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         params.add((pageIndex - 1) * pageSize);
         params.add(pageSize);
         try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {

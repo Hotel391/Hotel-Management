@@ -55,7 +55,9 @@ public class SearchRoomCustomer extends HttpServlet {
         request.setAttribute("totalPages", totalPages);
         int currentPage = request.getParameter("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
         request.setAttribute("currentPage", currentPage);
-        List<TypeRoom> typeRooms = dal.TypeRoomDAO.getInstance().getAvailableTypeRooms(checkin, checkout, currentPage, PAGE_SIZE, minPrice, maxPrice,adult, children);
+        String sortOrder = getSortOrder(request);
+        setSortAttribute(request, sortOrder);
+        List<TypeRoom> typeRooms = dal.TypeRoomDAO.getInstance().getAvailableTypeRooms(checkin, checkout, currentPage, PAGE_SIZE, minPrice, maxPrice,adult, children, sortOrder);
         request.setAttribute("typeRooms", typeRooms);
     }
 
@@ -94,6 +96,31 @@ public class SearchRoomCustomer extends HttpServlet {
                 return java.sql.Date.valueOf(LocalDate.now());
             }
             return result;
+        }
+    }
+
+    private String getSortOrder(HttpServletRequest request) {
+        String sortOrder = request.getParameter("sort") != null ? request.getParameter("sort") : "price-low";
+        return switch (sortOrder) {
+            case "price-low" -> "sub.Price";
+            case "price-high" -> "sub.Price DESC";
+            case "rating-high" -> "sub.Rating DESC";
+            default -> "sub.Price";
+        }; // Default sort by price low
+    }
+    private void setSortAttribute(HttpServletRequest request, String sort) {
+        switch (sort) {
+            case "sub.Price":
+                request.setAttribute("sortOrder", "price-low");
+                break;
+            case "sub.Price DESC":
+                request.setAttribute("sortOrder", "price-high");
+                break;
+            case "sub.Rating DESC":
+                request.setAttribute("sortOrder", "rating-high");
+                break;
+            default:
+                break;
         }
     }
 

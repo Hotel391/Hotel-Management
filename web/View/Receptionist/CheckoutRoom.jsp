@@ -58,8 +58,8 @@
                                 <td style="width: 230px;">
                                     <select name="paymentMethod" class="form-select w-160" aria-label="Default select example">
                                         <option selected>Chọn phương thức</option>
-                                        <option value="online">online</option>
-                                        <option value="offline">offline</option>
+                                        <option value="online">Chuyển khoản</option>
+                                        <option value="offline">Tiền mặt</option>
                                     </select>
                                 </td>
                                 <td>

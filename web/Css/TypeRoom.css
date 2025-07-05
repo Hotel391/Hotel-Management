@@ -135,6 +135,16 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css
     margin-top: 10px;
 }
 
+.service-quantity {
+    font-size: 16px;
+    font-weight: bold;
+    background-color: rgba(255,255,255,0.3);
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 10px;
+}
+
 .services-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

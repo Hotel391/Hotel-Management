@@ -76,10 +76,11 @@
                                             <td><fmt:formatNumber value="${dl.key.totalPrice}" type="number" groupingUsed="true"/> VNĐ</td>
                                             <td>${dl.key.status}</td>
                                             <td style="width: 160px; text-align: center;">${dl.key.paymentMethod.paymentName}</td>
+                                            <td><a href="${pageContext.request.contextPath}/receptionist/customerReceipt?bookingId=${dl.key.bookingId}">View Detail</a></td>
                                             <td class="viewTypeRoom">
                                                 <!-- Modal -->
-                                                <c:forEach var="dt" items="${dl.value}">
                                                     <!-- Button trigger modal -->
+                                                <c:forEach var="dt" items="${dl.value}">
                                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewDetail_${dt.bookingDetailId}">
                                                         <i class="bi bi-eye"></i> View detail
                                                     </button>
@@ -113,11 +114,11 @@
                                                                                     <div class="service-icon">
                                                                                         <i class="fas fa-wifi"></i>
                                                                                     </div>
-                                                                                    <div class="service-name">${ds.serviceName}</div>
-                                                                                    <c:if test="${ds.price != 0}">
-                                                                                        <div class="service-price">${ds.price} VNĐ</div>
+                                                                                    <div class="service-name">${ds.service.serviceName}</div>
+                                                                                    <c:if test="${ds.service.price != 0}">
+                                                                                        <div class="service-price">${ds.service.price} VNĐ</div>
                                                                                     </c:if>
-                                                                                    <c:if test="${ds.price == 0}">
+                                                                                    <c:if test="${ds.service.price == 0}">
                                                                                         <div class="service-price">Free</div>
                                                                                     </c:if>
 

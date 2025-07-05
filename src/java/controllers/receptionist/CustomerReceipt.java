@@ -13,11 +13,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import models.Booking;
 import models.BookingDetail;
@@ -26,8 +22,8 @@ import models.BookingDetail;
  *
  * @author Hai Long
  */
-@WebServlet(name = "ReceiptReceiptionist", urlPatterns = {"/receptionist/receipt"})
-public class ReceiptReceiptionist extends HttpServlet {
+@WebServlet(name = "CustomerReceipt", urlPatterns = {"/receptionist/customerReceipt"})
+public class CustomerReceipt extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -42,34 +38,26 @@ public class ReceiptReceiptionist extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
 
-        String service = request.getParameter("service");
+        int bookingId = Integer.parseInt(request.getParameter("bookingId"));
 
-        if (service == null) {
-            service = "view";
+        Booking booking = BookingDAO.getInstance().getBookingByBookingId(bookingId);
+
+        List<BookingDetail> detailList = new ArrayList<>();
+
+        String searchRoom = request.getParameter("searchRoom");
+
+        if (searchRoom != null && !searchRoom.isEmpty()) {
+            int roomNumber = Integer.parseInt(searchRoom);
+            detailList = BookingDetailDAO.getInstance().getBookingDetailByBookingIdAndRoomNumber(booking, roomNumber);
+        } else {
+            detailList = BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking);
         }
 
-        if ("view".equals(service)) {
+        request.setAttribute("detailList", detailList);
 
-            Date today = Date.valueOf(LocalDate.now());
+        request.setAttribute("bookingInfo", booking);
 
-            List<Booking> bookingList;
-
-            HashMap<Booking, List<BookingDetail>> detailList = new LinkedHashMap<>();
-
-            bookingList = BookingDAO.getInstance().getBookingByPayDay(today);
-
-            for (Booking booking : bookingList) {
-                detailList.put(booking, BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking));
-            }
-            
-            System.out.println(detailList);
-            
-            request.setAttribute("bookList", bookingList);
-
-            request.setAttribute("detailList", detailList);
-
-            request.getRequestDispatcher("/View/Receptionist/ReceiptInReceiptionist.jsp").forward(request, response);
-        }
+        request.getRequestDispatcher("/View/Receptionist/CustomerReceipt.jsp").forward(request, response);
 
     }
 

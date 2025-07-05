@@ -17,7 +17,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/VerifyEmailCss.css"/>
     </head>
     <body>
-        <jsp:include page="TopNav.jsp"/>
+        <jsp:include page="/View/Customer/Header.jsp" />
         <div class="verify-container">
             <h2>Vui lòng xác nhận email của bạn</h2>
             <p>

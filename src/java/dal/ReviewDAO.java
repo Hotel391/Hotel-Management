@@ -138,7 +138,7 @@ public class ReviewDAO {
         return listReview;
     }
 
-    public List<Review> getReviewsByTypeRoomId(int typeId, String orderByClause) {
+    public List<Review> getReviewsByTypeRoomId(int typeId, String orderByClause, int offset, int limit) {
         StringBuilder sql = new StringBuilder("""
             SELECT rv.ReviewId, rv.Username, rv.Rating, rv.FeedBack, rv.Date
             FROM TypeRoom tr
@@ -151,9 +151,12 @@ public class ReviewDAO {
         if (orderByClause != null && !orderByClause.isEmpty()) {
             sql.append(" ORDER BY ").append(orderByClause);
         }
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         List<Review> reviews = new ArrayList<>();
         try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
             ptm.setInt(1, typeId);
+            ptm.setInt(2, offset);
+            ptm.setInt(3, limit);
             try (ResultSet rs = ptm.executeQuery()) {
                 while (rs.next()) {
                     Review review = new Review();

@@ -9,7 +9,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
-<html>
+<html lang="vi">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Hotel Booking</title>
@@ -19,8 +19,50 @@
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"/>
         <!-- Liên kết đến các tệp CSS của thanh search mới -->
         <link type="text/css" rel="stylesheet" href="Css/searchRoom.css" />
+        <style>
+            .sort-label {
+                font-size: 14px;
+                color: #333;
+                font-weight: bold;
+            }
+            .sort-options {
+                /* border-radius: 70px;
+                border: #000 1px solid; */
+                height: 70px;
+                max-width: 900px;
+            }
+            .sort-option {
+                font-size: 14px;
+                color: #333;
+                cursor: pointer;
+                padding: 5px 10px;
+                transition: all 0.3s ease;
+                width: calc(100% / 3);
+                text-align: center;
+                align-content: center;
+                height: 70px;
+                border: #000 1px solid;
+                font-weight: 700;
+                color: #2067da;
+            }
+            .sort-option:hover {
+                color: #007bff;
+            }
+            .sort-option.active {
+                background-color: #E6F0FA; 
+                color: #000;
+                border-bottom: 2px solid #0071C2;
+                border-radius: 0;
+            }
+            .promo-text {
+                font-size: 14px;
+                color: #007bff;
+                font-weight: bold;
+            }
+        </style>
     </head>
     <body>
+        <jsp:include page="Header.jsp" />
         <div class="container my-sm-5 border p-0 bg-light">
             <div class="booking-form">
                 <form>
@@ -32,16 +74,28 @@
                         </div>
                         <div class="col-md-7">
                             <div class="row no-margin">
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">Check In</span>
                                         <input class="form-control" type="date" name="checkin" value="${checkin}">
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">Check out</span>
                                         <input class="form-control" type="date" name="checkout" value="${checkout}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <span class="form-label">Adult</span>
+                                        <input class="form-control" type="number" name="adults" value="<c:out value='${adults}' default='1' />" min="1">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <span class="form-label">Children</span>
+                                        <input class="form-control" type="number" name="children" value="<c:out value='${children}' default='0' />" min="0">
                                     </div>
                                 </div>
                             </div>
@@ -53,6 +107,21 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+        <!-- Form Sắp Xếp -->
+        <div class="container my-sm-5 p-0">
+            <div class="sorting-form bg-white p-2 d-flex justify-content-between align-items-center" style="border-radius: 10px 0 0 10px;">
+                <div class="sort-label text-uppercase fw-bold me-3">Sắp xếp theo:</div>
+                <div class="sort-options d-flex flex-grow-1 align-items-center">
+                    <span class="sort-option" 
+                        style="border-top-left-radius: 70px; border-bottom-left-radius: 70px;
+                        ${empty sortOrder || sortOrder eq 'price-low' ? "background-color: #2067da; color: #fff": ""}">Giá thấp nhất</span>
+                    <span class="sort-option" style="${sortOrder eq 'price-high'? "background-color: #2067da; color: #fff" : ""}">Giá cao nhất</span>
+                    <span class="sort-option" 
+                        style="border-top-right-radius: 70px; border-bottom-right-radius: 70px;
+                        ${sortOrder eq 'rating-high'? "background-color: #2067da; color: #fff": ""}">Đánh giá cao nhất</span>
+                </div>
             </div>
         </div>
 
@@ -91,7 +160,7 @@
                             <div class="card mb-3 room-card p-2" 
                                  draggable="true"
                                  ondragstart="event.dataTransfer.setData('text/plain', '${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}/detailRoom?typeRoomId=${typeRoom.typeId}&checkin=${checkin}&checkout=${checkout}')"
-                                 onclick="location.href='${pageContext.request.contextPath}/detailRoom?typeRoomId=${typeRoom.typeId}&checkin=${checkin}&checkout=${checkout}'">
+                                 onclick="location.href = '${pageContext.request.contextPath}/detailRoom?typeRoomId=${typeRoom.typeId}&checkin=${checkin}&checkout=${checkout}'">
                                 <div class="row g-0">
                                     <div class="col-md-4">
                                         <img src="${pageContext.request.contextPath}/${typeRoom.uriContextOfImages}${typeRoom.images[0]}" alt="${typeRoom.typeName}" class="main-image" />

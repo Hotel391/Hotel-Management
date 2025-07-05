@@ -71,8 +71,8 @@ public class ForgotPassword extends HttpServlet {
                 input,
                 Function.identity(),
                 "EMAIL",
-                List.of(new ValidationRule<>(value -> !service.isEmailExists(value),
-                                "Email already exists")));
+                List.of(new ValidationRule<>(value -> service.isEmailExists(value),
+                                "Email didn't existed")));
     }
 
     @Override

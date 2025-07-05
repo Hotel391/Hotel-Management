@@ -333,17 +333,12 @@ public class TypeRoomDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
 
         return price;
     }
 
-    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize) {
-        return getAvailableTypeRooms(startDate, endDate, pageIndex, pageSize, null, null);
-    }
-
-    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, Integer minPrice, Integer maxPrice) {
+    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, Integer minPrice, Integer maxPrice, int adult, int children) {
         List<TypeRoom> availableTypeRooms = Collections.synchronizedList(new ArrayList<>());
         StringBuilder sql = new StringBuilder("""
                 SELECT * FROM (
@@ -356,7 +351,9 @@ public class TypeRoomDAO {
                             WHEN bd.BookingDetailId IS NULL THEN r.RoomNumber
                             END) AS AvailableRoomCount,
                         AVG(rv.Rating * 1.0) AS Rating,
-                        COUNT(distinct rv.ReviewId) AS numberOfReview
+                        COUNT(distinct rv.ReviewId) AS numberOfReview,
+                        tr.Adult,
+                        tr.Children+tr.Adult AS totalCapacity
                     FROM TypeRoom tr
                     JOIN Room r ON r.TypeId = tr.TypeId
                     LEFT JOIN BookingDetail bd 
@@ -376,15 +373,17 @@ public class TypeRoomDAO {
                         JOIN Service s ON s.ServiceId = rns.ServiceId
                         GROUP BY rns.TypeId
                     ) svc ON svc.TypeId = tr.TypeId
-                    GROUP BY tr.TypeId, tr.TypeName, tr.Price, tr.Description, svc.ServicePrice
+                    GROUP BY tr.TypeId, tr.TypeName, tr.Price, tr.Description, svc.ServicePrice, tr.Adult, tr.Children
                 ) AS sub
-                WHERE 1=1
+                WHERE sub.Adult >= ? AND sub.totalCapacity >= ?
                  """);
         List<Object> params = new ArrayList<>();
         params.add(startDate);
         params.add(endDate);
         params.add(startDate);
         params.add(endDate);
+        params.add(adult);
+        params.add(adult + children);
         if (minPrice != null) {
             sql.append(" AND sub.Price >= ?");
             params.add(minPrice);
@@ -437,15 +436,17 @@ public class TypeRoomDAO {
     }
 
     public int getTotalTypeRoom(Date startDate, Date endDate) {
-        return getTotalTypeRoom(startDate, endDate, null, null);
+        return getTotalTypeRoom(startDate, endDate, null, null, 2, 1);
     }
 
-    public int getTotalTypeRoom(Date startDate, Date endDate, Integer minPrice, Integer maxPrice) {
+    public int getTotalTypeRoom(Date startDate, Date endDate, Integer minPrice, Integer maxPrice, int adult, int children) {
         StringBuilder sql = new StringBuilder("""
                 SELECT COUNT(*) AS totalTypeRoom
                 FROM (
                     SELECT tr.TypeId,
-                        tr.Price + COALESCE(svc.ServicePrice, 0) AS Price
+                        tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
+                        tr.Adult,
+                        tr.Children + tr.Adult AS totalCapacity
                     FROM TypeRoom tr
                     JOIN Room r ON r.TypeId = tr.TypeId
                     LEFT JOIN BookingDetail bd 
@@ -454,20 +455,22 @@ public class TypeRoomDAO {
                     LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
                     LEFT JOIN Service s ON s.ServiceId = rns.ServiceId
                     LEFT JOIN (
-			SELECT 
-			rns.TypeId,
-                        SUM(rns.Quantity * s.Price) AS ServicePrice
-			FROM RoomNService rns
-			JOIN Service s ON s.ServiceId = rns.ServiceId
-			GROUP BY rns.TypeId
+                        SELECT 
+                            rns.TypeId,
+                            SUM(rns.Quantity * s.Price) AS ServicePrice
+                        FROM RoomNService rns
+                        JOIN Service s ON s.ServiceId = rns.ServiceId
+                        GROUP BY rns.TypeId
                     ) svc ON svc.TypeId = tr.TypeId
-                    GROUP BY tr.TypeId, tr.Price, svc.ServicePrice
+                    GROUP BY tr.TypeId, tr.Price, svc.ServicePrice, tr.Adult, tr.Children
                     ) AS t
-                WHERE 1=1
+                WHERE t.Adult >= ? AND t.totalCapacity >= ?
                 """);
         List<Object> params = new ArrayList<>();
         params.add(startDate);
         params.add(endDate);
+        params.add(adult);
+        params.add(adult + children);
         if (minPrice != null) {
             sql.append(" AND t.Price >= ?");
             params.add(minPrice);
@@ -492,7 +495,7 @@ public class TypeRoomDAO {
         return 0;
     }
 
-    public TypeRoom getTypeRoomByTypeId(Date checkin, Date checkout, int typeId, String orderByClause) {
+    public TypeRoom getTypeRoomByTypeId(Date checkin, Date checkout, int typeId, String orderByClause, int offset, int limit) {
         String sql = """
                     SELECT 
                         tr.TypeId,
@@ -547,7 +550,7 @@ public class TypeRoomDAO {
                     typeRoom.setNumberOfReviews(rs.getInt("numberOfReview"));
                     typeRoom.setImages(getRoomImagesByTypeId(typeId));
                     typeRoom.setServices(RoomNServiceDAO.getInstance().getRoomNServicesByTypeId(typeRoom));
-                    typeRoom.setReviews(ReviewDAO.getInstance().getReviewsByTypeRoomId(typeId, orderByClause));
+                    typeRoom.setReviews(ReviewDAO.getInstance().getReviewsByTypeRoomId(typeId, orderByClause, offset, limit));
                     return typeRoom;
                 }
             }

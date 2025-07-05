@@ -30,22 +30,32 @@ public class SearchRoomCustomer extends HttpServlet {
 
         String checkout=request.getParameter("checkout");
         Date checkoutDate = getDate(checkout, true, checkinDate);
-        
-        handleDefault(request, checkinDate, checkoutDate);
+
+        int adult= request.getParameter("adults") != null ? Integer.parseInt(request.getParameter("adults")) : 1;
+        int children= request.getParameter("children") != null ? Integer.parseInt(request.getParameter("children")) : 0;
+        if(adult < 1) {
+            adult = 1;
+        }
+        if(children < 0) {
+            children = 0;
+        }
+        request.setAttribute("adults", adult);
+        request.setAttribute("children", children);
+        handleDefault(request, checkinDate, checkoutDate, adult, children);
         request.setAttribute("checkout", checkoutDate);
         request.getRequestDispatcher("/View/Customer/SearchRoom.jsp").forward(request, response);
     } 
 
-    private void handleDefault(HttpServletRequest request, Date checkin, Date checkout) throws ServletException, IOException {
+    private void handleDefault(HttpServletRequest request, Date checkin, Date checkout, int adult, int children) throws ServletException, IOException {
         Integer minPrice = readMinPrice(request);
         Integer maxPrice = readMaxPrice(request, minPrice);
-        
-        int numberOfTypeRoom = dal.TypeRoomDAO.getInstance().getTotalTypeRoom(checkin, checkout,minPrice, maxPrice);
+
+        int numberOfTypeRoom = dal.TypeRoomDAO.getInstance().getTotalTypeRoom(checkin, checkout,minPrice, maxPrice, adult, children);
         int totalPages = (int) Math.ceil((double) numberOfTypeRoom / PAGE_SIZE);
         request.setAttribute("totalPages", totalPages);
         int currentPage = request.getParameter("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
         request.setAttribute("currentPage", currentPage);
-        List<TypeRoom> typeRooms = dal.TypeRoomDAO.getInstance().getAvailableTypeRooms(checkin, checkout, currentPage, PAGE_SIZE, minPrice, maxPrice);
+        List<TypeRoom> typeRooms = dal.TypeRoomDAO.getInstance().getAvailableTypeRooms(checkin, checkout, currentPage, PAGE_SIZE, minPrice, maxPrice,adult, children);
         request.setAttribute("typeRooms", typeRooms);
     }
 

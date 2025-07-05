@@ -18,6 +18,7 @@
         <link rel="stylesheet" href="Css/Customer/DetailRoom.css"/>
     </head>
     <body>
+        <jsp:include page="Header.jsp" />
         <div class="room-container">
             <div class="room-image">
                 <img src="${pageContext.request.contextPath}/${selectedTypeRoom.uriContextOfImages}${selectedTypeRoom.images[0]}" alt="Room" class="main">
@@ -158,22 +159,63 @@
                     <div class="reviewer-info">
                         <img src="${pageContext.request.contextPath}/Image/User.png" alt="${review.username}">
                         <div>
-                            <strong>${review.username}</strong> <span>${review.date}</span>
+                            <strong>${review.username}</strong> <span><fmt:formatDate value="${review.date}" pattern="dd/MM/yyyy" /></span>
+                            <span>
+                                <c:set var="rating" value="${review.rating}" />
+                                <c:set var="fullStars" value="${rating - (rating mod 1)}" />
+                                <c:set var="emptyStars" value="${5 - fullStars}" />
+
+                                <!-- Full stars -->
+                                <c:forEach begin="1" end="${fullStars}">
+                                    <span class="fas fa-star text-warning"></span>
+                                </c:forEach>
+                                <!-- Empty stars -->
+                                <c:forEach begin="1" end="${emptyStars}">
+                                    <span class="far fa-star text-warning"></span>
+                                </c:forEach>
+                            </span>
                         </div>
                     </div>
                     <p>${review.feedBack}</p>
                 </div>
             </c:forEach>
+            <nav aria-label="Page navigation">
+                <ul class="pagination mb-0">
+                    <c:if test="${currentPage > 1}">
+                        <li class="page-item">
+                            <a class="page-link" href="?page=${currentPage - 1}&typeRoomId=${selectedTypeRoom.typeId}&checkin=${param.checkin}&checkout=${param.checkout}&rooms=${param.rooms}&sortBy=${param.sortBy}">Previous</a>
+                        </li>
+                    </c:if>
+
+                    <c:forEach var="i" begin="1" end="${totalPages}">
+                        <li class="page-item ${i == currentPage ? 'active' : ''}">
+                            <a class="page-link" href="?page=${i}&typeRoomId=${selectedTypeRoom.typeId}&checkin=${param.checkin}&checkout=${param.checkout}&rooms=${param.rooms}&sortBy=${param.sortBy}">${i}</a>
+                        </li>
+                    </c:forEach>
+
+                    <c:if test="${currentPage < totalPages}">
+                        <li class="page-item">
+                            <a class="page-link" href="?page=${currentPage + 1}&typeRoomId=${selectedTypeRoom.typeId}&checkin=${param.checkin}&checkout=${param.checkout}&rooms=${param.rooms}&sortBy=${param.sortBy}">Next</a>
+                        </li>
+                    </c:if>
+                </ul>
+            </nav>
         </div>
-        <div class="review-form">
-            <h3>Leave a Review</h3>
-            <form>
-                <div class="form-group">
-                    <textarea class="form-control" placeholder="Write your Review here *"></textarea>
-                </div>
-                <button type="submit" class="btn">Post Comment</button>
-            </form>
-        </div>
+        <c:if test="${sessionScope.customerInfo != null}">
+            <div class="review-form">
+                <h3>Leave a Review</h3>
+                <form method="post" action="${pageContext.request.contextPath}/addReview">
+                    <input type="hidden" name="typeRoomId" value="${selectedTypeRoom.typeId}">
+                    <input type="hidden" name="checkin" value="${param.checkin}">
+                    <input type="hidden" name="checkout" value="${param.checkout}">
+                    <input type="hidden" name="rooms" value="${param.rooms}">
+                    <div class="form-group">
+                        <textarea class="form-control" placeholder="Write your Review here *"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Post Comment</button>
+                </form>
+            </div>
+        </c:if>
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>

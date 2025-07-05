@@ -147,6 +147,12 @@ public class Checkout extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/payment");
         }
         
+        if("backToServicePage".equals(service)){
+            session.removeAttribute("roomServiceMap");
+            
+            response.sendRedirect("receptionist/roomInformation");
+        }
+        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

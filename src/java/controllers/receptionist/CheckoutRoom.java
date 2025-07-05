@@ -131,7 +131,16 @@ public class CheckoutRoom extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/payment");
 
             } else {
-                BookingDAO.getInstance().updateBookingTotalPrice(booking);
+                
+                List<BookingDetail> detailPaymentOffline = BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking);
+                
+                dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
+                booking.setStatus("Completed CheckOut");
+                dal.BookingDAO.getInstance().updateBookingStatus(booking);
+                
+                for (BookingDetail bookingDetail : detailPaymentOffline) {
+                    dal.RoomDAO.getInstance().updateRoomStatus(bookingDetail.getRoom().getRoomNumber(), false);
+                }
                 response.sendRedirect(request.getContextPath() + "/receptionist/receipt");
             }
 

@@ -62,7 +62,8 @@ public class BookingDetailDAO {
 
     public List<BookingDetail> getBookingDetailByEndDate(Date endDate) {
         List<BookingDetail> bookingDetails = new ArrayList<>();
-        String sql = "SELECT * FROM BookingDetail WHERE EndDate = ? ORDER BY roomNumber";
+        String sql = "select bd.* from Booking b join BookingDetail bd on b.BookingId = bd.BookingId\n"
+                + " where  EndDate >= ? and b.Status != 'Completed CheckOut' order by RoomNumber";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setDate(1, endDate);
             ResultSet rs = st.executeQuery();

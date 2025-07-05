@@ -91,15 +91,13 @@ public class VnpayReturn extends HttpServlet {
                     session.removeAttribute("listService");
 
                 } else {
-                    booking.setStatus("Failed");
-                    
+                    booking.setStatus("Failed");                  
                     List<Integer> listBookingDetailId = (List<Integer>) session.getAttribute("listBookingDetailId");
                     if (listBookingDetailId != null) {
                         for (int bookingDetailId : listBookingDetailId) {
                             dal.DetailServiceDAO.getInstance().deleteDetailService(bookingDetailId);
                         }
                     }
-                    
                     dal.BookingDetailDAO.getInstance().deleteBookingDetailByBookingId(bookingId);
                     session.removeAttribute("listBookingDetailId");
                 }
@@ -135,6 +133,15 @@ public class VnpayReturn extends HttpServlet {
                 try {
                     String bookingIdStr = vnp_TxnRef.split("_")[0];
                     int bookingId = Integer.parseInt(bookingIdStr);
+                    
+                    List<Integer> listBookingDetailId = (List<Integer>) session.getAttribute("listBookingDetailId");
+                    if (listBookingDetailId != null) {
+                        for (int bookingDetailId : listBookingDetailId) {
+                            dal.DetailServiceDAO.getInstance().deleteDetailService(bookingDetailId);
+                        }
+                    }
+                    dal.BookingDetailDAO.getInstance().deleteBookingDetailByBookingId(bookingId);
+                    session.removeAttribute("listBookingDetailId");
 
                     Booking booking = new Booking();
                     booking.setBookingId(bookingId);

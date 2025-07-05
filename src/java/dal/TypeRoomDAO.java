@@ -49,6 +49,26 @@ public class TypeRoomDAO {
         return typeRooms;
     }
     
+    public TypeRoom getTypeRoomByRoomNumber(int roomNumber) {
+        String sql = "SELECT tr.TypeId, tr.TypeName, tr.Description, tr.Price FROM TypeRoom tr JOIN Room r ON tr.TypeId = r.TypeId WHERE r.RoomNumber = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, roomNumber);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt(1));
+                    typeRoom.setTypeName(rs.getString(2));
+                    typeRoom.setDescription(rs.getString(3));
+                    typeRoom.setPrice(rs.getInt(4));
+                    return typeRoom;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     public void insertTypeRoom(TypeRoom typeRoom) {
         String sql = "INSERT INTO TypeRoom(TypeName, Description, Price) VALUES(?, ?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql)) {

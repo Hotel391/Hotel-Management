@@ -341,14 +341,14 @@ public class BookingDAO {
         }
         return false;
     }
-    
+
     public boolean updateBookingPaidAmount(Booking booking) {
         String sql = "UPDATE [dbo].[Booking]\n"
                 + "   SET [PaidAmount] = ?\n"
                 + " WHERE [BookingId] = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, booking.getPaidAmount()); 
+            st.setInt(1, booking.getPaidAmount());
             st.setInt(2, booking.getBookingId());
             return st.executeUpdate() > 0;
         } catch (SQLException ex) {
@@ -356,14 +356,14 @@ public class BookingDAO {
         }
         return false;
     }
-    
+
     public boolean updateBookingTotalPrice(Booking booking) {
         String sql = "UPDATE [dbo].[Booking]\n"
                 + "   SET [TotalPrice] = ? , [PayDay] = GETDATE()\n"
                 + " WHERE [BookingId] = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, booking.getTotalPrice()); 
+            st.setInt(1, booking.getTotalPrice());
             st.setInt(2, booking.getBookingId());
             return st.executeUpdate() > 0;
         } catch (SQLException ex) {
@@ -375,7 +375,9 @@ public class BookingDAO {
     //get booking by payday
     public List<Booking> getBookingByPayDay(Date payDay) {
         List<Booking> bookings = new ArrayList<>();
-        String sql = "SELECT * FROM Booking WHERE PayDay = ? and Status = 'Completed CheckOut'";
+        String sql = "SELECT * FROM Booking "
+                + "WHERE DATEDIFF(DAY, PayDay, ?) = 0 "
+                + "AND Status = 'Completed CheckOut'";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setDate(1, payDay);
             try (ResultSet rs = st.executeQuery()) {

@@ -34,7 +34,7 @@
 
                 <div class="user-info d-flex align-items-center" style="cursor: pointer;">
                     <img src="${pageContext.request.contextPath}/Image/User.png" alt="User" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px;">
-                    <span class="text-dark" style="margin-right: 10px;">Nguyễn Văn A</span>
+                    <span class="text-dark" style="margin-right: 10px;">${sessionScope.customerInfo.customer.fullName}</span>
                 </div>
 
                 <!-- Nút CTA -->

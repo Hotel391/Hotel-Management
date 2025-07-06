@@ -14,14 +14,23 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import models.Booking;
+import models.BookingDetail;
+import models.Customer;
+import models.DetailService;
+import models.Room;
+import models.TypeRoom;
 
 /**
  *
- * @author HP
+ * @author TuanPC
  */
 public class VnpayReturn extends HttpServlet {
 
@@ -63,14 +72,152 @@ public class VnpayReturn extends HttpServlet {
             Booking booking = new Booking();
             booking.setBookingId((bookingId));
             String status = (String) session.getAttribute("status");
+
             boolean transSuccess = false;
             if ("checkIn".equals(status)) {
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     booking.setStatus("Completed CheckIn");
                     request.setAttribute("pageChange", "checkIn");
                     transSuccess = true;
+
+                    Object paidAmountObj = session.getAttribute("paidAmount");
+                    int paidAmount = 0;
+                    if (paidAmountObj == null) {
+                        throw new IllegalStateException("paidAmount is missing in session");
+                    } else {
+                        paidAmount = (int) paidAmountObj;
+                    }
+                    booking.setPaidAmount(paidAmount);
+                    dal.BookingDAO.getInstance().updateBookingPaidAmount(booking);
+
+                    //chỗ m cần đây hiếu
+                    int customerId = (int) session.getAttribute("customerId");
+                    Customer customer = dal.CustomerDAO.getInstance().getCustomerById(customerId);
+                    String customerName = customer.getFullName();
+                    String email = customer.getEmail();
+                    String phone = customer.getPhoneNumber();
+                    String startDateStr = (String) session.getAttribute("startDate");
+                    String endDateStr = (String) session.getAttribute("endDate");
+                    String[] roomNumbers = (String[]) session.getAttribute("roomNumbers");
+                    Map<String, List<DetailService>> roomServicesMap
+                            = (Map<String, List<DetailService>>) session.getAttribute("roomServicesMap");
+
+                    // Sau khi đã insert BookingDetail và DetailService
+                    // Tạo các list cần thiết
+                    List<String> typeRoom = new ArrayList<>();
+                    List<Integer> quantityTypeRoom = new ArrayList<>();
+                    List<Double> priceTypeRoom = new ArrayList<>();
+                    List<String> services = new ArrayList<>();
+                    List<Integer> serviceQuantity = new ArrayList<>();
+                    List<Integer> servicePrice = new ArrayList<>();
+
+                    // Tạo map đếm loại phòng
+                    Map<String, Integer> typeCountMap = new LinkedHashMap<>();
+                    Map<String, Double> typePriceMap = new LinkedHashMap<>();
+                    Map<String, Integer> serviceQuantityMap = new LinkedHashMap<>();
+                    Map<String, Integer> servicePriceMap = new LinkedHashMap<>();
+
+                    //đây là chỗ tìm và đếm
+                    for (String roomNumberStr : roomNumbers) {
+                        int roomNumber = Integer.parseInt(roomNumberStr);
+                        Room room = dal.RoomDAO.getInstance().getRoomByRoomNumber(roomNumber);
+                        int typeId = room.getTypeRoom().getTypeId();
+                        TypeRoom type = dal.TypeRoomDAO.getInstance().getTypeRoomById(typeId);
+
+                        String typeName = type.getTypeName();
+                        double price = type.getPrice();
+
+                        if (!typeCountMap.containsKey(typeName)) {
+                            typeCountMap.put(typeName, 1);
+                            typePriceMap.put(typeName, price);
+                        } else {
+                            typeCountMap.put(typeName, typeCountMap.get(typeName) + 1);
+                        }
+                    }
+
+                    //chỗ ghi list đây
+                    for (String typeName : typeCountMap.keySet()) {
+                        typeRoom.add(typeName);
+                        quantityTypeRoom.add(typeCountMap.get(typeName));
+                        priceTypeRoom.add(typePriceMap.get(typeName));
+                    }
+
+                    // Lấy danh sách dịch vụ
+                    if (roomServicesMap != null) {
+                        for (String roomNumber : roomNumbers) {
+                            List<DetailService> list = roomServicesMap.get(roomNumber);
+                            if (list != null) {
+                                for (DetailService d : list) {
+                                    String serviceName = d.getService().getServiceName();
+                                    int quantity = d.getQuantity();
+                                    int price = d.getService().getPrice();
+
+                                    // Cộng dồn số lượng nếu đã có
+                                    serviceQuantityMap.put(serviceName,
+                                            serviceQuantityMap.getOrDefault(serviceName, 0) + quantity);
+
+                                    // Ghi lại giá
+                                    servicePriceMap.putIfAbsent(serviceName, price);
+                                }
+                            }
+                        }
+                    }
+
+                    // đẩy vào list danh sách các dịch vụ của tất cả
+                    for (String serviceName : serviceQuantityMap.keySet()) {
+                        services.add(serviceName);
+                        serviceQuantity.add(serviceQuantityMap.get(serviceName));
+                        servicePrice.add(servicePriceMap.get(serviceName));
+                    }
+
+                    //tổng tiền
+                    int total = (int) session.getAttribute("paidAmount");
+
+                    //tên phương thức thanh toán
+                    String paymentMethod = dal.BookingDAO.getInstance().getPaymentNameByBookingId(bookingId);
+
+                    System.out.println("========== CHECK-IN SUMMARY ==========");
+
+                    System.out.println("Customer Name: " + customerName);
+                    System.out.println("Email: " + email);
+                    System.out.println("Phone: " + phone);
+                    System.out.println("Start Date: " + startDateStr);
+                    System.out.println("End Date: " + endDateStr);
+                    System.out.println("Total Paid: " + total);
+                    System.out.println("Payment Method: " + paymentMethod);
+
+                    System.out.println("---- ROOM TYPES ----");
+                    for (int i = 0; i < typeRoom.size(); i++) {
+                        System.out.println("Type: " + typeRoom.get(i)
+                                + ", Quantity: " + quantityTypeRoom.get(i)
+                                + ", Price: " + priceTypeRoom.get(i));
+                    }
+
+                    System.out.println("---- SERVICES ----");
+                    for (int i = 0; i < services.size(); i++) {
+                        System.out.println("Service: " + services.get(i)
+                                + ", Quantity: " + serviceQuantity.get(i)
+                                + ", Price: " + servicePrice.get(i));
+                    }
+
+                    System.out.println("========== END OF SUMMARY ==========");
+
+                    session.removeAttribute("paidAmount");
+                    session.removeAttribute("bookingDetailId");
+                    session.removeAttribute("listService");
+                    session.removeAttribute("roomServicesMap");
+                    session.removeAttribute("roomNumbers");
+
                 } else {
                     booking.setStatus("Failed");
+                    List<Integer> listBookingDetailId = (List<Integer>) session.getAttribute("listBookingDetailId");
+                    if (listBookingDetailId != null) {
+                        for (int bookingDetailId : listBookingDetailId) {
+                            dal.DetailServiceDAO.getInstance().deleteDetailService(bookingDetailId);
+                        }
+                    }
+                    dal.BookingDetailDAO.getInstance().deleteBookingDetailByBookingId(bookingId);
+                    session.removeAttribute("listBookingDetailId");
                 }
             } else {
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
@@ -79,16 +226,18 @@ public class VnpayReturn extends HttpServlet {
                     booking.setTotalPrice(totalPrice);
                     dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
 
-                    int roomNumber = (int) session.getAttribute("roomNumber");
-                    dal.RoomDAO.getInstance().updateRoomStatus(roomNumber, false);
+                    List<Integer> roomNumber = (List<Integer>) session.getAttribute("listRoomNumber");
+                    for (Integer room : roomNumber) {
+                        dal.RoomDAO.getInstance().updateRoomStatus(room, false);
+                    }
                     request.setAttribute("pageChange", "checkOut");
+                    session.removeAttribute("listRoomNumber");
                     transSuccess = true;
                 } else {
                     booking.setStatus("Completed CheckIn");
                 }
             }
 
-            session.removeAttribute("roomNumber");
             session.removeAttribute("status");
             dal.BookingDAO.getInstance().updateBookingStatus(booking);
             request.setAttribute("transResult", transSuccess);
@@ -97,6 +246,34 @@ public class VnpayReturn extends HttpServlet {
         } else {
             //RETURN PAGE ERROR
             System.out.println("GD KO HOP LE (invalid signature)");
+
+            // Thử lấy bookingId từ vnp_TxnRef
+            String vnp_TxnRef = request.getParameter("vnp_TxnRef");
+            if (vnp_TxnRef != null && vnp_TxnRef.contains("_")) {
+                try {
+                    String bookingIdStr = vnp_TxnRef.split("_")[0];
+                    int bookingId = Integer.parseInt(bookingIdStr);
+
+                    List<Integer> listBookingDetailId = (List<Integer>) session.getAttribute("listBookingDetailId");
+                    if (listBookingDetailId != null) {
+                        for (int bookingDetailId : listBookingDetailId) {
+                            dal.DetailServiceDAO.getInstance().deleteDetailService(bookingDetailId);
+                        }
+                    }
+                    dal.BookingDetailDAO.getInstance().deleteBookingDetailByBookingId(bookingId);
+                    session.removeAttribute("listBookingDetailId");
+
+                    Booking booking = new Booking();
+                    booking.setBookingId(bookingId);
+                    booking.setStatus("Failed");
+
+                    dal.BookingDAO.getInstance().updateBookingStatus(booking);
+                    request.setAttribute("transResult", false);
+                } catch (NumberFormatException e) {
+                    System.out.println("Cannot parse booking ID from vnp_TxnRef: " + vnp_TxnRef);
+                }
+            }
+            request.getRequestDispatcher("/paymentResult.jsp").forward(request, response);
         }
 
     }

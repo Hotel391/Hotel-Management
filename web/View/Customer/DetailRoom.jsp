@@ -201,7 +201,7 @@
                 </ul>
             </nav>
         </div>
-        <c:if test="${sessionScope.customerInfo != null}">
+        <c:if test="${sessionScope.customerInfo != null && canFeedBack}">
             <div class="review-form">
                 <h3>Leave a Review</h3>
                 <form method="post" action="${pageContext.request.contextPath}/addReview">

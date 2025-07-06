@@ -148,6 +148,8 @@
                                                placeholder="₫ ĐẾN" value="${param.maxPrice}" id="maxPrice"/>
                                         <input type="hidden" name="checkin" value="${param.checkin}" />
                                         <input type="hidden" name="checkout" value="${param.checkout}" />
+                                        <input type="hidden" name="adults" value="${adults}" />
+                                        <input type="hidden" name="children" value="${children}" />
                                         <p>${errorPrice}</p>
                                         <button class="apply-button">Áp Dụng</button>
                                     </div>
@@ -231,21 +233,21 @@
                                 <c:if test="${currentPage > 1}">
                                     <li class="page-item">
                                         <a class="page-link"
-                                           href="?page=${currentPage - 1}&checkin=${checkin}&checkout=${checkout}">Previous</a>
+                                           href="?page=${currentPage - 1}&checkin=${checkin}&checkout=${checkout}&sort=${sortOrder}&adults=${adults}&children=${children}&minPrice=${param.minPrice}&maxPrice=${param.maxPrice}">Previous</a>
                                     </li>
                                 </c:if>
 
                                 <c:forEach var="i" begin="1" end="${totalPages}">
                                     <li class="page-item ${i == currentPage ? 'active' : ''}">
                                         <a class="page-link"
-                                           href="?page=${i}&checkin=${checkin}&checkout=${checkout}">${i}</a>
+                                           href="?page=${i}&checkin=${checkin}&checkout=${checkout}&sort=${sortOrder}&adults=${adults}&children=${children}&minPrice=${param.minPrice}&maxPrice=${param.maxPrice}">${i}</a>
                                     </li>
                                 </c:forEach>
 
                                 <c:if test="${currentPage < totalPages}">
                                     <li class="page-item">
                                         <a class="page-link"
-                                           href="?page=${currentPage + 1}&checkin=${checkin}&checkout=${checkout}">Next</a>
+                                           href="?page=${currentPage + 1}&checkin=${checkin}&checkout=${checkout}&sort=${sortOrder}&adults=${adults}&children=${children}&minPrice=${param.minPrice}&maxPrice=${param.maxPrice}">Next</a>
                                     </li>
                                 </c:if>
                             </ul>

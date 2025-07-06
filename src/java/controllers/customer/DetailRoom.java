@@ -50,6 +50,13 @@ public class DetailRoom extends HttpServlet {
         request.getRequestDispatcher("View/Customer/DetailRoom.jsp").forward(request, response);
     } 
 
+    private void processPostFeedBack(HttpServletRequest request) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        if (session.getAttribute("customerInfo") == null) {
+            return;
+        }
+        
+    }
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {

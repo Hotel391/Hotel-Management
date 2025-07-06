@@ -20,15 +20,9 @@ import models.Employee;
  *
  * @author HieuTT
  */
-<<<<<<<< HEAD:src/java/filter/Cleaner.java
 //@WebFilter(filterName = "Cleaner", urlPatterns = {"/cleaner/*"})
 public class Cleaner implements Filter {
 
-========
-//@WebFilter(filterName = "BlockJsp", urlPatterns = {"/*"})
-public class BlockJsp implements Filter {
-    
->>>>>>>> origin/NguyenTuan:src/java/filter/BlockJsp.java
     private static final boolean debug = true;
 
     // The filter configuration object we are associated with.  If
@@ -104,7 +98,6 @@ public class BlockJsp implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
-<<<<<<<< HEAD:src/java/filter/Cleaner.java
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
@@ -130,17 +123,6 @@ public class BlockJsp implements Filter {
             return;
         }
 
-========
-        
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
-        String uri = req.getServletPath();
-        //chua dang nhap
-        if (uri.endsWith(".jsp")) {
-            res.sendRedirect(req.getContextPath() + "/customer/home");
-            return;
-        }
->>>>>>>> origin/NguyenTuan:src/java/filter/BlockJsp.java
         chain.doFilter(request, response);
     }
 

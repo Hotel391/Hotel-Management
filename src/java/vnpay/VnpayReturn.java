@@ -27,6 +27,7 @@ import models.Customer;
 import models.DetailService;
 import models.Room;
 import models.TypeRoom;
+import utility.EmailService;
 
 /**
  *
@@ -201,6 +202,22 @@ public class VnpayReturn extends HttpServlet {
                     }
 
                     System.out.println("========== END OF SUMMARY ==========");
+                    Map<String,Object> data= new HashMap<>();
+                    data.put("customerName", customerName);
+                    data.put("email", email);
+                    data.put("phone", phone);
+                    data.put("startDate", startDateStr);
+                    data.put("endDate", endDateStr);
+                    data.put("total", total);
+                    data.put("paymentMethod", paymentMethod);
+                    data.put("typeRoom", typeRoom);
+                    data.put("quantityTypeRoom", quantityTypeRoom);
+                    data.put("priceTypeRoom", priceTypeRoom);
+                    data.put("services", services);
+                    data.put("serviceQuantity", serviceQuantity);
+                    data.put("servicePrice", servicePrice);
+                    EmailService emailService = new EmailService();
+                    emailService.sendEmail(email,"Confirm Checkin information","checkin", data);
 
                     session.removeAttribute("paidAmount");
                     session.removeAttribute("bookingDetailId");

@@ -172,6 +172,21 @@ public class BookingDetailDAO {
         }
     }
 
+    public boolean updateTotalAmountBookingDetail(BookingDetail detail) {
+        String sql = "UPDATE [dbo].[BookingDetail]\n"
+                + "   SET [TotalAmount] = ?\n"
+                + " WHERE BookingDetailId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, detail.getTotalAmount());
+            st.setInt(2, detail.getBookingDetailId());
+            st.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Error deleting BookingDetail: " + e.getMessage());
+            return false;
+        }
+    }
+
     public boolean deleteBookingDetailByBookingId(int bookingId) {
         String sql = "DELETE FROM BookingDetail WHERE [BookingId] = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -184,45 +199,49 @@ public class BookingDetailDAO {
         }
     }
 
-    public BookingDetail getBookingDetalByBookingId(int bookingId) {
+    public List<BookingDetail> getBookingDetailsByBookingId(int bookingId) {
+        List<BookingDetail> bookingDetails = new ArrayList<>();
         String sql = """
-                     SELECT 
-                         b.BookingId,
-                         bd.BookingDetailId,
-                         b.PaidAmount,
-                         bd.TotalAmount,
-                         bd.RoomNumber
-                     FROM 
-                         Booking b
-                     JOIN 
-                         BookingDetail bd ON b.BookingId = bd.BookingId
-                     WHERE 
-                         b.BookingId = ?;""";
+                 SELECT 
+                     b.BookingId,
+                     bd.BookingDetailId,
+                     b.PaidAmount,
+                     bd.TotalAmount,
+                     bd.RoomNumber
+                 FROM 
+                     Booking b
+                 JOIN 
+                     BookingDetail bd ON b.BookingId = bd.BookingId
+                 WHERE 
+                     b.BookingId = ?""";
 
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, bookingId);
 
             try (ResultSet rs = ptm.executeQuery()) {
-                if (rs.next()) {
+                while (rs.next()) {
                     BookingDetail bookingDetail = new BookingDetail();
                     Booking booking = new Booking();
-                    booking.setBookingId(rs.getInt(1));
-                    bookingDetail.setBookingDetailId(rs.getInt(2));
-                    booking.setPaidAmount(rs.getInt(3));
-                    bookingDetail.setBooking(booking);
-                    bookingDetail.setTotalAmount(rs.getInt(4));
                     Room room = new Room();
-                    room.setRoomNumber(rs.getInt(5));
-                    bookingDetail.setRoom(room);
-                    return bookingDetail;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
 
+                    booking.setBookingId(rs.getInt("BookingId"));
+                    booking.setPaidAmount(rs.getInt("PaidAmount"));
+
+                    bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
+                    bookingDetail.setTotalAmount(rs.getInt("TotalAmount"));
+
+                    room.setRoomNumber(rs.getInt("RoomNumber"));
+
+                    bookingDetail.setBooking(booking);
+                    bookingDetail.setRoom(room);
+
+                    bookingDetails.add(bookingDetail);
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return bookingDetails;
     }
+
 }

@@ -398,4 +398,21 @@ public class BookingDAO {
         return bookings;
     }
 
+    public String getPaymentNameByBookingId(int bookingId) {
+        String sql = "SELECT pm.PaymentName "
+                + "FROM Booking b "
+                + "JOIN PaymentMethod pm ON b.PaymentMethodId = pm.PaymentMethodId "
+                + "WHERE b.BookingId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bookingId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("PaymentName");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

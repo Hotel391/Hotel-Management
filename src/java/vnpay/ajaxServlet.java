@@ -70,12 +70,35 @@ public class ajaxServlet extends HttpServlet {
             Date startDate = Date.valueOf(startDateStr);
             Date endDate = Date.valueOf(endDateStr);
             String[] roomNumbers = (String[]) session.getAttribute("roomNumbers");
+            long numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+
             // Lấy Map roomServicesMap
             Map<String, List<DetailService>> roomServicesMap
                     = (Map<String, List<DetailService>>) session.getAttribute("roomServicesMap");
             List<Integer> listBookingDetailId = new ArrayList<>();
             for (String roomNumberStr : roomNumbers) {
                 int roomNumber = Integer.parseInt(roomNumberStr);
+                // Lấy giá phòng theo từng room
+                Room roomObj = dal.RoomDAO.getInstance().getRoomByRoomNumber(roomNumber);
+                int typeId = roomObj.getTypeRoom().getTypeId();
+                double roomPrice = dal.TypeRoomDAO.getInstance().getPriceByTypeId(typeId);
+                double totalRoomPrice = roomPrice * numberOfNights;
+
+                // Tính tổng tiền dịch vụ (nếu có)
+                int totalServiceCost = 0;
+                if (roomServicesMap != null && roomServicesMap.containsKey(roomNumberStr)) {
+                    List<DetailService> serviceList = roomServicesMap.get(roomNumberStr);
+                    for (DetailService detail : serviceList) {
+                        int quantity = detail.getQuantity();
+                        int priceAtTime = detail.getService().getPrice();
+                        int total = quantity * priceAtTime;
+                        totalServiceCost += total;
+                    }
+                }
+
+                // Tổng tiền phòng + dịch vụ
+                int totalAmount = (int) Math.round(totalRoomPrice) + totalServiceCost;
+
                 // Tạo BookingDetail cho từng phòng
                 BookingDetail bookingDetail = new BookingDetail();
                 Room room = new Room();
@@ -86,7 +109,7 @@ public class ajaxServlet extends HttpServlet {
                 bookingDetail.setRoom(room);
                 booking1.setBookingId(bookingId);
                 bookingDetail.setBooking(booking1);
-                bookingDetail.setTotalAmount(totalPrice);
+                bookingDetail.setTotalAmount((int) totalAmount);
                 int bookingDetailId = dal.BookingDetailDAO.getInstance().insertNewBookingDetail(bookingDetail);
                 listBookingDetailId.add(bookingDetailId);
 
@@ -103,37 +126,42 @@ public class ajaxServlet extends HttpServlet {
                         );
                     }
                 }
-
             }
-            
+
             session.setAttribute("listBookingDetailId", listBookingDetailId);
-            
-            session.removeAttribute("roomServicesMap");
-            session.removeAttribute("roomNumbers");
-            session.removeAttribute("customerId");
-            session.removeAttribute("startDate");
-            session.removeAttribute("endDate");
+
             session.removeAttribute("totalPrice");
 
         } else if (status.equals("checkOut")) {
+            List<Integer> listRoomNumbers = new ArrayList<>();
+            
             bookingId = (int) session.getAttribute("bookingId");
-            BookingDetail bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetalByBookingId(bookingId);
-            int PaidAmount = bookingDetail.getBooking().getPaidAmount();
-            int totalAmount = bookingDetail.getTotalAmount();
+            List<BookingDetail> bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetailsByBookingId(bookingId);
+            int paidAmount = bookingDetail.get(0).getBooking().getPaidAmount();
 
-            if (PaidAmount == totalAmount) {
+            int totalAmount = 0;
+            for (BookingDetail detail : bookingDetail) {
+                totalAmount += detail.getTotalAmount();
+                listRoomNumbers.add(detail.getRoom().getRoomNumber());
+            }
+
+            if (paidAmount == totalAmount) {
                 Booking booking = new Booking();
                 booking.setBookingId(bookingId);
                 booking.setTotalPrice(totalAmount);
-                dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
                 booking.setStatus("Completed CheckOut");
+
+                dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
                 dal.BookingDAO.getInstance().updateBookingStatus(booking);
-                dal.RoomDAO.getInstance().updateRoomStatus(bookingDetail.getRoom().getRoomNumber(), false);
+
+                for (BookingDetail detail : bookingDetail) {
+                    dal.RoomDAO.getInstance().updateRoomStatus(detail.getRoom().getRoomNumber(), false);
+                }
+
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
                 return;
             }
-            totalPrice = totalAmount - PaidAmount;
-            session.setAttribute("roomNumber", bookingDetail.getRoom().getRoomNumber());
+            session.setAttribute("listRoomNumber", listRoomNumbers);
             session.setAttribute("totalPriceUpdate", totalAmount);
             session.removeAttribute("bookingId");
         }

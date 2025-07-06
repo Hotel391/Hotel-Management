@@ -54,6 +54,31 @@ public class ServiceDAO {
         }
         return listService;
     }
+    
+    public List<Service> searchAllService(String serviceName) {
+        String sql = "SELECT [ServiceId]\n"
+                + "      ,[ServiceName]\n"
+                + "      ,[IsActive]\n"
+                + "      ,[Price]\n"
+                + "  FROM [HotelManagementDB].[dbo].[Service]\n"
+                + "  Where ServiceName Like ? ";
+        List<Service> listService = new Vector<>();
+        try (PreparedStatement ptm = con.prepareStatement(sql); ) {
+            ptm.setString(1, "%"+serviceName+"%");
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    Service s = new Service(rs.getInt(1),
+                            rs.getString(2),
+                            rs.getBoolean(3),
+                            rs.getInt(4));
+                    listService.add(s);
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return listService;
+    }
 
     public void toggleServiceStatus(int serviceId) {
         String sql = "UPDATE [Service] SET IsActive = IIF(IsActive = 1, 0, 1) WHERE ServiceId = ?";
@@ -356,7 +381,6 @@ public class ServiceDAO {
             // handle exception
         }
     }
-
     public List<RoomNService> getAllRoomAndServiceByTypeId(int typeId){
         String sql="""
                 select distinct s.ServiceId,s.ServiceName,s.Price, rns.quantity from TypeRoom tr
@@ -383,4 +407,20 @@ public class ServiceDAO {
         }
         return list;
     }
+    
+    public Service getServiceById(int serviceId) {
+        String sql = "SELECT ServiceId, ServiceName, Price FROM Service WHERE ServiceId = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, serviceId);
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    return new Service(rs.getInt(1), rs.getString(2), rs.getInt(3));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

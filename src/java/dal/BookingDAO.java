@@ -308,18 +308,11 @@ public class BookingDAO {
     }
 
     public int insertNewBooking(Booking booking) {
-        String sql = "INSERT INTO [dbo].[Booking]\n"
-                + "            ([PayDay]\n"
-                + "           ,[CustomerId]\n"
-                + "           ,[PaymentMethodId]\n"
-                + "           ,[PaidAmount])\n"
-                + "     VALUES(?, ?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Booking] ([CustomerId], [PaymentMethodId]) VALUES(?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
 
-            st.setDate(1, Date.valueOf(LocalDate.now()));
-            st.setInt(2, booking.getCustomer().getCustomerId());
-            st.setInt(3, 1);
-            st.setInt(4, booking.getPaidAmount());
+            st.setInt(1, booking.getCustomer().getCustomerId());
+            st.setInt(2, 1);
             st.executeUpdate();
 
             try (ResultSet generatedKeys = st.getGeneratedKeys()) {
@@ -348,15 +341,30 @@ public class BookingDAO {
         }
         return false;
     }
-    public boolean updateBookingTotalPrice(Booking booking) {
+
+    public boolean updateBookingPaidAmount(Booking booking) {
         String sql = "UPDATE [dbo].[Booking]\n"
-                + "   SET [TotalPrice] = ? , [PayDay] = ?\n"
+                + "   SET [PaidAmount] = ?\n"
                 + " WHERE [BookingId] = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, booking.getTotalPrice()); 
-            st.setDate(2, Date.valueOf(LocalDate.now()));
-            st.setInt(3, booking.getBookingId());
+            st.setInt(1, booking.getPaidAmount());
+            st.setInt(2, booking.getBookingId());
+            return st.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return false;
+    }
+
+    public boolean updateBookingTotalPrice(Booking booking) {
+        String sql = "UPDATE [dbo].[Booking]\n"
+                + "   SET [TotalPrice] = ? , [PayDay] = GETDATE()\n"
+                + " WHERE [BookingId] = ?";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getTotalPrice());
+            st.setInt(2, booking.getBookingId());
             return st.executeUpdate() > 0;
         } catch (SQLException ex) {
             System.out.println(ex);
@@ -386,6 +394,23 @@ public class BookingDAO {
             e.printStackTrace();
         }
         return bookings;
+    }
+
+    public String getPaymentNameByBookingId(int bookingId) {
+        String sql = "SELECT pm.PaymentName "
+                + "FROM Booking b "
+                + "JOIN PaymentMethod pm ON b.PaymentMethodId = pm.PaymentMethodId "
+                + "WHERE b.BookingId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bookingId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("PaymentName");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

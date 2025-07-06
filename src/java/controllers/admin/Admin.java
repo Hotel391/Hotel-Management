@@ -38,7 +38,14 @@ public class Admin extends HttpServlet {
             request.getRequestDispatcher(linkInfoAdmin).forward(request, response);
         }
 
-        if (service.equals("deleteManager")) {
+        if (service.equals("activateManager")) { //soft delete
+            int employeeID = Integer.parseInt(request.getParameter("employeeID"));
+            boolean activate = Boolean.parseBoolean(request.getParameter("activate"));
+            dal.EmployeeDAO.getInstance().updateEmployeeStatus(employeeID, activate);
+            response.sendRedirect(request.getContextPath()+"/admin/page");
+        }
+        
+         if (service.equals("deleteManager")) {
             int employeeID = Integer.parseInt(request.getParameter("employeeID"));
             dal.AdminDao.getInstance().deleteManagerAccount(employeeID);
             response.sendRedirect(request.getContextPath()+"/admin/page");

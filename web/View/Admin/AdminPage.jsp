@@ -29,12 +29,12 @@
                         <div class="container-fluid p-4">
                             <ul class="nav nav-tabs mb-3">
                                 <li class="nav-item">
-                                    <a class="nav-link active" href="${pageContext.request.contextPath}/admin/page">Management manager account</a>
+                                    <a class="nav-link active" href="${pageContext.request.contextPath}/admin/page">Quản lí tài khoản manager</a>
                                 </li>
                             </ul>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addManagerAccountModal">+ Add New Manager Account</button>
+                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addManagerAccountModal">+ Tạo mới tài khoản quản lí</button>
                                 </div>
                             </div>
                             <div class="table-container">
@@ -42,10 +42,11 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th>Username</th>
-                                            <th>Registration Date</th>
-                                            <th>Activate</th>
-                                            <th>Role Name</th>
-                                            <th>Delete</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Trạng thái</th>
+                                            <th>Chức vụ</th>
+                                            <th>Chuyển trạng thái</th>
+                                            <th>Xóa tài khoản</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -65,13 +66,20 @@
                                                 </td>
                                                 <td>${e.role.roleName}</td>
                                                 <td>
+                                                    <a href="${pageContext.request.contextPath}/admin/page?service=activateManager&employeeID=${e.employeeId}&activate=${not e.activate}" 
+                                                       onclick="return confirm('Bạn chắc chắn muốn đóng tài khoản này?');">
+                                                        <button type="submit" class="btn btn-sm ${e.activate ? 'btn-warning' : 'btn-success'}" title="Chuyển trạng thái">
+                                                            <i class="bi bi-power"></i>
+                                                        </button>
+                                                    </a>
+                                                </td>
+                                                <td>
                                                     <a href="${pageContext.request.contextPath}/admin/page?service=deleteManager&employeeID=${e.employeeId}" 
                                                        onclick="return confirm('Are you sure to delete?');"
                                                        class="btn btn-sm btn-danger">
                                                         <i class="bi bi-trash-fill"></i>
                                                     </a>
                                                 </td>
-
                                             </tr>
                                         </c:forEach>
                                     </tbody>
@@ -86,7 +94,7 @@
                                 <div class="modal-content">
                                     <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/admin/page" novalidate>
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="addRoleModalLabel">Add New Service</h5>
+                                            <h5 class="modal-title" id="addRoleModalLabel">Thêm mới tài khoản manager</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
 
@@ -123,9 +131,9 @@
 
                                         </div>
                                         <div class="modal-footer">
-                                            <input type="submit" name="submit" class="btn btn-success" value="Add manager account"/>
+                                            <input type="submit" name="submit" class="btn btn-success" value="Thêm"/>
                                             <input type="reset" name="reset" value="Reset"/>
-                                            <input type="hidden" name="page" value="${currentPage}" />
+                                            <!--<input type="hidden" name="page" value="${currentPage}" />-->
                                             <input type="hidden" name="service" value="add">
                                         </div>
 

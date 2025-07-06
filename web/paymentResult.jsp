@@ -27,6 +27,13 @@
                 Xem thông tin đặt phòng (Check-in)
             </div>
         </c:if>
+        
+        <c:if test="${pageChange == null}">
+            <div onclick="location.href = '${pageContext.request.contextPath}/receptionist/searchRoom'" style="cursor:pointer;">
+                Về trang tìm phòng
+            </div>
+        </c:if>
+        
 
         <section style="margin-top: 50px; text-align: center;">
             <div>

@@ -18,7 +18,6 @@ public class TypeRoom {
     private int originPrice;
     private int servicePrice;
     private List<Review> reviews = new ArrayList<>();
-
     // Constructors
     public TypeRoom() {
     }

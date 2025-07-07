@@ -165,7 +165,7 @@
                             <div class="card mb-3 room-card p-2" 
                                  draggable="true"
                                  ondragstart="event.dataTransfer.setData('text/plain', '${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}/detailRoom?typeRoomId=${typeRoom.typeId}&checkin=${checkin}&checkout=${checkout}')"
-                                 onclick="location.href = '${pageContext.request.contextPath}/detailRoom?typeRoomId=${typeRoom.typeId}&checkin=${checkin}&checkout=${checkout}'">
+                                 onclick="location.href = '${pageContext.request.contextPath}/detailRoom?typeRoomId=${typeRoom.typeId}&checkin=${checkin}&checkout=${checkout}&adults=${adults}&children=${children}';">
                                 <div class="row g-0">
                                     <div class="col-md-4">
                                         <img src="${pageContext.request.contextPath}/${typeRoom.uriContextOfImages}${typeRoom.images[0]}" alt="${typeRoom.typeName}" class="main-image" />

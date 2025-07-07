@@ -103,7 +103,7 @@
 
     <!-- Welcome File -->
     <welcome-file-list>
-        <welcome-file>login</welcome-file>
+        <welcome-file>home</welcome-file>
     </welcome-file-list>
     <servlet>
         <servlet-name>ajaxServlet</servlet-name>

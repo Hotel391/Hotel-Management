@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import models.Booking;
 import models.BookingDetail;
 import models.Customer;
@@ -34,6 +37,8 @@ import utility.EmailService;
  * @author TuanPC
  */
 public class VnpayReturn extends HttpServlet {
+
+    private static final ExecutorService emailExecutor = Executors.newFixedThreadPool(10);
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -107,14 +112,14 @@ public class VnpayReturn extends HttpServlet {
                     // Tạo các list cần thiết
                     List<String> typeRoom = new ArrayList<>();
                     List<Integer> quantityTypeRoom = new ArrayList<>();
-                    List<Double> priceTypeRoom = new ArrayList<>();
+                    List<Integer> priceTypeRoom = new ArrayList<>();
                     List<String> services = new ArrayList<>();
                     List<Integer> serviceQuantity = new ArrayList<>();
                     List<Integer> servicePrice = new ArrayList<>();
 
                     // Tạo map đếm loại phòng
                     Map<String, Integer> typeCountMap = new LinkedHashMap<>();
-                    Map<String, Double> typePriceMap = new LinkedHashMap<>();
+                    Map<String, Integer> typePriceMap = new LinkedHashMap<>();
                     Map<String, Integer> serviceQuantityMap = new LinkedHashMap<>();
                     Map<String, Integer> servicePriceMap = new LinkedHashMap<>();
 
@@ -126,7 +131,7 @@ public class VnpayReturn extends HttpServlet {
                         TypeRoom type = dal.TypeRoomDAO.getInstance().getTypeRoomById(typeId);
 
                         String typeName = type.getTypeName();
-                        double price = type.getPrice();
+                        int price = type.getPrice();
 
                         if (!typeCountMap.containsKey(typeName)) {
                             typeCountMap.put(typeName, 1);
@@ -216,8 +221,11 @@ public class VnpayReturn extends HttpServlet {
                     data.put("services", services);
                     data.put("serviceQuantity", serviceQuantity);
                     data.put("servicePrice", servicePrice);
-                    EmailService emailService = new EmailService();
-                    emailService.sendEmail(email,"Confirm Checkin information","checkin", data);
+                    emailExecutor.submit(() -> {
+                        System.out.println("Sending email to " + email);
+                        EmailService emailService = new EmailService();
+                        emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                    });
 
                     session.removeAttribute("paidAmount");
                     session.removeAttribute("bookingDetailId");

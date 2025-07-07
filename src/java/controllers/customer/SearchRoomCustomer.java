@@ -10,8 +10,8 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import models.TypeRoom;
-import static utility.Validation.readPriceInput;
 import utility.ValidationRule;
+import static utility.Validation.readInputField;
 
 /**
  *
@@ -63,7 +63,7 @@ public class SearchRoomCustomer extends HttpServlet {
 
     private Integer readMinPrice(HttpServletRequest request) {
         String minPriceStr = request.getParameter("minPrice");
-        return readPriceInput(request, "errorPrice", minPriceStr, s-> Integer.valueOf(s.replaceAll("\\D", "")), 
+        return readInputField(request, "errorPrice", minPriceStr, s-> Integer.valueOf(s.replaceAll("\\D", "")), 
                     List.of(
                         new ValidationRule<>(value-> value >= 0, "Minimum price must be a non-negative number."),
                         new ValidationRule<>(value -> value <= 1000000000, "Minimum price must be less than or equal to 1,000,000,000.")
@@ -73,7 +73,7 @@ public class SearchRoomCustomer extends HttpServlet {
     private Integer readMaxPrice(HttpServletRequest request, Integer minPrice) {
         String maxPriceStr = request.getParameter("maxPrice");
         Integer baseMinPrice = minPrice == null ? 0 : minPrice;
-        return readPriceInput(request, "errorPrice", maxPriceStr, s-> Integer.valueOf(s.replaceAll("\\D", "")), 
+        return readInputField(request, "errorPrice", maxPriceStr, s-> Integer.valueOf(s.replaceAll("\\D", "")), 
                     List.of(
                         new ValidationRule<>(value-> value > 0, "Maximum price must be a positive number."),
                         new ValidationRule<>(value -> value > baseMinPrice, "Maximum price must be greater than minimum price."),

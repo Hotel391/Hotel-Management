@@ -21,7 +21,7 @@
         <c:if test="${sessionScope.customerInfo != null}">
             <div class="d-flex flex-row align-items-center gap-4">
 
-                <div class="cart-icon d-flex align-items-center" style="cursor: pointer;">
+                <div class="cart-icon d-flex align-items-center" style="cursor: pointer;" onclick="window.location.href='cart'">
                     <span style="position: relative; display: inline-block;">
                         <i class="fa fa-shopping-cart" style="font-size: 22px; color: #DAA520;"></i>
                         <c:if test="${not empty sessionScope.cartItemCount}">

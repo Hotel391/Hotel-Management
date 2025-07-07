@@ -369,19 +369,19 @@ public class TypeRoomDAO {
                         tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
                         tr.Description,
                         COUNT(DISTINCT CASE 
-                            WHEN bd.BookingDetailId IS NULL THEN r.RoomNumber
+                            WHEN bd.BookingDetailId IS NULL and c.CartId is null THEN r.RoomNumber
                             END) AS AvailableRoomCount,
                         AVG(rv.Rating * 1.0) AS Rating,
                         COUNT(distinct rv.ReviewId) AS numberOfReview,
                         tr.Adult,
                         tr.Children+tr.Adult AS totalCapacity
                     FROM TypeRoom tr
-                    JOIN Room r ON r.TypeId = tr.TypeId
+                    JOIN Room r ON r.TypeId = tr.TypeId and r.isActive=1
                     LEFT JOIN BookingDetail bd 
                         ON bd.RoomNumber = r.RoomNumber
-                        AND NOT (bd.EndDate < ? OR bd.StartDate > ?)
+                        AND NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
                     LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber AND c.isPayment = 1
-                        AND NOT (c.EndDate < ? OR c.StartDate > ?)
+                        AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
                     LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
                     LEFT JOIN Review rv ON rv.BookingDetailId = bd2.BookingDetailId
                     LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
@@ -396,7 +396,7 @@ public class TypeRoomDAO {
                     ) svc ON svc.TypeId = tr.TypeId
                     GROUP BY tr.TypeId, tr.TypeName, tr.Price, tr.Description, svc.ServicePrice, tr.Adult, tr.Children
                 ) AS sub
-                WHERE sub.Adult >= ? AND sub.totalCapacity >= ?
+                WHERE sub.Adult >= ? AND sub.totalCapacity >= ? and sub.AvailableRoomCount > 0
                  """);
         List<Object> params = new ArrayList<>();
         params.add(startDate);
@@ -516,7 +516,7 @@ public class TypeRoomDAO {
         return 0;
     }
 
-    public TypeRoom getTypeRoomByTypeId(Date checkin, Date checkout, int typeId, String orderByClause, int offset, int limit) {
+    public TypeRoom getTypeRoomByTypeId(Date checkin, Date checkout, int typeId, int adult, int children, String orderByClause, int offset, int limit) {
         String sql = """
                     SELECT 
                         tr.TypeId,
@@ -525,20 +525,29 @@ public class TypeRoomDAO {
                         COALESCE(svc.ServicePrice, 0) AS ServicePrice,
                         tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
                         tr.Description,
-                        COUNT(DISTINCT CASE 
-                            WHEN bd.BookingDetailId IS NULL THEN r.RoomNumber
-                        END) AS AvailableRoomCount,
+                        tr.Adult,
+                        tr.Children,
+                        CASE 
+                        WHEN tr.Adult >= ? AND tr.Adult + tr.Children >= ? THEN 
+                            COUNT(DISTINCT CASE 
+                                WHEN bd.BookingDetailId IS NULL AND c.CartId IS NULL THEN r.RoomNumber
+                            END)
+                        ELSE 0
+                    END AS AvailableRoomCount,
                         AVG(rv.Rating * 1.0) AS Rating,
-                        COUNT(rv.Rating) AS numberOfReview
+                        COUNT(rv.Rating) AS numberOfReview,
+                        tr.Adult,
+                        tr.Children,
+                        tr.Children + tr.Adult AS totalCapacity
                     FROM TypeRoom tr
-                    JOIN Room r ON r.TypeId = tr.TypeId
+                    JOIN Room r ON r.TypeId = tr.TypeId and r.isActive=1
                     LEFT JOIN BookingDetail bd 
                         ON bd.RoomNumber = r.RoomNumber
-                        AND NOT (bd.EndDate < ? OR bd.StartDate > ?)
+                        AND NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
                     LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
                     LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber
                         AND c.isPayment = 1
-                        AND NOT (c.EndDate < ? OR c.StartDate > ?)
+                        AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
                     LEFT JOIN Review rv ON rv.BookingDetailId = bd2.BookingDetailId
                     LEFT JOIN (
                         SELECT 
@@ -549,14 +558,16 @@ public class TypeRoomDAO {
                         GROUP BY rns.TypeId
                     ) svc ON svc.TypeId = tr.TypeId
                     WHERE tr.TypeId = ?
-                    GROUP BY tr.TypeId, tr.TypeName, tr.Price, svc.ServicePrice, tr.Description;
+                    GROUP BY tr.TypeId, tr.TypeName, tr.Price, svc.ServicePrice, tr.Description, tr.Adult, tr.Children;
         """;
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
-            ptm.setDate(1, checkin);
-            ptm.setDate(2, checkout);
+            ptm.setInt(1, adult);
+            ptm.setInt(2, adult + children);
             ptm.setDate(3, checkin);
             ptm.setDate(4, checkout);
-            ptm.setInt(5, typeId);
+            ptm.setDate(5, checkin);
+            ptm.setDate(6, checkout);
+            ptm.setInt(7, typeId);
             try (ResultSet rs = ptm.executeQuery()) {
                 if (rs.next()) {
                     TypeRoom typeRoom = new TypeRoom();
@@ -566,6 +577,8 @@ public class TypeRoomDAO {
                     typeRoom.setServicePrice(rs.getInt("ServicePrice"));
                     typeRoom.setPrice(rs.getInt("Price"));
                     typeRoom.setDescription(rs.getString("Description"));
+                    typeRoom.setAdults(rs.getInt("Adult"));
+                    typeRoom.setChildren(rs.getInt("Children"));
                     typeRoom.setNumberOfAvailableRooms(rs.getInt("AvailableRoomCount"));
                     typeRoom.setAverageRating(rs.getDouble("Rating"));
                     typeRoom.setNumberOfReviews(rs.getInt("numberOfReview"));

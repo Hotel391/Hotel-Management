@@ -37,6 +37,9 @@
                             <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/receptionist/checkoutRoom">Clear</a>
                         </div>
                     </form>
+                    <c:if test="${not empty paymentMethodError}">
+                        <p class="alert alert-primary">${paymentMethodError}</p>
+                    </c:if>
                     <table id="roomTable" class="table table-bordered table-hover text-center align-middle">
                         <thead class="table-primary">
                             <tr>
@@ -57,7 +60,7 @@
                                 <td>${ckl.key.room.roomNumber}</td>
                                 <td style="width: 230px;">
                                     <select name="paymentMethod" class="form-select w-160" aria-label="Default select example">
-                                        <option selected>Chọn phương thức</option>
+                                        <option selected value="default">Chọn phương thức</option>
                                         <option value="online">Chuyển khoản</option>
                                         <option value="offline">Tiền mặt</option>
                                     </select>
@@ -65,6 +68,7 @@
                                 <td>
                                     <input type="hidden" name="service" value="checkout">
                                     <input type="hidden" name="bookingId" value="${ckl.key.booking.bookingId}">
+                                    <input type="hidden" name="detailId" value="${ckl.key.bookingDetailId}">
                                     <button type="submit" class="btn btn-sm btn-warning">
                                         Checkout
                                     </button>

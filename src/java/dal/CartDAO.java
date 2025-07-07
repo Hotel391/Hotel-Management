@@ -17,6 +17,7 @@ import models.PaymentMethod;
  * @author HieuTT
  */
 public class CartDAO {
+
     private static CartDAO instance;
     private Connection con;
 
@@ -33,54 +34,85 @@ public class CartDAO {
 
     public List<Cart> getCartByCustomerId(int customerId) {
         String sql = """
-                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive, 
-                c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber, pm.PaymentName 
-                FROM Cart c 
-                left join PaymentMethod pm on pm.PaymentMethodId=c.PaymentMethodId
-                WHERE CustomerId = ? 
-                order by isPayment desc, StartDate asc
-                """;
+            SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive, 
+            c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber, pm.PaymentName 
+            FROM Cart c 
+            LEFT JOIN PaymentMethod pm ON pm.PaymentMethodId = c.PaymentMethodId
+            WHERE CustomerId = ? 
+            ORDER BY isPayment DESC, StartDate ASC
+            """;
+
         List<Cart> carts = Collections.synchronizedList(new ArrayList<>());
+
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, customerId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Cart cart = new Cart();
-                    cart.setCartId(rs.getInt("CartId"));
-                    cart.setTotalPrice(rs.getInt("TotalPrice"));
-                    cart.setStatus(rs.getString("Status"));
-                    cart.setStartDate(rs.getDate("StartDate"));
-                    cart.setIsActive(rs.getBoolean("isActive"));
-                    cart.setIsPayment(rs.getBoolean("isPayment"));
-                    if(!cart.isIsPayment() &&cart.isIsActive() && cart.getStartDate().before(Date.valueOf(LocalDate.now()))) {
-                        cart.setIsActive(false);
-                        updateCartActiveToIsActive(cart.getCartId());
+                    Cart cart = mapCartFromResultSet(rs);
+                    if (!cart.isIsPayment()) {
+                        processUnpaidCart(cart);
                     }
-                    cart.setEndDate(rs.getDate("EndDate"));
-                    cart.setAdults(rs.getInt("Adults"));
-                    cart.setChildren(rs.getInt("Children"));
-                    cart.setRoomNumber(rs.getInt("RoomNumber"));
-                    if(cart.isIsActive() && !checkRoomNumberStatus(cart.getRoomNumber(), cart.getStartDate(), cart.getEndDate())) {
-                        int roomNumber = getRoomNumber(cart.getRoomNumber(), cart.getStartDate(), cart.getEndDate());
-                        if (roomNumber == 0) {
-                            cart.setIsActive(false);
-                            updateCartActiveToIsActive(cart.getCartId());
-                        } else {
-                            cart.setRoomNumber(roomNumber);
-                            updateCartRoomNumber(cart.getCartId(), roomNumber);
-                        }
-                    }
-                    PaymentMethod paymentMethod = new PaymentMethod();
-                    paymentMethod.setPaymentMethodId(rs.getInt("PaymentMethodId"));
-                    paymentMethod.setPaymentName(rs.getString("PaymentName"));
-                    cart.setPaymentMethod(paymentMethod);
                     carts.add(cart);
                 }
             }
         } catch (SQLException e) {
-            // Handle exception
+            // Handle exception (log or rethrow)
         }
+
         return carts;
+    }
+
+    private Cart mapCartFromResultSet(ResultSet rs) throws SQLException {
+        Cart cart = new Cart();
+        cart.setCartId(rs.getInt("CartId"));
+        cart.setTotalPrice(rs.getInt("TotalPrice"));
+        cart.setStatus(rs.getString("Status"));
+        cart.setStartDate(rs.getDate("StartDate"));
+        cart.setEndDate(rs.getDate("EndDate"));
+        cart.setIsActive(rs.getBoolean("isActive"));
+        cart.setIsPayment(rs.getBoolean("isPayment"));
+        cart.setAdults(rs.getInt("Adults"));
+        cart.setChildren(rs.getInt("Children"));
+        cart.setRoomNumber(rs.getInt("RoomNumber"));
+
+        PaymentMethod paymentMethod = new PaymentMethod();
+        paymentMethod.setPaymentMethodId(rs.getInt("PaymentMethodId"));
+        paymentMethod.setPaymentName(rs.getString("PaymentName"));
+        cart.setPaymentMethod(paymentMethod);
+
+        return cart;
+    }
+
+    private void processUnpaidCart(Cart cart) {
+        LocalDate today = LocalDate.now();
+        Date startDate = cart.getStartDate();
+        Date endDate = cart.getEndDate();
+
+        if (cart.isIsActive() && startDate.before(Date.valueOf(today))) {
+            cart.setIsActive(false);
+            updateCartActiveToIsActive(cart.getCartId());
+        }
+
+        if (cart.isIsActive() && !checkRoomNumberStatus(cart.getRoomNumber(), startDate, endDate)) {
+            int newRoom = getRoomNumber(cart.getRoomNumber(), startDate, endDate);
+            if (newRoom == 0) {
+                cart.setIsActive(false);
+                updateCartActiveToIsActive(cart.getCartId());
+            } else {
+                cart.setRoomNumber(newRoom);
+                updateCartRoomNumber(cart.getCartId(), newRoom);
+            }
+        }
+
+        if (!cart.isIsActive() && startDate.before(Date.valueOf(today))) {
+            int newRoom = getRoomNumber(cart.getRoomNumber(), startDate, endDate);
+            if (newRoom != 0) {
+                cart.setRoomNumber(newRoom);
+                updateCartRoomNumber(cart.getCartId(), newRoom);
+                updateCartIsActiveToActive(cart.getCartId());
+                cart.setIsActive(true);
+            }
+        }
     }
 
     private void updateCartActiveToIsActive(int cartId) {
@@ -89,6 +121,16 @@ public class CartDAO {
             ps.setInt(1, cartId);
             ps.executeUpdate();
         } catch (Exception e) {
+            // Handle exception
+        }
+    }
+
+    private void updateCartIsActiveToActive(int cartId) {
+        String sql = "UPDATE Cart SET isActive = 1 WHERE CartId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, cartId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
             // Handle exception
         }
     }
@@ -164,6 +206,7 @@ public class CartDAO {
         }
         return false;
     }
+
     private int getTotalPriceOfTypeRoom(int typeId) {
         String sql = """
                 select tr.Price+Sum(rns.quantity*s.Price) as totalPrice from TypeRoom tr
@@ -184,8 +227,9 @@ public class CartDAO {
         }
         return 0;
     }
+
     private int getRoomNumber(int typeId, Date checkin, Date checkout) {
-        String sql="""
+        String sql = """
                 select top 1 r.RoomNumber from Room r
                 left join BookingDetail bd on bd.RoomNumber=r.RoomNumber
                 And NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
@@ -194,14 +238,14 @@ public class CartDAO {
                 where r.TypeId=? and bd.BookingDetailId is null and c.CartId is null
                 order by r.RoomNumber desc
                 """;
-        try(PreparedStatement ps= con.prepareStatement(sql)) {
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDate(1, checkin);
             ps.setDate(2, checkout);
             ps.setDate(3, checkin);
             ps.setDate(4, checkout);
             ps.setInt(5, typeId);
             var rs = ps.executeQuery();
-            if(rs.next()) {
+            if (rs.next()) {
                 return rs.getInt("RoomNumber");
             }
         } catch (SQLException e) {
@@ -222,6 +266,16 @@ public class CartDAO {
             ps.executeUpdate();
         } catch (SQLException e) {
             //
+        }
+    }
+
+    public void deleteCart(int cartId) {
+        String sql = "DELETE FROM Cart WHERE CartId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, cartId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            // Handle exception
         }
     }
 }

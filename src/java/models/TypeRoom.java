@@ -9,6 +9,9 @@ public class TypeRoom {
     private String typeName;
     private String description;
     private int price;
+    private int maxAdult;
+    private int maxChildren;
+    private List<RoomImage> images = new ArrayList<>();
     private List<RoomNService> services = new ArrayList<>();
     private List<Service> otherServices = new ArrayList<>();
     private int numberOfAvailableRooms;
@@ -30,6 +33,31 @@ public class TypeRoom {
         this.typeName = typeName;
         this.description = description;
         this.price = price;
+    }
+    
+    public TypeRoom(int typeId, String typeName, String description, int price, int maxAdult, int maxChildren) {
+        this.typeId = typeId;
+        this.typeName = typeName;
+        this.description = description;
+        this.price = price;
+        this.maxAdult = maxAdult;
+        this.maxChildren = maxChildren;
+    }
+
+    public int getMaxAdult() {
+        return maxAdult;
+    }
+
+    public void setMaxAdult(int maxAdult) {
+        this.maxAdult = maxAdult;
+    }
+
+    public int getMaxChildren() {
+        return maxChildren;
+    }
+
+    public void setMaxChildren(int maxChildren) {
+        this.maxChildren = maxChildren;
     }
 
     public int getTypeId() {

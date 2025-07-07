@@ -7,6 +7,8 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -39,11 +41,11 @@
                             </div>
                             <!-- Modal -->
                             <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModal" aria-hidden="true">
-                                <form action="${pageContext.request.contextPath}/manager/types" method="post">
+                                <form action="${pageContext.request.contextPath}/manager/types" method="post" enctype="multipart/form-data">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Add Type Room</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
@@ -70,12 +72,33 @@
                                                         </c:if>
                                                     </div>
 
+
+                                                </div>
+                                                <div class="row g-3">
+                                                    <div class="col md-6">
+                                                        <label for="maxAdult" class="form-label">Max Adult</label>
+                                                        <input class="form-control" value="${param.maxAdult}" type="number" name="maxAdult" required>
+                                                        <c:if test="${not empty maxAdultError}">
+                                                            <p class="alert alert-danger">${maxAdultError}</p>
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="col md-6">
+                                                        <label for="maxChildren" class="form-label">Max Children</label>
+                                                        <input class="form-control" value="${param.maxChildren}" type="number" name="maxChildren" required>
+                                                        <c:if test="${not empty maxChildrenError}">
+                                                            <p class="alert alert-danger">${maxChildrenError}</p>
+                                                        </c:if>
+                                                    </div>
                                                 </div>
                                                 <div class="row g-3">
                                                     <label for="typeName" class="form-label">Type room's description</label>
                                                     <textarea  class="form-control" name="typeDesc" rows="4">
                                                         ${param.typesDesc}
                                                     </textarea>
+                                                </div>
+                                                <div class="row g-3">
+                                                    <label for="formFile" class="form-label">Default file input example</label>
+                                                    <input class="form-control" type="file" id="formFile" multiple name="image" accept="image/*" required>
                                                 </div>
                                                 <c:if test="${not empty addSuccess}">
                                                     <p class="alert alert-success">${addSuccess}</p>
@@ -84,7 +107,7 @@
                                             <div class="modal-footer">
                                                 <input type="hidden" name="service" value="addTypeRoom">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary">Save changes</button>
+                                                <button type="submit" class="btn btn-primary">Add</button>
                                             </div>
                                         </div>
                                     </div>
@@ -98,8 +121,10 @@
                             </form>
                         </div>
 
-                        <c:if test="${not empty error}">
-                            <div class="alert alert-danger mt-3">${error}</div>
+
+
+                        <c:if test="${not empty keyError}">
+                            <div class="alert alert-danger mt-3">${keyError}</div>
                         </c:if>
 
                         <div class="table-container">
@@ -110,6 +135,8 @@
                                         <th scope="col">Price</th>
                                         <th scope="col">Description</th>
                                         <th scope="col">Service</th>
+                                        <th scope="col">Images</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -158,10 +185,10 @@
 
 
                                             <td class="viewService">
-                                                <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#serviceModal_${trl.typeId}">
+                                                <button onclick="clearMessageService(${trl.typeId})" class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#serviceModal_${trl.typeId}">
                                                     <i class="bi bi-eye"></i> View 
                                                 </button>
-                                                <form action="${pageContext.request.contextPath}/manager/types" method="post">
+                                                <form action="${pageContext.request.contextPath}/manager/types" method="get">
                                                     <div class="modal fade services-modal" id="serviceModal_${trl.typeId}" tabindex="-1" aria-labelledby="servicesModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog modal-dialog-scrollable modal-lg">
                                                             <div class="modal-content">
@@ -200,6 +227,18 @@
                                                                                     <i class="fas fa-wifi"></i>
                                                                                 </div>
                                                                                 <div class="service-name">${rns.service.serviceName}</div>
+                                                                                <c:choose>
+                                                                                    <c:when test="${rns.service.price != 0}">
+                                                                                        <div class="service-quantity">
+                                                                                            Số lượng: <input type="number" name="serviceQuantity_${rns.service.serviceId}" value="${rns.quantity}" readonly>
+                                                                                        </div>
+                                                                                    </c:when>
+                                                                                    <c:when test="${rns.service.price == 0}">
+                                                                                        <div class="service-quantity">
+                                                                                            Số lượng: <input type="number" name="serviceQuantity_${rns.service.serviceId}" value="1" readonly>
+                                                                                        </div>
+                                                                                    </c:when>
+                                                                                </c:choose>
                                                                                 <c:if test="${rns.service.price != 0}">
                                                                                     <div class="service-price">${rns.service.price} VNĐ</div>
                                                                                 </c:if>
@@ -217,20 +256,40 @@
                                                                     <h5 class="modal-title" id="servicesModalLabel">
                                                                         Các dịch vụ khác
                                                                     </h5> 
+                                                                    <c:if test="${not empty quantityError && typeId == trl.typeId}">
+                                                                        <p class="alert alert-warning">${quantityError}</p>
+                                                                    </c:if>
                                                                     <div class="services-grid other-services">
+
                                                                         <c:forEach var="os" items="${trl.otherServices}">
                                                                             <!-- WiFi Service -->
                                                                             <div class="service-card wifi">
                                                                                 <div class="service-icon">
                                                                                     <i class="fas fa-wifi"></i>
                                                                                 </div>
-                                                                                <div class="service-name">${os.serviceName}</div>
+
+                                                                                <div class="service-name">${os.serviceName} - ${os.serviceId}</div>
+                                                                                <c:choose>
+                                                                                    <c:when test="${os.price != 0}">
+                                                                                        <div class="service-quantity" style="display: none;">
+                                                                                            <input type="number" class="in-quantity" name="serviceQuantity_${os.serviceId}"/>
+
+                                                                                        </div>
+                                                                                    </c:when>
+                                                                                    <c:when test="${os.price == 0}">
+                                                                                        <div class="service-quantity" style="display: none;">
+                                                                                            <input type="number" class="in-quantity" name="serviceQuantity_${os.serviceId}" value="1" readonly/>
+
+                                                                                        </div>
+                                                                                    </c:when>
+                                                                                </c:choose>
                                                                                 <c:if test="${os.price != 0}">
                                                                                     <div class="service-price">${os.price} VNĐ</div>
                                                                                 </c:if>
                                                                                 <c:if test="${os.price == 0}">
                                                                                     <div class="service-price">Free</div>
                                                                                 </c:if>
+
                                                                                 <div class="add-service">
                                                                                     <input name="serviceItem" class="form-check-input mt-0" type="checkbox" value="${os.serviceId}" aria-label="Checkbox for following text input">
                                                                                 </div>
@@ -267,6 +326,66 @@
                                                 </form>
                                             </td>
                                             <td>
+                                                <!-- Button trigger modal -->
+                                                <button onclick="clearMessageImg(${trl.typeId})" type="button" class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#imageModal_${trl.typeId}">
+                                                    <i class="bi bi-eye"></i>View
+                                                </button>
+
+                                                <!-- Modal -->
+                                                <div class="modal fade imageModal" id="imageModal_${trl.typeId}" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Images of ${trl.typeName}</h1>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <c:if test="${not empty deleteImg}">
+                                                                <p class="alert alert-success">${deleteImg}</p>
+                                                            </c:if>
+                                                            <c:if test="${not empty addImg}">
+                                                                <p class="alert alert-success">${addImg}</p>
+                                                            </c:if>
+
+                                                            <div class="modal-body">
+
+                                                                <c:forEach var="img" items="${trl.images}">
+
+                                                                    <div class="typeroom-img">
+                                                                        <img src="${pageContext.request.contextPath}/Image/${fn:replace(trl.typeName, ' ', '')}/${img.image}" alt="${trl.typeName} Image"/>
+                                                                        <form action="${pageContext.request.contextPath}/manager/types" method="post">
+                                                                            <input type="hidden" name="imageId" value="${img.imageId}">
+                                                                            <input type="hidden" name="imageName" value="${img.image}">
+                                                                            <input type="hidden"  name="service" value="deleteImg">
+                                                                            <input type="hidden" name="typeId" value="${trl.typeId}">
+                                                                            <input type="hidden" name="key" value="${key}" />
+                                                                            <input type="hidden" name="page" value="${currentPage}"}>
+                                                                            <button onclick="return confirm('Bạn có chắc muốn xóa ảnh này?')" class="btn btn-primary">Delete</button>
+                                                                        </form>
+                                                                    </div>
+                                                                </c:forEach>
+
+                                                            </div>
+                                                            <form action="${pageContext.request.contextPath}/manager/types" method="post" enctype="multipart/form-data">
+                                                                <div class="row g-0">
+                                                                    <label style="text-align: center;" for="formFile" class="form-label">Default file input example</label>
+                                                                    <input class="form-control" type="file" id="formFile" multiple name="image" accept="image/*" required>
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <input type="hidden"  name="service" value="addImg">
+                                                                    <input type="hidden" name="typeId" value="${trl.typeId}">
+                                                                    <input type="hidden" name="key" value="${key}" />
+                                                                    <input type="hidden" name="page" value="${currentPage}"}>
+                                                                    <button type="submit" class="btn btn-primary">Add image</button>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                                </div>
+                                                            </form>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
                                                 <!-- Edit Employee Modal -->
                                                 <button onclick="resetFormData(${trl.typeId})" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editTypeRoomModal_${trl.typeId}">
                                                     <i class="bi bi-pencil"></i> Edit
@@ -276,7 +395,7 @@
                                                     <div class="modal-dialog modal-lg">
                                                         <div class="modal-content">
                                                             <form method="post" action="${pageContext.request.contextPath}/manager/types">
-                                                                <input type="hidden" name="service" value="updatePriceName" />
+
 
                                                                 <div class="modal-header">
                                                                     <h5 class="modal-title" id="editTypeRoomModalLabel_${trl.typeId}">Edit type room - ${trl.typeName}</h5>
@@ -298,6 +417,10 @@
                                                                             <c:if test="${not empty nameError and updateNameAndPrice == trl.typeId}">
                                                                                 <p class="alert alert-danger">${nameError}</p>
                                                                             </c:if>
+                                                                            <c:if test="${not empty nameUpdateExistedError and updateNameAndPrice == trl.typeId}">
+                                                                                <p class="alert alert-danger">${nameUpdateExistedError}</p>
+                                                                            </c:if>
+
                                                                         </div>
 
                                                                         <div class="col-md-6">
@@ -313,6 +436,34 @@
                                                                                 <p class="alert alert-danger">${priceError}</p>
                                                                             </c:if>
                                                                         </div>
+
+                                                                        <div class="col-md-6">
+                                                                            <label for="typeMaxAdultEdit_${trl.typeId}" class="form-label">Max Adult</label>
+                                                                            <input spellcheck="false" 
+                                                                                   type="number" 
+                                                                                   id="typeRoomEdit_${trl.typeId}" 
+                                                                                   name="maxAdult" 
+                                                                                   value="${param.maxAdult != null ? param.maxAdult : trl.maxAdult}" 
+                                                                                   data-original-value="${trl.maxAdult}"
+                                                                                   class="form-control" required />
+                                                                            <c:if test="${not empty maxAdultError and updateNameAndPrice == trl.typeId}">
+                                                                                <p class="alert alert-danger">${maxAdultError}</p>
+                                                                            </c:if>
+                                                                        </div>
+
+                                                                        <div class="col-md-6">
+                                                                            <label for="typeMaxAdultEdit_${trl.typeId}" class="form-label">Max Children</label>
+                                                                            <input spellcheck="false" 
+                                                                                   type="number" 
+                                                                                   id="typeRoomEdit_${trl.typeId}" 
+                                                                                   name="maxChildren" 
+                                                                                   value="${param.maxChildren != null ? param.maxChildren : trl.maxChildren}" 
+                                                                                   data-original-value="${trl.maxChildren}"
+                                                                                   class="form-control" required />
+                                                                            <c:if test="${not empty maxChildrenError and updateNameAndPrice == trl.typeId}">
+                                                                                <p class="alert alert-danger">${maxChildrenError}</p>
+                                                                            </c:if>
+                                                                        </div>
                                                                         <c:if test="${not empty noChangeError and updateNameAndPrice == trl.typeId}"> 
                                                                             <p class="alert alert-danger">${noChangeError}</p>
                                                                         </c:if>
@@ -322,8 +473,12 @@
                                                                     <c:if test="${not empty updateMessageNameAndPrice and updateNameAndPrice == trl.typeId}">
                                                                         <p class="alert alert-success">${updateMessageNameAndPrice}</p>
                                                                     </c:if>
+                                                                    <div class="upload-img">
+
+                                                                    </div>
                                                                 </div>
                                                                 <div class="modal-footer">
+                                                                    <input type="hidden" name="service" value="updatePriceName" />
                                                                     <input type="hidden" name="typeRoomId" value="${trl.typeId}" />
                                                                     <input type="hidden" name="key" value="${key}" />
                                                                     <input type="hidden" name="page" value="${currentPage}"}>
@@ -338,6 +493,7 @@
                                                 </div>
 
                                             </td>
+
                                             <td>
                                                 <!-- Delete Employee Modal -->
                                                 <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_${trl.typeId}">
@@ -364,6 +520,7 @@
                                                     </div>
                                                 </div>
                                             </td>
+
                                         </tr>
                                     </c:forEach>
                                 </tbody>
@@ -452,7 +609,7 @@
                 <c:if test="${not empty updateMessageNameAndPrice}">
                     setTimeout(function () {
 
-                        clearMessage('${showModalEdit}');
+                        clearMessageEdit('${showModalEdit}');
 
 
                         modal.hide();
@@ -462,34 +619,23 @@
 
                 });
 
-                function clearMessage(typeId) {
-                    // Ẩn message trong modal
-                    var messageElement = document.querySelectorAll('#editTypeRoomModal_' + typeId + ' .modal-body p');
-                    console.log(messageElement);
-                    // Hoặc xóa hoàn toàn
-                    if (messageElement) {
-                        messageElement.forEach(function (element) {
-                            element.remove();
-                        });
-                    }
-                }
-                ;
+
 
 
             </script>
         </c:if>
         <c:if test="${not empty showModalService}">
             <script>
-
+                console.log('${showModalService}');
                 window.addEventListener('load', function () {
                     var modal = new bootstrap.Modal(document.getElementById('serviceModal_${showModalService}'));
                     modal.show();
                 <c:if test="${not empty updateMessageService}">
+                    console.log('${updateMessageService}');
                     setTimeout(function () {
 
-                        clearMessage('${showModalService}');
-
-
+                        clearMessageService(${showModalService});
+                        console.log(1);
                         modal.hide();
                     }, 2000);
                 </c:if>
@@ -497,18 +643,7 @@
 
                 });
 
-                function clearMessage(typeId) {
-                    // Ẩn message trong modal
-                    var messageElement = document.querySelectorAll('#serviceModal_' + typeId + ' .modal-body p');
-                    console.log(messageElement);
-                    // Hoặc xóa hoàn toàn
-                    if (messageElement) {
-                        messageElement.forEach(function (element) {
-                            element.remove();
-                        });
-                    }
-                }
-                ;
+
             </script>
         </c:if>
         <c:if test="${not empty showModalAdd}">
@@ -546,6 +681,30 @@
 
             </script>
         </c:if>
+        <c:if test="${not empty showModalImage}">
+            <script>
+
+                window.addEventListener('load', function () {
+                    var modal = new bootstrap.Modal(document.getElementById('imageModal_${showModalImage}'));
+                    modal.show();
+                <c:if test="${not empty deleteImg or not empty addImg}">
+                    setTimeout(function () {
+
+                        clearMessageImg(${showModalImage});
+
+
+                        modal.hide();
+                    }, 2000);
+                </c:if>
+
+
+                });
+
+
+
+
+            </script>
+        </c:if>
         <script>
             function resetFormAdd() {
                 var modal = document.getElementById('addModal');
@@ -568,6 +727,16 @@
                     var descTextarea = form.querySelector('textarea[name="typeDesc"]');
                     if (descTextarea) {
                         descTextarea.value = '';
+                    }
+                    
+                    var maxAdultInput = form.querySelector('input[name="maxAdult"]');
+                    if (maxAdultInput) {
+                        maxAdultInput.value = '';
+                    }
+                    
+                    var maxChildrenInput = form.querySelector('input[name="maxChildren"]');
+                    if (maxChildrenInput) {
+                        maxChildrenInput.value = '';
                     }
 
                     // Clear all error/success messages
@@ -603,6 +772,18 @@
                             console.log('Reset price to original:', originalPrice);
                         }
 
+                        var maxAdultInput = form.querySelector('input[name="maxAdult"]');
+                        if (maxAdultInput) {
+                            var originalMaxAdult = maxAdultInput.getAttribute('data-original-value');
+                            maxAdultInput.value = originalMaxAdult;
+                        }
+
+                        var maxChildrenInput = form.querySelector('input[name="maxChildren"]');
+                        if (maxChildrenInput) {
+                            var originalMaxChildren = maxChildrenInput.getAttribute('data-original-value');
+                            maxChildrenInput.value = originalMaxChildren;
+                        }
+
 
                         var messageElements = modal.querySelectorAll('.modal-body p.alert');
                         messageElements.forEach(function (element) {
@@ -619,6 +800,79 @@
                 if (messageElement) {
                     messageElement.forEach(function (element) {
                         console.log(element.value);
+                        element.remove();
+                    });
+                }
+            }
+            ;
+            function clearMessageService(typeId) {
+                console.log('TypeId: ' + typeId);
+                // Ẩn message trong modal
+                var messageElement = document.querySelectorAll('#serviceModal_' + typeId + ' .modal-body p');
+                console.log(messageElement);
+                // Hoặc xóa hoàn toàn
+                if (messageElement) {
+                    messageElement.forEach(function (element) {
+
+                        element.remove();
+                    });
+                }
+            }
+            ;
+            function clearMessageEdit(typeId) {
+                // Ẩn message trong modal
+                var messageElement = document.querySelectorAll('#editTypeRoomModal_' + typeId + ' .modal-body p');
+                console.log(messageElement);
+                // Hoặc xóa hoàn toàn
+                if (messageElement) {
+                    messageElement.forEach(function (element) {
+                        element.remove();
+                    });
+                }
+            }
+            ;
+
+
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const serviceCheckboxes = document.querySelectorAll('input[name="serviceItem"]');
+
+                serviceCheckboxes.forEach(function (checkbox) {
+                    checkbox.addEventListener('change', function () {
+                        const serviceCard = this.closest('.service-card');
+                        if (serviceCard) {
+                            const quantityDiv = serviceCard.querySelector('.service-quantity');
+
+                            const quantityInput = serviceCard.querySelector('input[name="serviceQuantity"]');
+
+                            if (quantityDiv) {
+                                if (this.checked) {
+                                    quantityDiv.style.display = 'block';
+
+
+                                } else {
+                                    quantityDiv.style.display = 'none';
+
+                                }
+                            }
+                        }
+                    });
+                });
+            });
+//            function resetServiceForm(typeId) {
+//
+//            }
+        </script>
+        <script>
+            function clearMessageImg(typeId) {
+                // Ẩn message trong modal
+                var messageElement = document.querySelectorAll('#imageModal_' + typeId + ' p');
+                console.log(messageElement);
+                // Hoặc xóa hoàn toàn
+                if (messageElement) {
+                    messageElement.forEach(function (element) {
                         element.remove();
                     });
                 }

@@ -1,5 +1,6 @@
 package dal;
 
+import java.sql.Statement;
 import models.TypeRoom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,9 +14,6 @@ import java.util.List;
 import java.util.Map;
 import models.RoomNService;
 import models.Service;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class TypeRoomDAO {
 
@@ -50,41 +48,34 @@ public class TypeRoomDAO {
         return typeRooms;
     }
     
-    public void insertTypeRoom(TypeRoom typeRoom) {
-        String sql = "INSERT INTO TypeRoom(TypeName, Description, Price) VALUES(?, ?, ?)";
-        try (PreparedStatement st = con.prepareStatement(sql)) {
+    
+    public int insertTypeRoom(TypeRoom typeRoom) {
+        String sql = "INSERT INTO TypeRoom(TypeName, Description, Price, Adult, Children) VALUES(?, ?, ?, ?, ?)";
+        int typeId = -1; // giá trị mặc định nếu thất bại
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, typeRoom.getTypeName());
             st.setString(2, typeRoom.getDescription());
             st.setInt(3, typeRoom.getPrice());
+            st.setInt(4, typeRoom.getMaxAdult());
+            st.setInt(5, typeRoom.getMaxChildren());
+            
             st.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
-    public TypeRoom getTypeRoomById(int typeId) {
-        String sql = "SELECT TypeId, TypeName, Description, Price FROM TypeRoom WHERE TypeId = ?";
-        try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, typeId);
-            try (ResultSet rs = st.executeQuery()) {
-                if (rs.next()) {
-                    TypeRoom typeRoom = new TypeRoom();
-                    typeRoom.setTypeId(rs.getInt(1));
-                    typeRoom.setTypeName(rs.getString(2));
-                    typeRoom.setDescription(rs.getString(3));
-                    typeRoom.setPrice(rs.getInt(4));
-                    return typeRoom;
-                }
+            // Lấy khóa chính tự động sinh (typeId)
+            ResultSet rs = st.getGeneratedKeys();
+            if (rs.next()) {
+                typeId = rs.getInt(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return typeId;
     }
-    public TypeRoom getTypeRoomByRoomNumber(int roomNumber) {
-        String sql = "SELECT tr.TypeId, tr.TypeName, tr.Description, tr.Price FROM TypeRoom tr JOIN Room r ON tr.TypeId = r.TypeId WHERE r.RoomNumber = ?";
+    
+    public TypeRoom getTypeRoomById(int typeId) {
+        String sql = "SELECT TypeId, TypeName, Description, Price FROM TypeRoom WHERE TypeId = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, roomNumber);
+            st.setInt(1, typeId);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
                     TypeRoom typeRoom = new TypeRoom();
@@ -105,6 +96,49 @@ public class TypeRoomDAO {
         String sql = "SELECT TypeId, TypeName, Description, Price FROM TypeRoom WHERE TypeName = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, typeName);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt(1));
+                    typeRoom.setTypeName(rs.getString(2));
+                    typeRoom.setDescription(rs.getString(3));
+                    typeRoom.setPrice(rs.getInt(4));
+                    return typeRoom;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public TypeRoom getTypeRoomByNameAndId(String typeName, int typeId) {
+        String sql = "SELECT TypeId, TypeName, Description, Price FROM TypeRoom WHERE TypeName = ? And TypeId != ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, typeName);
+            st.setInt(2, typeId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt(1));
+                    typeRoom.setTypeName(rs.getString(2));
+                    typeRoom.setDescription(rs.getString(3));
+                    typeRoom.setPrice(rs.getInt(4));
+                    return typeRoom;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    //get type room by room number
+    
+    public TypeRoom getTypeRoomByRoomNumber(int roomNumber) {
+        String sql = "SELECT tr.TypeId, tr.TypeName, tr.Description, tr.Price FROM TypeRoom tr JOIN Room r ON tr.TypeId = r.TypeId WHERE r.RoomNumber = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, roomNumber);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
                     TypeRoom typeRoom = new TypeRoom();
@@ -211,6 +245,8 @@ public class TypeRoomDAO {
                             rs.getString(2),
                             rs.getString(3),
                             rs.getInt(4));
+                    tr.setImages(RoomImageDAO.getInstance().getRoomImagesByTypeId(rs.getInt(1)));
+                               
 
                     list.add(tr);
                 }
@@ -224,7 +260,7 @@ public class TypeRoomDAO {
     public List<TypeRoom> typeRoomPagination(int index, String key) {
         List<TypeRoom> list = new ArrayList<>();
 
-        String sql = "SELECT typeId, typeName, Description, price FROM TypeRoom \n";
+        String sql = "SELECT * FROM TypeRoom \n";
         if (key != null && !key.isEmpty()) {
             sql += "WHERE typeName LIKE ? \n";
         }
@@ -240,13 +276,17 @@ public class TypeRoomDAO {
 
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
-                    TypeRoom tr = new TypeRoom(rs.getInt(1),
-                            rs.getString(2),
-                            rs.getString(3),
-                            rs.getInt(4));
+                    TypeRoom tr = new TypeRoom(rs.getInt("typeId"),
+                            rs.getString("typeName"),
+                            rs.getString("description"),
+                            rs.getInt("price"),
+                            rs.getInt("Adult"),
+                            rs.getInt("Children"));
 
                     tr.setServices(RoomNServiceDAO.getInstance().getRoomNServicesByTypeId(tr));
                     tr.setOtherServices(ServiceDAO.getInstance().getServicesNotInTypeRoom(tr));
+                    tr.setImages(RoomImageDAO.getInstance().getRoomImagesByTypeId(rs.getInt("typeId")));
+                    
                     list.add(tr);
                 }
             }
@@ -257,8 +297,24 @@ public class TypeRoomDAO {
         return list;
     }
 
+    public boolean editTypeRoom(int typeId, String typeName, int price, int maxAdult, int maxChildren) {
+        String sql = "UPDATE TypeRoom SET typeName = ?, price = ?, Adult = ?, Children = ? WHERE typeId = ? ";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, typeName);
+            st.setInt(2, price);
+            st.setInt(3, maxAdult);
+            st.setInt(4, maxChildren);
+            st.setInt(5, typeId);
+            int rowsAffected = st.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
     public boolean updateTypeRoom(int typeId, String typeName, int price) {
-        String sql = "UPDATE TypeRoom SET typeName = ?, price = ? WHERE typeId = ?";
+        String sql = "UPDATE TypeRoom SET typeName = ?, price = ? WHERE typeId = ? ";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, typeName);
             st.setInt(2, price);
@@ -299,21 +355,28 @@ public class TypeRoomDAO {
         return null;
     }
 
-    public TypeRoom getTypeRoomByNameAndPrice(String typeName, int price) {
-        String sql = "SELECT typeName, price FROM TypeRoom WHERE typeName = ? AND price = ?";
+    public TypeRoom getTypeRoomByNameAndPriceAndQuantity(int typeId, String typeName, int price, int maxAdult, int maxChildren) {
+        String sql = "SELECT typeId, typeName, price, adult, children FROM TypeRoom WHERE typeId = ? and typeName = ? AND price = ? "
+                + "AND Adult = ? AND Children = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setString(1, typeName);
-            st.setInt(2, price);
+            st.setInt(1, typeId);
+            st.setString(2, typeName);
+            st.setInt(3, price);
+            st.setInt(4, maxAdult);
+            st.setInt(5, maxChildren);
             try (ResultSet rs = st.executeQuery()) {
                 if (rs.next()) {
                     TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt("typeId"));
                     typeRoom.setTypeName(rs.getString("typeName"));
                     typeRoom.setPrice(rs.getInt("price"));
+                    typeRoom.setMaxAdult(rs.getInt("Adult"));
+                    typeRoom.setMaxChildren(rs.getInt("Children"));
                     return typeRoom;
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
         return null;
     }
@@ -324,7 +387,7 @@ public class TypeRoomDAO {
             st.setInt(1, typeId);
             st.executeUpdate();
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
     }
 
@@ -336,7 +399,7 @@ public class TypeRoomDAO {
             st.setInt(3, price);
             st.executeUpdate();
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+           ex.printStackTrace();
         }
     }
     

@@ -51,7 +51,34 @@ public class BookingDetailDAO {
                 bookingDetail.setStartDate(rs.getDate("StartDate"));
                 bookingDetail.setEndDate(rs.getDate("EndDate"));
                 bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
-                bookingDetail.setServices(ServiceDAO.getInstance().getServicesByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetail.setServices(
+                        DetailServiceDAO.getInstance()
+                                .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetails.add(bookingDetail);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return bookingDetails;
+    }
+    
+    //get booking detail by booking id
+    public List<BookingDetail> getBookingDetailByBookingIdAndRoomNumber(Booking booking, int roomNumber) {
+        List<BookingDetail> bookingDetails = new ArrayList<>();
+        String sql = "SELECT * FROM BookingDetail WHERE BookingId = ? and roomNumber = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getBookingId());
+            st.setInt(2, roomNumber);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                BookingDetail bookingDetail = new BookingDetail();
+                bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
+                bookingDetail.setStartDate(rs.getDate("StartDate"));
+                bookingDetail.setEndDate(rs.getDate("EndDate"));
+                bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
+                bookingDetail.setServices(
+                        DetailServiceDAO.getInstance()
+                                .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
                 bookingDetails.add(bookingDetail);
             }
         } catch (SQLException e) {
@@ -73,7 +100,9 @@ public class BookingDetailDAO {
                 bookingDetail.setStartDate(rs.getDate("StartDate"));
                 bookingDetail.setEndDate(rs.getDate("EndDate"));
                 bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
-                bookingDetail.setServices(ServiceDAO.getInstance().getServicesByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetail.setServices(
+                        DetailServiceDAO.getInstance()
+                                .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
                 bookingDetail.setBooking(BookingDAO.getInstance().getBookingByBookingId(rs.getInt("BookingId")));
                 bookingDetails.add(bookingDetail);
             }
@@ -348,5 +377,30 @@ public class BookingDetailDAO {
             //
         }
         return -1;
+    }
+    
+    //get booking detail by id
+    
+    public BookingDetail getBookingDetailByBookingDetailId(int bookingDetailId) {
+        BookingDetail bookingDetail = null;
+        String sql = "SELECT * FROM BookingDetail WHERE BookingDetailId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingDetailId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                bookingDetail = new BookingDetail();
+                bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
+                bookingDetail.setStartDate(rs.getDate("StartDate"));
+                bookingDetail.setEndDate(rs.getDate("EndDate"));
+                bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
+                bookingDetail.setServices(
+                        DetailServiceDAO.getInstance()
+                                .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetail.setBooking(BookingDAO.getInstance().getBookingByBookingId(rs.getInt("BookingId")));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return bookingDetail;
     }
 }

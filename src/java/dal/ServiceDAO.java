@@ -89,6 +89,26 @@ public class ServiceDAO {
             e.printStackTrace();
         }
     }
+    
+    //get service by service id
+    
+    public Service getServiceByServiceId(int serviceId) {
+        String sql = "SELECT [ServiceId],[ServiceName],[Price]  FROM [Service] where ServiceId = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, serviceId);
+            ResultSet rs = ptm.executeQuery();
+            if (rs.next()) {
+                Service s = new Service(rs.getInt(1),
+                        rs.getString(2),
+                        rs.getInt(3));
+                return s;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(ServiceDAO.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return null;
+    }
+
 
     public void updateService(Service s) {
         String sql = "UPDATE [dbo].[Service]\n"
@@ -171,7 +191,7 @@ public class ServiceDAO {
                 }
             }
         } catch (SQLException e) {
-            Logger.getLogger(ServiceDAO.class.getName()).log(Level.SEVERE, null, e);
+            
         }
         return services;
     }

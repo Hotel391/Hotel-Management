@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import models.Booking;
 import java.sql.Date;
-import java.time.LocalDate;
 
 public class BookingDAO {
 
@@ -412,5 +411,4 @@ public class BookingDAO {
         }
         return null;
     }
-
 }

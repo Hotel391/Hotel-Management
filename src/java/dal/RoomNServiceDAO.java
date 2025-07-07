@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import models.RoomNService;
 import models.Service;
 import models.TypeRoom;
@@ -69,13 +67,14 @@ public class RoomNServiceDAO {
         return services;
     }
 
-    public void deleteRoomNServiceByTypeId(int typeId) {
-        String sql = "DELETE FROM RoomNService WHERE typeId = ?";
+    public void deleteRoomNServiceByTypeId(int typeId, int serviceId) {
+        String sql = "DELETE FROM RoomNService WHERE typeId = ? And ServiceId = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, typeId);
+            st.setInt(2, serviceId);
             st.executeUpdate();
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
     }
 
@@ -90,19 +89,20 @@ public class RoomNServiceDAO {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+           
         }
         return serviceIds;
     }
 
-    public void insertRoomNServiceByTypeId(int typeId, int serviceId) {
-        String sql = "INSERT INTO RoomNService(typeId, serviceId) VALUES(?, ?)";
+    public void insertRoomNServiceByTypeId(int typeId, int serviceId, int quantity) {
+        String sql = "INSERT INTO RoomNService(typeId, serviceId, quantity) VALUES(?, ?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, typeId);
             st.setInt(2, serviceId);
+            st.setInt(3, quantity);
             st.executeUpdate();
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+           
         }
     }
     

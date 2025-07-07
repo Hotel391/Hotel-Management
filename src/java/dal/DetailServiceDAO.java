@@ -8,6 +8,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import models.DetailService;
 
 public class DetailServiceDAO {
     
@@ -51,4 +55,23 @@ public class DetailServiceDAO {
         }
     }
 
+    public List<DetailService> getAllDetailServiceByBookingDetailId(int bookingDetailId) {
+        List<DetailService> list = new ArrayList<>();
+        String sql = "SELECT * FROM DetailService WHERE BookingDetailId = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, bookingDetailId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                DetailService detailService = new DetailService();
+                
+                detailService.setService(ServiceDAO.getInstance().getServiceByServiceId(rs.getInt("ServiceId")));
+                detailService.setQuantity(rs.getInt("quantity"));
+                list.add(detailService);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return list;
+    }
 }

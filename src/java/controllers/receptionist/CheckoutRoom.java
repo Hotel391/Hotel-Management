@@ -18,6 +18,7 @@ import models.Customer;
 import dal.BookingDetailDAO;
 import dal.CustomerDAO;
 import jakarta.servlet.http.HttpSession;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 
 /**

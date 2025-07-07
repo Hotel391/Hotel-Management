@@ -132,8 +132,8 @@ public class ServiceDAO {
             //
         }
     }
-    
-     public List<Service> getServicesNotInTypeRoom(TypeRoom typeRoom) {
+
+    public List<Service> getServicesNotInTypeRoom(TypeRoom typeRoom) {
         List<Service> services = new ArrayList<>();
         String sql = "SELECT * FROM Service WHERE ServiceId NOT IN (SELECT ServiceId FROM RoomNService WHERE TypeId = ?)";
 
@@ -153,9 +153,8 @@ public class ServiceDAO {
         }
         return services;
     }
-     
-     //get service by booking detail id
-     
+
+    //get service by booking detail id
     public List<Service> getServicesByBookingDetailId(int bookingDetailId) {
         List<Service> services = new ArrayList<>();
         String sql = "SELECT s.ServiceId, s.ServiceName, s.Price FROM Service s JOIN detailService ds ON s.ServiceId = ds.ServiceId WHERE ds.BookingDetailId = ?";
@@ -189,9 +188,9 @@ public class ServiceDAO {
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
                 DetailService ds = new DetailService();
-                ds.setService(new Service(rs.getInt(1), 
-                                rs.getString(2), 
-                                rs.getInt(3)));
+                ds.setService(new Service(rs.getInt(1),
+                        rs.getString(2),
+                        rs.getInt(3)));
                 ds.setQuantity(rs.getInt(4));
                 list.add(ds);
             }
@@ -213,9 +212,9 @@ public class ServiceDAO {
             ptm.setInt(1, roomNumber);
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
-                Service s = new Service(rs.getInt(1), 
-                                rs.getString(2), 
-                                rs.getInt(3));
+                Service s = new Service(rs.getInt(1),
+                        rs.getString(2),
+                        rs.getInt(3));
                 list.add(s);
             }
         } catch (SQLException e) {
@@ -422,5 +421,35 @@ public class ServiceDAO {
         }
         return null;
     }
+    
+    public List<Service> getServicesByTypeRoom(int typeId) {
+    List<Service> services = new ArrayList<>();
+    String sql = "SELECT s.ServiceId, s.ServiceName, s.Price " +
+                 "FROM RoomNService rs " +
+                 "JOIN [Service] s ON rs.ServiceId = s.ServiceId " +
+                 "WHERE rs.TypeId = ?";
+
+    try {
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setInt(1, typeId);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Service service = new Service();
+            service.setServiceId(rs.getInt("ServiceId"));
+            service.setServiceName(rs.getString("ServiceName"));
+            service.setPrice(rs.getInt("Price"));
+            services.add(service);
+        }
+
+        rs.close();
+        ps.close();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return services;
+}
+
 
 }

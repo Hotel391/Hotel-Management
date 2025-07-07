@@ -123,6 +123,13 @@ public class VnpayReturn extends HttpServlet {
                     Map<String, Integer> serviceQuantityMap = new LinkedHashMap<>();
                     Map<String, Integer> servicePriceMap = new LinkedHashMap<>();
 
+                    long numberOfNights = 1; // default
+                    if (startDateStr != null && endDateStr != null) {
+                        Date startDate = Date.valueOf(startDateStr);
+                        Date endDate = Date.valueOf(endDateStr);
+                        numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+                    }
+
                     //đây là chỗ tìm và đếm
                     for (String roomNumberStr : roomNumbers) {
                         int roomNumber = Integer.parseInt(roomNumberStr);
@@ -143,9 +150,12 @@ public class VnpayReturn extends HttpServlet {
 
                     //chỗ ghi list đây
                     for (String typeName : typeCountMap.keySet()) {
+                        int quantity = typeCountMap.get(typeName);
+                        int unitPrice = typePriceMap.get(typeName);
+                        int totalPrice = (int) (quantity * unitPrice * numberOfNights);
                         typeRoom.add(typeName);
-                        quantityTypeRoom.add(typeCountMap.get(typeName));
-                        priceTypeRoom.add(typePriceMap.get(typeName));
+                        quantityTypeRoom.add(quantity);
+                        priceTypeRoom.add(totalPrice);
                     }
 
                     // Lấy danh sách dịch vụ
@@ -172,8 +182,10 @@ public class VnpayReturn extends HttpServlet {
                     // đẩy vào list danh sách các dịch vụ của tất cả
                     for (String serviceName : serviceQuantityMap.keySet()) {
                         services.add(serviceName);
-                        serviceQuantity.add(serviceQuantityMap.get(serviceName));
-                        servicePrice.add(servicePriceMap.get(serviceName));
+                        int quantity = serviceQuantityMap.get(serviceName);
+                        int unitPrice = servicePriceMap.get(serviceName);
+                        serviceQuantity.add(quantity);
+                        servicePrice.add(quantity * unitPrice);
                     }
 
                     //tổng tiền
@@ -255,6 +267,14 @@ public class VnpayReturn extends HttpServlet {
                     for (Integer room : roomNumber) {
                         dal.RoomDAO.getInstance().updateRoomStatus(room, false);
                     }
+
+                    Booking booking1 = dal.BookingDAO.getInstance().getBookingByBookingId(bookingId);
+                    Customer customer = dal.CustomerDAO.getInstance().getCustomerById(booking1.getCustomer().getCustomerId());
+                    String customerName = customer.getFullName();
+                    String email = customer.getEmail();
+                    String phone = customer.getPhoneNumber();
+                    String paymentMethod = booking1.getPaymentMethod().getPaymentName();
+
                     request.setAttribute("pageChange", "checkOut");
                     session.removeAttribute("listRoomNumber");
                     transSuccess = true;

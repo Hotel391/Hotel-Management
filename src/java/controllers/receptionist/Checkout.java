@@ -5,7 +5,6 @@
 package controllers.receptionist;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -16,8 +15,6 @@ import models.Role;
 import utility.Validation;
 import dal.CustomerDAO;
 import jakarta.servlet.http.HttpSession;
-import java.sql.Date;
-import models.Booking;
 
 /**
  *
@@ -42,11 +39,6 @@ public class Checkout extends HttpServlet {
         String service = request.getParameter("service");
 
         HttpSession session = request.getSession(true);
-        
-//        Date startDate = Date.valueOf((String)session.getAttribute("startDate"));
-        
-//        Date endDate = Date.valueOf((String) session.getAttribute("endDate"));
-
 
         if (service == null) {
             service = "view";
@@ -153,6 +145,12 @@ public class Checkout extends HttpServlet {
             session.setAttribute("status", "checkIn");
             
             response.sendRedirect(request.getContextPath() + "/payment");
+        }
+        
+        if("backToServicePage".equals(service)){
+            session.removeAttribute("roomServiceMap");
+            
+            response.sendRedirect("receptionist/roomInformation");
         }
         
     }

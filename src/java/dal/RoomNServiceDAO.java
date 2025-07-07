@@ -104,4 +104,31 @@ public class RoomNServiceDAO {
             Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+   public List<RoomNService> getServicesByRoomNumber(String roomNumber) {
+        List<RoomNService> roomNServices = new ArrayList<>();
+        String sql = "SELECT * FROM RoomNService WHERE roomNumber = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, roomNumber);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    int typeId = rs.getInt("typeId");
+                    int serviceId = rs.getInt("serviceId");
+                    int quantity = rs.getInt("quantity");
+
+                    TypeRoom typeRoom = TypeRoomDAO.getInstance().getTypeRoomById(typeId);
+                    Service service = ServiceDAO.getInstance().getServiceById(serviceId);
+
+                    RoomNService roomNService = new RoomNService(typeRoom, service, quantity);
+                    roomNServices.add(roomNService);
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return roomNServices;
+    }
+
 }
+
+

@@ -125,34 +125,53 @@ public class Checkout extends HttpServlet {
                 int checkUpdate = CustomerDAO.getInstance().insertCustomerExceptionId(customer);
 
                 session.setAttribute("customerId", checkUpdate);
-                
+
                 session.setAttribute("status", "checkIn");
-                
+
                 response.sendRedirect(request.getContextPath() + "/payment");
             } else {
                 request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
             }
 
         }
-        
-        if("addExisted".equals(service)){
+
+        if ("addExisted".equals(service)) {
             String phone = request.getParameter("phone");
-            
+
             Customer existedCustomer = CustomerDAO.getInstance().getCustomerByPhoneNumber(phone);
-            
+
+            if (existedCustomer.getCCCD() == null) {
+                boolean check = false;
+                String cccd = request.getParameter("cccd");
+                if (Validation.validateField(request, "cccdError", cccd, "CCCD", "CCCD", "CCCD không hợp lệ")) {
+                    check = true;
+                } else if (CustomerDAO.getInstance().checkcccd(cccd)) {
+                    check = true;
+                    request.setAttribute("cccdError", "CCCD đã tồn tại");
+                }
+                if (!check) {
+                    CustomerDAO.getInstance().updateCustomerCCCD(cccd, existedCustomer.getCustomerId());
+                }else{
+                    request.setAttribute("existedCustomer", existedCustomer);
+                    request.setAttribute("phoneSearch", phone);
+                    request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
+                    return;
+                }
+            }
+
             session.setAttribute("customerId", existedCustomer.getCustomerId());
-            
+
             session.setAttribute("status", "checkIn");
-            
+
             response.sendRedirect(request.getContextPath() + "/payment");
         }
-        
-        if("backToServicePage".equals(service)){
+
+        if ("backToServicePage".equals(service)) {
             session.removeAttribute("roomServiceMap");
-            
+
             response.sendRedirect("receptionist/roomInformation");
         }
-        
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

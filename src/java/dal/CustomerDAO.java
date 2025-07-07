@@ -532,4 +532,17 @@ public class CustomerDAO {
         }
         return null;
     }
+    
+    //update cccd
+    
+    public void updateCustomerCCCD(String cccd, int customerId) {
+        String sql = "UPDATE Customer SET CCCD = ? WHERE CustomerId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, cccd);
+            st.setInt(2, customerId);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

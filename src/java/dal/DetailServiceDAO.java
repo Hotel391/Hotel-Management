@@ -15,7 +15,7 @@ import models.DetailService;
 import models.Service;
 
 public class DetailServiceDAO {
-
+    
     private static DetailServiceDAO instance;
     private Connection con;
 
@@ -65,7 +65,7 @@ public class DetailServiceDAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 DetailService detailService = new DetailService();
-
+                
                 detailService.setService(ServiceDAO.getInstance().getServiceByServiceId(rs.getInt("ServiceId")));
                 detailService.setQuantity(rs.getInt("quantity"));
                 list.add(detailService);

@@ -21,18 +21,24 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import models.Booking;
 import models.BookingDetail;
 import models.Customer;
 import models.DetailService;
 import models.Room;
 import models.TypeRoom;
+import utility.EmailService;
 
 /**
  *
  * @author TuanPC
  */
 public class VnpayReturn extends HttpServlet {
+
+    private static final ExecutorService emailExecutor = Executors.newFixedThreadPool(10);
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -213,6 +219,25 @@ public class VnpayReturn extends HttpServlet {
                     }
 
                     System.out.println("========== END OF SUMMARY ==========");
+                    Map<String,Object> data= new HashMap<>();
+                    data.put("customerName", customerName);
+                    data.put("email", email);
+                    data.put("phone", phone);
+                    data.put("startDate", startDateStr);
+                    data.put("endDate", endDateStr);
+                    data.put("total", total);
+                    data.put("paymentMethod", paymentMethod);
+                    data.put("typeRoom", typeRoom);
+                    data.put("quantityTypeRoom", quantityTypeRoom);
+                    data.put("priceTypeRoom", priceTypeRoom);
+                    data.put("services", services);
+                    data.put("serviceQuantity", serviceQuantity);
+                    data.put("servicePrice", servicePrice);
+                    emailExecutor.submit(() -> {
+                        System.out.println("Sending email to " + email);
+                        EmailService emailService = new EmailService();
+                        emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                    });
 
                     session.removeAttribute("paidAmount");
                     session.removeAttribute("bookingDetailId");

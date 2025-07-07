@@ -138,9 +138,7 @@ public class ReviewDAO {
         return listReview;
     }
 
-<<<<<<<<< Temporary merge branch 1
-=========
-    public List<Review> getReviewsByTypeRoomId(int typeId, String orderByClause) {
+    public List<Review> getReviewsByTypeRoomId(int typeId, String orderByClause, int offset, int limit) {
         StringBuilder sql = new StringBuilder("""
             SELECT rv.ReviewId, rv.Username, rv.Rating, rv.FeedBack, rv.Date
             FROM TypeRoom tr
@@ -175,4 +173,5 @@ public class ReviewDAO {
         }
         return reviews;
     }
+>>>>>>>>> Temporary merge branch 2
 }

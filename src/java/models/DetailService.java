@@ -5,6 +5,7 @@ public class DetailService {
     private BookingDetail bookingDetail;  
     private Service service;            
     private int quantity;
+    private int priceAtTime;
 
     public DetailService() {
     }
@@ -13,6 +14,14 @@ public class DetailService {
         this.bookingDetail = bookingDetail;
         this.service = service;
         this.quantity = quantity;
+    }
+
+    public int getPriceAtTime() {
+        return priceAtTime;
+    }
+
+    public void setPriceAtTime(int priceAtTime) {
+        this.priceAtTime = priceAtTime;
     }
 
     public BookingDetail getBookingDetail() {

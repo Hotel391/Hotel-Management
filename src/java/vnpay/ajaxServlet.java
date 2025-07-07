@@ -24,12 +24,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
+import java.util.LinkedHashMap;
 import java.util.Random;
 import models.Booking;
 import models.BookingDetail;
 import models.Customer;
 import models.DetailService;
 import models.Room;
+import models.TypeRoom;
 
 /**
  *
@@ -134,7 +136,7 @@ public class ajaxServlet extends HttpServlet {
 
         } else if (status.equals("checkOut")) {
             List<Integer> listRoomNumbers = new ArrayList<>();
-            
+
             bookingId = (int) session.getAttribute("bookingId");
             List<BookingDetail> bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetailsByBookingId(bookingId);
             int paidAmount = bookingDetail.get(0).getBooking().getPaidAmount();
@@ -154,13 +156,84 @@ public class ajaxServlet extends HttpServlet {
                 dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
                 dal.BookingDAO.getInstance().updateBookingStatus(booking);
 
-                for (BookingDetail detail : bookingDetail) {
-                    dal.RoomDAO.getInstance().updateRoomStatus(detail.getRoom().getRoomNumber(), false);
+                // Tính số đêm
+                long numberOfNights = 1;
+                if (!bookingDetail.isEmpty()) {
+                    Date startDate = bookingDetail.get(0).getStartDate();
+                    Date endDate = bookingDetail.get(0).getEndDate();
+                    numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+                }
+
+                // Tính loại phòng
+                Map<String, Integer> typeCountMap = new LinkedHashMap<>();
+                Map<String, Integer> typePriceMap = new LinkedHashMap<>();
+
+                for (BookingDetail bd : bookingDetail) {
+                    int roomNumber = bd.getRoom().getRoomNumber();
+
+                    // Cập nhật trạng thái phòng (cần dọn)
+                    dal.RoomDAO.getInstance().updateRoomStatus(roomNumber, false);
+
+                    Room room = dal.RoomDAO.getInstance().getRoomByRoomNumber(roomNumber);
+                    TypeRoom type = room.getTypeRoom();
+                    String typeName = type.getTypeName();
+                    int unitPrice = type.getPrice();
+
+                    typeCountMap.put(typeName, typeCountMap.getOrDefault(typeName, 0) + 1);
+                    typePriceMap.put(typeName, unitPrice);
+                }
+
+                //các list cần để gửi email
+                List<String> typeRoom = new ArrayList<>();
+                List<Integer> quantityTypeRoom = new ArrayList<>();
+                List<Integer> priceTypeRoom = new ArrayList<>();
+                int totalRoomPrice = 0;
+                int totalServicePrice = 0;
+
+                for (String typeName : typeCountMap.keySet()) {
+                    int quantity = typeCountMap.get(typeName);
+                    int unitPrice = typePriceMap.get(typeName);
+                    int total = quantity * unitPrice * (int) numberOfNights;
+                    typeRoom.add(typeName);
+                    quantityTypeRoom.add(quantity);
+                    priceTypeRoom.add(total);
+                    totalRoomPrice += total;
+                }
+
+                // Tính tổng dịch vụ
+                Map<String, Integer> serviceQuantityMap = new LinkedHashMap<>();
+                Map<String, Integer> servicePriceMap = new LinkedHashMap<>();
+
+                for (BookingDetail bd : bookingDetail) {
+                    int bdId = bd.getBookingDetailId();
+                    List<DetailService> servicesList = dal.DetailServiceDAO.getInstance().getServicesByBookingDetailId(bdId);
+                    for (DetailService d : servicesList) {
+                        String serviceName = d.getService().getServiceName();
+                        int quantity = d.getQuantity();
+                        int priceAtTime = d.getPriceAtTime();
+
+                        serviceQuantityMap.put(serviceName, serviceQuantityMap.getOrDefault(serviceName, 0) + quantity);
+                        servicePriceMap.put(serviceName, servicePriceMap.getOrDefault(serviceName, 0) + priceAtTime);
+                        totalServicePrice += priceAtTime;
+                    }
+                }
+
+                List<String> services = new ArrayList<>();
+                List<Integer> serviceQuantity = new ArrayList<>();
+                List<Integer> servicePrice = new ArrayList<>();
+
+                for (String name : serviceQuantityMap.keySet()) {
+                    services.add(name);
+                    serviceQuantity.add(serviceQuantityMap.get(name));
+                    servicePrice.add(servicePriceMap.get(name));
                 }
 
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
                 return;
             }
+            
+            totalPrice = totalAmount - paidAmount;
+            
             session.setAttribute("listRoomNumber", listRoomNumbers);
             session.setAttribute("totalPriceUpdate", totalAmount);
             session.removeAttribute("bookingId");

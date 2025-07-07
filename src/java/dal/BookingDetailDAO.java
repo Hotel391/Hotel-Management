@@ -231,36 +231,86 @@ public class BookingDetailDAO {
         }
     }
 
+//    public List<BookingDetail> getBookingDetailsByBookingId(int bookingId) {
+//        List<BookingDetail> bookingDetails = new ArrayList<>();
+//        String sql = """
+//                     SELECT 
+//                         b.BookingId,
+//                         bd.BookingDetailId,
+//                         b.PaidAmount,
+//                         bd.TotalAmount, 
+//                         bd.RoomNumber
+//                     FROM 
+//                         Booking b
+//                     JOIN 
+//                         BookingDetail bd ON b.BookingId = bd.BookingId
+//                     WHERE 
+//                         b.BookingId = ?;""";
+//
+//        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+//            ptm.setInt(1, bookingId);
+//            try (ResultSet rs = ptm.executeQuery()) {
+//                while (rs.next()) {
+//                    BookingDetail bookingDetail = new BookingDetail();
+//                    Booking booking = new Booking();
+//                    booking.setBookingId(rs.getInt(1));
+//                    bookingDetail.setBookingDetailId(rs.getInt(2));
+//                    booking.setPaidAmount(rs.getInt(3));
+//                    bookingDetail.setBooking(booking);
+//                    bookingDetail.setTotalAmount(rs.getInt(4));
+//                    Room room = new Room();
+//                    room.setRoomNumber(rs.getInt(5));
+//                    bookingDetail.setRoom(room);
+//                }
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return bookingDetails;
+//    }
+    
     public List<BookingDetail> getBookingDetailsByBookingId(int bookingId) {
         List<BookingDetail> bookingDetails = new ArrayList<>();
         String sql = """
-                     SELECT 
-                         b.BookingId,
-                         bd.BookingDetailId,
-                         b.PaidAmount,
-                         bd.TotalAmount, 
-                         bd.RoomNumber
-                     FROM 
-                         Booking b
-                     JOIN 
-                         BookingDetail bd ON b.BookingId = bd.BookingId
-                     WHERE 
-                         b.BookingId = ?;""";
+        SELECT 
+            b.BookingId,
+            bd.BookingDetailId,
+            b.PaidAmount,
+            bd.TotalAmount,
+            bd.RoomNumber,
+            bd.StartDate,
+            bd.EndDate
+        FROM 
+            Booking b
+        JOIN 
+            BookingDetail bd ON b.BookingId = bd.BookingId
+        WHERE 
+            b.BookingId = ?
+    """;
 
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, bookingId);
+
             try (ResultSet rs = ptm.executeQuery()) {
                 while (rs.next()) {
                     BookingDetail bookingDetail = new BookingDetail();
                     Booking booking = new Booking();
-                    booking.setBookingId(rs.getInt(1));
-                    bookingDetail.setBookingDetailId(rs.getInt(2));
-                    booking.setPaidAmount(rs.getInt(3));
-                    bookingDetail.setBooking(booking);
-                    bookingDetail.setTotalAmount(rs.getInt(4));
                     Room room = new Room();
-                    room.setRoomNumber(rs.getInt(5));
+
+                    booking.setBookingId(rs.getInt("BookingId"));
+                    booking.setPaidAmount(rs.getInt("PaidAmount"));
+
+                    bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
+                    bookingDetail.setTotalAmount(rs.getInt("TotalAmount"));
+                    bookingDetail.setStartDate(rs.getDate("StartDate"));
+                    bookingDetail.setEndDate(rs.getDate("EndDate"));
+
+                    room.setRoomNumber(rs.getInt("RoomNumber"));
+
+                    bookingDetail.setBooking(booking);
                     bookingDetail.setRoom(room);
+
+                    bookingDetails.add(bookingDetail);
                 }
             }
         } catch (SQLException e) {

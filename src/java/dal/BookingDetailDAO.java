@@ -175,7 +175,35 @@ public class BookingDetailDAO {
         }
     }
 
-    public BookingDetail getBookingDetalByBookingId(int bookingId) {
+    public boolean updateTotalAmountBookingDetail(BookingDetail detail) {
+        String sql = "UPDATE [dbo].[BookingDetail]\n"
+                + "   SET [TotalAmount] = ?\n"
+                + " WHERE BookingDetailId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, detail.getTotalAmount());
+            st.setInt(2, detail.getBookingDetailId());
+            st.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Error deleting BookingDetail: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean deleteBookingDetailByBookingId(int bookingId) {
+        String sql = "DELETE FROM BookingDetail WHERE [BookingId] = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingId);
+            int rows = st.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.out.println("Error deleting BookingDetail: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public List<BookingDetail> getBookingDetailsByBookingId(int bookingId) {
+        List<BookingDetail> bookingDetails = new ArrayList<>();
         String sql = """
                      SELECT 
                          b.BookingId,
@@ -192,9 +220,8 @@ public class BookingDetailDAO {
 
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, bookingId);
-
             try (ResultSet rs = ptm.executeQuery()) {
-                if (rs.next()) {
+                while (rs.next()) {
                     BookingDetail bookingDetail = new BookingDetail();
                     Booking booking = new Booking();
                     booking.setBookingId(rs.getInt(1));
@@ -202,21 +229,17 @@ public class BookingDetailDAO {
                     booking.setPaidAmount(rs.getInt(3));
                     bookingDetail.setBooking(booking);
                     bookingDetail.setTotalAmount(rs.getInt(4));
-                    Room room=new Room();
+                    Room room = new Room();
                     room.setRoomNumber(rs.getInt(5));
                     bookingDetail.setRoom(room);
-                    return bookingDetail;
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return bookingDetails;
     }
-    
+
     public int getTotalTypeRoom(Date startDate, Date endDate, Integer minPrice, Integer maxPrice) {
         StringBuilder sql = new StringBuilder("""
                 SELECT COUNT(DISTINCT tr.TypeId) AS totalTypeRoom
@@ -237,7 +260,7 @@ public class BookingDetailDAO {
         try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
             ptm.setDate(1, startDate);
             ptm.setDate(2, endDate);
-            if(minPrice != null) {
+            if (minPrice != null) {
                 ptm.setInt(3, minPrice);
                 if (maxPrice != null) {
                     ptm.setInt(4, maxPrice);
@@ -256,4 +279,74 @@ public class BookingDetailDAO {
         return 0;
     }
 
+    public boolean canPostFeedback(int typeId, int customerId) {
+        String sql = """
+                SELECT count(*) as count
+                FROM Customer c
+                JOIN Booking b ON c.CustomerId = b.CustomerId
+                JOIN BookingDetail bd ON b.BookingId = bd.BookingId
+                JOIN Room r ON bd.RoomNumber = r.RoomNumber
+                JOIN TypeRoom tr ON r.TypeId = tr.TypeId
+                LEFT JOIN Review rv ON rv.BookingDetailId = bd.BookingDetailId
+                WHERE rv.ReviewId IS NULL
+                    AND c.CustomerId = ?
+                    AND tr.TypeId = ?
+                """;
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, customerId);
+            ptm.setInt(2, typeId);
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    int count = rs.getInt("count");
+                    return count > 0;
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return false;
+    }
+
+    public void insertReview(int customerId, int typeId, String username, String reviewContent, int rating) {
+        String sql = "INSERT INTO Review (Rating, FeedBack, Date, BookingDetailId, Username) "
+                + "VALUES (?, ?, ?, ?, ?)";
+        int bookingDetailId = getBookingDetailId(customerId, typeId);
+        if (bookingDetailId == -1) {
+            return;
+        }
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, rating);
+            st.setString(2, reviewContent);
+            st.setDate(3, Date.valueOf(java.time.LocalDate.now()));
+            st.setInt(4, bookingDetailId);
+            st.setString(5, username);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            //
+        }
+    }
+
+    private int getBookingDetailId(int customerId, int typeId) {
+        String sql = """
+                SELECT TOP 1 bd.BookingDetailId
+                FROM BookingDetail bd
+                JOIN Booking b ON bd.BookingId = b.BookingId
+                JOIN Room r ON bd.RoomNumber = r.RoomNumber
+                JOIN TypeRoom tr ON r.TypeId = tr.TypeId
+                WHERE b.CustomerId = ? AND tr.TypeId = ?
+                ORDER BY bd.StartDate ASC
+                """;
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, customerId);
+            ptm.setInt(2, typeId);
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("BookingDetailId");
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return -1;
+    }
 }

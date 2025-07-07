@@ -34,32 +34,37 @@ public class AdminDao {
     public List<Employee> getAllEmployee() {
         List<Employee> list = Collections.synchronizedList(new ArrayList<>());
         String sql = """
-                     SELECT 
-                         e.EmployeeId,
-                         e.Username,
-                         e.Password,
-                         e.FullName,
-                         e.Address,
-                         e.PhoneNumber,
-                         e.Email,
-                         e.Gender,
-                         e.CCCD,
-                         e.dateOfBirth,
-                         e.registrationDate,
-                         e.activate,
-                         e.RoleId,
-                         r.RoleName
-                     FROM 
-                         Employee e
-                     JOIN 
-                         Role r ON e.RoleId = r.RoleId
-                     \tWHERE e.RoleId = 1;""";
+                 SELECT 
+                     e.EmployeeId,
+                     e.Username,
+                     e.Password,
+                     e.FullName,
+                     e.Address,
+                     e.PhoneNumber,
+                     e.Email,
+                     e.Gender,
+                     e.CCCD,
+                     e.dateOfBirth,
+                     e.registrationDate,
+                     e.activate,
+                     e.RoleId,
+                     r.RoleName
+                 FROM 
+                     Employee e
+                 JOIN 
+                     Role r ON e.RoleId = r.RoleId
+                 WHERE 
+                     e.RoleId = 1
+                 ORDER BY 
+                     e.registrationDate DESC
+                 """;
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {
                 Role r = new Role(rs.getInt(8));
                 r.setRoleId(rs.getInt(13));
                 r.setRoleName(rs.getString(14));
-                Employee em = new Employee(rs.getInt(1),
+                Employee em = new Employee(
+                        rs.getInt(1),
                         rs.getString(2),
                         rs.getString(3),
                         rs.getString(4),
@@ -71,10 +76,9 @@ public class AdminDao {
                         rs.getDate(10),
                         rs.getDate(11),
                         rs.getBoolean(12),
-                        r);
-
+                        r
+                );
                 list.add(em);
-
             }
         } catch (SQLException e) {
             e.printStackTrace();

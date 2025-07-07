@@ -14,6 +14,9 @@ public class Cart {
     private boolean isPayment;
     private Customer customer;
     private PaymentMethod paymentMethod;
+    private int adults;
+    private int children;
+    private int roomNumber;
 
     public Cart() {
     }
@@ -110,5 +113,25 @@ public class Cart {
     public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
-    
+
+    public int getAdults() {
+        return adults;
+    }
+    public void setAdults(int adults) {
+        this.adults = adults;
+    }
+
+    public int getChildren() {
+        return children;
+    }
+
+    public void setChildren(int children) {
+        this.children = children;
+    }
+    public int getRoomNumber() {
+        return roomNumber;
+    }
+    public void setRoomNumber(int roomNumber) {
+        this.roomNumber = roomNumber;
+    }
 }

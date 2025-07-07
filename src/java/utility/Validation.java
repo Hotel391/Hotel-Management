@@ -165,7 +165,7 @@ public class Validation {
         return validateField(req, attrKey, fieldName, rawInput, parser, ruleName, null);
     }
 
-    public static <T> T readPriceInput(
+    public static <T> T readInputField(
             jakarta.servlet.http.HttpServletRequest req,
             String attrKey,
             String rawInput,
@@ -185,6 +185,28 @@ public class Validation {
             if (!rule.isValid(value)) {
                 req.setAttribute(attrKey, rule.getErrorMessage());
                 return null;
+            }
+        }
+        return value;
+    }
+
+    public static <T> T readInputField(
+            String rawInput,
+            Function<String, T> parser,
+            List<ValidationRule<T>> rules,
+            T defaultValue) {
+        T value;
+        if (rawInput == null || rawInput.trim().isEmpty()) {
+            return defaultValue;
+        }
+        try{
+            value = parser.apply(rawInput);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+        for (ValidationRule<T> rule : rules) {
+            if (!rule.isValid(value)) {
+                return defaultValue;
             }
         }
         return value;

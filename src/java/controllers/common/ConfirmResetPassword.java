@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Function;
 import models.EmailVerificationToken;
 import services.RegisterService;
-import utility.Email;
+import utility.EmailService;
 import utility.Encryption;
 import utility.Validation;
 import utility.ValidationRule;
@@ -41,7 +41,7 @@ public class ConfirmResetPassword extends HttpServlet {
             return;
         }
 
-        if (Email.isExpireTime(tokenObject.getExpiryDate().toLocalDateTime())) {
+        if (EmailService.isExpireTime(tokenObject.getExpiryDate().toLocalDateTime())) {
             request.setAttribute(SUCCESS_FIELD, "false");
         } else {
             request.setAttribute(EMAIL_FIELD, tokenObject.getEmail());

@@ -9,7 +9,7 @@ import models.Customer;
 import models.CustomerAccount;
 import models.EmailVerificationToken;
 import services.RegisterService;
-import utility.Email;
+import utility.EmailService;
 
 /**
  *
@@ -34,7 +34,7 @@ public class ConfirmVerifyEmail extends HttpServlet {
             return;
         }
 
-        if (Email.isExpireTime(tokenObject.getExpiryDate().toLocalDateTime())) {
+        if (EmailService.isExpireTime(tokenObject.getExpiryDate().toLocalDateTime())) {
             request.setAttribute("success", "false");
         } else {
             Customer customer = new Customer();

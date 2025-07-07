@@ -18,7 +18,8 @@ public class TypeRoom {
     private int originPrice;
     private int servicePrice;
     private List<Review> reviews = new ArrayList<>();
-
+    private int adults;
+    private int children;
     // Constructors
     public TypeRoom() {
     }
@@ -128,6 +129,18 @@ public class TypeRoom {
     }
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
+    }
+    public int getAdults() {
+        return adults;
+    }
+    public void setAdults(int adults) {
+        this.adults = adults;
+    }
+    public int getChildren() {
+        return children;
+    }
+    public void setChildren(int children) {
+        this.children = children;
     }
     @Override
     public String toString() {

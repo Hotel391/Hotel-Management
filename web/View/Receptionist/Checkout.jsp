@@ -55,13 +55,11 @@
                                 <p>Ngày checkout: ${sessionScope.endDate}</p>
                             </div>
                             <div class="roomNService">
-                                <div class="room">Số phòng: ${sessionScope.roomNumber} - Delexe room</div>
                                 <div class="service">
                                     <!-- Button trigger modal -->
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                         Dịch vụ
                                     </button>
-
                                     <!-- Modal -->
                                     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                         <div class="modal-dialog">
@@ -70,9 +68,21 @@
                                                     <h1 class="modal-title fs-5" id="exampleModalLabel">Các dịch vụ đi kèm</h1>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <div class="modal-body">
-                                                    ...
-                                                </div>
+                                                <c:forEach var="dt" items="${sessionScope.roomTypeMap}">
+                                                    <div class="modal-body">
+                                                        <h3>Số phòng: ${dt.key} - ${dt.value}</h3>
+                                                        <div class="service-room">
+                                                            <h5>Các dịch vụ đi kèm</h5>
+                                                            <c:forEach var="sr" items="${sessionScope.roomServicesMap}">
+                                                                <c:if test="${sr.key == dt.key}">
+                                                                    <c:forEach var="sv" items="${sr.value}">
+                                                                        <p>${sv.service.serviceName} - ${sv.quantity}</p>
+                                                                    </c:forEach>
+                                                                </c:if>
+                                                            </c:forEach>
+                                                        </div>
+                                                    </div>
+                                                </c:forEach>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                 </div>
@@ -81,7 +91,7 @@
                                     </div>
                                 </div>
                             </div>
-                                <div class="totalPrice">Tổng tiền cần thanh toán: <fmt:formatNumber value="${sessionScope.totalPrice}" type="number" groupingUsed="true"/> VNĐ</div>
+                            <div class="totalPrice">Tổng tiền cần thanh toán: <fmt:formatNumber value="${sessionScope.totalPrice}" type="number" groupingUsed="true"/> VNĐ</div>
                         </div>
                     </div>
                     <c:choose>

@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
+import java.util.Random;
 import models.Booking;
 import models.BookingDetail;
 import models.Customer;
@@ -40,6 +41,7 @@ public class ajaxServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         doPost(req, resp);
     }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -56,69 +58,110 @@ public class ajaxServlet extends HttpServlet {
                 totalPrice = ((Double) obj).intValue();
             }
             int customerId = (int) session.getAttribute("customerId");
-            String startDateStr = (String) session.getAttribute("startDate");
-            String endDateStr = (String) session.getAttribute("endDate");
-
-            Date startDate = Date.valueOf(startDateStr); 
-            Date endDate = Date.valueOf(endDateStr);
-            int roomNumber = Integer.parseInt((String)session.getAttribute("roomNumber"));
-
             Booking booking = new Booking();
             Customer customer = new Customer();
             customer.setCustomerId(customerId);
             booking.setCustomer(customer);
-            booking.setPaidAmount(totalPrice);
+            session.setAttribute("paidAmount", totalPrice);
             bookingId = dal.BookingDAO.getInstance().insertNewBooking(booking);
 
-            BookingDetail bookingDetail = new BookingDetail();
-            Room room = new Room();
-            Booking booking1 = new Booking();
-            bookingDetail.setStartDate(startDate);
-            bookingDetail.setEndDate(endDate);
-            room.setRoomNumber(roomNumber);
-            bookingDetail.setRoom(room);
-            booking1.setBookingId(bookingId);
-            bookingDetail.setBooking(booking1);
-            bookingDetail.setTotalAmount(totalPrice);
-            int bookingDetailId = dal.BookingDetailDAO.getInstance().insertNewBookingDetail(bookingDetail);
+            String startDateStr = (String) session.getAttribute("startDate");
+            String endDateStr = (String) session.getAttribute("endDate");
+            Date startDate = Date.valueOf(startDateStr);
+            Date endDate = Date.valueOf(endDateStr);
+            String[] roomNumbers = (String[]) session.getAttribute("roomNumbers");
+            long numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
 
-            List<DetailService> listDetailService = (List<DetailService>) session.getAttribute("listService");
-            if (listDetailService != null) {
-                for (DetailService detail : listDetailService) {
-                    int serviceId = detail.getService().getServiceId();
-                    int quantity = detail.getQuantity();
-                    int priceAtTime = detail.getService().getPrice();
-                    int tottalPriceAtTimeOfOneService = quantity * priceAtTime;
-                    dal.DetailServiceDAO.getInstance().insertDetailService(bookingDetailId,
-                            serviceId, quantity, tottalPriceAtTimeOfOneService);
+            // Lấy Map roomServicesMap
+            Map<String, List<DetailService>> roomServicesMap
+                    = (Map<String, List<DetailService>>) session.getAttribute("roomServicesMap");
+            List<Integer> listBookingDetailId = new ArrayList<>();
+            for (String roomNumberStr : roomNumbers) {
+                int roomNumber = Integer.parseInt(roomNumberStr);
+                // Lấy giá phòng theo từng room
+                Room roomObj = dal.RoomDAO.getInstance().getRoomByRoomNumber(roomNumber);
+                int typeId = roomObj.getTypeRoom().getTypeId();
+                double roomPrice = dal.TypeRoomDAO.getInstance().getPriceByTypeId(typeId);
+                double totalRoomPrice = roomPrice * numberOfNights;
+
+                // Tính tổng tiền dịch vụ (nếu có)
+                int totalServiceCost = 0;
+                if (roomServicesMap != null && roomServicesMap.containsKey(roomNumberStr)) {
+                    List<DetailService> serviceList = roomServicesMap.get(roomNumberStr);
+                    for (DetailService detail : serviceList) {
+                        int quantity = detail.getQuantity();
+                        int priceAtTime = detail.getService().getPrice();
+                        int total = quantity * priceAtTime;
+                        totalServiceCost += total;
+                    }
+                }
+
+                // Tổng tiền phòng + dịch vụ
+                int totalAmount = (int) Math.round(totalRoomPrice) + totalServiceCost;
+
+                // Tạo BookingDetail cho từng phòng
+                BookingDetail bookingDetail = new BookingDetail();
+                Room room = new Room();
+                Booking booking1 = new Booking();
+                bookingDetail.setStartDate(startDate);
+                bookingDetail.setEndDate(endDate);
+                room.setRoomNumber(roomNumber);
+                bookingDetail.setRoom(room);
+                booking1.setBookingId(bookingId);
+                bookingDetail.setBooking(booking1);
+                bookingDetail.setTotalAmount((int) totalAmount);
+                int bookingDetailId = dal.BookingDetailDAO.getInstance().insertNewBookingDetail(bookingDetail);
+                listBookingDetailId.add(bookingDetailId);
+
+                // Insert dịch vụ cho từng phòng (nếu có)
+                if (roomServicesMap != null && roomServicesMap.containsKey(roomNumberStr)) {
+                    List<DetailService> serviceList = roomServicesMap.get(roomNumberStr);
+                    for (DetailService detail : serviceList) {
+                        int serviceId = detail.getService().getServiceId();
+                        int quantity = detail.getQuantity();
+                        int priceAtTime = detail.getService().getPrice();
+                        int total = quantity * priceAtTime;
+                        dal.DetailServiceDAO.getInstance().insertDetailService(
+                                bookingDetailId, serviceId, quantity, total
+                        );
+                    }
                 }
             }
-            session.removeAttribute("listService");
+
+            session.setAttribute("listBookingDetailId", listBookingDetailId);
+
             session.removeAttribute("totalPrice");
-            session.removeAttribute("customerId");
-            session.removeAttribute("startDate");
-            session.removeAttribute("endDate");
-            session.removeAttribute("roomNumber");
 
         } else if (status.equals("checkOut")) {
-            bookingId = (int) session.getAttribute("bookingId");
-            BookingDetail bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetalByBookingId(bookingId);
-            int PaidAmount = bookingDetail.getBooking().getPaidAmount();
-            int totalAmount = bookingDetail.getTotalAmount();
+            List<Integer> listRoomNumbers = new ArrayList<>();
             
-            if (PaidAmount == totalAmount) {
-                Booking booking =new Booking();
+            bookingId = (int) session.getAttribute("bookingId");
+            List<BookingDetail> bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetailsByBookingId(bookingId);
+            int paidAmount = bookingDetail.get(0).getBooking().getPaidAmount();
+
+            int totalAmount = 0;
+            for (BookingDetail detail : bookingDetail) {
+                totalAmount += detail.getTotalAmount();
+                listRoomNumbers.add(detail.getRoom().getRoomNumber());
+            }
+
+            if (paidAmount == totalAmount) {
+                Booking booking = new Booking();
                 booking.setBookingId(bookingId);
                 booking.setTotalPrice(totalAmount);
-                dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
                 booking.setStatus("Completed CheckOut");
+
+                dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
                 dal.BookingDAO.getInstance().updateBookingStatus(booking);
-                dal.RoomDAO.getInstance().updateRoomStatus(bookingDetail.getRoom().getRoomNumber(), false);
+
+                for (BookingDetail detail : bookingDetail) {
+                    dal.RoomDAO.getInstance().updateRoomStatus(detail.getRoom().getRoomNumber(), false);
+                }
+
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
                 return;
             }
-            totalPrice = totalAmount - PaidAmount;
-            session.setAttribute("roomNumber", bookingDetail.getRoom().getRoomNumber());
+            session.setAttribute("listRoomNumber", listRoomNumbers);
             session.setAttribute("totalPriceUpdate", totalAmount);
             session.removeAttribute("bookingId");
         }
@@ -132,7 +175,8 @@ public class ajaxServlet extends HttpServlet {
         if ("checkIn".equals(status)) {
             vnp_TxnRef = bookingId + "_CI";//dky ma rieng
         } else {
-            vnp_TxnRef = bookingId + "_CO";
+            String CO = generateRandomCodeWithUnderscore(6);
+            vnp_TxnRef = bookingId + CO;
         }
         String vnp_IpAddr = Config.getIpAddress(req); // Lấy địa chỉ IP của client
 
@@ -166,7 +210,7 @@ public class ajaxServlet extends HttpServlet {
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-        cld.add(Calendar.MINUTE, 15);
+        cld.add(Calendar.MINUTE, 1);
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
@@ -198,5 +242,17 @@ public class ajaxServlet extends HttpServlet {
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
         resp.sendRedirect(paymentUrl);
+    }
+
+    public static String generateRandomCodeWithUnderscore(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder("_"); // dấu _
+        Random random = new Random();
+
+        for (int i = 0; i < length; i++) {
+            sb.append(characters.charAt(random.nextInt(characters.length())));
+        }
+
+        return sb.toString();
     }
 }

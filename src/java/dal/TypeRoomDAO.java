@@ -15,6 +15,7 @@ import models.RoomNService;
 import models.Service;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class TypeRoomDAO {
 
@@ -80,7 +81,26 @@ public class TypeRoomDAO {
         }
         return null;
     }
-
+    public TypeRoom getTypeRoomByRoomNumber(int roomNumber) {
+        String sql = "SELECT tr.TypeId, tr.TypeName, tr.Description, tr.Price FROM TypeRoom tr JOIN Room r ON tr.TypeId = r.TypeId WHERE r.RoomNumber = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, roomNumber);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    TypeRoom typeRoom = new TypeRoom();
+                    typeRoom.setTypeId(rs.getInt(1));
+                    typeRoom.setTypeName(rs.getString(2));
+                    typeRoom.setDescription(rs.getString(3));
+                    typeRoom.setPrice(rs.getInt(4));
+                    return typeRoom;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     public TypeRoom getTypeRoomByName(String typeName) {
         String sql = "SELECT TypeId, TypeName, Description, Price FROM TypeRoom WHERE TypeName = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -339,11 +359,7 @@ public class TypeRoomDAO {
         return price;
     }
 
-    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize) {
-        return getAvailableTypeRooms(startDate, endDate, pageIndex, pageSize, null, null);
-    }
-
-    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, Integer minPrice, Integer maxPrice) {
+    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, Integer minPrice, Integer maxPrice, int adult, int children, String orderByClause) {
         List<TypeRoom> availableTypeRooms = Collections.synchronizedList(new ArrayList<>());
         StringBuilder sql = new StringBuilder("""
                 SELECT * FROM (
@@ -353,17 +369,19 @@ public class TypeRoomDAO {
                         tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
                         tr.Description,
                         COUNT(DISTINCT CASE 
-                            WHEN bd.BookingDetailId IS NULL THEN r.RoomNumber
+                            WHEN bd.BookingDetailId IS NULL and c.CartId is null THEN r.RoomNumber
                             END) AS AvailableRoomCount,
                         AVG(rv.Rating * 1.0) AS Rating,
-                        COUNT(distinct rv.ReviewId) AS numberOfReview
+                        COUNT(distinct rv.ReviewId) AS numberOfReview,
+                        tr.Adult,
+                        tr.Children+tr.Adult AS totalCapacity
                     FROM TypeRoom tr
-                    JOIN Room r ON r.TypeId = tr.TypeId
+                    JOIN Room r ON r.TypeId = tr.TypeId and r.isActive=1
                     LEFT JOIN BookingDetail bd 
                         ON bd.RoomNumber = r.RoomNumber
-                        AND NOT (bd.EndDate < ? OR bd.StartDate > ?)
+                        AND NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
                     LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber AND c.isPayment = 1
-                        AND NOT (c.EndDate < ? OR c.StartDate > ?)
+                        AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
                     LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
                     LEFT JOIN Review rv ON rv.BookingDetailId = bd2.BookingDetailId
                     LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
@@ -376,15 +394,17 @@ public class TypeRoomDAO {
                         JOIN Service s ON s.ServiceId = rns.ServiceId
                         GROUP BY rns.TypeId
                     ) svc ON svc.TypeId = tr.TypeId
-                    GROUP BY tr.TypeId, tr.TypeName, tr.Price, tr.Description, svc.ServicePrice
+                    GROUP BY tr.TypeId, tr.TypeName, tr.Price, tr.Description, svc.ServicePrice, tr.Adult, tr.Children
                 ) AS sub
-                WHERE 1=1
+                WHERE sub.Adult >= ? AND sub.totalCapacity >= ? and sub.AvailableRoomCount > 0
                  """);
         List<Object> params = new ArrayList<>();
         params.add(startDate);
         params.add(endDate);
         params.add(startDate);
         params.add(endDate);
+        params.add(adult);
+        params.add(adult + children);
         if (minPrice != null) {
             sql.append(" AND sub.Price >= ?");
             params.add(minPrice);
@@ -393,7 +413,7 @@ public class TypeRoomDAO {
             sql.append(" AND sub.Price <= ?");
             params.add(maxPrice);
         }
-        sql.append(" ORDER BY sub.TypeId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        sql.append(" ORDER BY ").append(orderByClause).append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
         params.add((pageIndex - 1) * pageSize);
         params.add(pageSize);
         try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
@@ -437,15 +457,17 @@ public class TypeRoomDAO {
     }
 
     public int getTotalTypeRoom(Date startDate, Date endDate) {
-        return getTotalTypeRoom(startDate, endDate, null, null);
+        return getTotalTypeRoom(startDate, endDate, null, null, 2, 1);
     }
 
-    public int getTotalTypeRoom(Date startDate, Date endDate, Integer minPrice, Integer maxPrice) {
+    public int getTotalTypeRoom(Date startDate, Date endDate, Integer minPrice, Integer maxPrice, int adult, int children) {
         StringBuilder sql = new StringBuilder("""
                 SELECT COUNT(*) AS totalTypeRoom
                 FROM (
                     SELECT tr.TypeId,
-                        tr.Price + COALESCE(svc.ServicePrice, 0) AS Price
+                        tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
+                        tr.Adult,
+                        tr.Children + tr.Adult AS totalCapacity
                     FROM TypeRoom tr
                     JOIN Room r ON r.TypeId = tr.TypeId
                     LEFT JOIN BookingDetail bd 
@@ -454,20 +476,22 @@ public class TypeRoomDAO {
                     LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
                     LEFT JOIN Service s ON s.ServiceId = rns.ServiceId
                     LEFT JOIN (
-			SELECT 
-			rns.TypeId,
-                        SUM(rns.Quantity * s.Price) AS ServicePrice
-			FROM RoomNService rns
-			JOIN Service s ON s.ServiceId = rns.ServiceId
-			GROUP BY rns.TypeId
+                        SELECT 
+                            rns.TypeId,
+                            SUM(rns.Quantity * s.Price) AS ServicePrice
+                        FROM RoomNService rns
+                        JOIN Service s ON s.ServiceId = rns.ServiceId
+                        GROUP BY rns.TypeId
                     ) svc ON svc.TypeId = tr.TypeId
-                    GROUP BY tr.TypeId, tr.Price, svc.ServicePrice
+                    GROUP BY tr.TypeId, tr.Price, svc.ServicePrice, tr.Adult, tr.Children
                     ) AS t
-                WHERE 1=1
+                WHERE t.Adult >= ? AND t.totalCapacity >= ?
                 """);
         List<Object> params = new ArrayList<>();
         params.add(startDate);
         params.add(endDate);
+        params.add(adult);
+        params.add(adult + children);
         if (minPrice != null) {
             sql.append(" AND t.Price >= ?");
             params.add(minPrice);
@@ -492,7 +516,7 @@ public class TypeRoomDAO {
         return 0;
     }
 
-    public TypeRoom getTypeRoomByTypeId(Date checkin, Date checkout, int typeId, String orderByClause) {
+    public TypeRoom getTypeRoomByTypeId(Date checkin, Date checkout, int typeId, int adult, int children, String orderByClause, int offset, int limit) {
         String sql = """
                     SELECT 
                         tr.TypeId,
@@ -501,20 +525,29 @@ public class TypeRoomDAO {
                         COALESCE(svc.ServicePrice, 0) AS ServicePrice,
                         tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
                         tr.Description,
-                        COUNT(DISTINCT CASE 
-                            WHEN bd.BookingDetailId IS NULL THEN r.RoomNumber
-                        END) AS AvailableRoomCount,
+                        tr.Adult,
+                        tr.Children,
+                        CASE 
+                        WHEN tr.Adult >= ? AND tr.Adult + tr.Children >= ? THEN 
+                            COUNT(DISTINCT CASE 
+                                WHEN bd.BookingDetailId IS NULL AND c.CartId IS NULL THEN r.RoomNumber
+                            END)
+                        ELSE 0
+                    END AS AvailableRoomCount,
                         AVG(rv.Rating * 1.0) AS Rating,
-                        COUNT(rv.Rating) AS numberOfReview
+                        COUNT(rv.Rating) AS numberOfReview,
+                        tr.Adult,
+                        tr.Children,
+                        tr.Children + tr.Adult AS totalCapacity
                     FROM TypeRoom tr
-                    JOIN Room r ON r.TypeId = tr.TypeId
+                    JOIN Room r ON r.TypeId = tr.TypeId and r.isActive=1
                     LEFT JOIN BookingDetail bd 
                         ON bd.RoomNumber = r.RoomNumber
-                        AND NOT (bd.EndDate < ? OR bd.StartDate > ?)
+                        AND NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
                     LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
                     LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber
                         AND c.isPayment = 1
-                        AND NOT (c.EndDate < ? OR c.StartDate > ?)
+                        AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
                     LEFT JOIN Review rv ON rv.BookingDetailId = bd2.BookingDetailId
                     LEFT JOIN (
                         SELECT 
@@ -525,14 +558,16 @@ public class TypeRoomDAO {
                         GROUP BY rns.TypeId
                     ) svc ON svc.TypeId = tr.TypeId
                     WHERE tr.TypeId = ?
-                    GROUP BY tr.TypeId, tr.TypeName, tr.Price, svc.ServicePrice, tr.Description;
+                    GROUP BY tr.TypeId, tr.TypeName, tr.Price, svc.ServicePrice, tr.Description, tr.Adult, tr.Children;
         """;
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
-            ptm.setDate(1, checkin);
-            ptm.setDate(2, checkout);
+            ptm.setInt(1, adult);
+            ptm.setInt(2, adult + children);
             ptm.setDate(3, checkin);
             ptm.setDate(4, checkout);
-            ptm.setInt(5, typeId);
+            ptm.setDate(5, checkin);
+            ptm.setDate(6, checkout);
+            ptm.setInt(7, typeId);
             try (ResultSet rs = ptm.executeQuery()) {
                 if (rs.next()) {
                     TypeRoom typeRoom = new TypeRoom();
@@ -542,12 +577,14 @@ public class TypeRoomDAO {
                     typeRoom.setServicePrice(rs.getInt("ServicePrice"));
                     typeRoom.setPrice(rs.getInt("Price"));
                     typeRoom.setDescription(rs.getString("Description"));
+                    typeRoom.setAdults(rs.getInt("Adult"));
+                    typeRoom.setChildren(rs.getInt("Children"));
                     typeRoom.setNumberOfAvailableRooms(rs.getInt("AvailableRoomCount"));
                     typeRoom.setAverageRating(rs.getDouble("Rating"));
                     typeRoom.setNumberOfReviews(rs.getInt("numberOfReview"));
                     typeRoom.setImages(getRoomImagesByTypeId(typeId));
                     typeRoom.setServices(RoomNServiceDAO.getInstance().getRoomNServicesByTypeId(typeRoom));
-                    typeRoom.setReviews(ReviewDAO.getInstance().getReviewsByTypeRoomId(typeId, orderByClause));
+                    typeRoom.setReviews(ReviewDAO.getInstance().getReviewsByTypeRoomId(typeId, orderByClause, offset, limit));
                     return typeRoom;
                 }
             }

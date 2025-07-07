@@ -111,6 +111,28 @@ public class RoomDAO {
         return null;
     }
 
+    public Room getRoomByRoomNumber(int roomNumber) {
+        String sql = "SELECT * FROM Room r JOIN TypeRoom t ON r.TypeId = t.TypeId WHERE r.RoomNumber = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, roomNumber);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                Room r = new Room();
+                r.setRoomNumber(roomNumber);
+                TypeRoom t = new TypeRoom();
+                t.setTypeId(rs.getInt("TypeId"));
+                t.setTypeName(rs.getString("TypeName"));
+                t.setPrice(rs.getInt("Price"));
+                r.setTypeRoom(t);
+                return r;
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public List<Room> getAllRoom() {
         List<Room> listRoom = Collections.synchronizedList(new ArrayList<>());
 

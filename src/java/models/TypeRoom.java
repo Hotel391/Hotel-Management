@@ -128,8 +128,16 @@ public class TypeRoom {
     public List<String> getImages() {
         return urlImages;
     }
-    public void setImages(List<String> urlImages) {
-        this.urlImages = urlImages;
+
+    public void setImages(List<?> images) {
+        if (images != null && !images.isEmpty()) {
+            Object first = images.get(0);
+            if (first instanceof String) {
+                this.urlImages = (List<String>) images;
+            } else if (first instanceof RoomImage) {
+                this.images = (List<RoomImage>) images;
+            }
+        }
     }
     public String getUriContextOfImages(){
         return "Image/" + typeName.replace(" ", "") + "/";
@@ -170,6 +178,7 @@ public class TypeRoom {
     public void setChildren(int children) {
         this.children = children;
     }
+    
     @Override
     public String toString() {
         return "TypeRoom{" + "typeId=" + typeId + ", typeName=" + typeName + ", description=" + description + ", price=" + price + ", services=" + services + '}';

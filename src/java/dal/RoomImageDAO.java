@@ -110,7 +110,4 @@ public class RoomImageDAO {
         return null;
     }
     
-    public static void main(String[] args) {
-        System.out.println(RoomImageDAO.getInstance().getRoomImagesByTypeId(1));
-    }
 }

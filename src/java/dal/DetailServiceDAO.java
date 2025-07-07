@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import models.DetailService;
+import models.Service;
 
 public class DetailServiceDAO {
     
@@ -71,6 +72,41 @@ public class DetailServiceDAO {
             }
         } catch (SQLException e) {
             System.out.println(e);
+        }
+        return list;
+    }
+
+    public List<DetailService> getServicesByBookingDetailId(int bookingDetailId) {
+        List<DetailService> list = new ArrayList<>();
+        String sql = """
+        SELECT ds.Quantity, ds.PriceAtTime, s.ServiceId, s.ServiceName, s.Price
+        FROM DetailService ds
+        JOIN Service s ON ds.ServiceId = s.ServiceId
+        WHERE ds.BookingDetailId = ?
+    """;
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingDetailId);
+            ResultSet rs = st.executeQuery();
+
+            while (rs.next()) {
+                DetailService detail = new DetailService();
+
+                // Gán số lượng và giá tại thời điểm
+                detail.setQuantity(rs.getInt("Quantity"));
+                detail.setPriceAtTime(rs.getInt("PriceAtTime")); // phải có setter trong DetailService
+
+                // Tạo và gán Service
+                Service service = new Service();
+                service.setServiceId(rs.getInt("ServiceId"));
+                service.setServiceName(rs.getString("ServiceName"));
+                service.setPrice(rs.getInt("Price"));
+                detail.setService(service);
+
+                list.add(detail);
+            }
+        } catch (SQLException e) {
+            System.out.println("Get DetailService failed: " + e.getMessage());
         }
         return list;
     }

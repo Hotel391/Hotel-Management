@@ -15,7 +15,7 @@ public class ReceiptBuilder implements EmailContentBuilder {
     public String build(Map<String, Object> data) {
         List<String> typeRoom = (List<String>) data.get("typeRoom");
         List<Integer> quantityTypeRoom = (List<Integer>) data.get("quantityTypeRoom");
-        List<Double> priceTypeRoom = (List<Double>) data.get("priceTypeRoom");
+        List<Integer> priceTypeRoom = (List<Integer>) data.get("priceTypeRoom");
         List<String> services = (List<String>) data.get("services");
         List<Integer> serviceQuantity = (List<Integer>) data.get("serviceQuantity");
         List<Integer> servicePrice = (List<Integer>) data.get("servicePrice");

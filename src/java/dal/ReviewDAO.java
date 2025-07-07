@@ -173,5 +173,4 @@ public class ReviewDAO {
         }
         return reviews;
     }
->>>>>>>>> Temporary merge branch 2
 }

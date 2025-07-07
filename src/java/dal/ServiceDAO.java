@@ -89,6 +89,26 @@ public class ServiceDAO {
             e.printStackTrace();
         }
     }
+    
+    //get service by service id
+    
+    public Service getServiceByServiceId(int serviceId) {
+        String sql = "SELECT [ServiceId],[ServiceName],[Price]  FROM [Service] where ServiceId = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, serviceId);
+            ResultSet rs = ptm.executeQuery();
+            if (rs.next()) {
+                Service s = new Service(rs.getInt(1),
+                        rs.getString(2),
+                        rs.getInt(3));
+                return s;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(ServiceDAO.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return null;
+    }
+
 
     public void updateService(Service s) {
         String sql = "UPDATE [dbo].[Service]\n"
@@ -132,8 +152,8 @@ public class ServiceDAO {
             //
         }
     }
-    
-     public List<Service> getServicesNotInTypeRoom(TypeRoom typeRoom) {
+
+    public List<Service> getServicesNotInTypeRoom(TypeRoom typeRoom) {
         List<Service> services = new ArrayList<>();
         String sql = "SELECT * FROM Service WHERE ServiceId NOT IN (SELECT ServiceId FROM RoomNService WHERE TypeId = ?)";
 
@@ -153,9 +173,8 @@ public class ServiceDAO {
         }
         return services;
     }
-     
-     //get service by booking detail id
-     
+
+    //get service by booking detail id
     public List<Service> getServicesByBookingDetailId(int bookingDetailId) {
         List<Service> services = new ArrayList<>();
         String sql = "SELECT s.ServiceId, s.ServiceName, s.Price FROM Service s JOIN detailService ds ON s.ServiceId = ds.ServiceId WHERE ds.BookingDetailId = ?";
@@ -172,7 +191,7 @@ public class ServiceDAO {
                 }
             }
         } catch (SQLException e) {
-            Logger.getLogger(ServiceDAO.class.getName()).log(Level.SEVERE, null, e);
+            
         }
         return services;
     }
@@ -189,9 +208,9 @@ public class ServiceDAO {
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
                 DetailService ds = new DetailService();
-                ds.setService(new Service(rs.getInt(1), 
-                                rs.getString(2), 
-                                rs.getInt(3)));
+                ds.setService(new Service(rs.getInt(1),
+                        rs.getString(2),
+                        rs.getInt(3)));
                 ds.setQuantity(rs.getInt(4));
                 list.add(ds);
             }
@@ -213,9 +232,9 @@ public class ServiceDAO {
             ptm.setInt(1, roomNumber);
             ResultSet rs = ptm.executeQuery();
             while (rs.next()) {
-                Service s = new Service(rs.getInt(1), 
-                                rs.getString(2), 
-                                rs.getInt(3));
+                Service s = new Service(rs.getInt(1),
+                        rs.getString(2),
+                        rs.getInt(3));
                 list.add(s);
             }
         } catch (SQLException e) {
@@ -381,6 +400,32 @@ public class ServiceDAO {
             // handle exception
         }
     }
+    public List<RoomNService> getAllRoomAndServiceByTypeId(int typeId){
+        String sql="""
+                select distinct s.ServiceId,s.ServiceName,s.Price, rns.quantity from TypeRoom tr
+                join RoomNService rns on rns.TypeId=tr.TypeId
+                join Service s on s.ServiceId=rns.ServiceId
+                where tr.TypeId=?
+                   """;
+        List<RoomNService> list = new ArrayList<>();
+        
+        try(PreparedStatement ptm = con.prepareStatement(sql)){
+            ptm.setInt(1, typeId);
+            ResultSet rs = ptm.executeQuery();
+            while(rs.next()){
+                RoomNService rns = new RoomNService();
+                rns.setQuantity(rs.getInt(4));
+                Service service = new Service();
+                service.setServiceId(rs.getInt(1));
+                service.setServiceName(rs.getString(2));
+                service.setPrice(rs.getInt(3));
+                rns.setService(service);
+                list.add(rns);
+            }
+        } catch (SQLException e) {
+        }
+        return list;
+    }
     
     public Service getServiceById(int serviceId) {
         String sql = "SELECT ServiceId, ServiceName, Price FROM Service WHERE ServiceId = ?";
@@ -396,5 +441,35 @@ public class ServiceDAO {
         }
         return null;
     }
+    
+    public List<Service> getServicesByTypeRoom(int typeId) {
+    List<Service> services = new ArrayList<>();
+    String sql = "SELECT s.ServiceId, s.ServiceName, s.Price " +
+                 "FROM RoomNService rs " +
+                 "JOIN [Service] s ON rs.ServiceId = s.ServiceId " +
+                 "WHERE rs.TypeId = ?";
+
+    try {
+        PreparedStatement ps = con.prepareStatement(sql);
+        ps.setInt(1, typeId);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Service service = new Service();
+            service.setServiceId(rs.getInt("ServiceId"));
+            service.setServiceName(rs.getString("ServiceName"));
+            service.setPrice(rs.getInt("Price"));
+            services.add(service);
+        }
+
+        rs.close();
+        ps.close();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return services;
+}
+
 
 }

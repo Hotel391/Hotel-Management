@@ -234,21 +234,74 @@ public class VnpayReturn extends HttpServlet {
             } else {
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     booking.setStatus("Completed CheckOut");
+
+                    // Cập nhật tổng tiền đã thanh toán
                     int totalPrice = (int) session.getAttribute("totalPriceUpdate");
                     booking.setTotalPrice(totalPrice);
                     dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
 
-                    List<Integer> roomNumber = (List<Integer>) session.getAttribute("listRoomNumber");
-                    for (Integer room : roomNumber) {
-                        dal.RoomDAO.getInstance().updateRoomStatus(room, false);
-                    }
-
+                    // Lấy lại thông tin Booking và Customer
                     Booking booking1 = dal.BookingDAO.getInstance().getBookingByBookingId(bookingId);
                     Customer customer = dal.CustomerDAO.getInstance().getCustomerById(booking1.getCustomer().getCustomerId());
                     String customerName = customer.getFullName();
                     String email = customer.getEmail();
                     String phone = customer.getPhoneNumber();
                     String paymentMethod = booking1.getPaymentMethod().getPaymentName();
+
+                    // Lấy danh sách BookingDetail
+                    List<BookingDetail> bookingDetails = dal.BookingDetailDAO.getInstance().getBookingDetailsByBookingId(bookingId);
+
+                    long numberOfNights = 1;
+                    if (!bookingDetails.isEmpty()) {
+                        Date startDate = bookingDetails.get(0).getStartDate();
+                        Date endDate = bookingDetails.get(0).getEndDate();
+                        numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+                    }
+
+                    // Tính loại phòng
+                    Map<String, Integer> typeCountMap = new LinkedHashMap<>();
+                    Map<String, Integer> typePriceMap = new LinkedHashMap<>();
+
+                    for (BookingDetail bd : bookingDetails) {
+                        int roomNumber = bd.getRoom().getRoomNumber();
+
+                        // Cập nhật trạng thái phòng (set về false - cần dọn)
+                        dal.RoomDAO.getInstance().updateRoomStatus(roomNumber, false);
+
+                        Room room = dal.RoomDAO.getInstance().getRoomByRoomNumber(roomNumber);
+                        TypeRoom type = room.getTypeRoom();
+                        String typeName = type.getTypeName();
+                        int unitPrice = type.getPrice();
+
+                        typeCountMap.put(typeName, typeCountMap.getOrDefault(typeName, 0) + 1);
+                        typePriceMap.put(typeName, unitPrice);
+                    }
+
+                    //dữ liệu để gửi email
+                    List<String> typeRoom = new ArrayList<>();
+                    List<Integer> quantityTypeRoom = new ArrayList<>();
+                    List<Integer> priceTypeRoom = new ArrayList<>();
+                    int totalRoomPrice = 0;
+                    int totalServicePrice = 0;
+
+                    for (String typeName : typeCountMap.keySet()) {
+                        int quantity = typeCountMap.get(typeName);
+                        int unitPrice = typePriceMap.get(typeName);
+                        int total = quantity * unitPrice * (int) numberOfNights;
+                        typeRoom.add(typeName);
+                        quantityTypeRoom.add(quantity);
+                        priceTypeRoom.add(total);
+                        totalRoomPrice += total;
+                    }
+
+                    // Tính tổng tiền dịch vụ
+                    for (BookingDetail bd : bookingDetails) {
+                        int bdId = bd.getBookingDetailId();
+                        List<DetailService> services = dal.DetailServiceDAO.getInstance().getServicesByBookingDetailId(bdId);
+                        for (DetailService d : services) {
+                            totalServicePrice += d.getPriceAtTime();
+                        }
+                    }
 
                     request.setAttribute("pageChange", "checkOut");
                     session.removeAttribute("listRoomNumber");

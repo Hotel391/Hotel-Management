@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import models.RoomNService;
 import models.Service;
 import models.TypeRoom;
@@ -41,10 +39,11 @@ public class RoomNServiceDAO {
 
     public List<RoomNService> getRoomNServicesByTypeId(TypeRoom tr) {
         List<RoomNService> services = new ArrayList<>();
-        String sql = "SELECT s.ServiceId, s.ServiceName, s.Price, rns.Quantity "
-                   + "FROM RoomNService rns "
-                   + "JOIN Service s ON rns.ServiceId = s.ServiceId "
-                   + "WHERE rns.TypeId = ?";
+        String sql = """
+                    SELECT s.ServiceId, s.ServiceName, s.Price, rns.Quantity
+                    FROM RoomNService rns
+                    JOIN Service s ON rns.ServiceId = s.ServiceId
+                    WHERE rns.TypeId = ?""";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, tr.getTypeId());
             try (ResultSet rs = st.executeQuery()) {
@@ -63,18 +62,19 @@ public class RoomNServiceDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            //
         }
         return services;
     }
 
-    public void deleteRoomNServiceByTypeId(int typeId) {
-        String sql = "DELETE FROM RoomNService WHERE typeId = ?";
+    public void deleteRoomNServiceByTypeId(int typeId, int serviceId) {
+        String sql = "DELETE FROM RoomNService WHERE typeId = ? And ServiceId = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, typeId);
+            st.setInt(2, serviceId);
             st.executeUpdate();
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
     }
 
@@ -89,19 +89,47 @@ public class RoomNServiceDAO {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+           
         }
         return serviceIds;
     }
 
-    public void insertRoomNServiceByTypeId(int typeId, int serviceId) {
-        String sql = "INSERT INTO RoomNService(typeId, serviceId) VALUES(?, ?)";
+    public void insertRoomNServiceByTypeId(int typeId, int serviceId, int quantity) {
+        String sql = "INSERT INTO RoomNService(typeId, serviceId, quantity) VALUES(?, ?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, typeId);
             st.setInt(2, serviceId);
+            st.setInt(3, quantity);
             st.executeUpdate();
         } catch (SQLException ex) {
-            Logger.getLogger(TypeRoomDAO.class.getName()).log(Level.SEVERE, null, ex);
+           
         }
     }
+    
+   public List<RoomNService> getServicesByRoomNumber(String roomNumber) {
+        List<RoomNService> roomNServices = new ArrayList<>();
+        String sql = "SELECT * FROM RoomNService WHERE roomNumber = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, roomNumber);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    int typeId = rs.getInt("typeId");
+                    int serviceId = rs.getInt("serviceId");
+                    int quantity = rs.getInt("quantity");
+
+                    TypeRoom typeRoom = TypeRoomDAO.getInstance().getTypeRoomById(typeId);
+                    Service service = ServiceDAO.getInstance().getServiceById(serviceId);
+
+                    RoomNService roomNService = new RoomNService(typeRoom, service, quantity);
+                    roomNServices.add(roomNService);
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return roomNServices;
+    }
+
 }
+
+

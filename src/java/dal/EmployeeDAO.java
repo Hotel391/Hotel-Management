@@ -227,8 +227,10 @@ public class EmployeeDAO {
 
     public void updateEmployee(Employee emp) {
         try {
-            String sqlEmployee = "UPDATE Employee SET username = ?, fullName = ?,"
-                    + " phoneNumber = ?, email = ?, roleId = ? WHERE employeeId = ?";
+            String sqlEmployee = "UPDATE Employee SET username = ?, fullName = ?, "
+                    + "phoneNumber = ?, email = ?, roleId = ?, address = ?, dateOfBirth = ?, "
+                    + "cccd = ?, gender = ? "
+                    + "WHERE employeeId = ?";
 
             try (PreparedStatement stmt = con.prepareStatement(sqlEmployee)) {
                 stmt.setString(1, emp.getUsername());
@@ -236,19 +238,23 @@ public class EmployeeDAO {
                 stmt.setString(3, emp.getPhoneNumber());
                 stmt.setString(4, emp.getEmail());
                 stmt.setInt(5, emp.getRole().getRoleId());
-                stmt.setInt(6, emp.getEmployeeId());
+                stmt.setString(6, emp.getAddress());
+                stmt.setDate(7, emp.getDateOfBirth());
+                stmt.setString(8, emp.getCCCD());
+                stmt.setBoolean(9, emp.isGender());
+                stmt.setInt(10, emp.getEmployeeId());
                 stmt.executeUpdate();
             }
 
             if (emp.getCleanerFloor() != null) {
-                try (PreparedStatement stmt = con.prepareStatement("DELETE FROM CleanerFloor "
-                        + "WHERE EmployeeId = ?")) {
-
+                try (PreparedStatement stmt = con.prepareStatement(
+                        "DELETE FROM CleanerFloor WHERE EmployeeId = ?")) {
                     stmt.setInt(1, emp.getEmployeeId());
                     stmt.executeUpdate();
                 }
-                try (PreparedStatement stmt = con.prepareStatement("INSERT INTO CleanerFloor "
-                        + "(EmployeeId, StartFloor, EndFloor) VALUES (?, ?, ?)")) {
+
+                try (PreparedStatement stmt = con.prepareStatement(
+                        "INSERT INTO CleanerFloor (EmployeeId, StartFloor, EndFloor) VALUES (?, ?, ?)")) {
                     stmt.setInt(1, emp.getEmployeeId());
                     stmt.setInt(2, emp.getCleanerFloor().getStartFloor());
                     stmt.setInt(3, emp.getCleanerFloor().getEndFloor());

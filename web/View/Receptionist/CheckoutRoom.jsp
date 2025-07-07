@@ -18,7 +18,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/navDashboardStyle.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/dashboardStyle.css" />
-        
+
         <%--another in the following--%>
     </head>
     <body>
@@ -28,7 +28,7 @@
                 <c:set var="title" value="Checkout Room Today" scope="request"/>
                 <jsp:include page="topNavReceptionist.jsp" />
                 <div class="main-content">
-                    <h1 class="mb-4">Danh sách phòng checkout ngày hôm nay (<fmt:formatDate value="${today}" pattern="dd-MM-yyyy"/>)</h1>
+                    <h1 class="mb-4">Danh sách phòng checkout</h1>
                     <form class="mb-3" method="get">
                         <div class="input-group" style="max-width: 400px;">
                             <input type="hidden" name="oldSearch" value="${oldSearch}">
@@ -48,27 +48,34 @@
                             </tr>
                         </thead>
                         <tbody>
-                            
+
                             <c:forEach var="ckl" items="${checkoutList}">
-                            <tr>
+                                <tr>
+                            <form action="${pageContext.request.contextPath}/receptionist/checkoutRoom" method="post">
                                 <td>${ckl.value.fullName}</td>
                                 <td>${ckl.value.phoneNumber}</td>
                                 <td>${ckl.key.room.roomNumber}</td>
-                                <td>
-                                    <form action="${pageContext.request.contextPath}/receptionist/checkoutRoom" method="post">
-                                        <input type="hidden" name="service" value="checkout">
-                                        <input type="hidden" name="bookingId" value="${ckl.key.booking.bookingId}">
-                                        <button type="submit" class="btn btn-sm btn-warning">
-                                            Checkout
-                                        </button>
-                                    </form>
+                                <td style="width: 230px;">
+                                    <select name="paymentMethod" class="form-select w-160" aria-label="Default select example">
+                                        <option selected>Chọn phương thức</option>
+                                        <option value="online">Chuyển khoản</option>
+                                        <option value="offline">Tiền mặt</option>
+                                    </select>
                                 </td>
+                                <td>
+                                    <input type="hidden" name="service" value="checkout">
+                                    <input type="hidden" name="bookingId" value="${ckl.key.booking.bookingId}">
+                                    <button type="submit" class="btn btn-sm btn-warning">
+                                        Checkout
+                                    </button>
+                                </td>
+                            </form>
                             </tr>
-                            </c:forEach>
+                        </c:forEach>
                         </tbody>
                     </table>
 
-                    
+
                 </div>
             </div>
         </div>        

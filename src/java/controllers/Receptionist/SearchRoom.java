@@ -1,4 +1,3 @@
-
 package controllers.receptionist;
 
 import dal.RoomDAO;
@@ -95,7 +94,7 @@ public class SearchRoom extends HttpServlet {
             }
 
             if (startDateStr == null || endDateStr == null || startDateStr.isEmpty() || endDateStr.isEmpty()) {
-                request.setAttribute("errorMessage", "Please select both start and end dates.");
+                request.setAttribute("errorMessage", "Vui lòng chọn cả ngày nhận phòng và ngày trả phòng");
                 showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
                 return;
             }
@@ -105,13 +104,13 @@ public class SearchRoom extends HttpServlet {
                 java.sql.Date endDate = java.sql.Date.valueOf(endDateStr);
 
                 if (startDateStr.compareTo(new java.text.SimpleDateFormat("yyyy-MM-dd").format(new Date())) < 0) {
-                    request.setAttribute("errorMessage", "Start date cannot be before today.");
+                    request.setAttribute("errorMessage", "Ngày nhận phòng bắt đầu từ ngày hôm này.");
                     showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
                     return;
                 }
 
                 if (endDate.compareTo(startDate) <= 0) {
-                    request.setAttribute("errorMessage", "End date must be after start date.");
+                    request.setAttribute("errorMessage", "Ngày trả phong phải sau ngày nhận phòng.");
                     showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
                     return;
                 }
@@ -146,7 +145,7 @@ public class SearchRoom extends HttpServlet {
 
  
         if (startDateStr == null || endDateStr == null || startDateStr.isEmpty() || endDateStr.isEmpty()) {
-            request.setAttribute("errorMessage", "Please select both start and end dates.");
+            request.setAttribute("errorMessage", "Vui lòng chọn cả ngày nhận phòng và ngày trả phòng");
             showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
             return;
         }
@@ -158,7 +157,7 @@ public class SearchRoom extends HttpServlet {
                 startDate = java.sql.Date.valueOf(startDateStr);
                 endDate = java.sql.Date.valueOf(endDateStr);
             } catch (IllegalArgumentException e) {
-                request.setAttribute("errorMessage", "Invalid date format.");
+                request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ.");
                 showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
                 return;
             }
@@ -167,13 +166,13 @@ public class SearchRoom extends HttpServlet {
             String todayStr = sdf.format(new Date());
 
             if (startDateStr.compareTo(todayStr) < 0) {
-                request.setAttribute("errorMessage", "Start date cannot be before today.");
+                request.setAttribute("errorMessage", "Ngày nhận phòng bắt đầu từ ngày hôm này.");
                 showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
                 return;
             }
 
             if (endDate.compareTo(startDate) <= 0) {
-                request.setAttribute("errorMessage", "End date must be after start date.");
+                request.setAttribute("errorMessage", "gày trả phong phải sau ngày nhận phòng.");
                 showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
                 return;
             }

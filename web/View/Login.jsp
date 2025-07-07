@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/Authentication/style.css">
     </head>
     <body class="img js-fullheight" style="background-image: url(${pageContext.request.contextPath}/Image/bg.jpg);">
-        <jsp:include page="TopNav.jsp"/>
+        <jsp:include page="/View/Customer/Header.jsp" />
         <section class="ftco-section">
             <div class="container">
                 <!--                <div class="row justify-content-center">

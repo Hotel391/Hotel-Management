@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import models.Booking;
 import java.sql.Date;
-import java.time.LocalDate;
 
 public class BookingDAO {
 
@@ -84,7 +83,7 @@ public class BookingDAO {
     public Map<String, BigInteger> totalMoneyInYears(int startYear, int endYear) {
         String sql = "SELECT YEAR(PayDay) AS Year, SUM(TotalPrice) AS totalMoney "
                 + "FROM Booking "
-                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed CheckOut'"
                 + "GROUP BY YEAR(PayDay) "
                 + "ORDER BY Year";
 
@@ -131,7 +130,7 @@ public class BookingDAO {
     public Map<String, BigInteger> totalMoneyInQuarters(int startYear, int startQuarter, int endYear, int endQuarter) {
         String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(QUARTER, PayDay) AS Quarter, SUM(TotalPrice) AS totalMoney "
                 + "FROM Booking "
-                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed CheckOut'"
                 + "GROUP BY YEAR(PayDay), DATEPART(QUARTER, PayDay) "
                 + "ORDER BY Year, Quarter";
 
@@ -155,7 +154,7 @@ public class BookingDAO {
     public Map<String, BigInteger> totalMoneyInMonths(int startYear, int startMonth, int endYear, int endMonth) {
         String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(Month, PayDay) AS Month, SUM(TotalPrice) AS totalMoney "
                 + "FROM Booking "
-                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed CheckOut'"
                 + "GROUP BY YEAR(PayDay), DATEPART(Month, PayDay) "
                 + "ORDER BY Year, Month";
 
@@ -375,9 +374,7 @@ public class BookingDAO {
     //get booking by payday
     public List<Booking> getBookingByPayDay(Date payDay) {
         List<Booking> bookings = new ArrayList<>();
-        String sql = "SELECT * FROM Booking "
-                + "WHERE DATEDIFF(DAY, PayDay, ?) = 0 "
-                + "AND Status = 'Completed CheckOut'";
+        String sql = "SELECT * FROM Booking WHERE PayDay = ? and Status = 'Completed CheckOut'";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setDate(1, payDay);
             try (ResultSet rs = st.executeQuery()) {
@@ -414,5 +411,16 @@ public class BookingDAO {
         }
         return null;
     }
-
+    
+    //update total price in booking
+    public void updateTotalPrice(Booking booking) {
+        String sql = "UPDATE Booking SET TotalPrice = ? WHERE BookingID = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getTotalPrice());
+            st.setInt(2, booking.getBookingId());
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

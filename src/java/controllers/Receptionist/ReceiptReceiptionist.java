@@ -61,6 +61,9 @@ public class ReceiptReceiptionist extends HttpServlet {
             for (Booking booking : bookingList) {
                 detailList.put(booking, BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking));
             }
+            
+            System.out.println(detailList);
+            
             request.setAttribute("bookList", bookingList);
 
             request.setAttribute("detailList", detailList);

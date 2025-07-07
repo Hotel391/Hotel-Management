@@ -29,6 +29,7 @@
                 <jsp:include page="topNavReceptionist.jsp" />
                 <div class="main-content">
                     <div class="d-flex justify-content-between align-items-center mb-3">
+                        <a class="btn btn-primary" href="${pageContext.request.contextPath}/receptionist/roomInformation?service=backToServicePage">Back</a>
                         <form method="post" action="${pageContext.request.contextPath}/receptionist/checkout" class="d-flex gap-2">
                             <label class="input-group-text" for="startDate">SDT</label>
                             <input type="number" name="phoneSearch" value="${param.phoneSearch}" class="form-control search-input" required/>
@@ -36,14 +37,15 @@
                             <button type="submit" class="btn btn-primary">Check</button>
                             <a href="${pageContext.request.contextPath}/receptionist/checkout" class="btn btn-primary">Reset</a>
                         </form>
+                        <c:if test="${not empty searchError}">
+                            <div class="d-flex justify-content-between align-items-center mb-3 sty">
+                                <p class="alert alert-danger">${searchError}</p>
+                            </div>
+                        </c:if>
                     </div>
-                    <c:if test="${not empty searchError}">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <p class="alert alert-danger">${searchError}</p>
-                        </div>
-                    </c:if>
+
                     <c:if test="${not empty newCustomer}">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex justify-content-end align-items-center mb-3">
                             <p class="alert alert-success">${newCustomer}</p>
                         </div>
                     </c:if>

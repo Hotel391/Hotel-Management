@@ -22,7 +22,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/toggle-password.css"/>
     </head>
     <body>
-        <jsp:include page="TopNav.jsp"/>
+        <jsp:include page="/View/Customer/Header.jsp" />
         <div class="verify-container">
             <c:if test="${success eq 'true'}">
                 <h2>Đặt lại mật khẩu</h2>

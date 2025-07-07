@@ -21,7 +21,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/Authentication/ResetPassword.css"/>
     </head>
     <body>
-        <jsp:include page="TopNav.jsp"/>
+        <jsp:include page="/View/Customer/Header.jsp" />
         <div class="verify-container">
             <h2>Nhập email để đặt lại mật khẩu</h2>
             <form method="post">

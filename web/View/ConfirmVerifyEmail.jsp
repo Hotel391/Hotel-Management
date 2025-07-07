@@ -15,7 +15,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/VerifyEmailCss.css"/>
     </head>
     <body>
-        <jsp:include page="TopNav.jsp"/>
+        <jsp:include page="/View/Customer/Header.jsp" />
         <div class="verify-container">
             <c:if test="${success eq 'true'}">
                 <h2>Email đã được xác nhận thành công<i class="bi bi-check2-square" style="color: green;"></i></h2>

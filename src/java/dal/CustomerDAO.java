@@ -13,7 +13,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class CustomerDAO {
 
@@ -355,7 +354,7 @@ public class CustomerDAO {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(CustomerDAO.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
         return null;
     }

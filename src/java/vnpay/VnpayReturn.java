@@ -321,14 +321,33 @@ public class VnpayReturn extends HttpServlet {
                     }
 
                     // Tính tổng tiền dịch vụ
+                    Map<String, Integer> serviceQuantityMap = new LinkedHashMap<>();
+                    Map<String, Integer> servicePriceMap = new LinkedHashMap<>();
+
                     for (BookingDetail bd : bookingDetails) {
                         int bdId = bd.getBookingDetailId();
-                        List<DetailService> services = dal.DetailServiceDAO.getInstance().getServicesByBookingDetailId(bdId);
-                        for (DetailService d : services) {
-                            totalServicePrice += d.getPriceAtTime();
+                        List<DetailService> servicesList = dal.DetailServiceDAO.getInstance().getServicesByBookingDetailId(bdId);
+                        for (DetailService d : servicesList) {
+                            String serviceName = d.getService().getServiceName();
+                            int quantity = d.getQuantity();
+                            int priceAtTime = d.getPriceAtTime();
+
+                            serviceQuantityMap.put(serviceName, serviceQuantityMap.getOrDefault(serviceName, 0) + quantity);
+                            servicePriceMap.put(serviceName, servicePriceMap.getOrDefault(serviceName, 0) + priceAtTime);
+                            totalServicePrice += priceAtTime;
                         }
                     }
 
+                    List<String> services = new ArrayList<>();
+                    List<Integer> serviceQuantity = new ArrayList<>();
+                    List<Integer> servicePrice = new ArrayList<>();
+                    
+                    for (String name : serviceQuantityMap.keySet()) {
+                        services.add(name);
+                        serviceQuantity.add(serviceQuantityMap.get(name));
+                        servicePrice.add(servicePriceMap.get(name));
+                    }
+                    
                     Map<String, Object> data = new HashMap<>();
                     data.put("customerName", customerName);
                     data.put("email", email);
@@ -350,7 +369,6 @@ public class VnpayReturn extends HttpServlet {
                         EmailService emailService = new EmailService();
                         emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
                     });
-
                     request.setAttribute("pageChange", "checkOut");
                     session.removeAttribute("listRoomNumber");
                     transSuccess = true;

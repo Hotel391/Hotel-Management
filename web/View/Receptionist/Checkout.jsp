@@ -32,7 +32,7 @@
                         <a class="btn btn-primary" href="${pageContext.request.contextPath}/receptionist/roomInformation?service=backToServicePage">Back</a>
                         <form method="post" action="${pageContext.request.contextPath}/receptionist/checkout" class="d-flex gap-2">
                             <label class="input-group-text" for="startDate">SDT</label>
-                            <input type="number" name="phoneSearch" value="${param.phoneSearch}" class="form-control search-input" required/>
+                            <input type="number" name="phoneSearch" value="${param.phoneSearch != null ? param.phoneSearch : requestScope.phoneSearch}" class="form-control search-input" required/>
                             <input type="hidden" name="search" value="searchPhone">
                             <button type="submit" class="btn btn-primary">Check</button>
                             <a href="${pageContext.request.contextPath}/receptionist/checkout" class="btn btn-primary">Reset</a>

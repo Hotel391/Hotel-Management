@@ -492,20 +492,22 @@ public class RoomDAO {
 
     public List<Room> searchAvailableRooms(java.sql.Date startDate,
             java.sql.Date endDate, Integer typeRoomId, int page, int recordsPerPage) {
+
         List<Room> availableRooms = new ArrayList<>();
         int startIndex = (page - 1) * recordsPerPage;
 
         StringBuilder queryBuilder = new StringBuilder("""
-    SELECT r.RoomNumber, r.TypeId, r.IsActive, tr.TypeName, tr.Price, tr.Description
-    FROM Room r
-    JOIN TypeRoom tr ON r.TypeId = tr.TypeId
-    WHERE r.IsActive = 1  
-    AND r.RoomNumber NOT IN (
-        SELECT bd.RoomNumber
-        FROM BookingDetail bd
-        JOIN Booking b ON bd.BookingId = b.BookingId
-        WHERE (bd.StartDate < ? AND bd.EndDate > ?)
-    )
+        SELECT r.RoomNumber, r.TypeId, r.IsActive, 
+               tr.TypeName, tr.Price, tr.Description
+        FROM Room r
+        JOIN TypeRoom tr ON r.TypeId = tr.TypeId
+        LEFT JOIN BookingDetail bd ON bd.RoomNumber = r.RoomNumber
+            AND NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+        LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber AND c.isPayment = 1
+            AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
+        WHERE r.IsActive = 1
+          AND bd.BookingDetailId IS NULL
+          AND c.CartId IS NULL
     """);
 
         if (typeRoomId != null) {
@@ -516,9 +518,10 @@ public class RoomDAO {
 
         try (PreparedStatement pst = con.prepareStatement(queryBuilder.toString())) {
             int paramIndex = 1;
-
-            pst.setDate(paramIndex++, endDate);
-            pst.setDate(paramIndex++, startDate);
+            pst.setDate(paramIndex++, startDate); // bd.EndDate <= ?
+            pst.setDate(paramIndex++, endDate);   // bd.StartDate >= ?
+            pst.setDate(paramIndex++, startDate); // c.EndDate <= ?
+            pst.setDate(paramIndex++, endDate);   // c.StartDate >= ?
 
             if (typeRoomId != null) {
                 pst.setInt(paramIndex++, typeRoomId);

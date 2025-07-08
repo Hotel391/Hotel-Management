@@ -46,8 +46,10 @@
                                 <th>Họ tên</th>
                                 <th>SDT</th>
                                 <th>Số phòng</th>
-
-                                <th></th>
+                                <th>Tổng tiền</th>
+                                <th>Số tiền đã thanh toán</th>
+                                <th>Số tiền cần thanh toán</th>
+                               <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,10 +74,9 @@
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
+                                                    
                                                     <c:forEach var="bd" items="${ckl.value}">
                                                         <p>Phòng số: ${bd.room.roomNumber}</p>
-                                                        
-                                                        <c:out value="${bd.booking.bookingId}"></c:out>
                                                     </c:forEach>
                                                 </div>
                                                 <div class="modal-footer">
@@ -86,6 +87,9 @@
                                         </div>
                                     </div>
                                 </td>
+                                <td>${requestScope.totalAmount} VND</td>
+                                <td>${requestScope.paidAmount} VND</td>
+                                <td>${requestScope.totalAmount - requestScope.paidAmount} VND</td>
                                 <td style="width: 230px;">
                                     <select name="paymentMethod" class="form-select w-160" aria-label="Default select example">
                                         <option selected value="default">Chọn phương thức</option>
@@ -95,6 +99,7 @@
                                 </td>
                                 <td>
                                     <input type="hidden" name="service" value="checkout">
+                                    <input type="hidden" name="customerId" value="${ckl.key.customerId}">
                                     <input type="hidden" name="bookingId" value="${ckl.value[0].booking.bookingId}">
                                     <button type="submit" class="btn btn-sm btn-warning">
                                         Checkout

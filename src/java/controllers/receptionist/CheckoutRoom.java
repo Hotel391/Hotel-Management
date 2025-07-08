@@ -58,6 +58,10 @@ public class CheckoutRoom extends HttpServlet {
         HttpSession session = request.getSession(true);
 
         String service = request.getParameter("service");
+        
+        System.out.println("service: " + service);
+        
+        System.out.println("checkout");
 
         if (service == null) {
             service = "view";
@@ -73,7 +77,7 @@ public class CheckoutRoom extends HttpServlet {
             String paymentMethod = request.getParameter("paymentMethod");
 
             int bookingId = Integer.parseInt(request.getParameter("bookingId"));
-            
+
             System.out.println("bookingId: " + bookingId);
 
             Booking bookingSelected = BookingDAO.getInstance().getBookingByBookingId(bookingId);
@@ -83,7 +87,7 @@ public class CheckoutRoom extends HttpServlet {
             int totalPrice = bookingSelected.getTotalPrice();
 
             for (BookingDetail bookingDetail : detail) {
-                //write code to fine customer 10%/hour if they checkout late after 10am and before 1pm else later 1pm fine 1 day more do not use timestamp
+                
 
                 int typePrice = TypeRoomDAO.getInstance().getTypeRoomByRoomNumber(bookingDetail.getRoom().getRoomNumber()).getPrice();
 
@@ -106,24 +110,25 @@ public class CheckoutRoom extends HttpServlet {
                         }
                     }
                 }
+                //fineMoney
                 System.out.println("totalPrice: " + totalPrice);
                 bookingSelected.setTotalPrice(totalPrice);
                 BookingDAO.getInstance().updateTotalPrice(bookingSelected);
 
             }
-            
-            if("default".equals(paymentMethod)){
-                int detailId = Integer.parseInt(request.getParameter("detailId"));
-                System.out.println("detailID: " + detail);
-                int roomNumber = BookingDetailDAO.getInstance().getBookingDetailByBookingDetailId(detailId).getRoom().getRoomNumber();
-                request.setAttribute("paymentMethodError", "Vui lòng chọn phương thức thanh toán cho phòng " + roomNumber);
+
+            if ("default".equals(paymentMethod)) {
+                int customerId = Integer.parseInt(request.getParameter("customerId"));
+                System.out.println("customerId: " + customerId);
+                String customerName = CustomerDAO.getInstance().getCustomerByCustomerID(customerId).getFullName();
+                request.setAttribute("paymentMethodError", "Vui lòng chọn phương thức thanh toán cho khách hàng: " + customerName);
                 showCheckoutRoom(request, response);
             }
 
             if ("online".equals(paymentMethod)) {
 
                 System.out.println("done to online");
-                
+
                 session.setAttribute("bookingId", bookingId);
 
                 session.setAttribute("status", "checkOut");
@@ -137,37 +142,50 @@ public class CheckoutRoom extends HttpServlet {
         }
 
     }
-    
+
     private void showCheckoutRoom(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        
-        
+
         long millis = System.currentTimeMillis();
+        
+        System.out.println("view");
 
-            Date currentDate = new Date(millis);
+        Date currentDate = new Date(millis);
+        
+        int totalAmount = 0, paidAmount = 0;
 
-            HashMap<Customer, List<BookingDetail>> checkoutInfor = new LinkedHashMap<>();
+        HashMap<Customer, List<BookingDetail>> checkoutInfor = new LinkedHashMap<>();
 
 //            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(currentDate);
-            
-            List<Customer> customerCheckout = CustomerDAO.getInstance().getCustomersCheckout() ;
+        List<Customer> customerCheckout = CustomerDAO.getInstance().getCustomersCheckout();
 
 //            for (BookingDetail bookingDetail : checkoutList) {
 //                Customer customerCheckout = CustomerDAO.getInstance().getCustomerByBookingDetailId(bookingDetail.getBookingDetailId());
 //                checkoutInfor.put(bookingDetail, customerCheckout);
 //            }
-
         for (Customer customer : customerCheckout) {
             List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getListBookingDetailCheckout(customer.getCustomerId());
+            List<Booking> bookingCheckout = BookingDAO.getInstance().getBookingsCustomerCheckout(customer.getCustomerId());
+            for (BookingDetail bookingDetail : checkoutList) {
+                totalAmount += bookingDetail.getTotalAmount();
+            }
+            for (Booking booking : bookingCheckout) {
+                paidAmount += booking.getPaidAmount();
+            }
             checkoutInfor.put(customer, checkoutList);
         }
+        
+        System.out.println("paidAmount: " + paidAmount);
 
-            request.setAttribute("today", currentDate);
+        request.setAttribute("today", currentDate);
+        
+        request.setAttribute("totalAmount", totalAmount);
+        
+        request.setAttribute("paidAmount", paidAmount);
 
-            request.setAttribute("checkoutList", checkoutInfor);
+        request.setAttribute("checkoutList", checkoutInfor);
 
-            request.getRequestDispatcher("/View/Receptionist/CheckoutRoom.jsp").forward(request, response);
+        request.getRequestDispatcher("/View/Receptionist/CheckoutRoom.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

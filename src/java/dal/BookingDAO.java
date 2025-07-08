@@ -117,6 +117,7 @@ public class BookingDAO {
                     booking.setPayDay(rs.getDate("PayDay"));
                     booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setStatus(rs.getString("Status"));
+                    booking.setPaidAmount(rs.getInt("paidAmount"));
                     booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
                     return booking;
                 }
@@ -422,5 +423,33 @@ public class BookingDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    
+    //get booking by query
+        public List<Booking> getBookingsCustomerCheckout(int customerId) {
+        List<Booking> bookings = new ArrayList<>();
+        String sql = "select distinct b.* from Customer c join Booking b on c.CustomerId = b.CustomerId \n"
+                + "join BookingDetail bd on bd.BookingId = b.BookingId\n"
+                + "where bd.EndDate >= CAST(GETDATE() As Date) And b.Status = 'Completed CheckIn'\n"
+                + "AND c.customerId = ?";
+        
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, customerId);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Booking booking = new Booking();
+                booking.setBookingId(rs.getInt("BookingID"));
+                booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
+                booking.setPayDay(rs.getDate("PayDay"));
+                booking.setTotalPrice(rs.getInt("TotalPrice"));
+                booking.setStatus(rs.getString("status"));
+                booking.setPaidAmount(rs.getInt("paidAmount"));
+                booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
+                bookings.add(booking);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
     }
 }

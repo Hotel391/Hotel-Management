@@ -286,7 +286,6 @@ public class TypeRoomDAO {
                     tr.setServices(RoomNServiceDAO.getInstance().getRoomNServicesByTypeId(tr));
                     tr.setOtherServices(ServiceDAO.getInstance().getServicesNotInTypeRoom(tr));
                     tr.setImages(RoomImageDAO.getInstance().getRoomImagesByTypeId(rs.getInt("typeId")));
-                    
                     list.add(tr);
                 }
             }

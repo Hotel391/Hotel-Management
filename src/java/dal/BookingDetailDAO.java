@@ -51,6 +51,7 @@ public class BookingDetailDAO {
                 bookingDetail.setStartDate(rs.getDate("StartDate"));
                 bookingDetail.setEndDate(rs.getDate("EndDate"));
                 bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
+                bookingDetail.setTotalAmount(rs.getInt("TotalAmount"));
                 bookingDetail.setServices(
                         DetailServiceDAO.getInstance()
                                 .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
@@ -456,7 +457,7 @@ public class BookingDetailDAO {
     //get list booking detail by query
     public List<BookingDetail> getListBookingDetailCheckout(int customerId) {
         List<BookingDetail> bookingDetails = new ArrayList<>();
-        String sql = "select distinct bd.* from Customer c join Booking b on c.CustomerId = b.CustomerId \n"
+        String sql = "select bd.* from Customer c join Booking b on c.CustomerId = b.CustomerId \n"
                 + "join BookingDetail bd on bd.BookingId = b.BookingId\n"
                 + "where bd.EndDate >= CAST(GETDATE() As Date) And b.Status = 'Completed CheckIn'\n"
                 + "AND c.customerId = ?";
@@ -469,6 +470,7 @@ public class BookingDetailDAO {
                 bookingDetail.setStartDate(rs.getDate("StartDate"));
                 bookingDetail.setEndDate(rs.getDate("EndDate"));
                 bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
+                bookingDetail.setTotalAmount(rs.getInt("TotalAmount"));
                 bookingDetail.setServices(
                         DetailServiceDAO.getInstance()
                                 .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));

@@ -37,7 +37,7 @@
                     </c:if>
                     <c:forEach var="cart" items="${carts}">
                         <c:set var="isPayment" value="${cart.isPayment}" />
-                        <div class="cart-item ${isPayment ? 'paid' : ''}" data-price="${cart.totalPrice}">
+                        <div class="cart-item ${isPayment ? 'paid' : ''}" data-price="${cart.totalPrice}" data-cart-id="${cart.cartId}">
                             <div class="cart-top" 
                                  onclick="window.location.href = 'detailRoom?typeRoomId=${cart.room.typeRoom.typeId}&checkin=${cart.startDate}&checkout=${cart.endDate}&adults=${cart.adults}&children=${cart.children}'">
                                 <img src="${pageContext.request.contextPath}/${cart.room.typeRoom.uriContextOfImages}${cart.room.typeRoom.images[0]}"
@@ -260,66 +260,71 @@
         <!-- JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.4.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                                        const checkboxes = document.querySelectorAll('.room-checkbox');
-                                        const cartItems = document.querySelectorAll('.cart-item');
-                                        const totalElement = document.getElementById('cart-total');
-                                        const checkoutBtn = document.getElementById('checkout-btn');
+                        const checkboxes = document.querySelectorAll('.room-checkbox');
+                        const cartItems = document.querySelectorAll('.cart-item');
+                        const totalElement = document.getElementById('cart-total');
+                        const checkoutBtn = document.getElementById('checkout-btn');
 
-                                        function updateTotalPrice() {
-                                            const selected = document.querySelector('.room-checkbox:checked');
+                        function updateTotalPrice() {
+                            const selected = document.querySelector('.room-checkbox:checked');
 
-                                            if (selected) {
-                                                const item = selected.closest('.cart-item');
-                                                const price = parseInt(item.dataset.price);
-                                                totalElement.innerText = price.toLocaleString('vi-VN') + ' ₫';
-                                                checkoutBtn.disabled = false;
-                                            } else {
-                                                totalElement.innerText = '0 ₫';
-                                                checkoutBtn.disabled = true;
-                                            }
-                                        }
+                            if (selected) {
+                                const item = selected.closest('.cart-item');
+                                const price = parseInt(item.dataset.price);
+                                totalElement.innerText = price.toLocaleString('vi-VN') + ' ₫';
+                                const cartId = item.dataset.cartId;
+                                checkoutBtn.disabled = false;
+                                checkoutBtn.onclick = function () {
+                                    window.location.href = 'checkout?cartId=' + cartId;
+                                };
+                            } else {
+                                totalElement.innerText = '0 ₫';
+                                checkoutBtn.disabled = true;
+                                checkoutBtn.onclick = null;
+                            }
+                        }
 
-                                        // Cập nhật trạng thái khi người dùng tick checkbox
-                                        checkboxes.forEach(cb => {
-                                            cb.addEventListener('click', function (e) {
-                                                checkboxes.forEach(other => {
-                                                    if (other !== this)
-                                                        other.checked = false;
-                                                });
-                                                updateTotalPrice();
-                                                e.stopPropagation();
-                                            });
-                                        });
+                        // Cập nhật trạng thái khi người dùng tick checkbox
+                        checkboxes.forEach(cb => {
+                            cb.addEventListener('click', function (e) {
+                                checkboxes.forEach(other => {
+                                    if (other !== this)
+                                        other.checked = false;
+                                });
+                                updateTotalPrice();
+                                e.stopPropagation();
+                            });
+                        });
 
-                                        // Bấm vào phần nội dung cũng chọn được
-                                        document.querySelectorAll('.cart-bottom').forEach(bottom => {
-                                            bottom.addEventListener('click', function () {
-                                                const thisCheckbox = this.querySelector('.room-checkbox');
-                                                if (!thisCheckbox.checked) {
-                                                    checkboxes.forEach(cb => cb.checked = false);
-                                                    thisCheckbox.checked = true;
-                                                } else {
-                                                    thisCheckbox.checked = false;
-                                                }
-                                                updateTotalPrice();
-                                            });
-                                        });
+                        // Bấm vào phần nội dung cũng chọn được
+                        document.querySelectorAll('.cart-bottom').forEach(bottom => {
+                            bottom.addEventListener('click', function () {
+                                const thisCheckbox = this.querySelector('.room-checkbox');
+                                if (!thisCheckbox.checked) {
+                                    checkboxes.forEach(cb => cb.checked = false);
+                                    thisCheckbox.checked = true;
+                                } else {
+                                    thisCheckbox.checked = false;
+                                }
+                                updateTotalPrice();
+                            });
+                        });
 
-                                        // Xóa item và cập nhật tổng giá
-                                        document.querySelectorAll('.delete-btn').forEach(btn => {
-                                            btn.addEventListener('click', e => {
-                                                const card = e.target.closest('.cart-item');
-                                                card.remove();
-                                                updateTotalPrice();
-                                            });
-                                        });
+                        // Xóa item và cập nhật tổng giá
+                        document.querySelectorAll('.delete-btn').forEach(btn => {
+                            btn.addEventListener('click', e => {
+                                const card = e.target.closest('.cart-item');
+                                card.remove();
+                                updateTotalPrice();
+                            });
+                        });
 
-                                        // Khởi tạo trạng thái ban đầu
-                                        updateTotalPrice();
-                                        function deleteCart(event, cartId) {
-                                            event.stopPropagation();
-                                            window.location.href = '?action=deleteCart&cartId=' + cartId;
-                                        }
+                        // Khởi tạo trạng thái ban đầu
+                        updateTotalPrice();
+                        function deleteCart(event, cartId) {
+                            event.stopPropagation();
+                            window.location.href = '?action=deleteCart&cartId=' + cartId;
+                        }
         </script>
     </body>
 

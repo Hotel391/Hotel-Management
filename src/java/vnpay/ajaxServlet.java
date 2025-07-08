@@ -150,14 +150,6 @@ public class ajaxServlet extends HttpServlet {
                     List<DetailService> includedList = includedServiceQuantities != null
                             ? includedServiceQuantities.getOrDefault(roomNumberStr, new ArrayList<>())
                             : new ArrayList<>();
-                    
-                    for (DetailService detailService : serviceList) {
-                        System.out.println(detailService.toString());
-                    }
-                    for (DetailService detailService : includedList) {
-                         System.out.println(detailService.toString());
-                    }
-                   
 
                     for (DetailService detail : serviceList) {
                         int serviceId = detail.getService().getServiceId();
@@ -329,7 +321,7 @@ public class ajaxServlet extends HttpServlet {
         long amount = (long) (totalPrice * 100);
         String vnp_TxnRef = null;
         if ("checkIn".equals(status)) {
-            vnp_TxnRef = bookingId + "_CI";//dky ma rieng
+            vnp_TxnRef = bookingId + generateRandomCodeWithUnderscore(6);
         } else {
             String CO = generateRandomCodeWithUnderscore(6);
             vnp_TxnRef = bookingId + CO;

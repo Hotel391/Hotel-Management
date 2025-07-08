@@ -374,7 +374,7 @@ public class BookingDAO {
     //get booking by payday
     public List<Booking> getBookingByPayDay(Date payDay) {
         List<Booking> bookings = new ArrayList<>();
-        String sql = "SELECT * FROM Booking WHERE PayDay = ? and Status = 'Completed CheckOut'";
+        String sql = "SELECT * FROM Booking WHERE DATEDIFF(Day, ?, PayDay) = 0 and Status = 'Completed CheckOut'";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setDate(1, payDay);
             try (ResultSet rs = st.executeQuery()) {
@@ -385,7 +385,7 @@ public class BookingDAO {
                     booking.setPayDay(rs.getDate("PayDay"));
                     booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setStatus(rs.getString("status"));
-                    booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
+                    booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingID")));
                     bookings.add(booking);
                 }
             }

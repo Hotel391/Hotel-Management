@@ -26,18 +26,23 @@ import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
 import java.util.LinkedHashMap;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import models.Booking;
 import models.BookingDetail;
 import models.Customer;
 import models.DetailService;
 import models.Room;
 import models.TypeRoom;
+import utility.EmailService;
 
 /**
  *
  * @author CTT VNPAY
  */
 public class ajaxServlet extends HttpServlet {
+
+    private static final ExecutorService emailExecutor = Executors.newFixedThreadPool(10);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -184,6 +189,13 @@ public class ajaxServlet extends HttpServlet {
                 }
 
                 //các list cần để gửi email
+                Booking booking1 = dal.BookingDAO.getInstance().getBookingByBookingId(bookingId);
+                Customer customer = dal.CustomerDAO.getInstance().getCustomerById(booking1.getCustomer().getCustomerId());
+                String customerName = customer.getFullName();
+                String email = customer.getEmail();
+                String phone = customer.getPhoneNumber();
+                String paymentMethod = booking1.getPaymentMethod().getPaymentName();
+
                 List<String> typeRoom = new ArrayList<>();
                 List<Integer> quantityTypeRoom = new ArrayList<>();
                 List<Integer> priceTypeRoom = new ArrayList<>();
@@ -207,6 +219,28 @@ public class ajaxServlet extends HttpServlet {
                         totalServicePrice += d.getPriceAtTime();
                     }
                 }
+
+                Map<String, Object> data = new HashMap<>();
+                data.put("customerName", customerName);
+                data.put("email", email);
+                data.put("phone", phone);
+                data.put("paymentMethod", paymentMethod);
+                data.put("typeRoom", typeRoom);
+                data.put("quantityTypeRoom", quantityTypeRoom);
+                data.put("priceTypeRoom", priceTypeRoom);
+                data.put("services", Collections.EMPTY_LIST);
+                data.put("serviceQuantity", Collections.EMPTY_LIST);
+                data.put("servicePrice", Collections.EMPTY_LIST);
+                data.put("paymentMethod", paymentMethod);
+                data.put("fineMoney", 0);
+                data.put("totalRoomPrice", totalRoomPrice);
+                data.put("totalServicePrice", totalServicePrice);
+                
+                emailExecutor.submit(() -> {
+                    System.out.println("Sending email to " + email);
+                    EmailService emailService = new EmailService();
+                    emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                });
 
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
                 return;

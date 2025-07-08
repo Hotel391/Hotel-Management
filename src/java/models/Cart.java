@@ -1,6 +1,8 @@
 package models;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Cart {
 
@@ -17,6 +19,8 @@ public class Cart {
     private int adults;
     private int children;
     private int roomNumber;
+    private Room room;
+    private List<CartService> cartServices = new ArrayList<>();
 
     public Cart() {
     }
@@ -133,5 +137,17 @@ public class Cart {
     }
     public void setRoomNumber(int roomNumber) {
         this.roomNumber = roomNumber;
+    }
+    public Room getRoom() {
+        return room;
+    }
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+    public List<CartService> getCartServices() {
+        return cartServices;
+    }
+    public void setCartServices(List<CartService> cartServices) {
+        this.cartServices = cartServices;
     }
 }

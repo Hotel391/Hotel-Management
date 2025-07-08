@@ -429,7 +429,7 @@ public class TypeRoomDAO {
                     SELECT 
                         tr.TypeId,
                         tr.TypeName,
-                        tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
+                        tr.Price AS Price,
                         tr.Description,
                         COUNT(DISTINCT CASE 
                             WHEN bd.BookingDetailId IS NULL and c.CartId is null THEN r.RoomNumber
@@ -528,7 +528,7 @@ public class TypeRoomDAO {
                 SELECT COUNT(*) AS totalTypeRoom
                 FROM (
                     SELECT tr.TypeId,
-                        tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
+                        tr.Price AS Price,
                         tr.Adult,
                         tr.Children + tr.Adult AS totalCapacity
                     FROM TypeRoom tr
@@ -586,7 +586,7 @@ public class TypeRoomDAO {
                         tr.TypeName,
                         tr.Price AS OriginPrice,
                         COALESCE(svc.ServicePrice, 0) AS ServicePrice,
-                        tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
+                        tr.Price AS Price,
                         tr.Description,
                         tr.Adult,
                         tr.Children,

@@ -279,7 +279,8 @@ public class ajaxServlet extends HttpServlet {
         long amount = (long) (totalPrice * 100);
         String vnp_TxnRef = null;
         if ("checkIn".equals(status)) {
-            vnp_TxnRef = bookingId + "_CI";//dky ma rieng
+            String ci=generateRandomCodeWithUnderscore(6);
+            vnp_TxnRef = bookingId + ci;//dky ma rieng
         } else {
             String CO = generateRandomCodeWithUnderscore(6);
             vnp_TxnRef = bookingId + CO;

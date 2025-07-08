@@ -211,4 +211,25 @@ public class Validation {
         }
         return value;
     }
+
+    public static <T> boolean checkInputField(
+            String rawInput,
+            Function<String, T> parser,
+            List<ValidationRule<T>> rules) {
+        T value;
+        if (rawInput == null || rawInput.trim().isEmpty()) {
+            return false;
+        }
+        try{
+            value = parser.apply(rawInput);
+        } catch (Exception e) {
+            return false;
+        }
+        for (ValidationRule<T> rule : rules) {
+            if (!rule.isValid(value)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

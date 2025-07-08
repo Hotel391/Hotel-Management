@@ -150,6 +150,14 @@ public class ajaxServlet extends HttpServlet {
                     List<DetailService> includedList = includedServiceQuantities != null
                             ? includedServiceQuantities.getOrDefault(roomNumberStr, new ArrayList<>())
                             : new ArrayList<>();
+                    
+                    for (DetailService detailService : serviceList) {
+                        System.out.println(detailService.toString());
+                    }
+                    for (DetailService detailService : includedList) {
+                         System.out.println(detailService.toString());
+                    }
+                   
 
                     for (DetailService detail : serviceList) {
                         int serviceId = detail.getService().getServiceId();

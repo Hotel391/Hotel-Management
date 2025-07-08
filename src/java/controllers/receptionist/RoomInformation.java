@@ -44,7 +44,7 @@ public class RoomInformation extends HttpServlet {
         }
 
         List<Map<String, Object>> roomDetails = new ArrayList<>();
-        Map<Integer, Integer> includedServiceQuantities = new HashMap<>();
+        Map<String, List<DetailService>> includedServiceQuantities = new HashMap<>();
 
         java.sql.Date startDateSql = java.sql.Date.valueOf(startDate);
         java.sql.Date endDateSql = java.sql.Date.valueOf(endDate);
@@ -67,9 +67,9 @@ public class RoomInformation extends HttpServlet {
                         int quantity = s.getServiceName().equalsIgnoreCase("Ăn sáng") || s.getServiceName().equalsIgnoreCase("Spa") ? (int) numberOfNights : 1;
                         ds.setQuantity(quantity);
                         includedServices.add(ds);
-                        includedServiceQuantities.put(s.getServiceId(), quantity);
                     }
                     roomDetail.put("includedServices", includedServices);
+                    includedServiceQuantities.put(roomNumber, includedServices);
 
                     List<Service> optionalServices = ServiceDAO.getInstance().getAllService();
                     roomDetail.put("optionalServices", optionalServices);
@@ -102,7 +102,7 @@ public class RoomInformation extends HttpServlet {
         Map<String, String> roomTypeMap = (Map<String, String>) session.getAttribute("roomTypeMap");
         String startDate = (String) session.getAttribute("startDate");
         String endDate = (String) session.getAttribute("endDate");
-        Map<Integer, Integer> includedServiceQuantities = (Map<Integer, Integer>) session.getAttribute("includedServiceQuantities");
+        Map<String, List<DetailService>> includedServiceQuantities = (Map<String, List<DetailService>>) session.getAttribute("includedServiceQuantities");
 
         if (roomNumbers == null || roomNumbers.length == 0 || totalRoomPrice == null || roomTypeMap == null || includedServiceQuantities == null) {
             request.setAttribute("errorMessage", "Thông tin đặt phòng bị thiếu. Vui lòng bắt đầu lại.");
@@ -123,17 +123,19 @@ public class RoomInformation extends HttpServlet {
 
             String typeName = roomTypeMap.get(roomNumber);
             TypeRoom typeRoom = TypeRoomDAO.getInstance().getTypeRoomByName(typeName);
-            List<Service> includedServices = ServiceDAO.getInstance().getServicesByTypeRoom(typeRoom.getTypeId());
 
-            for (Service s : includedServices) {
-                Integer quantity = includedServiceQuantities.getOrDefault(s.getServiceId(), s.getServiceName().equalsIgnoreCase("Ăn sáng") || s.getServiceName().equalsIgnoreCase("Spa") ? (int) numberOfNights : 1);
-                DetailService ds = new DetailService();
-                ds.setService(s);
-                ds.setQuantity(quantity);
-                serviceMap.put(s.getServiceId(), ds);
+            List<DetailService> includedServices = includedServiceQuantities.getOrDefault(roomNumber, new ArrayList<>());
+            for (DetailService ds : includedServices) {
+                Service s = ds.getService();
+                int quantity = ds.getQuantity();
+                DetailService newDs = new DetailService();
+                newDs.setService(s);
+                newDs.setQuantity(quantity);
+                serviceMap.put(s.getServiceId(), newDs);
                 System.out.println("Included Service: " + s.getServiceName() + ", Quantity: " + quantity + ", Room: " + roomNumber);
             }
 
+            // Process optional services
             String[] selectedIds = request.getParameterValues("serviceId_" + roomNumber);
             if (selectedIds != null) {
                 for (String serviceIdStr : selectedIds) {

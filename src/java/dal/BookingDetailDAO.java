@@ -54,6 +54,7 @@ public class BookingDetailDAO {
                 bookingDetail.setServices(
                         DetailServiceDAO.getInstance()
                                 .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetail.setBooking(booking);
                 bookingDetails.add(bookingDetail);
             }
         } catch (SQLException e) {
@@ -61,7 +62,7 @@ public class BookingDetailDAO {
         }
         return bookingDetails;
     }
-    
+
     //get booking detail by booking id
     public List<BookingDetail> getBookingDetailByBookingIdAndRoomNumber(Booking booking, int roomNumber) {
         List<BookingDetail> bookingDetails = new ArrayList<>();
@@ -268,7 +269,6 @@ public class BookingDetailDAO {
 //        }
 //        return bookingDetails;
 //    }
-    
     public List<BookingDetail> getBookingDetailsByBookingId(int bookingId) {
         List<BookingDetail> bookingDetails = new ArrayList<>();
         String sql = """
@@ -428,9 +428,8 @@ public class BookingDetailDAO {
         }
         return -1;
     }
-    
+
     //get booking detail by id
-    
     public BookingDetail getBookingDetailByBookingDetailId(int bookingDetailId) {
         BookingDetail bookingDetail = null;
         String sql = "SELECT * FROM BookingDetail WHERE BookingDetailId = ?";
@@ -452,5 +451,33 @@ public class BookingDetailDAO {
             System.out.println(e);
         }
         return bookingDetail;
+    }
+
+    //get list booking detail by query
+    public List<BookingDetail> getListBookingDetailCheckout(int customerId) {
+        List<BookingDetail> bookingDetails = new ArrayList<>();
+        String sql = "select distinct bd.* from Customer c join Booking b on c.CustomerId = b.CustomerId \n"
+                + "join BookingDetail bd on bd.BookingId = b.BookingId\n"
+                + "where bd.EndDate >= CAST(GETDATE() As Date) And b.Status = 'Completed CheckIn'\n"
+                + "AND c.customerId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, customerId);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                BookingDetail bookingDetail = new BookingDetail();
+                bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
+                bookingDetail.setStartDate(rs.getDate("StartDate"));
+                bookingDetail.setEndDate(rs.getDate("EndDate"));
+                bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
+                bookingDetail.setServices(
+                        DetailServiceDAO.getInstance()
+                                .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetail.setBooking(BookingDAO.getInstance().getBookingByBookingId(rs.getInt("BookingId")));
+                bookingDetails.add(bookingDetail);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return bookingDetails;
     }
 }

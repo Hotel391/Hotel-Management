@@ -26,18 +26,23 @@ import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
 import java.util.LinkedHashMap;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import models.Booking;
 import models.BookingDetail;
 import models.Customer;
 import models.DetailService;
 import models.Room;
 import models.TypeRoom;
+import utility.EmailService;
 
 /**
  *
  * @author CTT VNPAY
  */
 public class ajaxServlet extends HttpServlet {
+
+    private static final ExecutorService emailExecutor = Executors.newFixedThreadPool(10);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -77,9 +82,13 @@ public class ajaxServlet extends HttpServlet {
             // Lấy Map roomServicesMap
             Map<String, List<DetailService>> roomServicesMap
                     = (Map<String, List<DetailService>>) session.getAttribute("roomServicesMap");
-            Map<Integer, Integer> includedServiceQuantities
-                    = (Map<Integer, Integer>) session.getAttribute("includedServiceQuantities");
+
+            // Lấy danh sách dịch vụ đã bao gồm sẵn theo loại phòng
+            Map<String, List<DetailService>> includedServiceQuantities
+                    = (Map<String, List<DetailService>>) session.getAttribute("includedServiceQuantities");
+
             List<Integer> listBookingDetailId = new ArrayList<>();
+
             for (String roomNumberStr : roomNumbers) {
                 int roomNumber = Integer.parseInt(roomNumberStr);
                 // Lấy giá phòng theo từng room
@@ -90,32 +99,35 @@ public class ajaxServlet extends HttpServlet {
 
                 // Tính tổng tiền dịch vụ (nếu có)
                 int totalServiceCost = 0;
+                if (roomServicesMap != null && roomServicesMap.containsKey(roomNumberStr)) {
+                    List<DetailService> serviceList = roomServicesMap.get(roomNumberStr);
+                    List<DetailService> includedList = includedServiceQuantities != null
+                            ? includedServiceQuantities.getOrDefault(roomNumberStr, new ArrayList<>())
+                            : new ArrayList<>();
 
-                List<DetailService> serviceList = roomServicesMap != null ? roomServicesMap.get(roomNumberStr) : null;
-                List<DetailService> actualServicesToInsert = new ArrayList<>();
-
-                if (serviceList != null) {
                     for (DetailService detail : serviceList) {
                         int serviceId = detail.getService().getServiceId();
-                        int quantityFromMap = detail.getQuantity();
-                        int includedQuantity = includedServiceQuantities.getOrDefault(serviceId, 0);
-                        int quantityToInsert = quantityFromMap - includedQuantity;
+                        int quantity = detail.getQuantity();
+                        int priceAtTime = detail.getService().getPrice();
 
-                        if (quantityToInsert > 0) {
-                            int unitPrice = detail.getService().getPrice();
-                            int priceAtTime = unitPrice * quantityToInsert;
-                            totalServiceCost += priceAtTime;
+                        // Tìm quantity của dịch vụ này trong danh sách included
+                        int includedQuantity = 0;
+                        for (DetailService included : includedList) {
+                            if (included.getService().getServiceId() == serviceId) {
+                                includedQuantity = included.getQuantity();
+                                break;
+                            }
+                        }
 
-                            // Ghi lại để insert sau
-                            DetailService newDetail = new DetailService();
-                            newDetail.setService(detail.getService());
-                            newDetail.setQuantity(quantityToInsert);
-                            newDetail.setPriceAtTime(priceAtTime);
-                            actualServicesToInsert.add(newDetail);
+                        int finalQuantity = quantity - includedQuantity;
+                        if (finalQuantity > 0) {
+                            int total = finalQuantity * priceAtTime;
+                            totalServiceCost += total;
                         }
                     }
                 }
 
+                // Tổng tiền phòng + dịch vụ
                 int totalAmount = (int) Math.round(totalRoomPrice) + totalServiceCost;
 
                 // Tạo BookingDetail
@@ -129,18 +141,39 @@ public class ajaxServlet extends HttpServlet {
                 booking1.setBookingId(bookingId);
                 bookingDetail.setBooking(booking1);
                 bookingDetail.setTotalAmount(totalAmount);
-
                 int bookingDetailId = dal.BookingDetailDAO.getInstance().insertNewBookingDetail(bookingDetail);
                 listBookingDetailId.add(bookingDetailId);
 
-                // Chỉ insert dịch vụ phát sinh
-                for (DetailService ds : actualServicesToInsert) {
-                    int serviceId = ds.getService().getServiceId();
-                    int quantity = ds.getQuantity();
-                    int priceAtTime = ds.getPriceAtTime();
-                    dal.DetailServiceDAO.getInstance().insertDetailService(
-                            bookingDetailId, serviceId, quantity, priceAtTime
-                    );
+                // Chèn các dịch vụ phát sinh thực sự phải tính tiền
+                if (roomServicesMap != null && roomServicesMap.containsKey(roomNumberStr)) {
+                    List<DetailService> serviceList = roomServicesMap.get(roomNumberStr);
+                    List<DetailService> includedList = includedServiceQuantities != null
+                            ? includedServiceQuantities.getOrDefault(roomNumberStr, new ArrayList<>())
+                            : new ArrayList<>();
+
+                    for (DetailService detail : serviceList) {
+                        int serviceId = detail.getService().getServiceId();
+                        int quantity = detail.getQuantity();
+                        int priceAtTime = detail.getService().getPrice();
+
+                        // Tìm quantity của dịch vụ này trong danh sách included
+                        int includedQuantity = 0;
+                        for (DetailService included : includedList) {
+                            if (included.getService().getServiceId() == serviceId) {
+                                includedQuantity = included.getQuantity();
+                                break;
+                            }
+                        }
+
+                        int finalQuantity = quantity - includedQuantity;
+                        if (finalQuantity >= 0) {
+                            int total = finalQuantity * priceAtTime;
+
+                            dal.DetailServiceDAO.getInstance().insertDetailService(
+                                    bookingDetailId, serviceId, quantity, total
+                            );
+                        }
+                    }
                 }
             }
 
@@ -198,6 +231,13 @@ public class ajaxServlet extends HttpServlet {
                 }
 
                 //các list cần để gửi email
+                Booking booking1 = dal.BookingDAO.getInstance().getBookingByBookingId(bookingId);
+                Customer customer = dal.CustomerDAO.getInstance().getCustomerById(booking1.getCustomer().getCustomerId());
+                String customerName = customer.getFullName();
+                String email = customer.getEmail();
+                String phone = customer.getPhoneNumber();
+                String paymentMethod = booking1.getPaymentMethod().getPaymentName();
+
                 List<String> typeRoom = new ArrayList<>();
                 List<Integer> quantityTypeRoom = new ArrayList<>();
                 List<Integer> priceTypeRoom = new ArrayList<>();
@@ -235,6 +275,27 @@ public class ajaxServlet extends HttpServlet {
                 List<String> services = new ArrayList<>();
                 List<Integer> serviceQuantity = new ArrayList<>();
                 List<Integer> servicePrice = new ArrayList<>();
+                Map<String, Object> data = new HashMap<>();
+                data.put("customerName", customerName);
+                data.put("email", email);
+                data.put("phone", phone);
+                data.put("paymentMethod", paymentMethod);
+                data.put("typeRoom", typeRoom);
+                data.put("quantityTypeRoom", quantityTypeRoom);
+                data.put("priceTypeRoom", priceTypeRoom);
+                data.put("services", Collections.EMPTY_LIST);
+                data.put("serviceQuantity", Collections.EMPTY_LIST);
+                data.put("servicePrice", Collections.EMPTY_LIST);
+                data.put("paymentMethod", paymentMethod);
+                data.put("fineMoney", 0);
+                data.put("totalRoomPrice", totalRoomPrice);
+                data.put("totalServicePrice", totalServicePrice);
+
+                emailExecutor.submit(() -> {
+                    System.out.println("Sending email to " + email);
+                    EmailService emailService = new EmailService();
+                    emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                });
 
                 for (String name : serviceQuantityMap.keySet()) {
                     services.add(name);

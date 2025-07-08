@@ -16,6 +16,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -219,7 +220,7 @@ public class VnpayReturn extends HttpServlet {
                     }
 
                     System.out.println("========== END OF SUMMARY ==========");
-                    Map<String,Object> data= new HashMap<>();
+                    Map<String, Object> data = new HashMap<>();
                     data.put("customerName", customerName);
                     data.put("email", email);
                     data.put("phone", phone);
@@ -340,13 +341,34 @@ public class VnpayReturn extends HttpServlet {
                     List<String> services = new ArrayList<>();
                     List<Integer> serviceQuantity = new ArrayList<>();
                     List<Integer> servicePrice = new ArrayList<>();
-
+                    
                     for (String name : serviceQuantityMap.keySet()) {
                         services.add(name);
                         serviceQuantity.add(serviceQuantityMap.get(name));
                         servicePrice.add(servicePriceMap.get(name));
                     }
+                    
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("customerName", customerName);
+                    data.put("email", email);
+                    data.put("phone", phone);
+                    data.put("paymentMethod", paymentMethod);
+                    data.put("typeRoom", typeRoom);
+                    data.put("quantityTypeRoom", quantityTypeRoom);
+                    data.put("priceTypeRoom", priceTypeRoom);
+                    data.put("services", Collections.EMPTY_LIST);
+                    data.put("serviceQuantity", Collections.EMPTY_LIST);
+                    data.put("servicePrice", Collections.EMPTY_LIST);
+                    data.put("paymentMethod", paymentMethod);
+                    data.put("fineMoney", 0);
+                    data.put("totalRoomPrice", totalRoomPrice);
+                    data.put("totalServicePrice", totalServicePrice);
 
+                    emailExecutor.submit(() -> {
+                        System.out.println("Sending email to " + email);
+                        EmailService emailService = new EmailService();
+                        emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                    });
                     request.setAttribute("pageChange", "checkOut");
                     session.removeAttribute("listRoomNumber");
                     transSuccess = true;

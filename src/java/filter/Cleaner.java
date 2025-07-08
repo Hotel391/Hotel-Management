@@ -20,7 +20,7 @@ import models.Employee;
  *
  * @author HieuTT
  */
-//@WebFilter(filterName = "Cleaner", urlPatterns = {"/cleaner/*"})
+@WebFilter(filterName = "Cleaner", urlPatterns = {"/cleaner/*"})
 public class Cleaner implements Filter {
 
     private static final boolean debug = true;

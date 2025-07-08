@@ -82,7 +82,13 @@ public class ajaxServlet extends HttpServlet {
             // Lấy Map roomServicesMap
             Map<String, List<DetailService>> roomServicesMap
                     = (Map<String, List<DetailService>>) session.getAttribute("roomServicesMap");
+
+            // Lấy danh sách dịch vụ đã bao gồm sẵn theo loại phòng
+            Map<String, List<DetailService>> includedServiceQuantities
+                    = (Map<String, List<DetailService>>) session.getAttribute("includedServiceQuantities");
+
             List<Integer> listBookingDetailId = new ArrayList<>();
+
             for (String roomNumberStr : roomNumbers) {
                 int roomNumber = Integer.parseInt(roomNumberStr);
                 // Lấy giá phòng theo từng room
@@ -95,18 +101,36 @@ public class ajaxServlet extends HttpServlet {
                 int totalServiceCost = 0;
                 if (roomServicesMap != null && roomServicesMap.containsKey(roomNumberStr)) {
                     List<DetailService> serviceList = roomServicesMap.get(roomNumberStr);
+                    List<DetailService> includedList = includedServiceQuantities != null
+                            ? includedServiceQuantities.getOrDefault(roomNumberStr, new ArrayList<>())
+                            : new ArrayList<>();
+
                     for (DetailService detail : serviceList) {
+                        int serviceId = detail.getService().getServiceId();
                         int quantity = detail.getQuantity();
                         int priceAtTime = detail.getService().getPrice();
-                        int total = quantity * priceAtTime;
-                        totalServiceCost += total;
+
+                        // Tìm quantity của dịch vụ này trong danh sách included
+                        int includedQuantity = 0;
+                        for (DetailService included : includedList) {
+                            if (included.getService().getServiceId() == serviceId) {
+                                includedQuantity = included.getQuantity();
+                                break;
+                            }
+                        }
+
+                        int finalQuantity = quantity - includedQuantity;
+                        if (finalQuantity > 0) {
+                            int total = finalQuantity * priceAtTime;
+                            totalServiceCost += total;
+                        }
                     }
                 }
 
                 // Tổng tiền phòng + dịch vụ
                 int totalAmount = (int) Math.round(totalRoomPrice) + totalServiceCost;
 
-                // Tạo BookingDetail cho từng phòng
+                // Tạo BookingDetail
                 BookingDetail bookingDetail = new BookingDetail();
                 Room room = new Room();
                 Booking booking1 = new Booking();
@@ -116,21 +140,39 @@ public class ajaxServlet extends HttpServlet {
                 bookingDetail.setRoom(room);
                 booking1.setBookingId(bookingId);
                 bookingDetail.setBooking(booking1);
-                bookingDetail.setTotalAmount((int) totalAmount);
+                bookingDetail.setTotalAmount(totalAmount);
                 int bookingDetailId = dal.BookingDetailDAO.getInstance().insertNewBookingDetail(bookingDetail);
                 listBookingDetailId.add(bookingDetailId);
 
-                // Insert dịch vụ cho từng phòng (nếu có)
+                // Chèn các dịch vụ phát sinh thực sự phải tính tiền
                 if (roomServicesMap != null && roomServicesMap.containsKey(roomNumberStr)) {
                     List<DetailService> serviceList = roomServicesMap.get(roomNumberStr);
+                    List<DetailService> includedList = includedServiceQuantities != null
+                            ? includedServiceQuantities.getOrDefault(roomNumberStr, new ArrayList<>())
+                            : new ArrayList<>();
+
                     for (DetailService detail : serviceList) {
                         int serviceId = detail.getService().getServiceId();
                         int quantity = detail.getQuantity();
                         int priceAtTime = detail.getService().getPrice();
-                        int total = quantity * priceAtTime;
-                        dal.DetailServiceDAO.getInstance().insertDetailService(
-                                bookingDetailId, serviceId, quantity, total
-                        );
+
+                        // Tìm quantity của dịch vụ này trong danh sách included
+                        int includedQuantity = 0;
+                        for (DetailService included : includedList) {
+                            if (included.getService().getServiceId() == serviceId) {
+                                includedQuantity = included.getQuantity();
+                                break;
+                            }
+                        }
+
+                        int finalQuantity = quantity - includedQuantity;
+                        if (finalQuantity >= 0) {
+                            int total = finalQuantity * priceAtTime;
+
+                            dal.DetailServiceDAO.getInstance().insertDetailService(
+                                    bookingDetailId, serviceId, quantity, total
+                            );
+                        }
                     }
                 }
             }
@@ -248,13 +290,13 @@ public class ajaxServlet extends HttpServlet {
                 data.put("fineMoney", 0);
                 data.put("totalRoomPrice", totalRoomPrice);
                 data.put("totalServicePrice", totalServicePrice);
-                
+
                 emailExecutor.submit(() -> {
                     System.out.println("Sending email to " + email);
                     EmailService emailService = new EmailService();
                     emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
                 });
-                
+
                 for (String name : serviceQuantityMap.keySet()) {
                     services.add(name);
                     serviceQuantity.add(serviceQuantityMap.get(name));
@@ -264,9 +306,9 @@ public class ajaxServlet extends HttpServlet {
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
                 return;
             }
-            
+
             totalPrice = totalAmount - paidAmount;
-            
+
             session.setAttribute("listRoomNumber", listRoomNumbers);
             session.setAttribute("totalPriceUpdate", totalAmount);
             session.removeAttribute("bookingId");

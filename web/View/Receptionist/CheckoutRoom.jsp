@@ -55,9 +55,37 @@
                             <c:forEach var="ckl" items="${checkoutList}">
                                 <tr>
                             <form action="${pageContext.request.contextPath}/receptionist/checkoutRoom" method="post">
-                                <td>${ckl.value.fullName}</td>
-                                <td>${ckl.value.phoneNumber}</td>
-                                <td>${ckl.key.room.roomNumber}</td>
+                                <td>${ckl.key.fullName}</td>
+                                <td>${ckl.key.phoneNumber}</td>
+                                <td>
+                                    <!-- Button trigger modal -->
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#roomModal_${ckl.key.customerId}">
+                                        Rooms
+                                    </button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="roomModal_${ckl.key.customerId}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Các phòng được đặt</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <c:forEach var="bd" items="${ckl.value}">
+                                                        <p>Phòng số: ${bd.room.roomNumber}</p>
+                                                        
+                                                        <c:out value="${bd.booking.bookingId}"></c:out>
+                                                    </c:forEach>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td style="width: 230px;">
                                     <select name="paymentMethod" class="form-select w-160" aria-label="Default select example">
                                         <option selected value="default">Chọn phương thức</option>
@@ -67,8 +95,7 @@
                                 </td>
                                 <td>
                                     <input type="hidden" name="service" value="checkout">
-                                    <input type="hidden" name="bookingId" value="${ckl.key.booking.bookingId}">
-                                    <input type="hidden" name="detailId" value="${ckl.key.bookingDetailId}">
+                                    <input type="hidden" name="bookingId" value="${ckl.value[0].booking.bookingId}">
                                     <button type="submit" class="btn btn-sm btn-warning">
                                         Checkout
                                     </button>

@@ -73,6 +73,8 @@ public class CheckoutRoom extends HttpServlet {
             String paymentMethod = request.getParameter("paymentMethod");
 
             int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+            
+            System.out.println("bookingId: " + bookingId);
 
             Booking bookingSelected = BookingDAO.getInstance().getBookingByBookingId(bookingId);
 
@@ -120,6 +122,8 @@ public class CheckoutRoom extends HttpServlet {
 
             if ("online".equals(paymentMethod)) {
 
+                System.out.println("done to online");
+                
                 session.setAttribute("bookingId", bookingId);
 
                 session.setAttribute("status", "checkOut");
@@ -136,18 +140,28 @@ public class CheckoutRoom extends HttpServlet {
     
     private void showCheckoutRoom(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        
+        
         long millis = System.currentTimeMillis();
 
             Date currentDate = new Date(millis);
 
-            HashMap<BookingDetail, Customer> checkoutInfor = new LinkedHashMap<>();
+            HashMap<Customer, List<BookingDetail>> checkoutInfor = new LinkedHashMap<>();
 
-            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(currentDate);
+//            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(currentDate);
+            
+            List<Customer> customerCheckout = CustomerDAO.getInstance().getCustomersCheckout() ;
 
-            for (BookingDetail bookingDetail : checkoutList) {
-                Customer customerCheckout = CustomerDAO.getInstance().getCustomerByBookingDetailId(bookingDetail.getBookingDetailId());
-                checkoutInfor.put(bookingDetail, customerCheckout);
-            }
+//            for (BookingDetail bookingDetail : checkoutList) {
+//                Customer customerCheckout = CustomerDAO.getInstance().getCustomerByBookingDetailId(bookingDetail.getBookingDetailId());
+//                checkoutInfor.put(bookingDetail, customerCheckout);
+//            }
+
+        for (Customer customer : customerCheckout) {
+            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getListBookingDetailCheckout(customer.getCustomerId());
+            checkoutInfor.put(customer, checkoutList);
+        }
 
             request.setAttribute("today", currentDate);
 

@@ -128,6 +128,10 @@ public class TypeRoom {
     public List<String> getImages() {
         return urlImages;
     }
+    
+    public List<RoomImage> getRoomImages() {
+        return images;
+    }
 
     public void setImages(List<?> images) {
         if (images != null && !images.isEmpty()) {

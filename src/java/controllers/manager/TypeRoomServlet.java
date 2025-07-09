@@ -369,21 +369,21 @@ public class TypeRoomServlet extends HttpServlet {
 
                     if (!roomNService.isEmpty()) {
                         for (RoomNService rns : roomNService) {
-                            typePrice -= (rns.getService().getPrice() * rns.getQuantity());
+                            //typePrice -= (rns.getService().getPrice() * rns.getQuantity());
                             RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId, rns.getService().getServiceId());
-                            System.out.println("TypeRoom minus: " + typePrice);
+                            
                         }
                     }
 
 //                        RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId);
                     for (Map.Entry<Integer, Integer> entry : serviceQuantityMap.entrySet()) {
-                        System.out.println("key: " + entry.getKey() + " - value: " + entry.getValue());
+                        
                         RoomNServiceDAO.getInstance().insertRoomNServiceByTypeId(typeId, entry.getKey(), entry.getValue());
-                        typePrice += ServiceDAO.getInstance().getServiceByServiceId(entry.getKey()).getPrice() * entry.getValue();
-                        System.out.println("type price plus: " + typePrice);
+                        //typePrice += ServiceDAO.getInstance().getServiceByServiceId(entry.getKey()).getPrice() * entry.getValue();
+                        
                     }
 
-                    TypeRoomDAO.getInstance().updateTypeRoom(typeRoom.getTypeId(), typeRoom.getTypeName(), typePrice);
+                    //TypeRoomDAO.getInstance().updateTypeRoom(typeRoom.getTypeId(), typeRoom.getTypeName(), typePrice);
 
                     request.setAttribute("updateMessageService", "Cập nhật dịch vụ thành công");
                 }
@@ -398,12 +398,11 @@ public class TypeRoomServlet extends HttpServlet {
 
                 if (!roomNService.isEmpty()) {
                     for (RoomNService rns : roomNService) {
-                        typePrice -= (rns.getService().getPrice() * rns.getQuantity());
+                        //typePrice -= (rns.getService().getPrice() * rns.getQuantity());
                         RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId, rns.getService().getServiceId());
-                        System.out.println("TypeRoom minus: " + typePrice);
+                        
                     }
                 }
-                TypeRoomDAO.getInstance().updateTypeRoom(typeRoom.getTypeId(), typeRoom.getTypeName(), typePrice);
 
                 request.setAttribute("showModalService", typeId);
             }

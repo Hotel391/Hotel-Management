@@ -308,7 +308,7 @@ public class BookingDAO {
     }
 
     public int insertNewBooking(Booking booking) {
-        String sql = "INSERT INTO [dbo].[Booking] ([CustomerId], [PaymentMethodId]) VALUES(?, ?)";
+        String sql = "INSERT INTO [dbo].[Booking] ([CustomerId], [PaymentMethodIdCheckIn]) VALUES(?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
 
             st.setInt(1, booking.getCustomer().getCustomerId());
@@ -359,12 +359,13 @@ public class BookingDAO {
 
     public boolean updateBookingTotalPrice(Booking booking) {
         String sql = "UPDATE [dbo].[Booking]\n"
-                + "   SET [TotalPrice] = ? , [PayDay] = GETDATE()\n"
+                + "   SET [TotalPrice] = ? , [PayDay] = GETDATE(), ,[PaymentMethodId] = ?\n"
                 + " WHERE [BookingId] = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, booking.getTotalPrice());
-            st.setInt(2, booking.getBookingId());
+            st.setInt(2, 1);
+            st.setInt(3, booking.getBookingId());
             return st.executeUpdate() > 0;
         } catch (SQLException ex) {
             System.out.println(ex);

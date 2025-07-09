@@ -61,6 +61,7 @@ public class Checkout extends HttpServlet {
                         request.setAttribute("existedCustomer", existedCustomer);
                     } else if (phone != null && !phone.isEmpty()) {
                         request.setAttribute("newCustomer", "Khách hàng mới");
+                        request.setAttribute("phone", phone);
                     }
                 }
             }
@@ -69,6 +70,8 @@ public class Checkout extends HttpServlet {
         }
 
         if ("addNew".equals(service)) {
+
+            String paymentMethod = request.getParameter("paymentMethod");
 
             boolean check = false;
 
@@ -112,6 +115,11 @@ public class Checkout extends HttpServlet {
                 request.setAttribute("emailError", "Email đã tồn tại");
             }
 
+            if ("default".equals(paymentMethod)) {
+                check = true;
+                request.setAttribute("paymentMethodError", "Vui lòng chọn phương thức thanh toán");
+            }
+
             if (!check) {
                 Customer customer = new Customer();
                 customer.setFullName(fullName);
@@ -122,14 +130,22 @@ public class Checkout extends HttpServlet {
                 customer.setGender(genderValue.equals("Male"));
                 customer.setActivate(true);
 
-                int checkUpdate = CustomerDAO.getInstance().insertCustomerExceptionId(customer);
+                if ("online".equals(paymentMethod)) {
 
-                session.setAttribute("customerId", checkUpdate);
+                    int checkUpdate = CustomerDAO.getInstance().insertCustomerExceptionId(customer);
 
-                session.setAttribute("status", "checkIn");
+                    session.setAttribute("customerId", checkUpdate);
 
-                response.sendRedirect(request.getContextPath() + "/payment");
+                    session.setAttribute("status", "checkIn");
+
+                    response.sendRedirect(request.getContextPath() + "/payment");
+                }
+                
+                if("offline".equals(paymentMethod)){
+                    
+                }
             } else {
+                request.setAttribute("phoneSearch", phone);
                 request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
             }
 
@@ -137,6 +153,8 @@ public class Checkout extends HttpServlet {
 
         if ("addExisted".equals(service)) {
             String phone = request.getParameter("phone");
+
+            String paymentMethod = request.getParameter("paymentMethod");
 
             Customer existedCustomer = CustomerDAO.getInstance().getCustomerByPhoneNumber(phone);
 
@@ -151,7 +169,7 @@ public class Checkout extends HttpServlet {
                 }
                 if (!check) {
                     CustomerDAO.getInstance().updateCustomerCCCD(cccd, existedCustomer.getCustomerId());
-                }else{
+                } else {
                     request.setAttribute("existedCustomer", existedCustomer);
                     request.setAttribute("phoneSearch", phone);
                     request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
@@ -159,11 +177,26 @@ public class Checkout extends HttpServlet {
                 }
             }
 
-            session.setAttribute("customerId", existedCustomer.getCustomerId());
+            if ("default".equals(paymentMethod)) {
+                request.setAttribute("paymentMethodError", "Vui lòng chọn phương thức thanh toán");
+                request.setAttribute("existedCustomer", existedCustomer);
+                request.setAttribute("phoneSearch", phone);
+                request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
+                return;
+            }
 
-            session.setAttribute("status", "checkIn");
+            if ("online".equals(paymentMethod)) {
 
-            response.sendRedirect(request.getContextPath() + "/payment");
+                session.setAttribute("customerId", existedCustomer.getCustomerId());
+
+                session.setAttribute("status", "checkIn");
+
+                response.sendRedirect(request.getContextPath() + "/payment");
+            }
+
+            if ("offline".equals(paymentMethod)) {
+
+            }
         }
 
         if ("backToServicePage".equals(service)) {

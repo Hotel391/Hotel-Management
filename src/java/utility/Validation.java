@@ -1,6 +1,8 @@
 package utility;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +37,7 @@ public class Validation {
         regexMap.put("ROOM_PRICE_INT", Pattern.compile("^[1-9]\\d{0,7}$"));
         regexMap.put("DESCRIPTION", Pattern.compile("^[\\p{L}\\d\\s,./-]{5,255}$"));
         regexMap.put("CCCD", Pattern.compile("^\\d{3}-\\d{2}-\\d{4}$"));
+        regexMap.put("DATE_OF_BIRTH", Pattern.compile("^(19[0-9]{2}|20[0-9]{2})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"));
 
         ruleCheck.put("FULLNAME", List.of(
                 new ValidationRule<String>(value -> value.length() >= 2 && value.length() <= 100,
@@ -63,6 +66,33 @@ public class Validation {
                         "Password cannot start or end with space"),
                 new ValidationRule<String>(value -> Validation.checkFormatException(value, "PASSWORD"),
                         "Password must contains 8 characters with lower, upper, special and digit")));
+        ruleCheck.put("PHONE_NUMBER", List.of(
+                new ValidationRule<String>(value -> Validation.checkFormatException(value, "PHONE_NUMBER"),
+                        "Phone number must start with 0 and be 10-11 digits"),
+                new ValidationRule<String>(value -> !value.contains(" "),
+                        "Phone number cannot contain spaces")));
+
+        ruleCheck.put("ADDRESS", List.of(
+                new ValidationRule<String>(value -> value.length() >= 5 && value.length() <= 255,
+                        "Address must be 5-255 characters"),
+                new ValidationRule<String>(value -> Validation.checkFormatException(value, "ADDRESS"),
+                        "Address can only contain letters, digits, spaces, commas, dots, slashes, and hyphens")));
+
+        ruleCheck.put("CCCD", List.of(
+                new ValidationRule<String>(value -> Validation.checkFormatException(value, "CCCD"),
+                        "CCCD must be in format XXX-XX-XXXX (e.g., 123-45-6789)")));
+        ruleCheck.put("DATE_OF_BIRTH", List.of(
+                new ValidationRule<Date>(value -> value != null,
+                        "Date of birth is required"),
+                new ValidationRule<Date>(value -> {
+                    if (value == null) {
+                        return false;
+                    }
+                    long time = value.getTime();
+                    long minTime = new Date(1900 - 1900, 0, 1).getTime(); // January 1, 1900
+                    long maxTime = new Date(System.currentTimeMillis()).getTime(); // Today
+                    return time >= minTime && time <= maxTime;
+                }, "Date of birth must be between 1900 and today")));
 
     }
 
@@ -199,7 +229,7 @@ public class Validation {
         if (rawInput == null || rawInput.trim().isEmpty()) {
             return defaultValue;
         }
-        try{
+        try {
             value = parser.apply(rawInput);
         } catch (Exception e) {
             return defaultValue;

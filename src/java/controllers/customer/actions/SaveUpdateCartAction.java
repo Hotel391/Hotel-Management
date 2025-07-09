@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import static utility.Validation.readInputField;
-import static utility.Validation.checkInputField;
 import utility.ValidationRule;
 
 /**
@@ -77,7 +76,7 @@ public class SaveUpdateCartAction implements CartAction {
         Cart cart = dal.CartDAO.getInstance().getDetailCartForIsPayment(cartId);
         List<CartService> currentCartServices = cart.getCartServices();
         Map<Integer, Integer> serviceCannotDisable = dal.CartDAO.getInstance().getServiceCannotDisable(cartId);
-
+        
         for(CartService cs : currentCartServices) {
             int serviceId= cs.getService().getServiceId();
             String checkboxParam= "service_" + serviceId;
@@ -90,8 +89,13 @@ public class SaveUpdateCartAction implements CartAction {
             }
             String quantityStr= request.getParameter(quantityParam);
             try {
+                //Cần thêm logic bảo vệ số lượng dịch vụ không bị giảm xuống dưới mức tối thiểu
                 int quantity = Integer.parseInt(quantityStr);
-                if(quantity > 0){
+                int defaultQuantity=1;
+                if(isProtected) {
+                    defaultQuantity = serviceCannotDisable.get(serviceId);
+                }
+                if(quantity >= defaultQuantity){
                     dal.CartDAO.getInstance().updateCartServiceQuantity(cartId, serviceId, quantity);
                 }
             } catch (NumberFormatException e) {

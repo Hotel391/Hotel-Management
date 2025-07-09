@@ -40,6 +40,9 @@ public class CartDAO {
         }
         return instance;
     }
+    
+    public final int[] serviceIdsDonNeedTimes = {1, 2, 4, 7};
+    private int[] serviceHaveMoneyButNoNeedTimes = {2};
 
     public List<Cart> getCartByCustomerId(int customerId) {
         String sql = """
@@ -121,6 +124,14 @@ public class CartDAO {
 
     private void updateCartPricingAndServices(Cart cart, Date startDate, Date endDate) {
         Map<Integer, Integer> requiredServices = getServiceCannotDisable(cart.getCartId());
+        int numberOfNight = (int) ChronoUnit.DAYS.between(startDate.toLocalDate(), endDate.toLocalDate());
+        requiredServices.replaceAll((serviceId, quantity) -> quantity * numberOfNight);
+        for(int id : serviceIdsDonNeedTimes) {
+            if (requiredServices.containsKey(id)) {
+                requiredServices.put(id, 1);
+            }
+        }
+        
         List<CartService> currentServices = getCartServicesByCartId(cart.getCartId());
 
         Set<Integer> existingServiceIds = currentServices.stream()
@@ -145,9 +156,9 @@ public class CartDAO {
                 addServiceToCart(cart.getCartId(), serviceId, requiredQty);
             }
         }
-        int numberOfNight = (int) ChronoUnit.DAYS.between(startDate.toLocalDate(), endDate.toLocalDate());
-        int totalPrice = getTotalPriceOfCart(cart.getCartId()) +
-                getTypeRoomPriceByCartId(cart.getCartId()) * (numberOfNight - 1);
+        int totalPrice = getTotalPriceOfCart(cart.getCartId(), numberOfNight) +
+                getTypeRoomPriceByCartId(cart.getCartId()) * (numberOfNight - 1) +
+                getTotalServicePriceHaveMoneyButNoNeedTimes(cart.getRoom().getTypeRoom().getTypeId()) * (numberOfNight - 1);
 
         if (cart.getTotalPrice() != totalPrice) {
             cart.setTotalPrice(totalPrice);
@@ -196,9 +207,9 @@ public class CartDAO {
         return 0;
     }
 
-    private int getTotalPriceOfCart(int cartId) {
+    private int getTotalPriceOfCart(int cartId, int numberOfNight) {
         String sql = """
-                select tr.Price+ISNULL(csp.totalServicePrice, 0)-ISNULL(rnsp.totalRoomServicePrice, 0)
+                select tr.Price+ISNULL(csp.totalServicePrice, 0)-ISNULL(rnsp.totalRoomServicePrice, 0) * ?
                 as CalculatedTotalPrice
                 from Cart c
                 join Room r on r.RoomNumber=c.RoomNumber
@@ -215,12 +226,45 @@ public class CartDAO {
                 ) rnsp on rnsp.TypeId=tr.TypeId
                 where c.CartId=?
                 """;
-        ;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, cartId);
+            ps.setInt(1, numberOfNight);
+            ps.setInt(2, cartId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("CalculatedTotalPrice");
+                }
+            }
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return 0;
+    }
+
+    private int getTotalServicePriceHaveMoneyButNoNeedTimes(int typeId) {
+        if (serviceHaveMoneyButNoNeedTimes == null || serviceHaveMoneyButNoNeedTimes.length == 0) {
+            return 0;
+        }
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < serviceHaveMoneyButNoNeedTimes.length; i++) {
+            placeholders.append("?");
+            if (i < serviceHaveMoneyButNoNeedTimes.length - 1) {
+                placeholders.append(",");
+            }
+        }
+        String sql = """
+                select ISNULL(SUM(rns.quantity * s.Price), 0) as totalServicePrice
+                from RoomNService rns
+                join Service s on s.ServiceId = rns.ServiceId
+                where rns.TypeId = ? AND s.ServiceId IN (""" + placeholders + ")";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, typeId);
+            for (int i = 0; i < serviceHaveMoneyButNoNeedTimes.length; i++) {
+                ps.setInt(i + 2, serviceHaveMoneyButNoNeedTimes[i]);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("totalServicePrice");
                 }
             }
         } catch (SQLException e) {
@@ -379,7 +423,7 @@ public class CartDAO {
                 try (var rs = ps.getGeneratedKeys()) {
                     if (rs.next()) {
                         int cartId = rs.getInt(1);
-                        updateCartService(cartId, typeId);
+                        updateCartService(cartId, typeId, numberOfNight);
                         return true;
                     }
                 }
@@ -438,18 +482,28 @@ public class CartDAO {
         return 0;
     }
 
-    private void updateCartService(int cartId, int typeId) {
-        String sql = """
-                INSERT INTO CartService (CartId, ServiceId, quantity)
-                SELECT ?,ServiceId,Quantity
-                FROM RoomNService
-                WHERE TypeId = ?""";
+    private void updateCartService(int cartId, int typeId, int numberOfNight) {
+        // Lấy danh sách dịch vụ của loại phòng
+        String sql = "SELECT ServiceId, Quantity FROM RoomNService WHERE TypeId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, cartId);
-            ps.setInt(2, typeId);
-            ps.executeUpdate();
+            ps.setInt(1, typeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int serviceId = rs.getInt("ServiceId");
+                    int quantity = rs.getInt("Quantity");
+                    boolean isNoMultiply = false;
+                    for (int id : serviceIdsDonNeedTimes) {
+                        if (id == serviceId) {
+                            isNoMultiply = true;
+                            break;
+                        }
+                    }
+                    int finalQuantity = isNoMultiply ? quantity : quantity * numberOfNight;
+                    addServiceToCart(cartId, serviceId, finalQuantity);
+                }
+            }
         } catch (SQLException e) {
-            //
+            // Handle exception
         }
     }
 

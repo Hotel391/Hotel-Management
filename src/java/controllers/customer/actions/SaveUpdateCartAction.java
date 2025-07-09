@@ -75,7 +75,16 @@ public class SaveUpdateCartAction implements CartAction {
     private void updateCurrentCartServices(HttpServletRequest request, int cartId) {
         Cart cart = dal.CartDAO.getInstance().getDetailCartForIsPayment(cartId);
         List<CartService> currentCartServices = cart.getCartServices();
+        Date checkinDate = cart.getStartDate();
+        Date checkoutDate = cart.getEndDate();
+        int numberOfNight = (int) java.time.temporal.ChronoUnit.DAYS.between(checkinDate.toLocalDate(), checkoutDate.toLocalDate());
         Map<Integer, Integer> serviceCannotDisable = dal.CartDAO.getInstance().getServiceCannotDisable(cartId);
+        serviceCannotDisable.replaceAll((serviceId, quantity) -> quantity * numberOfNight);
+        for (int id : dal.CartDAO.getInstance().serviceIdsDonNeedTimes) {
+            if (serviceCannotDisable.containsKey(id)) {
+                serviceCannotDisable.put(id, 1);
+            }
+        }
         
         for(CartService cs : currentCartServices) {
             int serviceId= cs.getService().getServiceId();

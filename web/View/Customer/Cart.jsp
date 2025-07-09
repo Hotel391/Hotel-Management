@@ -19,6 +19,21 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <link rel="stylesheet" href="Css/Customer/CartStyle.css"/>
+        <style>
+            .modal-body-scroll {
+                max-height: 60vh;
+                overflow-y: auto;
+                padding-right: 15px;
+            }
+
+            .modal-footer.sticky-footer {
+                position: sticky;
+                bottom: 0;
+                background-color: #fff;
+                z-index: 100;
+                border-top: 1px solid #dee2e6;
+            }
+        </style>
     </head>
 
     <body>
@@ -188,9 +203,8 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title">Chi tiết đơn đặt phòng</h5>
-                                <a href="cart" class="btn-close"></a>
                             </div>
-                            <div class="modal-body">
+                            <div class="modal-body modal-body-scroll">
                                 <p><strong>Thời gian:</strong>
                                     <input name="checkin" type="date" value="${cartDetail.startDate}" min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>"/> - 
                                     <input name="checkout" type="date" value="${cartDetail.endDate}" min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" />
@@ -223,7 +237,7 @@
                                                 <td><fmt:formatNumber value="${s.service.price}" type="number" groupingUsed="true" /> ₫</td>
                                                 <td>
                                                     <input type="number" name="quantity_${s.service.serviceId}" value="${s.quantity}" 
-                                                           <c:if test="${s.service.price == 0}">
+                                                           <c:if test="${s.service.price == 0 || s.service.serviceName eq 'Dịch vụ đưa đón'}">
                                                                readonly 
                                                            </c:if>
                                                            min="${serviceCannotDisable[s.service.serviceId] != null ? serviceCannotDisable[s.service.serviceId] : 0}"
@@ -246,7 +260,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer sticky-footer">
                                 <button type="submit" class="btn btn-primary">Save</button>
                                 <a href="cart" class="btn btn-secondary">Đóng</a>
                             </div>

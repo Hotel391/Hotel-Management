@@ -116,11 +116,11 @@
                 <form>
                     <input type="hidden" name="typeRoomId" value="${selectedTypeRoom.typeId}">
                     <div class="form-group">
-                        <input name="checkin" value="${checkin}" type="date" class="form-control" onchange="this.form.submit()" required>
+                        <input name="checkin" value="${checkin}" type="date" class="form-control" min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" onchange="this.form.submit()" required>
                         <label for="checkin">Check-in</label>
                     </div>
                     <div class="form-group">
-                        <input name="checkout" value="${checkout}" type="date" class="form-control" onchange="this.form.submit()" required>
+                        <input name="checkout" value="${checkout}" type="date" class="form-control" min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" onchange="this.form.submit()" required>
                         <label for="checkout">Check-out</label>
                     </div>
                     <div class="form-group">

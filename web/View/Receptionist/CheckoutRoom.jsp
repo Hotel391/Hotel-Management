@@ -94,6 +94,7 @@
                                 <td>${totalAmount} VND</td>
                                 <td>${ckl.key.paidAmount} VND</td>
                                 <td>${totalAmount - ckl.key.paidAmount} VND</td>
+                                <c:if test="${totalAmount - ckl.key.paidAmount > 0}">
                                     <td style="width: 230px;">
                                         <select name="paymentMethod" class="form-select w-160" aria-label="Default select example">
                                             <option selected value="default">Chọn phương thức</option>
@@ -101,8 +102,12 @@
                                             <option value="offline">Tiền mặt</option>
                                         </select>
                                     </td>
-                                    
-                                
+                                </c:if>
+
+                                <c:if test="${totalAmount - ckl.key.paidAmount == 0}">
+                                    <td>Đã thanh toán đủ tiền</td>
+                                    <input type="hidden" name="unPaidAmount" value="donePayment">
+                                </c:if>
 
                                 <td>
                                     <input type="hidden" name="service" value="checkout">

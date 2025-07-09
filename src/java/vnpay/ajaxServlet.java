@@ -200,10 +200,9 @@ public class ajaxServlet extends HttpServlet {
 
             if (paidAmount == totalAmount) {
                 Booking booking = new Booking();
-                PaymentMethod paymentMethodCheckOut = new PaymentMethod();
+                PaymentMethod paymentMethodCheckOut = dal.PaymentMethodDAO.getInstance().getPaymentInfoByBookingId(bookingId);
                 booking.setBookingId(bookingId);
                 booking.setTotalPrice(totalAmount);
-                paymentMethodCheckOut.setPaymentMethodId(1);
                 booking.setPaymentMethod(paymentMethodCheckOut);
                 booking.setStatus("Completed CheckOut");
 
@@ -282,6 +281,12 @@ public class ajaxServlet extends HttpServlet {
                 List<String> services = new ArrayList<>();
                 List<Integer> serviceQuantity = new ArrayList<>();
                 List<Integer> servicePrice = new ArrayList<>();
+                 for (String name : serviceQuantityMap.keySet()) {
+                    services.add(name);
+                    serviceQuantity.add(serviceQuantityMap.get(name));
+                    servicePrice.add(servicePriceMap.get(name));
+                }
+                
                 Map<String, Object> data = new HashMap<>();
                 data.put("customerName", customerName);
                 data.put("email", email);
@@ -304,11 +309,7 @@ public class ajaxServlet extends HttpServlet {
                     emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
                 });
 
-                for (String name : serviceQuantityMap.keySet()) {
-                    services.add(name);
-                    serviceQuantity.add(serviceQuantityMap.get(name));
-                    servicePrice.add(servicePriceMap.get(name));
-                }
+               
 
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
                 return;

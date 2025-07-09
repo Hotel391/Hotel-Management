@@ -64,4 +64,23 @@ public class PaymentMethodDAO {
         }
         return null;
     }
+    
+    public PaymentMethod getPaymentInfoByBookingId(int bookingId) {
+        String sql = "SELECT b.PaymentMethodIdCheckIn, pm.PaymentName "
+                + "FROM Booking b "
+                + "JOIN PaymentMethod pm ON b.PaymentMethodIdCheckIn = pm.PaymentMethodId "
+                + "WHERE b.BookingId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bookingId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int paymentMethodIdCheckIn = rs.getInt("PaymentMethodIdCheckIn");
+                String paymentName = rs.getString("PaymentName");
+                return new PaymentMethod(paymentMethodIdCheckIn, paymentName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

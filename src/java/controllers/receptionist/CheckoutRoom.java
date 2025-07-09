@@ -121,6 +121,14 @@ public class CheckoutRoom extends HttpServlet {
                 //BookingDAO.getInstance().updateTotalPrice(bookingSelected);
 
             }
+            
+            String unPaidAmount = request.getParameter("unPaidAmount");
+            if(unPaidAmount != null && !unPaidAmount.isEmpty()){
+                session.setAttribute("bookingId", bookingId);
+                session.setAttribute("status", "checkOut");
+                response.sendRedirect(request.getContextPath() + "/payment");
+                return;
+            }
 
             if ("default".equals(paymentMethodSelected)) {
                 int customerId = Integer.parseInt(request.getParameter("customerId"));

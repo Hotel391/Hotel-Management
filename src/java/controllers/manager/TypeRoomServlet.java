@@ -384,7 +384,7 @@ public class TypeRoomServlet extends HttpServlet {
                         
                     }
 
-                    TypeRoomDAO.getInstance().updateTypeRoom(typeRoom.getTypeId(), typeRoom.getTypeName(), typePrice);
+                    //TypeRoomDAO.getInstance().updateTypeRoom(typeRoom.getTypeId(), typeRoom.getTypeName(), typePrice);
 
                     request.setAttribute("updateMessageService", "Cập nhật dịch vụ thành công");
                 }
@@ -404,7 +404,6 @@ public class TypeRoomServlet extends HttpServlet {
                         
                     }
                 }
-                TypeRoomDAO.getInstance().updateTypeRoom(typeRoom.getTypeId(), typeRoom.getTypeName(), typePrice);
 
                 request.setAttribute("showModalService", typeId);
             }

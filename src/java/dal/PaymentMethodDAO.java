@@ -32,7 +32,7 @@ public class PaymentMethodDAO {
 
     //get paymentmethod by bookingid
     public PaymentMethod getPaymentMethodByBookingId(int bookingId) {
-        String sql = "SELECT pm.paymentMethodId, pm.paymentName from PaymentMethod pm join Booking b on pm.paymentMethodId = b.paymentMethodId where bookingId = ?";
+        String sql = "SELECT pm.paymentMethodId, pm.paymentName from PaymentMethod pm join Booking b on pm.paymentMethodId = b.paymentMethodId where b.bookingId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, bookingId);
             ResultSet rs = ps.executeQuery();

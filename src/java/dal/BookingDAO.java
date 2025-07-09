@@ -359,7 +359,7 @@ public class BookingDAO {
 
     public boolean updateBookingTotalPrice(Booking booking) {
         String sql = "UPDATE [dbo].[Booking]\n"
-                + "   SET [TotalPrice] = ? , [PayDay] = GETDATE(), ,[PaymentMethodId] = ?\n"
+                + "   SET [TotalPrice] = ? , [PayDay] = GETDATE(), [PaymentMethodId] = ?\n"
                 + " WHERE [BookingId] = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {

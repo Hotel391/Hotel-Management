@@ -153,8 +153,6 @@ public class Login extends HttpServlet {
         }
 
         if ("logout".equals(service)) {
-            session.removeAttribute("customerInfo");
-            session.removeAttribute("employeeInfo");
             session.invalidate();
             response.sendRedirect("login");
         }

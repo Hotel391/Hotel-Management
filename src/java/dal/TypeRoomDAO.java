@@ -432,7 +432,7 @@ public class TypeRoomDAO {
                         tr.Price AS Price,
                         tr.Description,
                         COUNT(DISTINCT CASE 
-                            WHEN bd.BookingDetailId IS NULL and c.CartId is null THEN r.RoomNumber
+                            WHEN BookingDetailCheck.BookingDetailId IS NULL and c.CartId is null THEN r.RoomNumber
                             END) AS AvailableRoomCount,
                         AVG(rv.Rating * 1.0) AS Rating,
                         COUNT(distinct rv.ReviewId) AS numberOfReview,
@@ -440,9 +440,12 @@ public class TypeRoomDAO {
                         tr.Children+tr.Adult AS totalCapacity
                     FROM TypeRoom tr
                     JOIN Room r ON r.TypeId = tr.TypeId and r.isActive=1
-                    LEFT JOIN BookingDetail bd 
-                        ON bd.RoomNumber = r.RoomNumber
-                        AND NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+                    LEFT JOIN(
+                    	select bd.BookingDetailId,bd.RoomNumber from BookingDetail bd
+                    	join Booking b on b.BookingId=bd.BookingId and 
+                    	(b.Status='Completed Checkin' or b.Status='Processing')
+                    	where NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+                    ) BookingDetailCheck on BookingDetailCheck.RoomNumber=r.RoomNumber
                     LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber AND c.isPayment = 1
                         AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
                     LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
@@ -533,9 +536,14 @@ public class TypeRoomDAO {
                         tr.Children + tr.Adult AS totalCapacity
                     FROM TypeRoom tr
                     JOIN Room r ON r.TypeId = tr.TypeId
-                    LEFT JOIN BookingDetail bd 
-                        ON bd.RoomNumber = r.RoomNumber
-                        AND NOT (bd.EndDate < ? OR bd.StartDate > ?)
+                    LEFT JOIN(
+                        select bd.BookingDetailId,bd.RoomNumber from BookingDetail bd
+                        join Booking b on b.BookingId=bd.BookingId and 
+                        (b.Status='Completed Checkin' or b.Status='Processing')
+                        where NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+                    ) BookingDetailCheck on BookingDetailCheck.RoomNumber=r.RoomNumber
+                    LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber AND c.isPayment = 1
+                        AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
                     LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
                     LEFT JOIN Service s ON s.ServiceId = rns.ServiceId
                     LEFT JOIN (
@@ -546,6 +554,7 @@ public class TypeRoomDAO {
                         JOIN Service s ON s.ServiceId = rns.ServiceId
                         GROUP BY rns.TypeId
                     ) svc ON svc.TypeId = tr.TypeId
+                    WHERE BookingDetailCheck.BookingDetailId IS NULL AND c.CartId IS NULL
                     GROUP BY tr.TypeId, tr.Price, svc.ServicePrice, tr.Adult, tr.Children
                     ) AS t
                 WHERE t.Adult >= ? AND t.totalCapacity >= ?
@@ -593,7 +602,7 @@ public class TypeRoomDAO {
                         CASE 
                         WHEN tr.Adult >= ? AND tr.Adult + tr.Children >= ? THEN 
                             COUNT(DISTINCT CASE 
-                                WHEN bd.BookingDetailId IS NULL AND c.CartId IS NULL THEN r.RoomNumber
+                                WHEN BookingDetailCheck.BookingDetailId IS NULL AND c.CartId IS NULL THEN r.RoomNumber
                             END)
                         ELSE 0
                     END AS AvailableRoomCount,
@@ -604,9 +613,12 @@ public class TypeRoomDAO {
                         tr.Children + tr.Adult AS totalCapacity
                     FROM TypeRoom tr
                     JOIN Room r ON r.TypeId = tr.TypeId and r.isActive=1
-                    LEFT JOIN BookingDetail bd 
-                        ON bd.RoomNumber = r.RoomNumber
-                        AND NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+                    LEFT JOIN(
+                        select bd.BookingDetailId,bd.RoomNumber from BookingDetail bd
+                        join Booking b on b.BookingId=bd.BookingId and 
+                        (b.Status='Completed Checkin' or b.Status='Processing')
+                        where NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+                    ) BookingDetailCheck on BookingDetailCheck.RoomNumber=r.RoomNumber
                     LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
                     LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber
                         AND c.isPayment = 1

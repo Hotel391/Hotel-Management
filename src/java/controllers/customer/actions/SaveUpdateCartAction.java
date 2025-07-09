@@ -10,13 +10,11 @@ import models.CartService;
 import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static utility.Validation.readInputField;
-
-import utility.Validation;
+import static utility.Validation.checkInputField;
 import utility.ValidationRule;
 
 /**
@@ -30,11 +28,11 @@ public class SaveUpdateCartAction implements CartAction {
         HttpSession session = request.getSession();
         int cartId = (int) session.getAttribute("cartId");
         session.removeAttribute("cartId");
-//        if( isValidDate(request, "checkin") && isValidDate(request, "checkout") ) {
+        if( isValidDate(request, "checkin") && isValidDate(request, "checkout") ) {
             Date checkinDate = getCheckinDate(request);
             Date checkoutDate = getCheckoutDate(request, checkinDate);
             dal.CartDAO.getInstance().updateCheckinCheckout(cartId, checkinDate, checkoutDate);
-//        }
+        }
 
         updateCurrentCartServices(request, cartId);
         updateOtherCartServices(request, cartId);
@@ -45,32 +43,34 @@ public class SaveUpdateCartAction implements CartAction {
 
     private boolean isValidDate(HttpServletRequest request, String inputField) {
         String rawInput= request.getParameter(inputField);
-        return Validation.checkInputField(rawInput, Date::valueOf,
-                List.of(
-                    new ValidationRule<>(value -> !value.before(Date.valueOf(LocalDate.now())), "Date must be today or after today.")
-                ));
+        if (rawInput == null || rawInput.trim().isEmpty()) {
+            return false;
+        }
+        Date value;
+        try{
+            value = Date.valueOf(rawInput.trim());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return !value.before(Date.valueOf(LocalDate.now()));
     }
     
     private Date getCheckinDate(HttpServletRequest request) throws ServletException, IOException {
         String dateStr = request.getParameter("checkin");
         Date defaultDate = Date.valueOf(LocalDate.now());
-        Date checkin= readInputField(dateStr, Date::valueOf, 
+        return readInputField(dateStr, Date::valueOf, 
                 List.of(
                     new ValidationRule<>(value -> !value.before(defaultDate), "Check-in date must be today or after today.")
                 ), defaultDate);
-        request.setAttribute("checkin", checkin);
-        return checkin;
     }
 
     private Date getCheckoutDate(HttpServletRequest request, Date checkinDate) throws ServletException, IOException {
         String dateStr = request.getParameter("checkout");
         Date defaultDate = Date.valueOf(checkinDate.toLocalDate().plusDays(1));
-        Date checkout= readInputField(dateStr, Date::valueOf, 
+        return readInputField(dateStr, Date::valueOf, 
                 List.of(
                     new ValidationRule<>(value -> value.after(checkinDate), "Check-out date must be after check-in date.")
                 ), defaultDate);
-        request.setAttribute("checkout", checkout);
-        return checkout;
     }
 
     private void updateCurrentCartServices(HttpServletRequest request, int cartId) {

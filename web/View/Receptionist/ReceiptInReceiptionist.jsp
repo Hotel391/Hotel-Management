@@ -32,14 +32,14 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/receipt?customerId=${customerId}">View receipt</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/receptionist/receipt">View receipt</a>
                             </li>
                         </ul>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
 
 
-                            <form method="get" action="${pageContext.request.contextPath}/manager/receipt" class="d-flex gap-2">
+                            <form method="get" action="${pageContext.request.contextPath}/receptionist/receipt" class="d-flex gap-2">
                                 <label class="input-group-text" for="startDate">SDT</label>
                                 <input type="number" name="searchPhone" value="${param.searchPhone}">
                                 <button type="submit" class="btn btn-primary">Filter</button>

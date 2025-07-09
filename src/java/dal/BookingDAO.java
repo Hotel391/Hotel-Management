@@ -378,10 +378,11 @@ public class BookingDAO {
         List<Booking> bookings = new ArrayList<>();
         String sql = "SELECT b.* FROM Booking b join Customer c on b.customerId = c.customerId "
                 + "WHERE DATEDIFF(Day, ?, b.PayDay) = 0 and b.Status = 'Completed CheckOut'";
-        if(phone != null && !phone.isEmpty()) sql += " and c.phone = ?";
+        if(phone != null && !phone.isEmpty()) sql += " and c.phoneNumber = ?";
+        System.out.println(sql);
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setDate(1, payDay);
-            st.setString(2, phone);
+            if(phone != null && !phone.isEmpty()) st.setString(2, phone);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     Booking booking = new Booking();

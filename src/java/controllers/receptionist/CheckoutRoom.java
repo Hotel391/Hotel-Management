@@ -152,38 +152,18 @@ public class CheckoutRoom extends HttpServlet {
 
         Date currentDate = new Date(millis);
         
-        int totalAmount = 0, paidAmount = 0;
-
-        HashMap<Customer, List<BookingDetail>> checkoutInfor = new LinkedHashMap<>();
-
-//            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getBookingDetailByEndDate(currentDate);
-        List<Customer> customerCheckout = CustomerDAO.getInstance().getCustomersCheckout();
-
-//            for (BookingDetail bookingDetail : checkoutList) {
-//                Customer customerCheckout = CustomerDAO.getInstance().getCustomerByBookingDetailId(bookingDetail.getBookingDetailId());
-//                checkoutInfor.put(bookingDetail, customerCheckout);
-//            }
-        for (Customer customer : customerCheckout) {
-            List<BookingDetail> checkoutList = BookingDetailDAO.getInstance().getListBookingDetailCheckout(customer.getCustomerId());
-            List<Booking> bookingCheckout = BookingDAO.getInstance().getBookingsCustomerCheckout(customer.getCustomerId());
-            for (BookingDetail bookingDetail : checkoutList) {
-                totalAmount += bookingDetail.getTotalAmount();
-            }
-            for (Booking booking : bookingCheckout) {
-                paidAmount += booking.getPaidAmount();
-            }
-            checkoutInfor.put(customer, checkoutList);
-        }
+        HashMap<Booking, List<BookingDetail>> checkoutList = new LinkedHashMap<>();
         
-        System.out.println("paidAmount: " + paidAmount);
+        List<Booking> bookingCheckout = BookingDAO.getInstance().getBookingCheckout();
+        
+        for (Booking booking : bookingCheckout) {
+            List<BookingDetail> detailList = BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking);
+            checkoutList.put(booking, detailList);
+        }
 
         request.setAttribute("today", currentDate);
         
-        request.setAttribute("totalAmount", totalAmount);
-        
-        request.setAttribute("paidAmount", paidAmount);
-
-        request.setAttribute("checkoutList", checkoutInfor);
+        request.setAttribute("checkoutList", checkoutList);
 
         request.getRequestDispatcher("/View/Receptionist/CheckoutRoom.jsp").forward(request, response);
     }

@@ -29,6 +29,7 @@ import models.Booking;
 import models.BookingDetail;
 import models.Customer;
 import models.DetailService;
+import models.PaymentMethod;
 import models.Room;
 import models.TypeRoom;
 import utility.EmailService;
@@ -264,6 +265,9 @@ public class VnpayReturn extends HttpServlet {
                     // Cập nhật tổng tiền đã thanh toán
                     int totalPrice = (int) session.getAttribute("totalPriceUpdate");
                     booking.setTotalPrice(totalPrice);
+                    PaymentMethod paymentMethodCheckOut = new PaymentMethod();
+                    paymentMethodCheckOut.setPaymentMethodId(1);
+                    booking.setPaymentMethod(paymentMethodCheckOut);
                     dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
 
                     // Lấy lại thông tin Booking và Customer
@@ -341,13 +345,13 @@ public class VnpayReturn extends HttpServlet {
                     List<String> services = new ArrayList<>();
                     List<Integer> serviceQuantity = new ArrayList<>();
                     List<Integer> servicePrice = new ArrayList<>();
-                    
+
                     for (String name : serviceQuantityMap.keySet()) {
                         services.add(name);
                         serviceQuantity.add(serviceQuantityMap.get(name));
                         servicePrice.add(servicePriceMap.get(name));
                     }
-                    
+
                     Map<String, Object> data = new HashMap<>();
                     data.put("customerName", customerName);
                     data.put("email", email);

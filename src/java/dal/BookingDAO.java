@@ -312,7 +312,7 @@ public class BookingDAO {
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
 
             st.setInt(1, booking.getCustomer().getCustomerId());
-            st.setInt(2, 1);
+            st.setInt(2, booking.getPaymentMethodCheckIn().getPaymentMethodId());
             st.executeUpdate();
 
             try (ResultSet generatedKeys = st.getGeneratedKeys()) {
@@ -364,7 +364,7 @@ public class BookingDAO {
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, booking.getTotalPrice());
-            st.setInt(2, 1);
+            st.setInt(2, booking.getPaymentMethod().getPaymentMethodId());
             st.setInt(3, booking.getBookingId());
             return st.executeUpdate() > 0;
         } catch (SQLException ex) {

@@ -11,6 +11,7 @@ public class Booking {
     private String status;
     private Customer customer;
     private PaymentMethod paymentMethod;
+    private PaymentMethod paymentMethodCheckIn;
 
     public Booking() {
     }
@@ -79,6 +80,14 @@ public class Booking {
 
     public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public PaymentMethod getPaymentMethodCheckIn() {
+        return paymentMethodCheckIn;
+    }
+
+    public void setPaymentMethodCheckIn(PaymentMethod paymentMethodCheckIn) {
+        this.paymentMethodCheckIn = paymentMethodCheckIn;
     }
 
     @Override

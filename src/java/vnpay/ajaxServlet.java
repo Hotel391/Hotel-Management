@@ -32,6 +32,7 @@ import models.Booking;
 import models.BookingDetail;
 import models.Customer;
 import models.DetailService;
+import models.PaymentMethod;
 import models.Room;
 import models.TypeRoom;
 import utility.EmailService;
@@ -69,6 +70,9 @@ public class ajaxServlet extends HttpServlet {
             Customer customer = new Customer();
             customer.setCustomerId(customerId);
             booking.setCustomer(customer);
+            PaymentMethod paymentMehtodCheckIn = new PaymentMethod();
+            paymentMehtodCheckIn.setPaymentMethodId(1);
+            booking.setPaymentMethodCheckIn(paymentMehtodCheckIn);
             session.setAttribute("paidAmount", totalPrice);
             bookingId = dal.BookingDAO.getInstance().insertNewBooking(booking);
 
@@ -196,8 +200,11 @@ public class ajaxServlet extends HttpServlet {
 
             if (paidAmount == totalAmount) {
                 Booking booking = new Booking();
+                PaymentMethod paymentMethodCheckOut = new PaymentMethod();
                 booking.setBookingId(bookingId);
                 booking.setTotalPrice(totalAmount);
+                paymentMethodCheckOut.setPaymentMethodId(1);
+                booking.setPaymentMethod(paymentMethodCheckOut);
                 booking.setStatus("Completed CheckOut");
 
                 dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);

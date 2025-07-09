@@ -89,7 +89,6 @@ public class SaveUpdateCartAction implements CartAction {
             }
             String quantityStr= request.getParameter(quantityParam);
             try {
-                //Cần thêm logic bảo vệ số lượng dịch vụ không bị giảm xuống dưới mức tối thiểu
                 int quantity = Integer.parseInt(quantityStr);
                 int defaultQuantity=1;
                 if(isProtected) {

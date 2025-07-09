@@ -119,6 +119,7 @@ public class BookingDAO {
                     booking.setStatus(rs.getString("Status"));
                     booking.setPaidAmount(rs.getInt("paidAmount"));
                     booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
+                    booking.setPaymentMethodCheckIn(PaymentMethodDAO.getInstance().getPaymentMethodCheckInByBookingId(rs.getInt("BookingId")));
                     return booking;
                 }
             }
@@ -404,7 +405,7 @@ public class BookingDAO {
     public String getPaymentNameByBookingId(int bookingId) {
         String sql = "SELECT pm.PaymentName "
                 + "FROM Booking b "
-                + "JOIN PaymentMethod pm ON b.PaymentMethodId = pm.PaymentMethodId "
+                + "JOIN PaymentMethod pm ON b.PaymentMethodIdCheckIn = pm.PaymentMethodId "
                 + "WHERE b.BookingId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, bookingId);

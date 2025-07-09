@@ -96,6 +96,20 @@ public class RoomInformation extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
+        String action = request.getParameter("action");
+
+        if ("back".equals(action)) {
+            session.removeAttribute("startDate");
+            session.removeAttribute("endDate");
+            session.removeAttribute("roomNumbers");
+            session.removeAttribute("totalPrice");
+            session.removeAttribute("roomTypeMap");
+            session.removeAttribute("includedServiceQuantities");
+            session.removeAttribute("roomServicesMap");
+            session.removeAttribute("selectedRooms");
+            response.sendRedirect(request.getContextPath() + "/receptionist/searchRoom");
+            return;
+        }
 
         String[] roomNumbers = (String[]) session.getAttribute("roomNumbers");
         Double totalRoomPrice = (Double) session.getAttribute("totalPrice");
@@ -135,7 +149,6 @@ public class RoomInformation extends HttpServlet {
                 System.out.println("Included Service: " + s.getServiceName() + ", Quantity: " + quantity + ", Room: " + roomNumber);
             }
 
-            // Process optional services
             String[] selectedIds = request.getParameterValues("serviceId_" + roomNumber);
             if (selectedIds != null) {
                 for (String serviceIdStr : selectedIds) {

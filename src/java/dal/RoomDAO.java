@@ -491,14 +491,13 @@ public class RoomDAO {
     }
 
     public List<Room> searchAvailableRooms(java.sql.Date startDate,
-            java.sql.Date endDate, Integer typeRoomId, int page, int recordsPerPage) {
-
+            java.sql.Date endDate, Integer typeRoomId, Integer adult, Integer children, int page, int recordsPerPage) {
         List<Room> availableRooms = new ArrayList<>();
         int startIndex = (page - 1) * recordsPerPage;
 
         StringBuilder queryBuilder = new StringBuilder("""
         SELECT r.RoomNumber, r.TypeId, r.IsActive, 
-               tr.TypeName, tr.Price, tr.Description
+               tr.TypeName, tr.Price, tr.Description, tr.Adult, tr.Children
         FROM Room r
         JOIN TypeRoom tr ON r.TypeId = tr.TypeId
         LEFT JOIN BookingDetail bd ON bd.RoomNumber = r.RoomNumber
@@ -513,6 +512,12 @@ public class RoomDAO {
         if (typeRoomId != null) {
             queryBuilder.append(" AND r.TypeId = ?");
         }
+        if (adult != null) {
+            queryBuilder.append(" AND tr.Adult >= ?");
+        }
+        if (children != null) {
+            queryBuilder.append(" AND tr.Children >= ?");
+        }
 
         queryBuilder.append(" ORDER BY r.RoomNumber OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
 
@@ -526,11 +531,21 @@ public class RoomDAO {
             if (typeRoomId != null) {
                 pst.setInt(paramIndex++, typeRoomId);
             }
+            if (adult != null) {
+                pst.setInt(paramIndex++, adult);
+            }
+            if (children != null) {
+                pst.setInt(paramIndex++, children);
+            }
 
             pst.setInt(paramIndex++, startIndex);
             pst.setInt(paramIndex, recordsPerPage);
 
             ResultSet rs = pst.executeQuery();
+            System.out.println("Executing query: " + queryBuilder.toString());
+            System.out.println("Parameters - startDate: " + startDate + ", endDate: " + endDate
+                    + ", typeRoomId: " + typeRoomId + ", adult: " + adult + ", children: " + children
+                    + ", page: " + page + ", recordsPerPage: " + recordsPerPage);
             while (rs.next()) {
                 Room room = new Room();
                 room.setRoomNumber(rs.getInt("RoomNumber"));
@@ -541,6 +556,8 @@ public class RoomDAO {
                 typeRoom.setTypeName(rs.getString("TypeName"));
                 typeRoom.setPrice(rs.getInt("Price"));
                 typeRoom.setDescription(rs.getString("Description"));
+                typeRoom.setMaxAdult(rs.getInt("Adult")); // Map to maxAdult
+                typeRoom.setMaxChildren(rs.getInt("Children")); // Map to maxChildren
 
                 room.setTypeRoom(typeRoom);
 
@@ -548,9 +565,12 @@ public class RoomDAO {
                 typeRoom.setServices(services);
 
                 availableRooms.add(room);
+                System.out.println("Found room: " + room.getRoomNumber() + ", Type: " + typeRoom.getTypeName());
             }
+            System.out.println("Total rooms found: " + availableRooms.size());
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("SQL Error: " + e.getMessage());
         }
 
         return availableRooms;
@@ -603,21 +623,34 @@ public class RoomDAO {
         return service;
     }
 
-    public int countAvailableRooms(java.sql.Date startDate, java.sql.Date endDate, Integer typeRoomId) {
+    public int countAvailableRooms(java.sql.Date startDate, java.sql.Date endDate, Integer typeRoomId, Integer adult, Integer children) {
+        int count = 0;
         StringBuilder queryBuilder = new StringBuilder("""
         SELECT COUNT(r.RoomNumber)
         FROM Room r
+        JOIN TypeRoom tr ON r.TypeId = tr.TypeId
         WHERE r.IsActive = 1  
         AND r.RoomNumber NOT IN (
             SELECT bd.RoomNumber
             FROM BookingDetail bd
             JOIN Booking b ON bd.BookingId = b.BookingId
             WHERE (bd.StartDate < ? AND bd.EndDate > ?)
+            UNION
+            SELECT c.RoomNumber
+            FROM Cart c
+            WHERE c.isPayment = 1
+            AND (c.StartDate < ? AND c.EndDate > ?)
         )
         """);
 
         if (typeRoomId != null) {
             queryBuilder.append(" AND r.TypeId = ?");
+        }
+        if (adult != null) {
+            queryBuilder.append(" AND tr.Adult >= ?");
+        }
+        if (children != null) {
+            queryBuilder.append(" AND tr.Children >= ?");
         }
 
         try (PreparedStatement pst = con.prepareStatement(queryBuilder.toString())) {
@@ -625,20 +658,33 @@ public class RoomDAO {
 
             pst.setDate(paramIndex++, endDate);
             pst.setDate(paramIndex++, startDate);
+            pst.setDate(paramIndex++, endDate);
+            pst.setDate(paramIndex++, startDate);
 
             if (typeRoomId != null) {
                 pst.setInt(paramIndex++, typeRoomId);
             }
+            if (adult != null) {
+                pst.setInt(paramIndex++, adult);
+            }
+            if (children != null) {
+                pst.setInt(paramIndex++, children);
+            }
 
             ResultSet rs = pst.executeQuery();
+            System.out.println("Count query: " + queryBuilder.toString());
+            System.out.println("Count parameters - startDate: " + startDate + ", endDate: " + endDate
+                    + ", typeRoomId: " + typeRoomId + ", adult: " + adult + ", children: " + children);
             if (rs.next()) {
-                return rs.getInt(1);
+                count = rs.getInt(1);
+                System.out.println("Total available rooms: " + count);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("SQL Error: " + e.getMessage());
         }
 
-        return 0;
+        return count;
     }
 
     public Integer getTypeIdByRoomNumber(int roomNumber) {

@@ -119,7 +119,7 @@ public class BookingDetailDAO {
                 join Room r on r.RoomNumber=bd.RoomNumber
                 join Booking b on b.BookingId=bd.BookingId
                 WHERE bd.StartDate<= CAST(GETDATE() AS DATE) and bd.EndDate>=CAST(GETDATE() AS DATE) and 
-                    b.Status not like 'Completed CheckIn'""");
+                    b.Status like 'Completed CheckIn'""");
         if (search != null && !search.isEmpty()) {
             sql.append(" AND r.RoomNumber LIKE ?");
         }
@@ -157,7 +157,7 @@ public class BookingDetailDAO {
                     join TypeRoom tr on tr.TypeId=r.TypeId
                     join Booking b on b.BookingId=bd.BookingId
                     WHERE bd.StartDate<= CAST(GETDATE() AS DATE) and bd.EndDate>=CAST(GETDATE() AS DATE) and
-                        b.Status not like 'Completed CheckOut'
+                        b.Status like 'Completed CheckIn'
                      """;
 
         if (search != null && !search.isEmpty()) {

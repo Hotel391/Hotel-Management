@@ -32,6 +32,7 @@ import models.DetailService;
 import models.Room;
 import models.TypeRoom;
 import utility.EmailService;
+import utility.email_factory.EmailTemplateFactory.EmailType;
 
 /**
  *
@@ -235,9 +236,8 @@ public class VnpayReturn extends HttpServlet {
                     data.put("serviceQuantity", serviceQuantity);
                     data.put("servicePrice", servicePrice);
                     emailExecutor.submit(() -> {
-                        System.out.println("Sending email to " + email);
                         EmailService emailService = new EmailService();
-                        emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                        emailService.sendEmail(email, "Confirm Checkin information", EmailType.CHECKIN, data);
                     });
 
                     session.removeAttribute("paidAmount");
@@ -356,18 +356,16 @@ public class VnpayReturn extends HttpServlet {
                     data.put("typeRoom", typeRoom);
                     data.put("quantityTypeRoom", quantityTypeRoom);
                     data.put("priceTypeRoom", priceTypeRoom);
-                    data.put("services", Collections.EMPTY_LIST);
-                    data.put("serviceQuantity", Collections.EMPTY_LIST);
-                    data.put("servicePrice", Collections.EMPTY_LIST);
-                    data.put("paymentMethod", paymentMethod);
+                    data.put("services", services);
+                    data.put("serviceQuantity", serviceQuantity);
+                    data.put("servicePrice", servicePrice);
                     data.put("fineMoney", 0);
                     data.put("totalRoomPrice", totalRoomPrice);
                     data.put("totalServicePrice", totalServicePrice);
 
                     emailExecutor.submit(() -> {
-                        System.out.println("Sending email to " + email);
                         EmailService emailService = new EmailService();
-                        emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                        emailService.sendEmail(email, "Confirm Checkin information", EmailType.RECEIPT, data);
                     });
                     request.setAttribute("pageChange", "checkOut");
                     session.removeAttribute("listRoomNumber");

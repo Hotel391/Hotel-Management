@@ -8,22 +8,35 @@ public class EmailTemplateFactory {
     private EmailTemplateFactory() {
         // Private constructor to prevent instantiation
     }
-    public static EmailContentBuilder getBuilder(String type){
+
+    public enum EmailType {
+        REGISTER,
+        RESET,
+        RECEIPT,
+        CHECKIN,
+        EMPLOYEE_ACCOUNT,
+        BOOKING_FROM_CART
+    }
+
+    public static EmailContentBuilder getBuilder(EmailType type) {
         switch (type) {
-            case "register" -> {
+            case REGISTER -> {
                 return new ConfirmEmailBuilder();
             }
-            case "reset" -> {
+            case RESET -> {
                 return new ResetPasswordBuilder();
             }
-            case "receipt" -> {
+            case RECEIPT -> {
                 return new ReceiptBuilder();
             }
-            case "checkin" -> {
+            case CHECKIN -> {
                 return new CheckInBuilder();
             }
-            case "employeeAccount" -> {
+            case EMPLOYEE_ACCOUNT -> {
                 return new EmployeeAccountEmailBuilder();
+            }
+            case BOOKING_FROM_CART -> {
+                return new BookingFromCartEmailBuilder();
             }
             default -> throw new IllegalArgumentException("Unknown email type: " + type);
         }

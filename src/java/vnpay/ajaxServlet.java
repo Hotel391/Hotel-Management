@@ -35,6 +35,7 @@ import models.DetailService;
 import models.Room;
 import models.TypeRoom;
 import utility.EmailService;
+import utility.email_factory.EmailTemplateFactory.EmailType;
 
 /**
  *
@@ -233,6 +234,12 @@ public class ajaxServlet extends HttpServlet {
                 List<String> services = new ArrayList<>();
                 List<Integer> serviceQuantity = new ArrayList<>();
                 List<Integer> servicePrice = new ArrayList<>();
+                
+                for (String name : serviceQuantityMap.keySet()) {
+                    services.add(name);
+                    serviceQuantity.add(serviceQuantityMap.get(name));
+                    servicePrice.add(servicePriceMap.get(name));
+                }
                 Map<String, Object> data = new HashMap<>();
                 data.put("customerName", customerName);
                 data.put("email", email);
@@ -241,26 +248,18 @@ public class ajaxServlet extends HttpServlet {
                 data.put("typeRoom", typeRoom);
                 data.put("quantityTypeRoom", quantityTypeRoom);
                 data.put("priceTypeRoom", priceTypeRoom);
-                data.put("services", Collections.EMPTY_LIST);
-                data.put("serviceQuantity", Collections.EMPTY_LIST);
-                data.put("servicePrice", Collections.EMPTY_LIST);
-                data.put("paymentMethod", paymentMethod);
+                data.put("services", services);
+                data.put("serviceQuantity", serviceQuantity);
+                data.put("servicePrice", servicePrice);
                 data.put("fineMoney", 0);
                 data.put("totalRoomPrice", totalRoomPrice);
                 data.put("totalServicePrice", totalServicePrice);
                 
                 emailExecutor.submit(() -> {
-                    System.out.println("Sending email to " + email);
                     EmailService emailService = new EmailService();
-                    emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                    emailService.sendEmail(email, "Confirm Checkin information", EmailType.RECEIPT, data);
                 });
                 
-                for (String name : serviceQuantityMap.keySet()) {
-                    services.add(name);
-                    serviceQuantity.add(serviceQuantityMap.get(name));
-                    servicePrice.add(servicePriceMap.get(name));
-                }
-
                 resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");
                 return;
             }

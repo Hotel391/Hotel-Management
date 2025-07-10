@@ -150,4 +150,9 @@ public class Cart {
     public void setCartServices(List<CartService> cartServices) {
         this.cartServices = cartServices;
     }
+
+    @Override
+    public String toString() {
+        return "Cart{" + "cartId=" + cartId + ", totalPrice=" + totalPrice + ", payDay=" + payDay + ", status=" + status + ", startDate=" + startDate + ", endDate=" + endDate + ", isActive=" + isActive + ", isPayment=" + isPayment + ", customer=" + customer + ", paymentMethod=" + paymentMethod + ", adults=" + adults + ", children=" + children + ", roomNumber=" + roomNumber + ", room=" + room + ", cartServices=" + cartServices + '}';
+    }
 }

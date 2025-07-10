@@ -36,7 +36,7 @@ public class Validation {
         regexMap.put("TYPE_ROOM_NAME_BASIC", Pattern.compile("^[a-zA-Z\\s]+$"));
         regexMap.put("ROOM_PRICE_INT", Pattern.compile("^[1-9]\\d{0,7}$"));
         regexMap.put("DESCRIPTION", Pattern.compile("^[\\p{L}\\d\\s,./-]{5,255}$"));
-        regexMap.put("CCCD", Pattern.compile("^\\d{3}-\\d{2}-\\d{4}$"));
+        regexMap.put("CCCD", Pattern.compile("^\\d{12}$"));
         regexMap.put("DATE_OF_BIRTH", Pattern.compile("^(19[0-9]{2}|20[0-9]{2})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"));
 
         ruleCheck.put("FULLNAME", List.of(

@@ -40,7 +40,7 @@ public class CartDAO {
         }
         return instance;
     }
-    
+
     public final int[] serviceIdsDonNeedTimes = {1, 2, 4, 7};
     private int[] serviceHaveMoneyButNoNeedTimes = {2};
 
@@ -126,12 +126,12 @@ public class CartDAO {
         Map<Integer, Integer> requiredServices = getServiceCannotDisable(cart.getCartId());
         int numberOfNight = (int) ChronoUnit.DAYS.between(startDate.toLocalDate(), endDate.toLocalDate());
         requiredServices.replaceAll((serviceId, quantity) -> quantity * numberOfNight);
-        for(int id : serviceIdsDonNeedTimes) {
+        for (int id : serviceIdsDonNeedTimes) {
             if (requiredServices.containsKey(id)) {
                 requiredServices.put(id, 1);
             }
         }
-        
+
         List<CartService> currentServices = getCartServicesByCartId(cart.getCartId());
 
         Set<Integer> existingServiceIds = currentServices.stream()
@@ -156,9 +156,9 @@ public class CartDAO {
                 addServiceToCart(cart.getCartId(), serviceId, requiredQty);
             }
         }
-        int totalPrice = getTotalPriceOfCart(cart.getCartId(), numberOfNight) +
-                getTypeRoomPriceByCartId(cart.getCartId()) * (numberOfNight - 1) +
-                getTotalServicePriceHaveMoneyButNoNeedTimes(cart.getRoom().getTypeRoom().getTypeId()) * (numberOfNight - 1);
+        int totalPrice = getTotalPriceOfCart(cart.getCartId(), numberOfNight)
+                + getTypeRoomPriceByCartId(cart.getCartId()) * (numberOfNight - 1)
+                + getTotalServicePriceHaveMoneyButNoNeedTimes(cart.getRoom().getTypeRoom().getTypeId()) * (numberOfNight - 1);
 
         if (cart.getTotalPrice() != totalPrice) {
             cart.setTotalPrice(totalPrice);
@@ -167,7 +167,7 @@ public class CartDAO {
 
     }
 
-    private void handleRoomNumberConflict(Cart cart, Date startDate, Date endDate) {
+    public void handleRoomNumberConflict(Cart cart, Date startDate, Date endDate) {
         if (!checkRoomNumberStatus(cart.getRoomNumber(), startDate, endDate)) {
             int newRoom = getRoomNumber(cart.getRoomNumber(), startDate, endDate);
             if (newRoom == 0) {
@@ -364,7 +364,7 @@ public class CartDAO {
         }
     }
 
-    private boolean checkRoomNumberStatus(int roomNumber, Date checkin, Date checkout) {
+    public boolean checkRoomNumberStatus(int roomNumber, Date checkin, Date checkout) {
         String sql = """
                 select count(*) as isAvailable from Room r
                 LEFT JOIN(
@@ -672,5 +672,33 @@ public class CartDAO {
         } catch (SQLException e) {
             // Handle exception
         }
+    }
+
+    //write function get cart by cartId
+    public Cart getCartByCartId(int cartId) {
+        String sql = """
+                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive,
+                                c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber, pm.PaymentName
+                                FROM Cart c
+                                LEFT JOIN PaymentMethod pm ON pm.PaymentMethodId = c.PaymentMethodId
+                                WHERE c.CartId = ?
+                                ORDER BY isPayment DESC, isActive DESC, StartDate ASC
+                """;
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, cartId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Cart cart = mapCartFromResultSet(rs);
+                    List<CartService> cartServices = getCartServicesByCartId(cartId);
+                    cart.setCartServices(cartServices);
+                    return cart;
+                }
+            }
+        } catch (SQLException e) {
+            // Handle exception (log or rethrow)
+        }
+
+        return null;
     }
 }

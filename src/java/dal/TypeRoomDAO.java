@@ -146,6 +146,7 @@ public class TypeRoomDAO {
                     typeRoom.setTypeName(rs.getString(2));
                     typeRoom.setDescription(rs.getString(3));
                     typeRoom.setPrice(rs.getInt(4));
+                    typeRoom.setImages(RoomImageDAO.getInstance().getRoomImagesByTypeId(rs.getInt("TypeId")));
                     return typeRoom;
                 }
             }

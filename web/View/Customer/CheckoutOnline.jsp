@@ -22,264 +22,184 @@
                         <img src="${pageContext.request.contextPath}/Image/Logo.png" alt="FPT Hotel Logo"/>
                         FPT Hotel
                     </div>
-<!--                    <div class="dots">
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                        <div class="dot"></div>
-                    </div>-->
+                    <!--                    <div class="dots">
+                                            <div class="dot"></div>
+                                            <div class="dot"></div>
+                                            <div class="dot"></div>
+                                            <div class="dot"></div>
+                                        </div>-->
                 </div>
                 <button class="login-btn">Đăng nhập</button>
             </div>
         </div>
 
         <div class="container">
-<!--            <div class="progress-bar">
-                <div class="countdown">
-                    <div class="countdown-text">Chúng tôi đang giữ giá cho quý khách...</div>
-                    <div class="countdown-timer">⏰ 00:19:33</div>
-                </div>
-            </div>-->
+            <!--            <div class="progress-bar">
+                            <div class="countdown">
+                                <div class="countdown-text">Chúng tôi đang giữ giá cho quý khách...</div>
+                                <div class="countdown-timer">⏰ 00:19:33</div>
+                            </div>
+                        </div>-->
 
             <div class="main-content">
 
                 <div class="booking-form">
-                    <h2 class="form-title">Thông tin khách hàng</h2>
-                    <div class="required-text">*Mục bắt buộc</div>
+                    <form action="${pageContext.request.contextPath}/checkout">
+                        <h2 class="form-title">Thông tin khách hàng</h2>
+                        <div class="required-text">*Mục bắt buộc</div>
+                        <div class="warning-text">( Trong trường hợp đặt phòng hộ, 
+                            quý khách vui lòng điền đúng thông tin của người sẽ đến ở )</div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Tên *</label>
-                            <input type="text" class="form-input" placeholder="Nhập tên">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="radio" name="gender" value="male" ${param.gender.equals("male") ? "checked" : ''}>
+                                <label>Anh</label>
+                            </div>
+                            <div class="form-group">
+                                <input type="radio" name="gender" value="female" ${param.gender.equals("female") ? "checked" : ''}>
+                                <label>Chị</label>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Họ (vd: Nguyễn) *</label>
-                            <input type="text" class="form-input" placeholder="Nhập họ">
+                        <c:if test="${not empty genderEmpty}">
+                            <p class="warning-text">${genderEmpty}</p>
+                        </c:if>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Họ Tên *</label>
+                                <input type="text" name="fullName" value="${param.fullName}" class="form-input" placeholder="Nhập họ tên">
+                                <c:if test="${not empty fullNameEmpty}">
+                                    <p class="warning-text">${fullNameEmpty}</p>
+                                </c:if>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">Email ID *</label>
-                            <input type="email" class="form-input" placeholder="Nhập email">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Email ID *</label>
+                                <input type="email" name="email" value="${param.email}" class="form-input" placeholder="Nhập email">
+                                <c:if test="${not empty emailEmpty}">
+                                    <p class="warning-text">${emailEmpty}</p>
+                                </c:if>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Số điện thoại *</label>
+                                <input type="tel" name="phone" value="${param.phone}" class="form-input" placeholder="Nhập số điện thoại">
+                                <c:if test="${not empty phoneEmpty}">
+                                    <p class="warning-text">${phoneEmpty}</p>
+                                </c:if>
+                                <c:if test="${not empty phoneError}">
+                                    <p class="warning-text">${phoneError}</p>
+                                </c:if>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Số điện thoại (không bắt buộc)</label>
-                            <input type="tel" class="form-input" placeholder="Nhập số điện thoại">
+
+                        <div class="special-requests">
+                            <h3>Các dịch vụ được sử dụng</h3>
+
+
+                            <div class="services-list">
+                                <c:forEach var="ls" items="${serviceInfor}">
+                                    <c:choose>
+                                        <c:when test="${ls.service.serviceId == 1}">
+                                            <div class="service-item">
+                                                <div class="service-info">
+                                                    <div class="service-icon">📶</div>
+                                                    <div class="service-details">
+                                                        <div class="service-name">${ls.service.serviceName}</div>
+                                                        <div class="service-price">Free</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:when>
+                                        <c:when test="${ls.service.serviceId == 2}">
+                                            <div class="service-item">
+                                                <div class="service-info">
+                                                    <div class="service-icon">🚌</div>
+                                                    <div class="service-details">
+                                                        <div class="service-name">${ls.service.serviceName}</div>
+                                                        <div class="service-price">${ls.service.price}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:when>
+
+                                        <c:when test="${ls.service.serviceId == 3}">
+                                            <div class="service-item">
+                                                <div class="service-info">
+                                                    <div class="service-icon">💆</div>
+                                                    <div class="service-details">
+                                                        <div class="service-name">${ls.service.serviceName}</div>
+                                                        <div class="service-price">${ls.service.price}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="service-quantity">
+                                                    <input type="number" id="airport-pickup" class="qty-input" value="${ls.quantity}" readonly>
+                                                </div>
+                                            </div>
+                                        </c:when>
+
+                                        <c:when test="${ls.service.serviceId == 4}">
+                                            <div class="service-item">
+                                                <div class="service-info">
+                                                    <div class="service-icon">🏊</div>
+                                                    <div class="service-details">
+                                                        <div class="service-name">${ls.service.serviceName}</div>
+                                                        <div class="service-price">Free</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:when>
+
+                                        <c:when test="${ls.service.serviceId == 5}">
+                                            <div class="service-item">
+                                                <div class="service-info">
+                                                    <div class="service-icon">🚗</div>
+                                                    <div class="service-details">
+                                                        <div class="service-name">${ls.service.serviceName}</div>
+                                                        <div class="service-price">${ls.service.price}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="service-quantity">
+                                                    <input type="number" id="airport-pickup" class="qty-input" value="${ls.quantity}" readonly>
+                                                </div>
+                                            </div>
+                                        </c:when>
+
+                                        <c:when test="${ls.service.serviceId == 6}">
+                                            <div class="service-item">
+                                                <div class="service-info">
+                                                    <div class="service-icon">🍳</div>
+                                                    <div class="service-details">
+                                                        <div class="service-name">${ls.service.serviceName}</div>
+                                                        <div class="service-price">${ls.service.price}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="service-quantity">
+                                                    <input type="number" id="airport-pickup" class="qty-input" value="${ls.quantity}" readonly>
+                                                </div>
+                                            </div>
+                                        </c:when>
+
+                                        <c:when test="${ls.service.serviceId == 7}">
+                                            <div class="service-item">
+                                                <div class="service-info">
+                                                    <div class="service-icon">🛎️</div>
+                                                    <div class="service-details">
+                                                        <div class="service-name">${ls.service.serviceName}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:when>
+
+                                    </c:choose>
+                                </c:forEach>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="special-requests">
-                        <h3>Các dịch vụ được sử dụng</h3>
-
-
-                        <div class="services-list">
-                            <c:forEach var="ls" items="${serviceInfor}">
-                                <c:choose>
-                                    <c:when test="${ls.service.serviceId == 1}">
-                                        <div class="service-item">
-                                            <div class="service-info">
-                                                <div class="service-icon">🚗</div>
-                                                <div class="service-details">
-                                                    <div class="service-name">${ls.service.serviceName}</div>
-                                                    <div class="service-price">Free</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </c:when>
-                                    <c:when test="${ls.service.serviceId == 2}">
-                                        <div class="service-item">
-                                            <div class="service-info">
-                                                <div class="service-icon">🚌</div>
-                                                <div class="service-details">
-                                                    <div class="service-name">${ls.service.serviceName}</div>
-                                                    <div class="service-price">${ls.service.price}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </c:when>
-
-                                    <c:when test="${ls.service.serviceId == 3}">
-                                        <div class="service-item">
-                                            <div class="service-info">
-                                                <div class="service-icon">💆</div>
-                                                <div class="service-details">
-                                                    <div class="service-name">${ls.service.serviceName}</div>
-                                                    <div class="service-price">${ls.service.price}</div>
-                                                </div>
-                                            </div>
-                                            <div class="service-quantity">
-                                                <input type="number" id="airport-pickup" class="qty-input" value="${ls.quantity}" readonly>
-                                            </div>
-                                        </div>
-                                    </c:when>
-
-                                    <c:when test="${ls.service.serviceId == 4}">
-                                        <div class="service-item">
-                                            <div class="service-info">
-                                                <div class="service-icon">🏊</div>
-                                                <div class="service-details">
-                                                    <div class="service-name">${ls.service.serviceName}</div>
-                                                    <div class="service-price">Free</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </c:when>
-
-                                    <c:when test="${ls.service.serviceId == 5}">
-                                        <div class="service-item">
-                                            <div class="service-info">
-                                                <div class="service-icon">🚗</div>
-                                                <div class="service-details">
-                                                    <div class="service-name">${ls.service.serviceName}</div>
-                                                    <div class="service-price">${ls.service.price}</div>
-                                                </div>
-                                            </div>
-                                            <div class="service-quantity">
-                                                <input type="number" id="airport-pickup" class="qty-input" value="${ls.quantity}" readonly>
-                                            </div>
-                                        </div>
-                                    </c:when>
-
-                                    <c:when test="${ls.service.serviceId == 6}">
-                                        <div class="service-item">
-                                            <div class="service-info">
-                                                <div class="service-icon">🍳</div>
-                                                <div class="service-details">
-                                                    <div class="service-name">${ls.service.serviceName}</div>
-                                                    <div class="service-price">${ls.service.price}</div>
-                                                </div>
-                                            </div>
-                                            <div class="service-quantity">
-                                                <input type="number" id="airport-pickup" class="qty-input" value="${ls.quantity}" readonly>
-                                            </div>
-                                        </div>
-                                    </c:when>
-
-                                    <c:when test="${ls.service.serviceId == 7}">
-                                        <div class="service-item">
-                                            <div class="service-info">
-                                                <div class="service-icon">🛎️</div>
-                                                <div class="service-details">
-                                                    <div class="service-name">${ls.service.serviceName}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </c:when>
-
-                                </c:choose>
-
-
-                                <!--                                <div class="service-item">
-                                                                    <div class="service-info">
-                                                                        <div class="service-icon">🚌</div>
-                                                                        <div class="service-details">
-                                                                            <div class="service-name">Tour tham quan thành phố</div>
-                                                                            <div class="service-price">300,000 VNĐ</div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="service-quantity">
-                                                                        <button type="button" class="qty-btn minus" onclick="updateQuantity('city-tour', -1)">-</button>
-                                                                        <input type="number" id="city-tour" class="qty-input" value="0" min="0" max="10" readonly>
-                                                                        <button type="button" class="qty-btn plus" onclick="updateQuantity('city-tour', 1)">+</button>
-                                                                    </div>
-                                                                </div>
-                                
-                                                                <div class="service-item">
-                                                                    <div class="service-info">
-                                                                        <div class="service-icon"></div>
-                                                                        <div class="service-details">
-                                                                            <div class="service-name">Bữa sáng buffet</div>
-                                                                            <div class="service-price">150,000 VNĐ/người/ngày</div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="service-quantity">
-                                                                        <button type="button" class="qty-btn minus" onclick="updateQuantity('breakfast', -1)">-</button>
-                                                                        <input type="number" id="breakfast" class="qty-input" value="0" min="0" max="10" readonly>
-                                                                        <button type="button" class="qty-btn plus" onclick="updateQuantity('breakfast', 1)">+</button>
-                                                                    </div>
-                                                                </div>
-                                
-                                                                <div class="service-item">
-                                                                    <div class="service-info">
-                                                                        <div class="service-icon">🍷</div>
-                                                                        <div class="service-details">
-                                                                            <div class="service-name">Minibar miễn phí</div>
-                                                                            <div class="service-price">200,000 VNĐ/ngày</div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="service-quantity">
-                                                                        <button type="button" class="qty-btn minus" onclick="updateQuantity('minibar', -1)">-</button>
-                                                                        <input type="number" id="minibar" class="qty-input" value="0" min="0" max="10" readonly>
-                                                                        <button type="button" class="qty-btn plus" onclick="updateQuantity('minibar', 1)">+</button>
-                                                                    </div>
-                                                                </div>
-                                
-                                                                <div class="service-item">
-                                                                    <div class="service-info">
-                                                                        <div class="service-icon">💆</div>
-                                                                        <div class="service-details">
-                                                                            <div class="service-name">Massage thư giãn 60 phút</div>
-                                                                            <div class="service-price">800,000 VNĐ</div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="service-quantity">
-                                                                        <button type="button" class="qty-btn minus" onclick="updateQuantity('spa', -1)">-</button>
-                                                                        <input type="number" id="spa" class="qty-input" value="0" min="0" max="10" readonly>
-                                                                        <button type="button" class="qty-btn plus" onclick="updateQuantity('spa', 1)">+</button>
-                                                                    </div>
-                                                                </div>
-                                
-                                                                <div class="service-item">
-                                                                    <div class="service-info">
-                                                                        <div class="service-icon">🏋️</div>
-                                                                        <div class="service-details">
-                                                                            <div class="service-name">Sử dụng phòng gym 24/7</div>
-                                                                            <div class="service-price">100,000 VNĐ/ngày</div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="service-quantity">
-                                                                        <button type="button" class="qty-btn minus" onclick="updateQuantity('gym', -1)">-</button>
-                                                                        <input type="number" id="gym" class="qty-input" value="0" min="0" max="10" readonly>
-                                                                        <button type="button" class="qty-btn plus" onclick="updateQuantity('gym', 1)">+</button>
-                                                                    </div>
-                                                                </div>
-                                
-                                                                <div class="service-item">
-                                                                    <div class="service-info">
-                                                                        <div class="service-icon">🕐</div>
-                                                                        <div class="service-details">
-                                                                            <div class="service-name">Trả phòng muộn (18:00)</div>
-                                                                            <div class="service-price">200,000 VNĐ</div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="service-quantity">
-                                                                        <button type="button" class="qty-btn minus" onclick="updateQuantity('late-checkout', -1)">-</button>
-                                                                        <input type="number" id="late-checkout" class="qty-input" value="0" min="0" max="1" readonly>
-                                                                        <button type="button" class="qty-btn plus" onclick="updateQuantity('late-checkout', 1)">+</button>
-                                                                    </div>
-                                                                </div>
-                                
-                                                                <div class="service-item">
-                                                                    <div class="service-info">
-                                                                        <div class="service-icon">⬆️</div>
-                                                                        <div class="service-details">
-                                                                            <div class="service-name">Nâng cấp phòng view biển</div>
-                                                                            <div class="service-price">400,000 VNĐ/ngày</div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="service-quantity">
-                                                                        <button type="button" class="qty-btn minus" onclick="updateQuantity('room-upgrade', -1)">-</button>
-                                                                        <input type="number" id="room-upgrade" class="qty-input" value="0" min="0" max="1" readonly>
-                                                                        <button type="button" class="qty-btn plus" onclick="updateQuantity('room-upgrade', 1)">+</button>
-                                                                    </div>
-                                                                </div>-->
-                            </c:forEach>
-                        </div>
-                    </div>
-
-                    <button class="continue-btn">KẾ TIẾP: BƯỚC CUỐI CÙNG</button>
-                    <div class="contact-info">Có liên xác nhận đặt phòng!</div>
+                        <input type="hidden" name="service" value="confirmInformation">
+                        <input type="hidden" name="cartId" value="${requestScope.cartId}">
+                        <div class="contact-info">Hệ thống sẽ gửi email xác nhận đặt phòng ngay sau khi quý khách hoàn thành bước thanh toán!</div>
+                        <div class="contact-info" style="color: red;">⚠️Quý khách vui lòng kiểm tra chính xác địa chỉ email của mình một lần nữa!⚠️</div>
+                        <button class="continue-btn">KẾ TIẾP: BƯỚC THANH TOÁN</button>
+                    </form>
                 </div>
 
                 <div class="sidebar">
@@ -322,10 +242,10 @@
                                 <span>Đặt và trả tiền ngay</span>
                             </div>
 
-<!--                            <div class="policy-item policy-red">
-                                <span class="policy-icon">❌</span>
-                                <span>Chúng tôi chỉ còn 2 phòng có giá này!</span>
-                            </div>-->
+                            <!--                            <div class="policy-item policy-red">
+                                                            <span class="policy-icon">❌</span>
+                                                            <span>Chúng tôi chỉ còn 2 phòng có giá này!</span>
+                                                        </div>-->
 
                             <div class="policy-item policy-green">
                                 <span class="policy-icon">🏊</span>
@@ -371,43 +291,43 @@
                     tick();
                 }
 
-                // Form validation
-                function validateForm() {
-                    const requiredFields = document.querySelectorAll('.form-input[required], .form-select[required]');
-                    let isValid = true;
-
-                    requiredFields.forEach(field => {
-                        if (!field.value.trim()) {
-                            field.style.borderColor = '#ff385c';
-                            isValid = false;
-                        } else {
-                            field.style.borderColor = '#ddd';
-                        }
-                    });
-
-                    return isValid;
-                }
-
-                // Initialize
-                document.addEventListener('DOMContentLoaded', function () {
-                    updateCountdown();
-
-                    // Form submission
-                    document.querySelector('.continue-btn').addEventListener('click', function (e) {
-                        e.preventDefault();
-                        if (validateForm()) {
-                            alert('Tiếp tục đến bước thanh toán!');
-                        } else {
-                            alert('Vui lòng điền đầy đủ thông tin bắt buộc.');
-                        }
-                    });
-
-                    // More options toggle
-                    document.querySelector('.more-options').addEventListener('click', function () {
-                        // Add more special request options here
-                        alert('Tính năng đang phát triển!');
-                    });
-                });
+//                // Form validation
+//                function validateForm() {
+//                    const requiredFields = document.querySelectorAll('.form-input[required], .form-select[required]');
+//                    let isValid = true;
+//
+//                    requiredFields.forEach(field => {
+//                        if (!field.value.trim()) {
+//                            field.style.borderColor = '#ff385c';
+//                            isValid = false;
+//                        } else {
+//                            field.style.borderColor = '#ddd';
+//                        }
+//                    });
+//
+//                    return isValid;
+//                }
+//
+//                // Initialize
+//                document.addEventListener('DOMContentLoaded', function () {
+//                    updateCountdown();
+//
+//                    // Form submission
+//                    document.querySelector('.continue-btn').addEventListener('click', function (e) {
+//                        e.preventDefault();
+//                        if (validateForm()) {
+//                            alert('Tiếp tục đến bước thanh toán!');
+//                        } else {
+//                            alert('Vui lòng điền đầy đủ thông tin bắt buộc.');
+//                        }
+//                    });
+//
+//                    // More options toggle
+//                    document.querySelector('.more-options').addEventListener('click', function () {
+//                        // Add more special request options here
+//                        alert('Tính năng đang phát triển!');
+//                    });
+//                });
             </script>
     </body>
 </html>

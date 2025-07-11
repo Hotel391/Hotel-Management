@@ -84,12 +84,14 @@ public class VnpayReturn extends HttpServlet {
             boolean transSuccess = false;
 
             if ("cartPayment".equalsIgnoreCase(cartStatus)) {
+                int mainCustomerId = (int) session.getAttribute("mainCustomerId");
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);
                     cart.setStatus("Completed CheckIn");
                     cart.setIsPayment(true);
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
+                   dal.CartDAO.getInstance().updateMainCustomerId(mainCustomerId, bookingId);
                 }else{
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);

@@ -82,13 +82,15 @@ public class ajaxServlet extends HttpServlet {
             
             if (customerByEmail == null) {
                 int mainCustomerId = dal.CustomerDAO.getInstance().insertCustomerOnline(checkCustomer);
+                session.setAttribute("mainCustomerId", mainCustomerId);
                 dal.CartDAO.getInstance().updateMainCustomerId(mainCustomerId, cartId);
             } else {
-                dal.CartDAO.getInstance().updateMainCustomerId(customerByEmail.getCustomerId(), cartId);
+                session.setAttribute("mainCustomerId", customerByEmail.getCustomerId());
             }
             cart.setStatus("Processing");
             cart.setIsPayment(false);
             dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
+            session.removeAttribute("cartId");
             session.removeAttribute("mainCustomer");
         } else {
             //thanh toán online ở reception

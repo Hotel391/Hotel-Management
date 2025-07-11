@@ -49,7 +49,7 @@
                 color: #007bff;
             }
             .sort-option.active {
-                background-color: #E6F0FA; 
+                background-color: #E6F0FA;
                 color: #000;
                 border-bottom: 2px solid #0071C2;
                 border-radius: 0;
@@ -115,15 +115,15 @@
                 <div class="sort-label text-uppercase fw-bold me-3">Sắp xếp theo:</div>
                 <div class="sort-options d-flex flex-grow-1 align-items-center">
                     <span class="sort-option" 
-                        style="border-top-left-radius: 70px; border-bottom-left-radius: 70px;
-                        ${empty sortOrder || sortOrder eq 'price-low' ? "background-color: #2067da; color: #fff": ""}"
-                        onclick="window.location.href='?sort=price-low&checkin=${checkin}&checkout=${checkout}&adults=${adults}&children=${children}&minPrice=${param.minPrice}&maxPrice=${param.maxPrice}'">Giá thấp nhất</span>
+                          style="border-top-left-radius: 70px; border-bottom-left-radius: 70px;
+                          ${empty sortOrder || sortOrder eq 'price-low' ? "background-color: #2067da; color: #fff": ""}"
+                          onclick="window.location.href = '?sort=price-low&checkin=${checkin}&checkout=${checkout}&adults=${adults}&children=${children}&minPrice=${param.minPrice}&maxPrice=${param.maxPrice}'">Giá thấp nhất</span>
                     <span class="sort-option" style="${sortOrder eq 'price-high'? "background-color: #2067da; color: #fff" : ""}" 
-                        onclick="window.location.href='?sort=price-high&checkin=${checkin}&checkout=${checkout}&adults=${adults}&children=${children}&minPrice=${param.minPrice}&maxPrice=${param.maxPrice}'">Giá cao nhất</span>
+                          onclick="window.location.href = '?sort=price-high&checkin=${checkin}&checkout=${checkout}&adults=${adults}&children=${children}&minPrice=${param.minPrice}&maxPrice=${param.maxPrice}'">Giá cao nhất</span>
                     <span class="sort-option" 
-                        style="border-top-right-radius: 70px; border-bottom-right-radius: 70px;
-                        ${sortOrder eq 'rating-high'? "background-color: #2067da; color: #fff": ""}" 
-                        onclick="window.location.href='?sort=rating-high&checkin=${checkin}&checkout=${checkout}&adults=${adults}&children=${children}&minPrice=${param.minPrice}&maxPrice=${param.maxPrice}'">Đánh giá cao nhất</span>
+                          style="border-top-right-radius: 70px; border-bottom-right-radius: 70px;
+                          ${sortOrder eq 'rating-high'? "background-color: #2067da; color: #fff": ""}" 
+                          onclick="window.location.href = '?sort=rating-high&checkin=${checkin}&checkout=${checkout}&adults=${adults}&children=${children}&minPrice=${param.minPrice}&maxPrice=${param.maxPrice}'">Đánh giá cao nhất</span>
                 </div>
             </div>
         </div>
@@ -256,6 +256,7 @@
                 </div>
             </div>
         </div>
+        <jsp:include page="/View/chatbot.jsp"/>
     </body>
     <script>
         function validatePriceRange() {

@@ -669,4 +669,66 @@ public class TypeRoomDAO {
         return null;
     }
 
+    public List<TypeRoom> getAllTypeRoomsForChatbot() {
+        List<TypeRoom> typeRooms = new ArrayList<>();
+        String sql = """
+            SELECT 
+                sub.TypeId,
+                sub.TypeName,
+                sub.Price,
+                sub.Description,
+                sub.Rating,
+                sub.numberOfReview,
+                sub.totalRooms,
+                sub.Adult,
+                sub.Children
+            FROM (
+                SELECT 
+                    tr.TypeId,
+                    tr.TypeName,
+                    tr.Price AS Price,
+                    tr.Description,
+                    AVG(rv.Rating * 1.0) AS Rating,
+                    COUNT(distinct rv.ReviewId) AS numberOfReview,
+                    count(distinct r.RoomNumber) as totalRooms,
+                    tr.Adult,
+                    tr.Children
+                FROM TypeRoom tr
+                JOIN Room r ON r.TypeId = tr.TypeId and r.isActive=1
+                LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
+                LEFT JOIN Review rv ON rv.BookingDetailId = bd2.BookingDetailId
+                LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
+                LEFT JOIN Service s ON s.ServiceId = rns.ServiceId
+                LEFT JOIN (
+                    SELECT 
+                        rns.TypeId,
+                        SUM(rns.Quantity * s.Price) AS ServicePrice
+                    FROM RoomNService rns
+                    JOIN Service s ON s.ServiceId = rns.ServiceId
+                    GROUP BY rns.TypeId
+                ) svc ON svc.TypeId = tr.TypeId
+                GROUP BY tr.TypeId, tr.TypeName, tr.Price, tr.Description, svc.ServicePrice, tr.Adult, tr.Children
+            ) AS sub
+            """;
+
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                TypeRoom typeRoom = new TypeRoom();
+                typeRoom.setTypeId(rs.getInt("TypeId"));
+                typeRoom.setTypeName(rs.getString("TypeName"));
+                typeRoom.setPrice(rs.getInt("Price"));
+                typeRoom.setDescription(rs.getString("Description"));
+                typeRoom.setAverageRating(rs.getDouble("Rating"));
+                typeRoom.setNumberOfReviews(rs.getInt("numberOfReview"));
+                typeRoom.setTotalRooms(rs.getInt("totalRooms"));
+                typeRoom.setAdults(rs.getInt("Adult"));
+                typeRoom.setChildren(rs.getInt("Children"));
+                typeRoom.setImages(getRoomImagesByTypeId(typeRoom.getTypeId()));
+                typeRooms.add(typeRoom);
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return typeRooms;
+    }
 }

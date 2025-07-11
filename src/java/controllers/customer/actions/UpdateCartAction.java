@@ -13,6 +13,7 @@ import java.util.Map;
 
 import models.Cart;
 import models.CartService;
+import models.CustomerAccount;
 import models.Service;
 
 /**
@@ -24,6 +25,12 @@ public class UpdateCartAction implements CartAction {
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int cartId = Integer.parseInt(request.getParameter("cartId"));
+        HttpSession session = request.getSession();
+        CustomerAccount customer = (CustomerAccount) session.getAttribute("customerInfo");
+        if(!dal.CartDAO.getInstance().checkCartOfCustomer(customer.getCustomer().getCustomerId(), cartId)) {
+            response.sendRedirect("cart");
+            return;
+        }
         Cart cart = dal.CartDAO.getInstance().getDetailCartForIsPayment(cartId);
         List<Integer> serviceIds = new ArrayList<>();
         for (CartService service : cart.getCartServices()) {
@@ -41,7 +48,6 @@ public class UpdateCartAction implements CartAction {
         }
         
         List<Service> otherServices= dal.CartDAO.getInstance().getOtherServices(serviceIds);
-        HttpSession session = request.getSession();
         session.setAttribute("cartId", cartId);
         request.setAttribute("action", "updateCart");
         request.setAttribute("cartDetails", cart);

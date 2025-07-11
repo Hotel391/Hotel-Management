@@ -42,7 +42,7 @@ public class CartDAO {
     }
     
     public final int[] serviceIdsDonNeedTimes = {1, 2, 4, 7};
-    private int[] serviceHaveMoneyButNoNeedTimes = {2};
+    private final int[] serviceHaveMoneyButNoNeedTimes = {2};
 
     public List<Cart> getCartByCustomerId(int customerId) {
         String sql = """
@@ -364,7 +364,7 @@ public class CartDAO {
         }
     }
 
-    private boolean checkRoomNumberStatus(int roomNumber, Date checkin, Date checkout) {
+    public boolean checkRoomNumberStatus(int roomNumber, Date checkin, Date checkout) {
         String sql = """
                 select count(*) as isAvailable from Room r
                 LEFT JOIN(
@@ -543,6 +543,22 @@ public class CartDAO {
             // Handle exception
         }
         return null;
+    }
+
+    public boolean checkCartOfCustomer(int customerId, int cartId) {
+        String sql = "SELECT COUNT(*) FROM Cart WHERE CustomerId = ? AND CartId = ? And isPayment = 0 and isActive = 1";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            ps.setInt(2, cartId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return false;
     }
 
     public List<CartService> getCartServicesByCartId(int cartId) {

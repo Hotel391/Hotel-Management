@@ -102,6 +102,7 @@ public class VnpayReturn extends HttpServlet {
                 transSuccess = true;
                 request.setAttribute("pageChange", "cartStatus");
                 session.removeAttribute("cartStatus");
+                session.removeAttribute("mainCustomerId");
             } else {
                 Booking booking = new Booking();
                 booking.setBookingId((bookingId));

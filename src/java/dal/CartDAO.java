@@ -702,7 +702,7 @@ public class CartDAO {
         return null;
     }
      public void updateMainCustomerId(int mainCustomerId, int cartId){
-        String sql = "update Cart set mainCustomerid = ? where cartId = ?";
+        String sql = "update Cart set mainCustomerid = ?, PayDay = GETDATE() where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, mainCustomerId);
             ptm.setInt(2, cartId);

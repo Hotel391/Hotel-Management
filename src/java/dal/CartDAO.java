@@ -701,4 +701,24 @@ public class CartDAO {
 
         return null;
     }
+     public void updateMainCustomerId(int mainCustomerId, int cartId){
+        String sql = "update Cart set mainCustomerid = ? where cartId = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, mainCustomerId);
+            ptm.setInt(2, cartId);
+            ptm.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+     
+     public void updateStatusAndIsPayment(Cart cart){
+         String sql = "update Cart set Status = ? , isPayment = ? where cartId = ?";
+         try (PreparedStatement ptm = con.prepareStatement(sql)) {
+             ptm.setString(1, cart.getStatus());
+             ptm.setBoolean(2, cart.isIsPayment());
+             ptm.setInt(3, cart.getCartId());
+         } catch (Exception e) {
+         }
+     }
 }

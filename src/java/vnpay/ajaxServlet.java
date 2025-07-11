@@ -68,8 +68,18 @@ public class ajaxServlet extends HttpServlet {
             int cartId = (int) session.getAttribute("cartId");
             bookingId = cartId;
             Cart cart = dal.CartDAO.getInstance().getCartByCartId(cartId);
+            
+            dal.CartDAO.getInstance().handleRoomNumberConflict(cart, cart.getStartDate(), cart.getEndDate());
+            
+            if(!cart.isIsActive()){
+                req.setAttribute("notAvailableRoom", "Loại phòng này tạm thời đã hết phòng");
+                req.getRequestDispatcher("/View/Customer/BookingError.jsp").forward(req, resp);
+                return;
+            }
+            
             totalPrice = cart.getTotalPrice();
             Customer insertCustomer = dal.CustomerDAO.getInstance().getCustomerByEmail(checkCustomer);
+            
             if(insertCustomer == null){
                 int mainCustomerId = dal.CustomerDAO.getInstance().insertCustomerOnline(checkCustomer);
                 dal.CartDAO.getInstance().updateMainCustomerId(mainCustomerId, cartId);

@@ -78,13 +78,13 @@ public class ajaxServlet extends HttpServlet {
             }
             
             totalPrice = cart.getTotalPrice();
-            Customer insertCustomer = dal.CustomerDAO.getInstance().getCustomerByEmail(checkCustomer);
+            Customer customerByEmail = dal.CustomerDAO.getInstance().getCustomerByEmail(checkCustomer);
             
-            if (insertCustomer == null) {
+            if (customerByEmail == null) {
                 int mainCustomerId = dal.CustomerDAO.getInstance().insertCustomerOnline(checkCustomer);
                 dal.CartDAO.getInstance().updateMainCustomerId(mainCustomerId, cartId);
             } else {
-                dal.CartDAO.getInstance().updateMainCustomerId(insertCustomer.getCustomerId(), cartId);
+                dal.CartDAO.getInstance().updateMainCustomerId(customerByEmail.getCustomerId(), cartId);
             }
             cart.setStatus("Processing");
             cart.setIsPayment(false);

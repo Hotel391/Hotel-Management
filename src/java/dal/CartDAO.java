@@ -718,6 +718,7 @@ public class CartDAO {
              ptm.setString(1, cart.getStatus());
              ptm.setBoolean(2, cart.isIsPayment());
              ptm.setInt(3, cart.getCartId());
+             ptm.executeUpdate();
          } catch (Exception e) {
          }
      }

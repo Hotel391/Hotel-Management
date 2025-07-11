@@ -11,15 +11,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Date;
+import java.util.function.Function;
 import utility.Encryption;
 import utility.Validation;
+import java.sql.Date;
 
 @WebServlet(name = "ManagerProfileServlet", urlPatterns = "/managerProfile")
 public class ManagerProfile extends HttpServlet {
 
     private EmployeeDAO employeeDAO;
-    private int employeeId;
 
     @Override
     public void init() throws ServletException {
@@ -57,44 +57,54 @@ public class ManagerProfile extends HttpServlet {
 
                 boolean hasError = false;
 
-                if (Validation.validateField(request, "usernameError", username, "USERNAME", "Tên đăng nhập", "Tên đăng nhập không hợp lệ!")) {
+                // Use identity function for string validation
+                Function<String, String> identity = Function.identity();
+                Function<String, Date> dateParser = Date::valueOf;
+
+                // Validate all fields
+                if (Validation.validateField(request, "usernameError", "Tên đăng nhập", username, identity, "USERNAME")) {
                     hasError = true;
                 }
-                if (Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Họ tên", "Họ tên không hợp lệ!")) {
+                if (Validation.validateField(request, "fullNameError", "Họ tên", fullName, identity, "FULLNAME")) {
                     hasError = true;
                 }
-                if (Validation.validateField(request, "addressError", address, "ADDRESS", "Địa chỉ", "Địa chỉ không hợp lệ!")) {
+                if (Validation.validateField(request, "addressError", "Địa chỉ", address, identity, "ADDRESS")) {
                     hasError = true;
                 }
-                if (Validation.validateField(request, "phoneNumberError", phoneNumber, "PHONE_NUMBER", "Số điện thoại", "Số điện thoại không hợp lệ!")) {
+                if (Validation.validateField(request, "phoneNumberError", "Số điện thoại", phoneNumber, identity, "PHONE_NUMBER")) {
                     hasError = true;
                 }
-                if (Validation.validateField(request, "emailError", email, "EMAIL", "Email", "Email không hợp lệ!")) {
+                if (Validation.validateField(request, "emailError", "Email", email, identity, "EMAIL")) {
                     hasError = true;
                 }
-                if (Validation.validateField(request, "cccdError", cccd, "CCCD", "CCCD", "CCCD không đúng định dạng ###-##-####")) {
+                if (Validation.validateField(request, "cccdError", "CCCD", cccd, identity, "CCCD")) {
                     hasError = true;
                 }
-                EmployeeDAO employeeDAO = EmployeeDAO.getInstance();
-                CustomerAccountDAO customerAccountDAO = CustomerAccountDAO.getInstance();
-                CustomerDAO customerDAO = CustomerDAO.getInstance();
+                if (Validation.validateField(request, "dateOfBirthError", "Ngày sinh", dateOfBirth, dateParser, "DATE_OF_BIRTH")) {
+                    hasError = true;
+                }
+
+                // Validate gender
+                if (genderStr == null || (!"Nam".equalsIgnoreCase(genderStr.trim()) && !"Nữ".equalsIgnoreCase(genderStr.trim()))) {
+                    request.setAttribute("genderError", "Giới tính phải là Nam hoặc Nữ!");
+                    hasError = true;
+                }
 
                 Employee existingEmployee = employeeDAO.getEmployeeById(manager.getEmployeeId());
 
+                // Check for uniqueness
                 if (!username.equals(existingEmployee.getUsername())
-                        && (employeeDAO.isUsernameExisted(username) || customerAccountDAO.isUsernameExisted(username))) {
+                        && (employeeDAO.isUsernameExisted(username) || CustomerAccountDAO.getInstance().isUsernameExisted(username))) {
                     request.setAttribute("usernameError", "Tên đăng nhập đã tồn tại!");
                     hasError = true;
                 }
-
                 if (!email.equals(existingEmployee.getEmail())
-                        && (employeeDAO.getAllString("Email").contains(email) || customerDAO.getInstance().isEmailExisted(email))) {
+                        && (employeeDAO.getAllString("Email").contains(email) || CustomerDAO.getInstance().isEmailExisted(email))) {
                     request.setAttribute("emailError", "Email đã được sử dụng!");
                     hasError = true;
                 }
-
                 if (!phoneNumber.equals(existingEmployee.getPhoneNumber())
-                        && (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber) || customerDAO.getAllString("PhoneNumber").contains(phoneNumber))) {
+                        && (employeeDAO.getAllString("PhoneNumber").contains(phoneNumber) || CustomerDAO.getInstance().getAllString("PhoneNumber").contains(phoneNumber))) {
                     request.setAttribute("phoneNumberError", "Số điện thoại đã được sử dụng!");
                     hasError = true;
                 }
@@ -105,16 +115,7 @@ public class ManagerProfile extends HttpServlet {
                     return;
                 }
 
-                if (dateOfBirth != null && !dateOfBirth.trim().isEmpty()) {
-                    try {
-                        java.sql.Date dob = java.sql.Date.valueOf(dateOfBirth.trim());
-                        manager.setDateOfBirth(dob);
-                    } catch (IllegalArgumentException e) {
-                        request.setAttribute("dateOfBirthError", "Ngày sinh không hợp lệ (định dạng yyyy-MM-dd).");
-                        hasError = true;
-                    }
-                }
-
+                // Update employee object
                 manager.setUsername(username);
                 manager.setFullName(fullName);
                 manager.setAddress(address);
@@ -122,10 +123,12 @@ public class ManagerProfile extends HttpServlet {
                 manager.setEmail(email);
                 manager.setGender("Nam".equalsIgnoreCase(genderStr.trim()));
                 manager.setCCCD(cccd);
+                if (dateOfBirth != null && !dateOfBirth.trim().isEmpty()) {
+                    manager.setDateOfBirth(Date.valueOf(dateOfBirth.trim()));
+                }
 
                 employeeDAO.updateEmployee(manager);
                 session.setAttribute("employeeInfo", manager);
-
                 request.setAttribute("success", "Cập nhật hồ sơ thành công!");
             } else if ("changepassword".equals(action)) {
                 String currentPassword = request.getParameter("currentPassword");

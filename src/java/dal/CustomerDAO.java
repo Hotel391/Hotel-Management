@@ -569,4 +569,48 @@ public class CustomerDAO {
         return customers;
     }
 
+    public Customer getCustomerByEmail(Customer mainCustomer) {
+        String sql = "Select Email from Customer where Email = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setString(1, mainCustomer.getEmail());
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    customer.setFullName(rs.getString("FullName"));
+                    customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                    customer.setEmail(rs.getString("Email"));
+                    customer.setActivate(rs.getBoolean("activate"));
+                    return customer;
+                }
+            }
+        } catch (SQLException e) {
+        }
+        return null;
+    }
+
+    public int insertCustomerOnline(Customer customer) {
+        String sql = """
+                     insert into Customer(FullName,Email,PhoneNumber,Gender,activate,RoleId)\r
+                     values (?,?,?,?,1,4)""";
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setString(1, customer.getFullName());
+            st.setString(2, customer.getEmail());
+            st.setString(3, customer.getPhoneNumber());
+            st.setBoolean(4, customer.getGender());
+
+            st.executeUpdate();
+
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+   
 }

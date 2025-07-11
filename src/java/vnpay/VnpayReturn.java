@@ -97,6 +97,7 @@ public class VnpayReturn extends HttpServlet {
                     cart.setIsPayment(false);
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
                 }
+                transSuccess = true;
                 request.setAttribute("pageChange", "cartStatus");
                 session.removeAttribute("cartStatus");
             } else {

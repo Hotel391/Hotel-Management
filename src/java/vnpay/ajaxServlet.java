@@ -89,6 +89,7 @@ public class ajaxServlet extends HttpServlet {
             cart.setStatus("Processing");
             cart.setIsPayment(false);
             dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
+            session.removeAttribute("mainCustomer");
         } else {
             //thanh toán online ở reception
             if (status.equals("checkIn")) {

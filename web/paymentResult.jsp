@@ -34,6 +34,9 @@
             </div>
         </c:if>
         
+        <c:if test="${pageChange == 'cartStatus'}">
+            <div onclick="location.href = '${pageContext.request.contextPath}/home'"> về trang home</div>
+        </c:if>
 
         <section style="margin-top: 50px; text-align: center;">
             <div>

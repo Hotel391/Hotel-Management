@@ -62,25 +62,21 @@ public class Customers extends HttpServlet {
         try {
             switch (action) {
                 case "toggleStatus":
-
                     int customerId = Integer.parseInt(request.getParameter("customerId"));
                     Customer customer = CustomerDAO.getInstance().getCustomerByCustomerID(customerId);
                     if (customer != null) {
-                        boolean newStatus = !customer.getActivate(); 
+                        boolean newStatus = !customer.getActivate();
                         CustomerDAO.getInstance().updateCustomerStatus(customer.getCustomerId(), newStatus);
-
-                
-                        request.getSession().setAttribute("success", "Customer status updated.");
+                        request.getSession().setAttribute("success", "Trạng thái khách hàng đã được cập nhật.");
                     }
-
                     break;
                 default:
-                    request.setAttribute("error", "Invalid action.");
+                    request.setAttribute("error", "Hành động không hợp lệ.");
                     doGet(request, response);
                     return;
             }
         } catch (Exception e) {
-            request.setAttribute("error", "Error: " + e.getMessage());
+            request.setAttribute("error", "Lỗi: " + e.getMessage());
             doGet(request, response);
             return;
         }
@@ -98,7 +94,6 @@ public class Customers extends HttpServlet {
                 redirectUrl += "key=" + key;
             }
         }
-        response.sendRedirect(redirectUrl); 
+        response.sendRedirect(redirectUrl);
     }
-
 }

@@ -3,12 +3,13 @@ package models;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Timestamp;
 
 public class Cart {
 
     private int cartId;
     private int totalPrice;
-    private Date payDay;
+    private Timestamp payDay;
     private String status;
     private Date startDate;
     private Date endDate;
@@ -25,7 +26,7 @@ public class Cart {
     public Cart() {
     }
 
-    public Cart(int cartId, int totalPrice, Date payDay, String status, Date startDate, Date endDate, boolean isActive, boolean isPayment, Customer customer, PaymentMethod paymentMethod) {
+    public Cart(int cartId, int totalPrice, Timestamp payDay, String status, Date startDate, Date endDate, boolean isActive, boolean isPayment, Customer customer, PaymentMethod paymentMethod) {
         this.cartId = cartId;
         this.totalPrice = totalPrice;
         this.payDay = payDay;
@@ -54,11 +55,11 @@ public class Cart {
         this.totalPrice = totalPrice;
     }
 
-    public Date getPayDay() {
+    public Timestamp getPayDay() {
         return payDay;
     }
 
-    public void setPayDay(Date payDay) {
+    public void setPayDay(Timestamp payDay) {
         this.payDay = payDay;
     }
 

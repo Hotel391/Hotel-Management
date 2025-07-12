@@ -91,7 +91,6 @@ public class ajaxServlet extends HttpServlet {
 //            dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
             session.removeAttribute("cartId");
             session.removeAttribute("expireTime");
-            session.removeAttribute("timeLeft");
             session.removeAttribute("mainCustomer");
         } else {
             //thanh toán online ở reception
@@ -414,6 +413,7 @@ public class ajaxServlet extends HttpServlet {
             cld.add(Calendar.SECOND, seconds);
             String vnp_ExpireDate = formatter.format(cld.getTime());
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+            session.removeAttribute("timeLeft");
         } else {
             cld.add(Calendar.MINUTE, 1); // tiếp tục dùng cld
             String vnp_ExpireDate = formatter.format(cld.getTime());

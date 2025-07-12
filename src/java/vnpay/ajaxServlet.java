@@ -340,7 +340,7 @@ public class ajaxServlet extends HttpServlet {
 
                     emailExecutor.submit(() -> {
                         EmailService emailService = new EmailService();
-                        emailService.sendEmail(email, "Receipt information", "checkout", data);
+                        emailService.sendEmail(email, "Receipt information", EmailType.RECEIPT, data);
                     });
 
                     resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");

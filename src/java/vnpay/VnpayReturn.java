@@ -310,7 +310,7 @@ public class VnpayReturn extends HttpServlet {
                         emailExecutor.submit(() -> {
                             System.out.println("Sending email to " + email);
                             EmailService emailService = new EmailService();
-                            emailService.sendEmail(email, "Receipt Information", "checkout", data);
+                            emailService.sendEmail(email, "Receipt Information", EmailType.RECEIPT, data);
                         });
 
                         session.removeAttribute("paidAmount");
@@ -443,7 +443,7 @@ public class VnpayReturn extends HttpServlet {
                         emailExecutor.submit(() -> {
                             System.out.println("Sending email to " + email);
                             EmailService emailService = new EmailService();
-                            emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                            emailService.sendEmail(email, "Confirm Checkin information", EmailType.CHECKIN, data);
                         });
                         request.setAttribute("pageChange", "checkOut");
                         session.removeAttribute("listRoomNumber");

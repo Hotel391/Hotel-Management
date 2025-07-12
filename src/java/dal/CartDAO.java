@@ -107,19 +107,38 @@ public class CartDAO {
             updateCartPricingAndServices(cart, startDate, endDate);
         }
 
-        if (!cart.isIsActive() && startDate.before(Date.valueOf(today))) {
+        if (!cart.isIsActive() && !startDate.before(Date.valueOf(today))) {
             reactivateCartIfRoomAvailable(cart, startDate, endDate);
         }
     }
 
     private void reactivateCartIfRoomAvailable(Cart cart, Date startDate, Date endDate) {
-        int newRoom = getRoomNumber(cart.getRoomNumber(), startDate, endDate);
+        int newRoom = getRoomNumber(getTyperoomOfRoomNumber(cart.getRoomNumber()), startDate, endDate);
         if (newRoom != 0) {
             cart.setRoomNumber(newRoom);
             updateCartRoomNumber(cart.getCartId(), newRoom);
             updateCartIsActiveToActive(cart.getCartId());
             cart.setIsActive(true);
         }
+    }
+    
+    private int getTyperoomOfRoomNumber(int roomNumber){
+        String sql="""
+                   select tr.TypeId from TypeRoom tr
+                   join Room r on r.TypeId=tr.TypeId
+                   where r.RoomNumber=?
+                   """;
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, roomNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("TypeId");
+                }
+            }
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return 0;
     }
 
     private void updateCartPricingAndServices(Cart cart, Date startDate, Date endDate) {

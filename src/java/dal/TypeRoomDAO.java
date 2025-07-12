@@ -532,6 +532,9 @@ public class TypeRoomDAO {
                 FROM (
                     SELECT tr.TypeId,
                         tr.Price AS Price,
+                        COUNT(DISTINCT CASE 
+                            WHEN BookingDetailCheck.BookingDetailId IS NULL and c.CartId is null THEN r.RoomNumber
+                            END) AS AvailableRoomCount,
                         tr.Adult,
                         tr.Children + tr.Adult AS totalCapacity
                     FROM TypeRoom tr
@@ -557,9 +560,11 @@ public class TypeRoomDAO {
                     WHERE BookingDetailCheck.BookingDetailId IS NULL AND c.CartId IS NULL
                     GROUP BY tr.TypeId, tr.Price, svc.ServicePrice, tr.Adult, tr.Children
                     ) AS t
-                WHERE t.Adult >= ? AND t.totalCapacity >= ?
+                WHERE t.AvailableRoomCount>0 and t.Adult >= ? AND t.totalCapacity >= ?
                 """);
         List<Object> params = new ArrayList<>();
+        params.add(startDate);
+        params.add(endDate);
         params.add(startDate);
         params.add(endDate);
         params.add(adult);

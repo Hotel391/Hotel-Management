@@ -204,7 +204,7 @@
         bubble.style.flexDirection = "column";
 
         const messageText = document.createElement("div");
-        messageText.textContent = text;
+        messageText.innerHTML = text;
         messageText.style.wordWrap = "break-word";
 
         const ts = document.createElement("div");

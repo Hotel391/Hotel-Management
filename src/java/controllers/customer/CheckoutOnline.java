@@ -132,7 +132,7 @@ public class CheckoutOnline extends HttpServlet {
 
         if ("confirmInformation".equals(service)) {
 
-            long timeLeft = Long.parseLong(request.getParameter("timeLeft"));
+            int timeLeft = Integer.parseInt(request.getParameter("timeLeft"));
             
             System.out.println("timeLeft: " + timeLeft);
 

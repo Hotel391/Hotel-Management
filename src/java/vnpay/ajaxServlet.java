@@ -406,12 +406,12 @@ public class ajaxServlet extends HttpServlet {
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
         if ("cartPayment".equals(cartStatus)) {
-            long timeLeft = Long.parseLong(req.getParameter("timeLeft"));
-            cld.add(Calendar.SECOND, (int) timeLeft); // ✅ dùng lại cld
+            int timeLeft = (int)session.getAttribute("timeLeft");
+            cld.add(Calendar.SECOND, timeLeft); // ✅ dùng lại cld
             String vnp_ExpireDate = formatter.format(cld.getTime());
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
-            session.setAttribute("timeLeft", timeLeft);
+            session.removeAttribute("timeLeft");
         } else {
             cld.add(Calendar.MINUTE, 1); // tiếp tục dùng cld
             String vnp_ExpireDate = formatter.format(cld.getTime());

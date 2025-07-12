@@ -400,14 +400,16 @@ public class ajaxServlet extends HttpServlet {
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        formatter.setTimeZone(TimeZone.getTimeZone("Etc/GMT+7"));
 
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
         if ("cartPayment".equals(cartStatus)) {
-            int timeLeft = (int)session.getAttribute("timeLeft");
-            cld.add(Calendar.SECOND, timeLeft); // ✅ dùng lại cld
+            int seconds  = (int)session.getAttribute("timeLeft");
+            System.out.println(seconds);
+//            int minutes = (int) Math.ceil(seconds / 60.0);
+//            System.out.println(minutes);
+            cld.add(Calendar.SECOND, seconds);
             String vnp_ExpireDate = formatter.format(cld.getTime());
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 

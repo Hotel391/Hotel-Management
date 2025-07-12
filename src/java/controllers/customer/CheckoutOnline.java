@@ -48,8 +48,8 @@ public class CheckoutOnline extends HttpServlet {
 
         HttpSession session = request.getSession();
 
-        //int cartId = Integer.parseInt(request.getParameter("cartId"));
-        int cartId = 4;
+        int cartId = Integer.parseInt(request.getParameter("cartId"));
+//        int cartId = 3;
 
         request.setAttribute("cartId", cartId);
         Cart checkCart = CartDAO.getInstance().getCartByCartId(cartId);
@@ -67,7 +67,7 @@ public class CheckoutOnline extends HttpServlet {
                 request.getRequestDispatcher("/View/Customer/BookingError.jsp").forward(request, response);
                 return;
             }
-            
+
             //set payment time limitation
             expireTime = System.currentTimeMillis() + 3 * 60 * 1000;
             session.setAttribute("expireTime", expireTime);
@@ -86,8 +86,8 @@ public class CheckoutOnline extends HttpServlet {
             service = "view";
         }
 
-//            Customer customer = (Customer) session.getAttribute("customerInfo");
-        CustomerAccount customerAccount = CustomerAccountDAO.getInstance().getCustomerAccountById(46);
+        Customer customer = (Customer) session.getAttribute("customerInfo");
+        CustomerAccount customerAccount = CustomerAccountDAO.getInstance().getCustomerAccountById(customer.getCustomerId());
 
         List<Cart> cartOfCustomer = CartDAO.getInstance().getCartByCustomerId(customerAccount.getCustomer().getCustomerId());
 
@@ -133,7 +133,7 @@ public class CheckoutOnline extends HttpServlet {
         if ("confirmInformation".equals(service)) {
 
             int timeLeft = Integer.parseInt(request.getParameter("timeLeft"));
-            
+
             System.out.println("timeLeft: " + timeLeft);
 
             if (timeLeft == 0) {

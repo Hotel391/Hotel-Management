@@ -199,6 +199,12 @@ body {
 .required-text {
     color: #ff385c;
     font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.warning-text{
+    color: #ff385c;
+    font-size: 14px;
     margin-bottom: 30px;
 }
 

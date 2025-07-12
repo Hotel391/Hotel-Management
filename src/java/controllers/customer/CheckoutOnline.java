@@ -6,6 +6,7 @@ package controllers.customer;
 
 import dal.CartDAO;
 import dal.CartServiceDAO;
+import dal.CustomerAccountDAO;
 import dal.CustomerDAO;
 import dal.TypeRoomDAO;
 import java.io.IOException;
@@ -22,7 +23,9 @@ import java.util.List;
 import models.Customer;
 import models.Cart;
 import models.CartService;
+import models.CustomerAccount;
 import models.TypeRoom;
+import utility.Validation;
 
 /**
  *
@@ -52,19 +55,19 @@ public class CheckoutOnline extends HttpServlet {
             service = "view";
         }
 
-        if ("view".equals(service)) {
+        //int cartId = Integer.parseInt(request.getParameter("cartId"));
+        int cartId = 4;
+        
+        request.setAttribute("cartId", cartId);
 
-//            int cartId = Integer.parseInt(request.getParameter("cartId"));
-            int cartId = 4;
-
-            Cart checkCart = CartDAO.getInstance().getCartByCartId(cartId);
-
-            System.out.println("checkCart: " + checkCart);
+        Cart checkCart = CartDAO.getInstance().getCartByCartId(cartId);
+        
+        System.out.println("check: " + checkCart);
 
 //            Customer customer = (Customer) session.getAttribute("customerInfo");
-            Customer customer = CustomerDAO.getInstance().getCustomerByCustomerID(46);
-
-            List<Cart> cartOfCustomer = CartDAO.getInstance().getCartByCustomerId(customer.getCustomerId());
+        CustomerAccount customerAccount = CustomerAccountDAO.getInstance().getCustomerAccountById(46);
+        
+        List<Cart> cartOfCustomer = CartDAO.getInstance().getCartByCustomerId(customerAccount.getCustomer().getCustomerId());
 
             boolean checkTrueCart = true;
             for (Cart cart : cartOfCustomer) {
@@ -78,41 +81,93 @@ public class CheckoutOnline extends HttpServlet {
             if (checkTrueCart == true) {
                 System.out.println("cartNotTrue");
                 request.setAttribute("cartNotTrue", "Đây không phải giỏ hàng của bạn");
-                request.getRequestDispatcher("").forward(request, response);
+                request.getRequestDispatcher("/View/Customer/BookingError.jsp").forward(request, response);
                 return;
             }
-            System.out.println("status cart before: " + checkCart.isIsActive());
-            if (!CartDAO.getInstance().checkRoomNumberStatus(checkCart.getRoomNumber(),
-                    checkCart.getStartDate(), checkCart.getEndDate())) {
-                System.out.println("number conflict");
-                CartDAO.getInstance().handleRoomNumberConflict(checkCart, checkCart.getStartDate(), checkCart.getEndDate());
-            }
-            System.out.println("status cart after: " + checkCart.isIsActive());
+            
+            CartDAO.getInstance().handleRoomNumberConflict(checkCart, checkCart.getStartDate(), checkCart.getEndDate());
+            
+            
             if (!checkCart.isIsActive()) {
-            System.out.println("1");
+                System.out.println("1");
                 request.setAttribute("noAvailableRoom", "Loại phòng này tạm thời đã hết phòng");
-                request.getRequestDispatcher("").forward(request, response);
+                request.getRequestDispatcher("/View/Customer/BookingError.jsp").forward(request, response);
                 return;
             }
-
+            
             List<CartService> cartServices = CartServiceDAO.getInstance().getAllCartServiceByCartId(cartId);
 
             TypeRoom typeRoomInfor = TypeRoomDAO.getInstance().getTypeRoomByRoomNumber(checkCart.getRoomNumber());
-
-            request.setAttribute("typeRoomInfor", typeRoomInfor);
             
+            request.setAttribute("typeRoomInfor", typeRoomInfor);
+
             request.setAttribute("cartInfor", checkCart);
             
-            System.out.println("services: " + cartServices);
-
             request.setAttribute("serviceInfor", cartServices);
+
+        if ("view".equals(service)) {
+            
+            System.out.println("services: " + cartServices);
             
             System.out.println("cart before sending: " + checkCart);
-            
+
             System.out.println("====================================");
 
             request.getRequestDispatcher("/View/Customer/CheckoutOnline.jsp").forward(request, response);
 
+        }
+
+        if ("confirmInformation".equals(service)) {
+            String gender = request.getParameter("gender");
+            String fullName = request.getParameter("fullName");
+            String email = request.getParameter("email");
+            String phone = request.getParameter("phone");
+           
+            boolean check = false;
+            
+            if(gender == null || gender.isEmpty()){
+                check = true;
+                request.setAttribute("genderEmpty", "Vui lòng chọn giới tính");
+            }
+            
+            if(fullName == null || fullName.isEmpty()){
+                check = true;
+                request.setAttribute("fullNameEmpty", "Vui lòng điền họ tên");
+            }
+
+            if (email == null || email.isEmpty()) {
+                check = true;
+                request.setAttribute("emailEmpty", "Vui lòng điền email");
+            }
+
+            if (phone == null || phone.isEmpty()) {
+                check = true;
+                request.setAttribute("phoneEmpty", "Vui lòng điền số điện thoại");
+            }
+            
+            if (Validation.validateField(request, "phoneError", phone, "PHONE_NUMBER", "SĐT", "SDT không hợp lệ")) {
+                check = true;
+            }
+            
+            if(!check){
+                Customer mainCustomer = new Customer();
+                mainCustomer.setGender(gender.equals("male"));
+                mainCustomer.setFullName(fullName);
+                mainCustomer.setEmail(email);
+                mainCustomer.setPhoneNumber(phone);
+                
+                System.out.println("main customer: " + mainCustomer);
+                
+                session.setAttribute("cartStatus", "cartPayment");
+                
+                session.setAttribute("mainCustomer", mainCustomer);
+                
+                session.setAttribute("cartId", cartId);
+                
+                response.sendRedirect(request.getContextPath() + "/payment");
+            }else{
+                request.getRequestDispatcher("/View/Customer/CheckoutOnline.jsp").forward(request, response);
+            }
         }
 
     }

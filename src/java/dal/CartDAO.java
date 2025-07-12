@@ -702,7 +702,8 @@ public class CartDAO {
         return null;
     }
      public void updateMainCustomerId(int mainCustomerId, int cartId){
-        String sql = "update Cart set mainCustomerid = ?, PayDay = GETDATE() where cartId = ?";
+        String sql = "update Cart set mainCustomerid = ? where cartId = ?";
+//        , PayDay = GETDATE()
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, mainCustomerId);
             ptm.setInt(2, cartId);
@@ -718,6 +719,7 @@ public class CartDAO {
              ptm.setString(1, cart.getStatus());
              ptm.setBoolean(2, cart.isIsPayment());
              ptm.setInt(3, cart.getCartId());
+             ptm.executeUpdate();
          } catch (Exception e) {
          }
      }

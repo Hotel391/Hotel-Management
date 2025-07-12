@@ -570,7 +570,7 @@ public class CustomerDAO {
     }
 
     public Customer getCustomerByEmail(Customer mainCustomer) {
-        String sql = "Select Email from Customer where Email = ?";
+        String sql = "Select * from Customer where Email = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, mainCustomer.getEmail());
             try (ResultSet rs = ptm.executeQuery()) {

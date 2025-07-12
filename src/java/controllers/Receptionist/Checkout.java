@@ -68,17 +68,19 @@ public class Checkout extends HttpServlet {
 
             if (search != null && !search.trim().isEmpty()) {
 
-                String phone = request.getParameter("phoneSearch");
+                String emailSearch = request.getParameter("emailSearch");
 
-                if (!Validation.validateField(request, "searchError", phone, "PHONE_NUMBER", "Search", "SDT không hợp lệ")) {
+                if (!Validation.validateField(request, "searchError", emailSearch, "EMAIL", "Search", "Email không hợp lệ")) {
 
-                    Customer existedCustomer = CustomerDAO.getInstance().getCustomerByPhoneNumber(phone);
+                    int customerId = CustomerDAO.getInstance().getCustomerIdByEmail(emailSearch);
+
+                    Customer existedCustomer = CustomerDAO.getInstance().getCustomerByCustomerID(customerId);
 
                     if (existedCustomer != null) {
                         request.setAttribute("existedCustomer", existedCustomer);
-                    } else if (phone != null && !phone.isEmpty()) {
+                    } else if (emailSearch != null && !emailSearch.isEmpty()) {
                         request.setAttribute("newCustomer", "Khách hàng mới");
-                        request.setAttribute("phone", phone);
+                        request.setAttribute("email", emailSearch);
                     }
                 }
             }
@@ -87,25 +89,27 @@ public class Checkout extends HttpServlet {
         }
 
         if ("addNew".equals(service)) {
+            
+            String emailSearch = request.getParameter("emailSearch");
 
             String paymentMethod = request.getParameter("paymentMethod");
 
-            boolean check = false;
-
             String genderValue = request.getParameter("gender");
-
+            
+            String fullName = request.getParameter("fullName");
+            
+            String cccd = request.getParameter("cccd");
+            
+            boolean check = false;
+            
             if (genderValue == null || genderValue.isEmpty()) {
                 check = true;
                 request.setAttribute("genderError", "Vui lòng chọn giới tính");
             }
 
-            String fullName = request.getParameter("fullName");
-
             if (Validation.validateField(request, "nameError", fullName, "FULLNAME", "Họ tên", "Họ tên không hợp lệ")) {
                 check = true;
             }
-
-            String cccd = request.getParameter("cccd");
 
             if (Validation.validateField(request, "cccdError", cccd, "CCCD", "CCCD", "CCCD không hợp lệ")) {
                 check = true;
@@ -161,18 +165,22 @@ public class Checkout extends HttpServlet {
                     checkInByMoney(request, response, checkUpdate);
                 }
             } else {
-                request.setAttribute("phoneSearch", phone);
+                request.setAttribute("emailSearch", emailSearch);
                 request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
             }
 
         }
 
         if ("addExisted".equals(service)) {
-            String phone = request.getParameter("phone");
+            String emailSearch = request.getParameter("emailSearch");
+            
+            String email = request.getParameter("email");
 
             String paymentMethod = request.getParameter("paymentMethod");
 
-            Customer existedCustomer = CustomerDAO.getInstance().getCustomerByPhoneNumber(phone);
+            int customerId = CustomerDAO.getInstance().getCustomerIdByEmail(email);
+
+            Customer existedCustomer = CustomerDAO.getInstance().getCustomerByCustomerID(customerId);
 
             if (existedCustomer.getCCCD() == null) {
                 boolean check = false;
@@ -187,7 +195,7 @@ public class Checkout extends HttpServlet {
                     CustomerDAO.getInstance().updateCustomerCCCD(cccd, existedCustomer.getCustomerId());
                 } else {
                     request.setAttribute("existedCustomer", existedCustomer);
-                    request.setAttribute("phoneSearch", phone);
+                    request.setAttribute("emailSearch", emailSearch);
                     request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
                     return;
                 }
@@ -196,7 +204,7 @@ public class Checkout extends HttpServlet {
             if ("default".equals(paymentMethod)) {
                 request.setAttribute("paymentMethodError", "Vui lòng chọn phương thức thanh toán");
                 request.setAttribute("existedCustomer", existedCustomer);
-                request.setAttribute("phoneSearch", phone);
+                request.setAttribute("emailSearch", emailSearch);
                 request.getRequestDispatcher("/View/Receptionist/Checkout.jsp").forward(request, response);
                 return;
             }

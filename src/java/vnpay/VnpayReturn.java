@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import models.Booking;
 import models.BookingDetail;
 import models.Cart;
+import models.CartService;
 import models.Customer;
 import models.DetailService;
 import models.PaymentMethod;
@@ -84,19 +85,30 @@ public class VnpayReturn extends HttpServlet {
             boolean transSuccess = false;
 
             if ("cartPayment".equalsIgnoreCase(cartStatus)) {
+                int mainCustomerId = (int) session.getAttribute("mainCustomerId");
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);
                     cart.setStatus("Completed CheckIn");
                     cart.setIsPayment(true);
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
-                }else{
+                    dal.CartDAO.getInstance().updateMainCustomerId(mainCustomerId, bookingId);
+                    transSuccess = true;
+                    
+                    //update priceAtTime ở bảng cartService
+                    List<CartService> listCartService = dal.CartServiceDAO.getInstance().getAllCartServiceByCartId(bookingId);
+                } else {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);
                     cart.setStatus("Failed");
                     cart.setIsPayment(false);
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
+                    transSuccess = false;
                 }
+
+                request.setAttribute("pageChange", "cartStatus");
+                session.removeAttribute("cartStatus");
+                session.removeAttribute("mainCustomerId");
             } else {
                 Booking booking = new Booking();
                 booking.setBookingId((bookingId));

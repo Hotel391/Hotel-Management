@@ -1,3 +1,9 @@
+<%-- 
+    Document   : managerProfile
+    Created on : Jun 15, 2025, 14:47:00 AM
+    Author     : SONNAM
+--%>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -9,7 +15,7 @@
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>Manager Profile</title>
+        <title>Hồ Sơ Quản Lý</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -28,12 +34,12 @@
         <div class="container py-4">
             <div class="mb-3 text-center">
                 <a href="${pageContext.request.contextPath}/manager/dashboard" class="btn btn-outline-primary btn-sm">
-                    <i class="bi bi-arrow-left"></i> Back
+                    <i class="bi bi-arrow-left"></i> Quay Lại
                 </a>
             </div>
 
             <div class="card shadow-sm p-3">
-                <h4 class="text-center text-primary mb-3">Manager Profile</h4>
+                <h4 class="text-center text-primary mb-3">Hồ Sơ Quản Lý</h4>
 
                 <c:if test="${not empty error}">
                     <div class="alert alert-danger">${error}</div>
@@ -45,9 +51,9 @@
                 <form action="${pageContext.request.contextPath}/managerProfile" method="post" onsubmit="return confirmSave()">
                     <input type="hidden" name="employeeId" value="${manager.employeeId}">
 
-                    <!-- Username -->
+                    <!-- Tên Đăng Nhập -->
                     <div class="mb-2">
-                        <label class="form-label small">User Name</label>
+                        <label class="form-label small">Tên Đăng Nhập</label>
                         <input type="text" name="username"
                                value="${param.username != null ? param.username : manager.username}"
                                class="form-control form-control-sm" required>
@@ -56,9 +62,9 @@
                         </c:if>
                     </div>
 
-                    <!-- Full Name -->
+                    <!-- Họ và Tên -->
                     <div class="mb-2">
-                        <label class="form-label small">Full Name</label>
+                        <label class="form-label small">Họ và Tên</label>
                         <input type="text" name="fullName"
                                value="${param.fullName != null ? param.fullName : manager.fullName}"
                                class="form-control form-control-sm" required>
@@ -67,9 +73,9 @@
                         </c:if>
                     </div>
 
-                    <!-- Address -->
+                    <!-- Địa Chỉ -->
                     <div class="mb-2">
-                        <label class="form-label small">Address</label>
+                        <label class="form-label small">Địa Chỉ</label>
                         <input type="text" name="address"
                                value="${param.address != null ? param.address : manager.address}"
                                class="form-control form-control-sm" required>
@@ -78,9 +84,9 @@
                         </c:if>
                     </div>
 
-                    <!-- Phone Number -->
+                    <!-- Số Điện Thoại -->
                     <div class="mb-2">
-                        <label class="form-label small">Phone Number</label>
+                        <label class="form-label small">Số Điện Thoại</label>
                         <input type="text" name="phoneNumber"
                                value="${param.phoneNumber != null ? param.phoneNumber : manager.phoneNumber}"
                                class="form-control form-control-sm" required>
@@ -100,9 +106,9 @@
                         </c:if>
                     </div>
 
-                    <!-- Gender -->
+                    <!-- Giới Tính -->
                     <div class="mb-2">
-                        <label class="form-label small">Gender</label>
+                        <label class="form-label small">Giới Tính</label>
                         <select name="gender" class="form-select form-select-sm" required>
                             <option value="Nam"
                                     ${param.gender != null ? (param.gender eq 'Nam' ? 'selected' : '') : (manager.gender ? 'selected' : '')}>
@@ -126,9 +132,9 @@
                         </c:if>
                     </div>
 
-                    <!-- Date Of Birth -->
+                    <!-- Ngày Sinh -->
                     <div class="mb-3">
-                        <label class="form-label small">Date Of Birth</label>
+                        <label class="form-label small">Ngày Sinh</label>
                         <input type="date" name="dateOfBirth"
                                value="${param.dateOfBirth != null ? param.dateOfBirth : manager.dateOfBirth}"
                                class="form-control form-control-sm" required>
@@ -137,58 +143,57 @@
                         </c:if>
                     </div>
 
-                    <!-- Registration Date -->
+                    <!-- Ngày Đăng Ký -->
                     <div class="mb-2">
-                        <label class="form-label small">Registration Date</label>
+                        <label class="form-label small">Ngày Đăng Ký</label>
                         <input type="date" value="${manager.registrationDate}"
                                class="form-control form-control-sm" readonly>
                     </div>
 
-                    <!-- Role -->
+                    <!-- Vai Trò -->
                     <div class="mb-3">
-                        <label class="form-label small">Role</label>
+                        <label class="form-label small">Vai Trò</label>
                         <input type="text" value="${manager.role.roleName}"
                                class="form-control form-control-sm" readonly>
                     </div>
 
                     <div class="d-flex justify-content-between">
                         <button type="submit" name="action" value="updateprofile" class="btn btn-success btn-sm">
-                            <i class="bi bi-save"></i> Save Changes
+                            <i class="bi bi-save"></i> Lưu Thay Đổi
                         </button>
                         <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#passwordModal">
-                            <i class="bi bi-key"></i> Change Password
+                            <i class="bi bi-key"></i> Đổi Mật Khẩu
                         </button>
                     </div>
                 </form>
 
-
-                <!-- Password Modal -->
+                <!-- Modal Đổi Mật Khẩu -->
                 <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <form action="${pageContext.request.contextPath}/managerProfile" method="post" onsubmit="return validatePasswordForm()">
                                 <div class="modal-header">
-                                    <h5 class="modal-title">Change Password</h5>
+                                    <h5 class="modal-title">Đổi Mật Khẩu</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
                                     <input type="hidden" name="employeeId" value="${manager.employeeId}">
                                     <div class="mb-3">
-                                        <label class="form-label">Current Password</label>
+                                        <label class="form-label">Mật Khẩu Hiện Tại</label>
                                         <input type="password" name="currentPassword" class="form-control" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">New Password</label>
+                                        <label class="form-label">Mật Khẩu Mới</label>
                                         <input type="password" id="newPassword" name="newPassword" class="form-control" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Confirm New Password</label>
+                                        <label class="form-label">Xác Nhận Mật Khẩu Mới</label>
                                         <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" name="action" value="changepassword" class="btn btn-success btn-sm">Update</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                                    <button type="submit" name="action" value="changepassword" class="btn btn-success btn-sm">Cập Nhật</button>
                                 </div>
                             </form>
                         </div>

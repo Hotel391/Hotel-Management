@@ -45,7 +45,7 @@
                         <input placeholder="SĐT *" 
                                type="number" id="phone" 
                                name="phone" 
-                               value="${param.phone != null ? param.phone : requestScope.phone}"
+                               value="${param.phone}"
                                required/>
                         <c:if test="${not empty phoneError}">
                             <p class="error">${phoneError}</p>
@@ -74,7 +74,7 @@
                                id="email" 
                                name="email" 
                                placeholder="Email *" 
-                               value="${param.email}"
+                               value="${param.email != null ? param.email : requestScope.email}"
                                required/>
                         <c:if test="${not empty emailError}">
                             <p class="error">${emailError}</p>

@@ -2,11 +2,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Customer Management</title>
+        <title>Quản Lý Khách Hàng</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/navDashboardStyle.css" />
@@ -28,13 +28,13 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/customers">Customer Management</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/customers">Quản Lý Khách Hàng</a>
                             </li>
                         </ul>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <form method="get" action="${pageContext.request.contextPath}/manager/customers" class="d-flex gap-2">
-                                <input type="text" name="key" value="${key}" class="form-control search-input" placeholder="Search" />
+                                <input type="text" name="key" value="${key}" class="form-control search-input" placeholder="Tìm Kiếm" />
                             </form>
                         </div>
 
@@ -46,11 +46,11 @@
                             <table class="table align-middle">
                                 <thead class="table-light">
                                     <tr>
-                                        <th scope="col">Full Name</th>
-                                        <th scope="col">Phone Number</th>
+                                        <th scope="col">Họ và Tên</th>
+                                        <th scope="col">Số Điện Thoại</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col" class="text-center">Actions</th>
+                                        <th scope="col">Trạng Thái</th>
+                                        <th scope="col" class="text-center">Hành Động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -65,20 +65,17 @@
                                                     <input type="hidden" name="page" value="${currentPage}" />
                                                     <input type="hidden" name="key" value="${key}" />
                                                     <button type="submit" class="btn btn-sm ${customer.activate ? 'btn-outline-danger' : 'btn-outline-success'}">
-                                                        ${customer.activate ? 'Activate' : 'Deactivate'}
+                                                        ${customer.activate ? 'Mở' : 'Khóa'}
                                                     </button>
                                                 </form>
                                             </td>
                                             <td class="text-center">
-
-
                                                 <button class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#viewCustomerModal_${customer.customerId}">
-                                                    <i class="bi bi-eye"></i> Xem thông tin
+                                                    <i class="bi bi-eye"></i> Xem Thông Tin
                                                 </button>
                                                 <a href="${pageContext.request.contextPath}/manager/receipt?customerId=${customer.customerId}" class="btn btn-sm btn-outline-primary me-1">
-                                                    <i class="bi bi-list"></i> Xem hóa đơn
+                                                    <i class="bi bi-list"></i> Xem Hóa Đơn
                                                 </a>
-
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -87,48 +84,47 @@
                         </div>
                     </div>
 
-                    <!-- View Customer Details Modal -->
+                    <!-- Modal Xem Chi Tiết Khách Hàng -->
                     <c:forEach var="customer" items="${listCustomer}">
                         <div class="modal fade" id="viewCustomerModal_${customer.customerId}" tabindex="-1" aria-labelledby="viewCustomerModalLabel_${customer.customerId}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="viewCustomerModalLabel_${customer.customerId}">Customer Details - ${customer.fullName}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        <h5 class="modal-title" id="viewCustomerModalLabel_${customer.customerId}">Chi Tiết Khách Hàng - ${customer.fullName}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                                     </div>
                                     <div class="modal-body">
                                         <ul>
-                                            <li><strong>Full Name:</strong> ${customer.fullName}</li>
-                                            <li><strong>Username:</strong> ${customer.customerAccount.username}</li> 
-                                            <li><strong>Phone Number:</strong> ${customer.phoneNumber}</li>
+                                            <li><strong>Họ và Tên:</strong> ${customer.fullName}</li>
+                                            <li><strong>Tên Đăng Nhập:</strong> ${customer.customerAccount.username}</li> 
+                                            <li><strong>Số Điện Thoại:</strong> ${customer.phoneNumber}</li>
                                             <li><strong>Email:</strong> ${customer.email}</li>
-                                            <li><strong>Gender:</strong> ${customer.gender ? 'Male' : 'Female'}</li>
+                                            <li><strong>Giới Tính:</strong> ${customer.gender ? 'Nam' : 'Nữ'}</li>
                                             <li><strong>CCCD:</strong> ${customer.CCCD}</li>
-                                            <li><strong>Status:</strong> ${customer.activate ? 'Active' : 'Inactive'}</li>
-                                            <li><strong>Role:</strong> ${customer.role != null ? customer.role.roleName : '-'}</li>
+                                            <li><strong>Trạng Thái:</strong> ${customer.activate ? 'Hoạt Động' : 'Không Hoạt Động'}</li>
+                                            <li><strong>Vai Trò:</strong> ${customer.role != null ? customer.role.roleName : '-'}</li>
                                         </ul>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </c:forEach>
 
-
-                    <!-- Pagination -->
-                    <nav aria-label="Pagination">
+                    <!-- Phân Trang -->
+                    <nav aria-label="Phân Trang">
                         <ul class="pagination pagination-danger">
                             <c:choose>
                                 <c:when test="${key != null && !key.isEmpty()}">
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage - 1}&key=${key}" class="page-link">Previous</a>
+                                        <a href="?page=${currentPage - 1}&key=${key}" class="page-link">Trước</a>
                                     </li>
                                 </c:when>
                                 <c:otherwise>
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage - 1}" class="page-link">Previous</a>
+                                        <a href="?page=${currentPage - 1}" class="page-link">Trước</a>
                                     </li>
                                 </c:otherwise>
                             </c:choose>
@@ -149,12 +145,12 @@
                             <c:choose>
                                 <c:when test="${key != null && !key.isEmpty()}">
                                     <li class="page-item ${currentPage == endPage ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage + 1}&key=${key}" class="page-link">Next</a>
+                                        <a href="?page=${currentPage + 1}&key=${key}" class="page-link">Tiếp Theo</a>
                                     </li>
                                 </c:when>
                                 <c:otherwise>
                                     <li class="page-item ${currentPage == endPage ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage + 1}" class="page-link">Next</a>
+                                        <a href="?page=${currentPage + 1}" class="page-link">Tiếp Theo</a>
                                     </li>
                                 </c:otherwise>
                             </c:choose>
@@ -164,10 +160,10 @@
             </div>
         </div>
 
-        <%--script for dashboard--%>
+        <%-- Script cho dashboard --%>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
         <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
-        <%--another in following--%>
+        <%-- Các script khác ở dưới --%>
     </body>
 </html>

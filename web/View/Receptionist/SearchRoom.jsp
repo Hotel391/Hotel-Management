@@ -255,12 +255,15 @@
                                                                 }
 
                                                                 window.onload = function () {
-                                                                    const today = new Date('2025-07-09T15:19:00+07:00').toISOString().split('T')[0];
+                                                                    const today = new Date();
+                                                                    const formattedToday = today.toISOString().split('T')[0];
+
                                                                     const startDate = document.getElementById("startDate");
-                                                                    if (!startDate.value) {
-                                                                        startDate.value = today;
+                                                                    if (startDate && !startDate.value) {
+                                                                        startDate.value = formattedToday;
                                                                     }
                                                                 };
+
         </script>
     </body>
 </html>

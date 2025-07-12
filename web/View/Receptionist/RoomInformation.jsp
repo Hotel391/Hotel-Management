@@ -221,8 +221,6 @@
 
             document.querySelectorAll('.service-check').forEach(cb => {
                 const qtyInput = cb.closest('tr').querySelector('.quantity-input');
-
-                // Enable quantity input only if checkbox is checked
                 qtyInput.disabled = !cb.checked;
 
                 cb.addEventListener('change', function () {

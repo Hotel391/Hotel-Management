@@ -87,6 +87,7 @@ public class VnpayReturn extends HttpServlet {
 
             if ("cartPayment".equalsIgnoreCase(cartStatus)) {
                 int mainCustomerId = (int) session.getAttribute("mainCustomerId");
+                session.removeAttribute("timeLeft");
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);
@@ -95,7 +96,7 @@ public class VnpayReturn extends HttpServlet {
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
                     dal.CartDAO.getInstance().updateMainCustomerId(mainCustomerId, bookingId);
                     transSuccess = true;
-                    
+
                     //update priceAtTime ở bảng cartService
                     Cart selectCart = dal.CartDAO.getInstance().getCartByCartId(bookingId);
                     Date startDate = selectCart.getStartDate();
@@ -105,24 +106,38 @@ public class VnpayReturn extends HttpServlet {
                     int priceAtTime = 0;
                     List<CartService> listCartService = dal.CartServiceDAO.getInstance().getAllCartServiceByCartId(bookingId);
                     List<RoomNService> listRoomNService = dal.CartServiceDAO.getInstance()
-                                .selectAllRoomAndService(typeId);
-                    
-                    for (CartService cartService : listCartService) {                       
+                            .selectAllRoomAndService(typeId);
+
+                    for (CartService cartService : listCartService) {
+                        boolean matched = false;
+
                         for (RoomNService roomNService1 : listRoomNService) {
-                            if(cartService.getService().getServiceId() == roomNService1.getService().getServiceId()){
-                                int quantity = 0;
-                                if(roomNService1.getService().getServiceId() == 2){
-                                    quantity = cartService.getQuantity() - roomNService1.getQuantity();
-                                }else{
+                            if (cartService.getService().getServiceId() == roomNService1.getService().getServiceId()) {
+                                int quantity;
+                                if (roomNService1.getService().getServiceId() == 2) {
+                                    quantity = cartService.getQuantity() - roomNService1.getQuantity(); // dịch vụ đưa đón chỉ tính 1 lần
+                                } else {
                                     quantity = cartService.getQuantity() - (roomNService1.getQuantity() * (int) numberOfNights);
                                 }
+
+                                if (quantity < 0) {
+                                    quantity = 0;
+                                }
                                 priceAtTime = quantity * roomNService1.getService().getPrice();
-                                cartService.setPriceAtTime(priceAtTime);
-                                dal.CartServiceDAO.getInstance().updatePriceStTimeOfTableCartService(cartService);
+                                matched = true;
                                 break;
                             }
                         }
+
+                        // Nếu dịch vụ không có trong RoomNService → tính toàn bộ
+                        if (!matched) {
+                            priceAtTime = cartService.getQuantity() * cartService.getService().getPrice();
+                        }
+
+                        cartService.setPriceAtTime(priceAtTime);
+                        dal.CartServiceDAO.getInstance().updatePriceStTimeOfTableCartService(cartService);
                     }
+                    
                 } else {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);

@@ -252,7 +252,6 @@
                 const total = basePrice + optionalServiceCost;
                 totalPriceElement.innerText = total.toLocaleString('vi-VN') + ' đ';
             }
-
             calculateTotal();
         </script>
     </body>

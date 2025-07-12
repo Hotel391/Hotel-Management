@@ -40,7 +40,7 @@ public class CartDAO {
         }
         return instance;
     }
-    
+
     public final int[] serviceIdsDonNeedTimes = {1, 2, 4, 7};
     private final int[] serviceHaveMoneyButNoNeedTimes = {2};
 
@@ -121,9 +121,9 @@ public class CartDAO {
             cart.setIsActive(true);
         }
     }
-    
-    private int getTyperoomOfRoomNumber(int roomNumber){
-        String sql="""
+
+    private int getTyperoomOfRoomNumber(int roomNumber) {
+        String sql = """
                    select tr.TypeId from TypeRoom tr
                    join Room r on r.TypeId=tr.TypeId
                    where r.RoomNumber=?
@@ -145,12 +145,12 @@ public class CartDAO {
         Map<Integer, Integer> requiredServices = getServiceCannotDisable(cart.getCartId());
         int numberOfNight = (int) ChronoUnit.DAYS.between(startDate.toLocalDate(), endDate.toLocalDate());
         requiredServices.replaceAll((serviceId, quantity) -> quantity * numberOfNight);
-        for(int id : serviceIdsDonNeedTimes) {
+        for (int id : serviceIdsDonNeedTimes) {
             if (requiredServices.containsKey(id)) {
                 requiredServices.put(id, 1);
             }
         }
-        
+
         List<CartService> currentServices = getCartServicesByCartId(cart.getCartId());
 
         Set<Integer> existingServiceIds = currentServices.stream()
@@ -175,9 +175,9 @@ public class CartDAO {
                 addServiceToCart(cart.getCartId(), serviceId, requiredQty);
             }
         }
-        int totalPrice = getTotalPriceOfCart(cart.getCartId(), numberOfNight) +
-                getTypeRoomPriceByCartId(cart.getCartId()) * (numberOfNight - 1) +
-                getTotalServicePriceHaveMoneyButNoNeedTimes(cart.getRoom().getTypeRoom().getTypeId()) * (numberOfNight - 1);
+        int totalPrice = getTotalPriceOfCart(cart.getCartId(), numberOfNight)
+                + getTypeRoomPriceByCartId(cart.getCartId()) * (numberOfNight - 1)
+                + getTotalServicePriceHaveMoneyButNoNeedTimes(cart.getRoom().getTypeRoom().getTypeId()) * (numberOfNight - 1);
 
         if (cart.getTotalPrice() != totalPrice) {
             cart.setTotalPrice(totalPrice);
@@ -713,18 +713,27 @@ public class CartDAO {
     public Cart getCartByCartId(int cartId) {
         String sql = """
                 SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive,
-                                c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber, pm.PaymentName
+                                c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber
                                 FROM Cart c
-                                LEFT JOIN PaymentMethod pm ON pm.PaymentMethodId = c.PaymentMethodId
                                 WHERE c.CartId = ?
-                                ORDER BY isPayment DESC, isActive DESC, StartDate ASC
                 """;
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, cartId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Cart cart = mapCartFromResultSet(rs);
+                    Cart cart = new Cart();
+                    cart.setCartId(rs.getInt("CartId"));
+                    cart.setTotalPrice(rs.getInt("TotalPrice"));
+                    cart.setStatus(rs.getString("Status"));
+                    cart.setStartDate(rs.getDate("StartDate"));
+                    cart.setEndDate(rs.getDate("EndDate"));
+                    cart.setIsActive(rs.getBoolean("IsActive"));
+                    cart.setIsPayment(rs.getBoolean("isPayment"));
+                    cart.setAdults(rs.getInt("Adults"));
+                    cart.setChildren(rs.getInt("Children"));
+                    cart.setRoomNumber(rs.getInt("RoomNumber"));
+                    cart.setRoom(getRoomAndTypeRoom(cart.getRoomNumber()));
                     List<CartService> cartServices = getCartServicesByCartId(cartId);
                     cart.setCartServices(cartServices);
                     return cart;
@@ -736,7 +745,8 @@ public class CartDAO {
 
         return null;
     }
-     public void updateMainCustomerId(int mainCustomerId, int cartId){
+
+    public void updateMainCustomerId(int mainCustomerId, int cartId) {
         String sql = "update Cart set mainCustomerid = ? where cartId = ?";
 //        , PayDay = GETDATE()
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
@@ -768,7 +778,7 @@ public class CartDAO {
         } catch (Exception e) {
         }
     }
-    
+
     public void updateCartOverTime(Cart cart) {
         String sql = "update Cart set Status = 'Failed' , isPayment = 0, PayDay = null  where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
@@ -776,5 +786,53 @@ public class CartDAO {
             ptm.executeUpdate();
         } catch (Exception e) {
         }
+    }
+
+    public void changeRoomNumber(Cart cart, Date startDate, Date endDate) {
+        if (!checkRoomNumberStatus(cart.getRoomNumber(), startDate, endDate)) {
+            int newRoom = getRoomNumber(getTyperoomOfRoomNumber(cart.getRoomNumber()), startDate, endDate);
+            if (newRoom == 0) {
+                cart.setRoomNumber(newRoom);
+            } else {
+                cart.setRoomNumber(newRoom);
+                updateCartRoomNumber(cart.getCartId(), newRoom);
+            }
+        }
+    }
+    
+    public Cart checkCart(int cartId, int customerId){
+        String sql = """
+                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive,
+                                                c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber
+                                                FROM Cart c where c.CartId = ? and c.CustomerId = ?
+                """;
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, cartId);
+            ps.setInt(2, customerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Cart cart = new Cart();
+                    cart.setCartId(rs.getInt("CartId"));
+                    cart.setTotalPrice(rs.getInt("TotalPrice"));
+                    cart.setStatus(rs.getString("Status"));
+                    cart.setStartDate(rs.getDate("StartDate"));
+                    cart.setEndDate(rs.getDate("EndDate"));
+                    cart.setIsActive(rs.getBoolean("IsActive"));
+                    cart.setIsPayment(rs.getBoolean("isPayment"));
+                    cart.setAdults(rs.getInt("Adults"));
+                    cart.setChildren(rs.getInt("Children"));
+                    cart.setRoomNumber(rs.getInt("RoomNumber"));
+                    cart.setRoom(getRoomAndTypeRoom(cart.getRoomNumber()));
+                    List<CartService> cartServices = getCartServicesByCartId(cartId);
+                    cart.setCartServices(cartServices);
+                    return cart;
+                }
+            }
+        } catch (SQLException e) {
+            // Handle exception (log or rethrow)
+        }
+
+        return null;
     }
 }

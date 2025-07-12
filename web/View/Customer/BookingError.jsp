@@ -45,6 +45,9 @@
                     <c:if test="${not empty noAvailableRoom}">
                         ${noAvailableRoom}
                     </c:if>
+                    <c:if test="${not empty overTime}">
+                        ${overTime}
+                    </c:if>
                 </div>
 
                 <div class="button-group">

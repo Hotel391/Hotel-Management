@@ -705,4 +705,67 @@ public class RoomDAO {
         return typeId;
     }
 
+    public boolean isRoomAvailable(int roomNumber, java.sql.Date startDate, java.sql.Date endDate) {
+        String query = """
+            SELECT COUNT(*) FROM Room r
+            WHERE r.RoomNumber = ?
+            AND r.IsActive = 1
+            AND r.RoomNumber NOT IN (
+                SELECT bd.RoomNumber FROM BookingDetail bd
+                WHERE (bd.StartDate < ? AND bd.EndDate > ?)
+                UNION
+                SELECT c.RoomNumber FROM Cart c
+                WHERE c.isPayment = 1
+                AND (c.StartDate < ? AND c.EndDate > ?)
+            )
+        """;
+        try {
+            con.setAutoCommit(false);
+            con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            try (PreparedStatement pst = con.prepareStatement(query)) {
+                pst.setInt(1, roomNumber);
+                pst.setDate(2, endDate);   // bd.StartDate < endDate
+                pst.setDate(3, startDate); // bd.EndDate > startDate
+                pst.setDate(4, endDate);   // c.StartDate < endDate
+                pst.setDate(5, startDate); // c.EndDate > startDate
+                ResultSet rs = pst.executeQuery();
+                boolean available = rs.next() && rs.getInt(1) > 0;
+                System.out.println("Room " + roomNumber + " availability check: " + available
+                        + ", startDate: " + startDate + ", endDate: " + endDate);
+                con.commit();
+                return available;
+            }
+        } catch (SQLException e) {
+            try {
+                con.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            System.out.println("SQL Error in isRoomAvailable for room " + roomNumber + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public List<String> getUnavailableRooms(List<String> roomNumbers, java.sql.Date startDate, java.sql.Date endDate) {
+        List<String> conflictRooms = new ArrayList<>();
+        for (String roomNumStr : roomNumbers) {
+            try {
+                int roomNumber = Integer.parseInt(roomNumStr);
+                boolean available = isRoomAvailable(roomNumber, startDate, endDate);
+                if (!available) {
+                    conflictRooms.add(roomNumStr);
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Room number không hợp lệ: " + roomNumStr);
+            }
+        }
+        return conflictRooms;
+    }
 }

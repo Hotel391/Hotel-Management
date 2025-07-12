@@ -28,10 +28,12 @@ import java.util.concurrent.Executors;
 import models.Booking;
 import models.BookingDetail;
 import models.Cart;
+import models.CartService;
 import models.Customer;
 import models.DetailService;
 import models.PaymentMethod;
 import models.Room;
+import models.RoomNService;
 import models.TypeRoom;
 import utility.EmailService;
 
@@ -91,9 +93,37 @@ public class VnpayReturn extends HttpServlet {
                     cart.setStatus("Completed CheckIn");
                     cart.setIsPayment(true);
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
-                   dal.CartDAO.getInstance().updateMainCustomerId(mainCustomerId, bookingId);
-                   transSuccess = true;
-                }else{
+                    dal.CartDAO.getInstance().updateMainCustomerId(mainCustomerId, bookingId);
+                    transSuccess = true;
+                    
+                    //update priceAtTime ở bảng cartService
+                    Cart selectCart = dal.CartDAO.getInstance().getCartByCartId(bookingId);
+                    Date startDate = selectCart.getStartDate();
+                    Date endDate = selectCart.getEndDate();
+                    long numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+                    int typeId = 1;
+                    int priceAtTime = 0;
+                    List<CartService> listCartService = dal.CartServiceDAO.getInstance().getAllCartServiceByCartId(bookingId);
+                    List<RoomNService> listRoomNService = dal.CartServiceDAO.getInstance()
+                                .selectAllRoomAndService(typeId);
+                    
+                    for (CartService cartService : listCartService) {                       
+                        for (RoomNService roomNService1 : listRoomNService) {
+                            if(cartService.getService().getServiceId() == roomNService1.getService().getServiceId()){
+                                int quantity = 0;
+                                if(roomNService1.getService().getServiceId() == 2){
+                                    quantity = cartService.getQuantity() - roomNService1.getQuantity();
+                                }else{
+                                    quantity = cartService.getQuantity() - (roomNService1.getQuantity() * (int) numberOfNights);
+                                }
+                                priceAtTime = quantity * roomNService1.getService().getPrice();
+                                cartService.setPriceAtTime(priceAtTime);
+                                dal.CartServiceDAO.getInstance().updatePriceStTimeOfTableCartService(cartService);
+                                break;
+                            }
+                        }
+                    }
+                } else {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);
                     cart.setStatus("Failed");
@@ -101,7 +131,7 @@ public class VnpayReturn extends HttpServlet {
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
                     transSuccess = false;
                 }
-                
+
                 request.setAttribute("pageChange", "cartStatus");
                 session.removeAttribute("cartStatus");
                 session.removeAttribute("mainCustomerId");

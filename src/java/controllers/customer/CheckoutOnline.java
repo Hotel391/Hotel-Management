@@ -86,8 +86,7 @@ public class CheckoutOnline extends HttpServlet {
             service = "view";
         }
 
-        Customer customer = (Customer) session.getAttribute("customerInfo");
-        CustomerAccount customerAccount = CustomerAccountDAO.getInstance().getCustomerAccountById(customer.getCustomerId());
+        CustomerAccount customerAccount = (CustomerAccount) session.getAttribute("customerInfo");
 
         List<Cart> cartOfCustomer = CartDAO.getInstance().getCartByCustomerId(customerAccount.getCustomer().getCustomerId());
 

@@ -46,8 +46,6 @@ public class DetailRoom extends HttpServlet {
         int offset = (currentPage - 1) * NUMBER_OF_REVIEWS_PER_PAGE;
         int adults = getAdults(request);
         int children = getChildren(request);
-        System.out.println("Adults: " + adults + ", Children: " + children);
-        System.out.println("Check-in: " + checkin + ", Check-out: " + checkout);
         
         TypeRoom selectedTypeRoom = dal.TypeRoomDAO.getInstance().getTypeRoomByTypeId(checkin, checkout, typeId, adults, children, orderByClause, offset, NUMBER_OF_REVIEWS_PER_PAGE);
         if(selectedTypeRoom == null) {

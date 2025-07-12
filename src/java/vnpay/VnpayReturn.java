@@ -36,6 +36,7 @@ import models.Room;
 import models.RoomNService;
 import models.TypeRoom;
 import utility.EmailService;
+import utility.email_factory.EmailTemplateFactory.EmailType;
 
 /**
  *
@@ -309,7 +310,7 @@ public class VnpayReturn extends HttpServlet {
                         emailExecutor.submit(() -> {
                             System.out.println("Sending email to " + email);
                             EmailService emailService = new EmailService();
-                            emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                            emailService.sendEmail(email, "Receipt Information", "checkout", data);
                         });
 
                         session.removeAttribute("paidAmount");

@@ -37,6 +37,7 @@ import models.PaymentMethod;
 import models.Room;
 import models.TypeRoom;
 import utility.EmailService;
+import utility.email_factory.EmailTemplateFactory.EmailType;
 
 /**
  *
@@ -329,18 +330,17 @@ public class ajaxServlet extends HttpServlet {
                     data.put("typeRoom", typeRoom);
                     data.put("quantityTypeRoom", quantityTypeRoom);
                     data.put("priceTypeRoom", priceTypeRoom);
-                    data.put("services", Collections.EMPTY_LIST);
-                    data.put("serviceQuantity", Collections.EMPTY_LIST);
-                    data.put("servicePrice", Collections.EMPTY_LIST);
+                    data.put("services", services);
+                    data.put("serviceQuantity", serviceQuantity);
+                    data.put("servicePrice", servicePrice);
                     data.put("paymentMethod", paymentMethod);
                     data.put("fineMoney", 0);
                     data.put("totalRoomPrice", totalRoomPrice);
                     data.put("totalServicePrice", totalServicePrice);
 
                     emailExecutor.submit(() -> {
-                        System.out.println("Sending email to " + email);
                         EmailService emailService = new EmailService();
-                        emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                        emailService.sendEmail(email, "Receipt information", "checkout", data);
                     });
 
                     resp.sendRedirect(req.getContextPath() + "/receptionist/receipt");

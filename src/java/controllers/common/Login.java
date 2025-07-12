@@ -147,6 +147,11 @@ public class Login extends HttpServlet {
                 session.setAttribute("customerInfo", accInfo);
             } else {
                 CustomerAccount accInfo = CustomerAccountDAO.getInstance().checkAccountByEmail(userInfo.getEmail());
+                if(!accInfo.getCustomer().getActivate()){
+                    System.out.println("deactive");
+                    response.sendRedirect("home");
+                    return;
+                }
                 if (accInfo == null) {
                     
                     CustomerAccount accountForExistedCustomer = new CustomerAccount();

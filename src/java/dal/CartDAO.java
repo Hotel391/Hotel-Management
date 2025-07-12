@@ -712,15 +712,34 @@ public class CartDAO {
             e.printStackTrace();
         }
     }
-     
-     public void updateStatusAndIsPayment(Cart cart){
-         String sql = "update Cart set Status = ? , isPayment = ? where cartId = ?";
-         try (PreparedStatement ptm = con.prepareStatement(sql)) {
-             ptm.setString(1, cart.getStatus());
-             ptm.setBoolean(2, cart.isIsPayment());
-             ptm.setInt(3, cart.getCartId());
-             ptm.executeUpdate();
-         } catch (Exception e) {
-         }
-     }
+
+    public void updateStatusAndIsPayment(Cart cart) {
+        String sql = "update Cart set Status = ? , isPayment = ? where cartId = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setString(1, cart.getStatus());
+            ptm.setBoolean(2, cart.isIsPayment());
+            ptm.setInt(3, cart.getCartId());
+            ptm.executeUpdate();
+        } catch (Exception e) {
+        }
+    }
+
+    public void updateCartInCheckout(Cart cart) {
+        String sql = "update Cart set Status = 'Processing' , isPayment = 1, PayDay = ?  where cartId = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setTimestamp(1, cart.getPayDay());
+            ptm.setInt(2, cart.getCartId());
+            ptm.executeUpdate();
+        } catch (Exception e) {
+        }
+    }
+    
+    public void updateCartOverTime(Cart cart) {
+        String sql = "update Cart set Status = 'Failed' , isPayment = 0, PayDay = null  where cartId = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, cart.getCartId());
+            ptm.executeUpdate();
+        } catch (Exception e) {
+        }
+    }
 }

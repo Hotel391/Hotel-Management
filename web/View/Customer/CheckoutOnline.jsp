@@ -9,6 +9,9 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <!DOCTYPE html>
 <html>
+    <%
+        long expireTime = (long) request.getAttribute("expireTime");
+    %>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
@@ -22,29 +25,23 @@
                         <img src="${pageContext.request.contextPath}/Image/Logo.png" alt="FPT Hotel Logo"/>
                         FPT Hotel
                     </div>
-                    <!--                    <div class="dots">
-                                            <div class="dot"></div>
-                                            <div class="dot"></div>
-                                            <div class="dot"></div>
-                                            <div class="dot"></div>
-                                        </div>-->
                 </div>
                 <button class="login-btn">Đăng nhập</button>
             </div>
         </div>
 
         <div class="container">
-            <!--            <div class="progress-bar">
-                            <div class="countdown">
-                                <div class="countdown-text">Chúng tôi đang giữ giá cho quý khách...</div>
-                                <div class="countdown-timer">⏰ 00:19:33</div>
-                            </div>
-                        </div>-->
+            <div class="progress-bar">
+                <div class="countdown">
+                    <div class="countdown-text">Chúng tôi đang giữ phòng cho quý khách...</div>
+                    <div class="countdown-timer" id="countdown-timer"></div>
+                </div>
+            </div>
 
             <div class="main-content">
 
                 <div class="booking-form">
-                    <form action="${pageContext.request.contextPath}/checkout">
+                    <form action="${pageContext.request.contextPath}/checkout" id="checkout-form" method="post">
                         <h2 class="form-title">Thông tin khách hàng</h2>
                         <div class="required-text">*Mục bắt buộc</div>
                         <div class="warning-text">( Trong trường hợp đặt phòng hộ, 
@@ -195,6 +192,7 @@
                             </div>
                         </div>
                         <input type="hidden" name="service" value="confirmInformation">
+                        <input type="hidden" name="timeLeft" id="timeLeft" value="">
                         <input type="hidden" name="cartId" value="${requestScope.cartId}">
                         <div class="contact-info">Hệ thống sẽ gửi email xác nhận đặt phòng ngay sau khi quý khách hoàn thành bước thanh toán!</div>
                         <div class="contact-info" style="color: red;">⚠️Quý khách vui lòng kiểm tra chính xác địa chỉ email của mình một lần nữa!⚠️</div>
@@ -242,11 +240,6 @@
                                 <span>Đặt và trả tiền ngay</span>
                             </div>
 
-                            <!--                            <div class="policy-item policy-red">
-                                                            <span class="policy-icon">❌</span>
-                                                            <span>Chúng tôi chỉ còn 2 phòng có giá này!</span>
-                                                        </div>-->
-
                             <div class="policy-item policy-green">
                                 <span class="policy-icon">🏊</span>
                                 <span>Bãi đậu xe</span>
@@ -270,64 +263,34 @@
             </div>
 
             <script>
-                // Countdown timer
+                // Thời gian hết hạn từ server (miliseconds)
+                const expireTime = <%= expireTime%>;
+                const countdownElement = document.getElementById("countdown-timer");
+
+                console.log(expireTime);
+
                 function updateCountdown() {
-                    const countdownEl = document.querySelector('.countdown-timer');
-                    let timeLeft = 19 * 60 + 33; // 19:33 in seconds
-
-                    function tick() {
-                        const minutes = Math.floor(timeLeft / 60);
-                        const seconds = timeLeft % 60;
-                        countdownEl.textContent = `⏰ ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-                        if (timeLeft > 0) {
-                            timeLeft--;
-                            setTimeout(tick, 1000);
-                        } else {
-                            countdownEl.textContent = '⏰ 00:00';
-                        }
+                    const now = new Date().getTime();
+                    const distance = expireTime - now;
+                    if (distance <= 0) {
+                        document.getElementById("countdown-timer").innerText = "Đã hết thời gian giữ phòng!";
+                        document.getElementById("timeLeft").value = 0;
+                        document.getElementById("checkout-form").submit();
+                        return;
                     }
 
-                    tick();
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    document.getElementById("countdown-timer").innerText = "⏰" +
+                            (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+                    
+                    document.getElementById("timeLeft").value = Math.floor(distance / 1000);
                 }
 
-//                // Form validation
-//                function validateForm() {
-//                    const requiredFields = document.querySelectorAll('.form-input[required], .form-select[required]');
-//                    let isValid = true;
-//
-//                    requiredFields.forEach(field => {
-//                        if (!field.value.trim()) {
-//                            field.style.borderColor = '#ff385c';
-//                            isValid = false;
-//                        } else {
-//                            field.style.borderColor = '#ddd';
-//                        }
-//                    });
-//
-//                    return isValid;
-//                }
-//
-//                // Initialize
-//                document.addEventListener('DOMContentLoaded', function () {
-//                    updateCountdown();
-//
-//                    // Form submission
-//                    document.querySelector('.continue-btn').addEventListener('click', function (e) {
-//                        e.preventDefault();
-//                        if (validateForm()) {
-//                            alert('Tiếp tục đến bước thanh toán!');
-//                        } else {
-//                            alert('Vui lòng điền đầy đủ thông tin bắt buộc.');
-//                        }
-//                    });
-//
-//                    // More options toggle
-//                    document.querySelector('.more-options').addEventListener('click', function () {
-//                        // Add more special request options here
-//                        alert('Tính năng đang phát triển!');
-//                    });
-//                });
+                // Gọi mỗi giây
+                setInterval(updateCountdown, 1000);
+                // Gọi ngay khi trang tải xong
+                window.onload = updateCountdown;
             </script>
     </body>
 </html>

@@ -29,23 +29,49 @@
                         <div class="container-fluid p-4">
                             <ul class="nav nav-tabs mb-3">
                                 <li class="nav-item">
-                                    <a class="nav-link active" href="${pageContext.request.contextPath}/admin/page">Management manager account</a>
+                                    <a class="nav-link active" href="${pageContext.request.contextPath}/admin/page">Quản lí tài khoản manager</a>
                                 </li>
                             </ul>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addManagerAccountModal">+ Add New Manager Account</button>
+                                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addManagerAccountModal">+ Tạo mới tài khoản quản lí</button>
                                 </div>
                             </div>
+
+                            <!--thông báo thành công-->
+                            <c:if test="${param.statusAction == 'true'}">
+                                <div id="successAlert" class="alert alert-success alert-dismissible fade show text-center mx-auto mt-3" role="alert" style="width: fit-content;">
+                                    <c:choose>
+                                        <c:when test="${param.action == 'add'}">Thêm tài khoản thành công!</c:when>
+                                        <c:when test="${param.action == 'delete'}">Xóa tài khoản thành công thành công!</c:when>
+                                        <c:when test="${param.action == 'changeStatus'}"> Chuyển trạng thái tài khoản thành công!</c:when>
+                                        <c:when test="${param.action == 'changePass'}"> Thay đổi mật khẩu tài khoản admin thành công!</c:when>
+                                        <c:otherwise>Thao tác thành công!</c:otherwise>
+                                    </c:choose>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            </c:if>
+                            
+                            <c:if test="${requestScope.statusAction == 'false'}">
+                                <div id="errorAlert" class="alert alert-danger alert-dismissible fade show mt-3 mx-auto text-center" role="alert" style="width: fit-content;">
+                                    <c:choose>
+                                        <c:when test="${requestScope.action == 'delete'}">Xóa tài khoản thất bại!</c:when>
+                                        <c:otherwise>Thao tác thành công!</c:otherwise>
+                                    </c:choose>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            </c:if>
+
                             <div class="table-container">
                                 <table class="table align-middle bg-white">
                                     <thead class="table-light">
                                         <tr>
                                             <th>Username</th>
-                                            <th>Registration Date</th>
-                                            <th>Activate</th>
-                                            <th>Role Name</th>
-                                            <th>Delete</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Trạng thái</th>
+                                            <th>Chức vụ</th>
+                                            <th>Chuyển trạng thái</th>
+                                            <th>Xóa tài khoản</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -65,13 +91,20 @@
                                                 </td>
                                                 <td>${e.role.roleName}</td>
                                                 <td>
+                                                    <a href="${pageContext.request.contextPath}/admin/page?service=activateManager&employeeID=${e.employeeId}&activate=${not e.activate}" 
+                                                       onclick="return confirm('Bạn chắc chắn muốn đóng tài khoản này?');">
+                                                        <button type="submit" class="btn btn-sm ${e.activate ? 'btn-warning' : 'btn-success'}" title="Chuyển trạng thái">
+                                                            <i class="bi bi-power"></i>
+                                                        </button>
+                                                    </a>
+                                                </td>
+                                                <td>
                                                     <a href="${pageContext.request.contextPath}/admin/page?service=deleteManager&employeeID=${e.employeeId}" 
                                                        onclick="return confirm('Are you sure to delete?');"
                                                        class="btn btn-sm btn-danger">
                                                         <i class="bi bi-trash-fill"></i>
                                                     </a>
                                                 </td>
-
                                             </tr>
                                         </c:forEach>
                                     </tbody>
@@ -86,7 +119,7 @@
                                 <div class="modal-content">
                                     <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/admin/page" novalidate>
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="addRoleModalLabel">Add New Service</h5>
+                                            <h5 class="modal-title" id="addRoleModalLabel">Thêm mới tài khoản manager</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
 
@@ -123,9 +156,9 @@
 
                                         </div>
                                         <div class="modal-footer">
-                                            <input type="submit" name="submit" class="btn btn-success" value="Add manager account"/>
+                                            <input type="submit" name="submit" class="btn btn-success" value="Thêm"/>
                                             <input type="reset" name="reset" value="Reset"/>
-                                            <input type="hidden" name="page" value="${currentPage}" />
+                                            <!--<input type="hidden" name="page" value="${currentPage}" />-->
                                             <input type="hidden" name="service" value="add">
                                         </div>
 
@@ -140,6 +173,34 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+                //thông báo thành công
+                const alertBox = document.getElementById("successAlert");
+                if (alertBox) {
+                    setTimeout(() => {
+                        // Bootstrap fade out (optional)
+                        alertBox.classList.remove("show");
+                        alertBox.classList.add("fade");
+                        // Xóa phần tử khỏi DOM sau khi fade
+                        setTimeout(() => alertBox.remove(), 500);
+
+                        // Xoá param khỏi URL
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete("success");
+                        url.searchParams.delete("action");
+                        window.history.replaceState({}, document.title, url.toString());
+                    }, 3000); // Hiển thị 3s
+                }
+                
+                //thông báo lỗi
+                const errorAlertBox = document.getElementById("errorAlert");
+                if (errorAlertBox) {
+                    setTimeout(() => {
+                        errorAlertBox.classList.remove("show");
+                        errorAlertBox.classList.add("fade");
+                        setTimeout(() => errorAlertBox.remove(), 500);
+                    }, 3000);
+                }
+                
                 // --- ADD MANAGER ACCOUNT MODAL ---
                 const addModalEl = document.getElementById("addManagerAccountModal");
                 if (addModalEl) {

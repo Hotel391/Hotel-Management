@@ -1,4 +1,3 @@
-
 <%-- 
     Document   : Checkout
     Created on : Jun 19, 2025, 7:45:36 AM
@@ -32,18 +31,19 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <a class="btn btn-primary" href="${pageContext.request.contextPath}/receptionist/roomInformation?service=backToServicePage">Back</a>
                         <form method="post" action="${pageContext.request.contextPath}/receptionist/checkout" class="d-flex gap-2">
-                            <label class="input-group-text" for="startDate">SDT</label>
-                            <input type="number" name="phoneSearch" value="${param.phoneSearch}" class="form-control search-input" required/>
-                            <input type="hidden" name="search" value="searchPhone">
+                            <label class="input-group-text" for="startDate">Email</label>
+                            <input type="text" name="emailSearch" value="${param.emailSearch != null ? param.emailSearch : requestScope.emailSearch}" class="form-control search-input" required/>
+                            <input type="hidden" name="search" value="searchEmail">
                             <button type="submit" class="btn btn-primary">Check</button>
                             <a href="${pageContext.request.contextPath}/receptionist/checkout" class="btn btn-primary">Reset</a>
                         </form>
-                        <c:if test="${not empty searchError}">
-                            <div class="d-flex justify-content-between align-items-center mb-3 sty">
-                                <p class="alert alert-danger">${searchError}</p>
-                            </div>
-                        </c:if>
+
                     </div>
+                    <c:if test="${not empty searchError}">
+                        <div class="d-flex justify-content-end align-items-center mb-3">
+                            <p class="alert alert-danger">${searchError}</p>
+                        </div>
+                    </c:if>
 
                     <c:if test="${not empty newCustomer}">
                         <div class="d-flex justify-content-end align-items-center mb-3">

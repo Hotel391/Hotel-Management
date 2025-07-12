@@ -38,10 +38,28 @@ public class Admin extends HttpServlet {
             request.getRequestDispatcher(linkInfoAdmin).forward(request, response);
         }
 
+        if (service.equals("activateManager")) { //soft delete
+            int employeeID = Integer.parseInt(request.getParameter("employeeID"));
+            boolean activate = Boolean.parseBoolean(request.getParameter("activate"));
+            dal.EmployeeDAO.getInstance().updateEmployeeStatus(employeeID, activate);
+            response.sendRedirect(request.getContextPath() + "/admin/page?statusAction=true&action=changeStatus");
+        }
+
         if (service.equals("deleteManager")) {
             int employeeID = Integer.parseInt(request.getParameter("employeeID"));
+            Employee employee = dal.EmployeeDAO.getInstance().getEmployeeById(employeeID);
+            request.setAttribute("action", "delete");
+            if (employee.isActivate() == true) {
+                request.setAttribute("statusAction", false);
+                Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(username);
+                List<Employee> list = dal.AdminDao.getInstance().getAllEmployee();
+                request.setAttribute("list", list);
+                request.setAttribute("adminAccount", em);
+                request.getRequestDispatcher(linkAdminPage).forward(request, response);
+                return;
+            }
             dal.AdminDao.getInstance().deleteManagerAccount(employeeID);
-            response.sendRedirect(request.getContextPath()+"/admin/page");
+            response.sendRedirect(request.getContextPath() + "/admin/page?statusAction=true&action=delete");
         }
 
         if (service.equals("viewAll")) {
@@ -106,16 +124,16 @@ public class Admin extends HttpServlet {
         }
 
         dal.EmployeeDAO.getInstance().updatePasswordAdminByUsername(userName, newPassSh);
-        response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll");
+        response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll&statusAction=true&action=changePass");
     }
 
     private void handleAddNewAccount(HttpServletRequest request, HttpServletResponse response, String userNameManager)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession();
         Employee employeeInfo = (Employee) session.getAttribute("employeeInfo");
         String usernameAdmin = employeeInfo.getUsername();
-        
+
         String password = request.getParameter("password");
         String passwordSh = Encryption.toSHA256(password);
         boolean hasError = false;
@@ -144,7 +162,7 @@ public class Admin extends HttpServlet {
         }
 
         dal.AdminDao.getInstance().addNewAccountManager(userNameManager, passwordSh);
-        response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll");
+        response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll&statusAction=true&action=add");
     }
 
     private boolean isUsernameTaken(String userNameManager) {

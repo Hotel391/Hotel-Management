@@ -33,7 +33,7 @@
                     <div class="container-fluid p-4">
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/room">Management Room</a>
+                                <a class="nav-link active" href="${pageContext.request.contextPath}/manager/room">Quản lí phòng</a>
                             </li>
                         </ul>
 
@@ -55,16 +55,16 @@
                             <!--form add new room-->
                             <div class="d-flex gap-2">
                                 <button class="btn btn-success" data-bs-toggle="modal" 
-                                        data-bs-target="#addRoomModal">+ Add New room</button>
+                                        data-bs-target="#addRoomModal">+ Tạo phòng mới</button>
                             </div>
 
                             <!--form search-->
                             <form method="get" action="${pageContext.request.contextPath}/manager/room?choose=search" class="d-flex gap-2">
                                 <input type="number" name="roomNumberSearch"" 
-                                       class="form-control search-input" placeholder="Room number" min="0" />
+                                       class="form-control search-input" placeholder="Số phòng" min="0" />
 
                                 <select id="roomTypeSelect" name="typeRoomIdSearch" class="form-select">
-                                    <option value="">-- All room types --</option> <!-- All rooms -->
+                                    <option value="">-- Tất cả loại phòng --</option> <!-- All rooms -->
                                     <c:forEach var="type" items="${requestScope.typeRoom}">
                                         <option value="${type.typeId}"
                                                 <c:if test="${param.typeRoomId == type.typeId}">selected</c:if>>
@@ -73,7 +73,7 @@
                                     </c:forEach>
                                 </select>
 
-                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <button type="submit" class="btn btn-primary">Tìm</button>
                                 <a class="btn btn-secondary" href="${pageContext.request.contextPath}/manager/room">Reset</a>
                                 <input type="hidden" name="choose" value="search">
                             </form>
@@ -84,12 +84,12 @@
                             <table class="table align-middle bg-white">
                                 <thead class="table-light">
                                     <tr>
-                                        <th scope="col">Room number</th>
-                                        <th scope="col">Room type</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Service</th>
-                                        <th scope="col">Is Active</th>
-                                        <th scope="col">Action</th>
+                                        <th scope="col">Số phòng</th>
+                                        <th scope="col">Loại phòng</th>
+                                        <th scope="col">Giá</th>
+                                        <th scope="col">Dịch vụ</th>
+                                        <th scope="col">Trạng thái phòng</th>
+                                        <th scope="col">Tùy chọn</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -180,17 +180,17 @@
                             <div class="modal-content">
                                 <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/manager/room?choose=insertRoom" novalidate>
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="addRoleModalLabel">Add New Room</h5>
+                                        <h5 class="modal-title" id="addRoleModalLabel">Thêm mới phòng</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
 
                                     <div class="modal-body">
                                         <div class="mb-3">
-                                            <label for="roomNumberer" class="form-label">Room Number</label>
+                                            <label for="roomNumberer" class="form-label">Số phòng</label>
                                             <input type="text" id="newRoomNumber" name="roomNumber" class="form-control" value="${requestScope.roomNumber}" required="">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="roomTypeSelect" class="form-label">Room Type</label>
+                                            <label for="roomTypeSelect" class="form-label">Loại phòng</label>
                                             <select id="roomTypeSelect" name="typeRoomId" class="form-select" required>
                                                 <c:forEach var="type" items="${requestScope.typeRoom}">
                                                     <option value="${type.typeId}">
@@ -204,7 +204,7 @@
                                         </c:if>
                                     </div>
                                     <div class="modal-footer">
-                                        <input type="submit" name="submit" class="btn btn-success" value="Add Room"/>
+                                        <input type="submit" name="submit" class="btn btn-success" value="Thêm phòng mới"/>
                                         <input type="reset" name="reset" value="Reset"/>
                                         <input type="hidden" name="choose" value="insertRoom"/>
                                         <input type="hidden" name="page" value="${currentPage}" />
@@ -260,7 +260,7 @@
 
                                     <!-- Buttons -->
                                     <div class="modal-footer">
-                                        <input type="submit" name="submit" class="btn btn-success" value="Update Room"/>
+                                        <input type="submit" name="submit" class="btn btn-success" value="Cập nhật phòng"/>
                                         <input type="hidden" name="choose" value="updateRoom"/>
                                         <input type="hidden" name="page" value="${currentPage}" />
                                         <input type="hidden" name="roomNumberSearch" value="${param.roomNumberSearch}" />

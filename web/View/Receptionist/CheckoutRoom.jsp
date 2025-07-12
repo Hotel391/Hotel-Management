@@ -18,7 +18,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/navDashboardStyle.css" />
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/dashboardStyle.css" />
-        
+
         <%--another in the following--%>
     </head>
     <body>
@@ -28,7 +28,7 @@
                 <c:set var="title" value="Checkout Room Today" scope="request"/>
                 <jsp:include page="topNavReceptionist.jsp" />
                 <div class="main-content">
-                    <h1 class="mb-4">Danh sách phòng checkout ngày hôm nay (<fmt:formatDate value="${today}" pattern="dd-MM-yyyy"/>)</h1>
+                    <h1 class="mb-4">Danh sách phòng checkout</h1>
                     <form class="mb-3" method="get">
                         <div class="input-group" style="max-width: 400px;">
                             <input type="hidden" name="oldSearch" value="${oldSearch}">
@@ -37,38 +37,93 @@
                             <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/receptionist/checkoutRoom">Clear</a>
                         </div>
                     </form>
+                    <c:if test="${not empty paymentMethodError}">
+                        <p class="alert alert-primary">${paymentMethodError}</p>
+                    </c:if>
                     <table id="roomTable" class="table table-bordered table-hover text-center align-middle">
                         <thead class="table-primary">
                             <tr>
+                                <th>Booking ID</th>
                                 <th>Họ tên</th>
                                 <th>SDT</th>
                                 <th>Số phòng</th>
-
+                                <th>Tổng tiền</th>
+                                <th>Số tiền đã thanh toán</th>
+                                <th>Số tiền cần thanh toán</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            
+
                             <c:forEach var="ckl" items="${checkoutList}">
-                            <tr>
-                                <td>${ckl.value.fullName}</td>
-                                <td>${ckl.value.phoneNumber}</td>
-                                <td>${ckl.key.room.roomNumber}</td>
+                                <c:set var="totalAmount" value="0"></c:set>
+                                    <tr>
+                                <form action="${pageContext.request.contextPath}/receptionist/checkoutRoom" method="post">
+                                <td>${ckl.key.bookingId}</td>
+                                <td>${ckl.key.customer.fullName}</td>
+                                <td>${ckl.key.customer.phoneNumber}</td>
+
                                 <td>
-                                    <form action="${pageContext.request.contextPath}/receptionist/checkoutRoom" method="post">
-                                        <input type="hidden" name="service" value="checkout">
-                                        <input type="hidden" name="bookingId" value="${ckl.key.booking.bookingId}">
-                                        <button type="submit" class="btn btn-sm btn-warning">
-                                            Checkout
-                                        </button>
-                                    </form>
+                                    <!-- Button trigger modal -->
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#roomModal_${ckl.key.bookingId}">
+                                        Rooms
+                                    </button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="roomModal_${ckl.key.bookingId}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Các phòng được đặt</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <c:forEach var="bd" items="${ckl.value}">
+                                                        <p>Phòng số: ${bd.room.roomNumber}</p>
+                                                        <c:set var="totalAmount" value="${totalAmount + bd.totalAmount}"></c:set>
+                                                    </c:forEach>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </td>
+                                <td>${totalAmount} VND</td>
+                                <td>${ckl.key.paidAmount} VND</td>
+                                <td>${totalAmount - ckl.key.paidAmount} VND</td>
+                                <c:if test="${totalAmount - ckl.key.paidAmount > 0}">
+                                    <td style="width: 230px;">
+                                        <select name="paymentMethod" class="form-select w-160" aria-label="Default select example">
+                                            <option selected value="default">Chọn phương thức</option>
+                                            <option value="online">Chuyển khoản</option>
+                                            <option value="offline">Tiền mặt</option>
+                                        </select>
+                                    </td>
+                                </c:if>
+
+                                <c:if test="${totalAmount - ckl.key.paidAmount == 0}">
+                                    <td>Đã thanh toán đủ tiền</td>
+                                    <input type="hidden" name="unPaidAmount" value="donePayment">
+                                </c:if>
+
+                                <td>
+                                    <input type="hidden" name="service" value="checkout">
+                                    <input type="hidden" name="customerId" value="${ckl.key.customer.customerId}">
+                                    <input type="hidden" name="bookingId" value="${ckl.key.bookingId}">
+                                    <button type="submit" class="btn btn-sm btn-warning">
+                                        Checkout
+                                    </button>
+                                </td>
+                            </form>
                             </tr>
-                            </c:forEach>
+                        </c:forEach>
                         </tbody>
                     </table>
 
-                    
+
                 </div>
             </div>
         </div>        

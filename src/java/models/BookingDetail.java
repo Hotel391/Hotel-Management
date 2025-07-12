@@ -11,12 +11,12 @@ public class BookingDetail {
     private Date endDate;
     private Booking booking;
     private Room room;
-    private List<Service> services;
+    private List<DetailService> services;
 
     public BookingDetail() {
     }
 
-    public BookingDetail(int bookingDetailId, Date startDate, Date endDate, Booking booking, Room room, List<Service> services) {
+    public BookingDetail(int bookingDetailId, Date startDate, Date endDate, Booking booking, Room room, List<DetailService> services) {
         this.bookingDetailId = bookingDetailId;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -34,11 +34,11 @@ public class BookingDetail {
         this.room = room;
     }
 
-    public List<Service> getServices() {
+    public List<DetailService> getServices() {
         return services;
     }
 
-    public void setServices(List<Service> services) {
+    public void setServices(List<DetailService> services) {
         this.services = services;
     }
 

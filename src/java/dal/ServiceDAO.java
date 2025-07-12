@@ -54,6 +54,31 @@ public class ServiceDAO {
         }
         return listService;
     }
+    
+    public List<Service> searchAllService(String serviceName) {
+        String sql = "SELECT [ServiceId]\n"
+                + "      ,[ServiceName]\n"
+                + "      ,[IsActive]\n"
+                + "      ,[Price]\n"
+                + "  FROM [HotelManagementDB].[dbo].[Service]\n"
+                + "  Where ServiceName Like ? ";
+        List<Service> listService = new Vector<>();
+        try (PreparedStatement ptm = con.prepareStatement(sql); ) {
+            ptm.setString(1, "%"+serviceName+"%");
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    Service s = new Service(rs.getInt(1),
+                            rs.getString(2),
+                            rs.getBoolean(3),
+                            rs.getInt(4));
+                    listService.add(s);
+                }
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return listService;
+    }
 
     public void toggleServiceStatus(int serviceId) {
         String sql = "UPDATE [Service] SET IsActive = IIF(IsActive = 1, 0, 1) WHERE ServiceId = ?";
@@ -64,6 +89,26 @@ public class ServiceDAO {
             e.printStackTrace();
         }
     }
+    
+    //get service by service id
+    
+    public Service getServiceByServiceId(int serviceId) {
+        String sql = "SELECT [ServiceId],[ServiceName],[Price]  FROM [Service] where ServiceId = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setInt(1, serviceId);
+            ResultSet rs = ptm.executeQuery();
+            if (rs.next()) {
+                Service s = new Service(rs.getInt(1),
+                        rs.getString(2),
+                        rs.getInt(3));
+                return s;
+            }
+        } catch (SQLException e) {
+            Logger.getLogger(ServiceDAO.class.getName()).log(Level.SEVERE, null, e);
+        }
+        return null;
+    }
+
 
     public void updateService(Service s) {
         String sql = "UPDATE [dbo].[Service]\n"
@@ -146,7 +191,7 @@ public class ServiceDAO {
                 }
             }
         } catch (SQLException e) {
-            Logger.getLogger(ServiceDAO.class.getName()).log(Level.SEVERE, null, e);
+            
         }
         return services;
     }
@@ -355,7 +400,33 @@ public class ServiceDAO {
             // handle exception
         }
     }
-
+    public List<RoomNService> getAllRoomAndServiceByTypeId(int typeId){
+        String sql="""
+                select distinct s.ServiceId,s.ServiceName,s.Price, rns.quantity from TypeRoom tr
+                join RoomNService rns on rns.TypeId=tr.TypeId
+                join Service s on s.ServiceId=rns.ServiceId
+                where tr.TypeId=?
+                   """;
+        List<RoomNService> list = new ArrayList<>();
+        
+        try(PreparedStatement ptm = con.prepareStatement(sql)){
+            ptm.setInt(1, typeId);
+            ResultSet rs = ptm.executeQuery();
+            while(rs.next()){
+                RoomNService rns = new RoomNService();
+                rns.setQuantity(rs.getInt(4));
+                Service service = new Service();
+                service.setServiceId(rs.getInt(1));
+                service.setServiceName(rs.getString(2));
+                service.setPrice(rs.getInt(3));
+                rns.setService(service);
+                list.add(rns);
+            }
+        } catch (SQLException e) {
+        }
+        return list;
+    }
+    
     public Service getServiceById(int serviceId) {
         String sql = "SELECT ServiceId, ServiceName, Price FROM Service WHERE ServiceId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {

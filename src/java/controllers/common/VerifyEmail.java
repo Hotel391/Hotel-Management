@@ -5,20 +5,25 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import models.EmailVerificationToken;
 import services.RegisterService;
-import utility.Email;
+import utility.EmailService;
 
 /**
  *
  * @author TranTrungHieu
  */
 public class VerifyEmail extends HttpServlet {
-    private static final String EMAIL_FIELD="email";
-    private static final String REGISTER_URL="register";
-    private static final String RESET_STATUS="reset";
+
+    private static final ExecutorService emailExecutor = Executors.newFixedThreadPool(5);
+    private static final String EMAIL_FIELD = "email";
+    private static final String REGISTER_URL = "register";
+    private static final String RESET_STATUS = "reset";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -63,9 +68,9 @@ public class VerifyEmail extends HttpServlet {
             response.sendRedirect("login");
             return;
         }
-        
-        Email emailService = new Email();
-        if (Email.isExpireTime(token.getExpiryDate().toLocalDateTime())) {
+
+        EmailService emailService = new EmailService();
+        if (EmailService.isExpireTime(token.getExpiryDate().toLocalDateTime())) {
             token.setExpiryDate(emailService.expireDateTime());
             token.setToken(emailService.generateToken());
             service.updateToken(token);
@@ -82,20 +87,24 @@ public class VerifyEmail extends HttpServlet {
     }
 
     private void resendEmail(HttpServletRequest request, EmailVerificationToken token,
-            List<String> method, String email, String linkRaw, Email emailService) {
+            List<String> method, String email, String linkRaw, EmailService emailService) {
         //reset password
         String linkConfirm;
         String type;
         if (!method.get(1).equals(request.getParameter("type"))) {
             linkConfirm = linkRaw + "/confirmEmail?token=" + token.getToken();
-            type= method.get(0);
-        } else{
-            linkConfirm=linkRaw + "/confirmResetPassword?token=" + token.getToken();
-            type= method.get(1);
+            type = method.get(0);
+        } else {
+            linkConfirm = linkRaw + "/confirmResetPassword?token=" + token.getToken();
+            type = method.get(1);
         }
         //register account
-        emailService.sendEmail(email, token.getUsername(), linkConfirm, type);
+        Map<String, Object> data = new HashMap<>();
+        data.put("username", token.getUsername());
+        data.put("confirmLink", linkConfirm);
 
+        emailExecutor.submit(()
+                -> emailService.sendEmail(email, "Resend link", type, data));
     }
 
     @Override

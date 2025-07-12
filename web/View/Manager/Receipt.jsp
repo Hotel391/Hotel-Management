@@ -62,7 +62,7 @@
                                         <th scope="col">Total Price</th>
                                         <th scope="col">Status</th>
                                         <th scope="col">payment method</th>
-
+                                        <th scope="col"></th>
 
                                     </tr>
                                 </thead>
@@ -76,67 +76,9 @@
                                             <td><fmt:formatNumber value="${dl.key.totalPrice}" type="number" groupingUsed="true"/> VNĐ</td>
                                             <td>${dl.key.status}</td>
                                             <td style="width: 160px; text-align: center;">${dl.key.paymentMethod.paymentName}</td>
-                                            <td class="viewTypeRoom">
-                                                <!-- Modal -->
-                                                <c:forEach var="dt" items="${dl.value}">
-                                                    <!-- Button trigger modal -->
-                                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewDetail_${dt.bookingDetailId}">
-                                                        <i class="bi bi-eye"></i> View detail
-                                                    </button>
-                                                    <div class="modal fade" id="viewDetail_${dt.bookingDetailId}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                        <div class="modal-dialog">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">${dl.key.customer.fullName}</h1>
-                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <div class="row g-3">
-                                                                        <div class="col md-6">
-                                                                            <label class="input-group-text" for="roomNumber">Room Number</label>
-                                                                            <input type="text" value="${dt.room.roomNumber}" class="form-control">
-                                                                        </div>
-                                                                        <div class="col md-6">
-                                                                            <label class="input-group-text" for="startDate">Start Date</label>
-                                                                            <input type="text" value="${dt.startDate}" class="form-control">
-                                                                        </div>
-                                                                        <div class="col md-6">
-                                                                            <label class="input-group-text" for="startDate">End Date</label>
-                                                                            <input type="text" value="${dt.endDate}" class="form-control">
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row g-3">
-                                                                        <h5 class="title">Các dịch vụ đi kèm</h5>
-                                                                        <div class="services-grid services">
-                                                                            <c:forEach var="ds" items="${dt.services}">
-                                                                                <div class="service-card wifi">
-                                                                                    <div class="service-icon">
-                                                                                        <i class="fas fa-wifi"></i>
-                                                                                    </div>
-                                                                                    <div class="service-name">${ds.serviceName}</div>
-                                                                                    <c:if test="${ds.price != 0}">
-                                                                                        <div class="service-price">${ds.price} VNĐ</div>
-                                                                                    </c:if>
-                                                                                    <c:if test="${ds.price == 0}">
-                                                                                        <div class="service-price">Free</div>
-                                                                                    </c:if>
-
-                                                                                </div>  
-                                                                            </c:forEach>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </c:forEach>
-
-
-                                            </td>
+                                            <c:set var="firstDetail" value="${dl.value[0]}" />
+                                            <td><a class="btn btn-primary" href="${pageContext.request.contextPath}/manager/detailBooking?bookingId=${firstDetail.booking.bookingId}">View Detail</a></td>
+                                           
                                         </tr>
                                     </c:forEach>
                                 </tbody>

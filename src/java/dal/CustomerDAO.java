@@ -88,9 +88,8 @@ public class CustomerDAO {
 
         return ca;
     }
-    
+
     //check existed cccd
-    
     public boolean checkcccd(String cccd) {
         String sql = "select * from Customer where CCCD = ?";
         try (PreparedStatement st = con.prepareStatement(sql);) {
@@ -220,9 +219,8 @@ public class CustomerDAO {
         }
         return 0;
     }
-    
+
     //insert into customer exception customerId
-    
     public int insertCustomerExceptionId(Customer customer) {
         String sql = """
                      insert into Customer (FullName,Email,Gender,activate,RoleId,CCCD,PhoneNumber)\r
@@ -309,7 +307,7 @@ public class CustomerDAO {
         return false;
     }
     //get customer by phoneNumber
-    
+
     public Customer getCustomerByPhoneNumber(String phoneNumber) {
         String sql = "SELECT * FROM Customer WHERE PhoneNumber = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -355,7 +353,7 @@ public class CustomerDAO {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(CustomerDAO.class.getName()).log(Level.SEVERE, null, ex);
+
         }
         return null;
     }
@@ -533,4 +531,86 @@ public class CustomerDAO {
         }
         return null;
     }
+
+    //update cccd
+    public void updateCustomerCCCD(String cccd, int customerId) {
+        String sql = "UPDATE Customer SET CCCD = ? WHERE CustomerId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, cccd);
+            st.setInt(2, customerId);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //get a list of customers by a query by me
+    public List<Customer> getCustomersCheckout() {
+        List<Customer> customers = new ArrayList<>();
+        String sql = "select distinct c.* from Customer c join Booking b on c.CustomerId = b.CustomerId \n"
+                + "join BookingDetail bd on bd.BookingId = b.BookingId\n"
+                + "where bd.EndDate >= CAST(GETDATE() As Date) And b.Status = 'Completed CheckIn'";
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                Customer customer = new Customer();
+                customer.setCustomerId(rs.getInt("CustomerId"));
+                customer.setFullName(rs.getString("FullName"));
+                customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                customer.setEmail(rs.getString("Email"));
+                customer.setGender(rs.getBoolean("Gender"));
+                customer.setCCCD(rs.getString("CCCD"));
+                customer.setActivate(rs.getBoolean("activate"));
+                customer.setRole(new Role(rs.getInt("RoleId")));
+                customers.add(customer);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customers;
+    }
+
+    public Customer getCustomerByEmail(Customer mainCustomer) {
+        String sql = "Select * from Customer where Email = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setString(1, mainCustomer.getEmail());
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    customer.setFullName(rs.getString("FullName"));
+                    customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                    customer.setEmail(rs.getString("Email"));
+                    customer.setActivate(rs.getBoolean("activate"));
+                    return customer;
+                }
+            }
+        } catch (SQLException e) {
+        }
+        return null;
+    }
+
+    public int insertCustomerOnline(Customer customer) {
+        String sql = """
+                     insert into Customer(FullName,Email,PhoneNumber,Gender,activate,RoleId)\r
+                     values (?,?,?,?,1,4)""";
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setString(1, customer.getFullName());
+            st.setString(2, customer.getEmail());
+            st.setString(3, customer.getPhoneNumber());
+            st.setBoolean(4, customer.getGender());
+
+            st.executeUpdate();
+
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+   
 }

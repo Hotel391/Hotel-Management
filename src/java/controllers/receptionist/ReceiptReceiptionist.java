@@ -49,6 +49,12 @@ public class ReceiptReceiptionist extends HttpServlet {
         }
 
         if ("view".equals(service)) {
+            // Get Today
+            String phone = request.getParameter("searchPhone");
+
+            if (phone == null || phone.isBlank()) {
+                phone = "";
+            }
 
             Date today = Date.valueOf(LocalDate.now());
 
@@ -56,11 +62,14 @@ public class ReceiptReceiptionist extends HttpServlet {
 
             HashMap<Booking, List<BookingDetail>> detailList = new LinkedHashMap<>();
 
-            bookingList = BookingDAO.getInstance().getBookingByPayDay(today);
+            bookingList = BookingDAO.getInstance().getBookingByPayDay(today, phone);
 
             for (Booking booking : bookingList) {
                 detailList.put(booking, BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking));
             }
+
+            System.out.println(detailList);
+
             request.setAttribute("bookList", bookingList);
 
             request.setAttribute("detailList", detailList);

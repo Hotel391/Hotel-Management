@@ -5,6 +5,8 @@ import models.BookingDetail;
 import models.Customer;
 import models.CustomerAccount;
 import models.Review;
+import models.TypeRoom;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -131,9 +133,44 @@ public class ReviewDAO {
                 }
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            //
         }
         return listReview;
     }
 
+    public List<Review> getReviewsByTypeRoomId(int typeId, String orderByClause, int offset, int limit) {
+        StringBuilder sql = new StringBuilder("""
+            SELECT rv.ReviewId, rv.Username, rv.Rating, rv.FeedBack, rv.Date
+            FROM TypeRoom tr
+            JOIN Room r ON r.TypeId = tr.TypeId
+            JOIN BookingDetail bd ON bd.RoomNumber = r.RoomNumber
+            JOIN Review rv ON rv.BookingDetailId = bd.BookingDetailId
+            WHERE tr.TypeId = ?
+        """);
+
+        if (orderByClause != null && !orderByClause.isEmpty()) {
+            sql.append(" ORDER BY ").append(orderByClause);
+        }
+        sql.append(" OFFSET ? ROWS FETCH NEXT ? ROWS ONLY");
+        List<Review> reviews = new ArrayList<>();
+        try (PreparedStatement ptm = con.prepareStatement(sql.toString())) {
+            ptm.setInt(1, typeId);
+            ptm.setInt(2, offset);
+            ptm.setInt(3, limit);
+            try (ResultSet rs = ptm.executeQuery()) {
+                while (rs.next()) {
+                    Review review = new Review();
+                    review.setReviewId(rs.getInt("ReviewId"));
+                    review.setUsername(rs.getString("Username"));
+                    review.setRating(rs.getInt("Rating"));
+                    review.setFeedBack(rs.getString("FeedBack"));
+                    review.setDate(rs.getDate("Date"));
+                    reviews.add(review);
+                }
+            }
+        } catch (SQLException ex) {
+            //
+        }
+        return reviews;
+    }
 }

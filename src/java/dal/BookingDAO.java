@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import models.Booking;
 import java.sql.Date;
-import java.time.LocalDate;
 
 public class BookingDAO {
 
@@ -84,7 +83,7 @@ public class BookingDAO {
     public Map<String, BigInteger> totalMoneyInYears(int startYear, int endYear) {
         String sql = "SELECT YEAR(PayDay) AS Year, SUM(TotalPrice) AS totalMoney "
                 + "FROM Booking "
-                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed CheckOut'"
                 + "GROUP BY YEAR(PayDay) "
                 + "ORDER BY Year";
 
@@ -118,7 +117,9 @@ public class BookingDAO {
                     booking.setPayDay(rs.getDate("PayDay"));
                     booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setStatus(rs.getString("Status"));
+                    booking.setPaidAmount(rs.getInt("paidAmount"));
                     booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
+                    booking.setPaymentMethodCheckIn(PaymentMethodDAO.getInstance().getPaymentMethodCheckInByBookingId(rs.getInt("BookingId")));
                     return booking;
                 }
             }
@@ -131,7 +132,7 @@ public class BookingDAO {
     public Map<String, BigInteger> totalMoneyInQuarters(int startYear, int startQuarter, int endYear, int endQuarter) {
         String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(QUARTER, PayDay) AS Quarter, SUM(TotalPrice) AS totalMoney "
                 + "FROM Booking "
-                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed CheckOut'"
                 + "GROUP BY YEAR(PayDay), DATEPART(QUARTER, PayDay) "
                 + "ORDER BY Year, Quarter";
 
@@ -155,7 +156,7 @@ public class BookingDAO {
     public Map<String, BigInteger> totalMoneyInMonths(int startYear, int startMonth, int endYear, int endMonth) {
         String sql = "SELECT YEAR(PayDay) AS Year, DATEPART(Month, PayDay) AS Month, SUM(TotalPrice) AS totalMoney "
                 + "FROM Booking "
-                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed'"
+                + "WHERE PayDay >= ? AND PayDay < ? and Status='Completed CheckOut'"
                 + "GROUP BY YEAR(PayDay), DATEPART(Month, PayDay) "
                 + "ORDER BY Year, Month";
 
@@ -308,18 +309,11 @@ public class BookingDAO {
     }
 
     public int insertNewBooking(Booking booking) {
-        String sql = "INSERT INTO [dbo].[Booking]\n"
-                + "            ([PayDay]\n"
-                + "           ,[CustomerId]\n"
-                + "           ,[PaymentMethodId]\n"
-                + "           ,[PaidAmount])\n"
-                + "     VALUES(?, ?, ?)";
+        String sql = "INSERT INTO [dbo].[Booking] ([CustomerId], [PaymentMethodIdCheckIn]) VALUES(?, ?)";
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
 
-            st.setDate(1, Date.valueOf(LocalDate.now()));
-            st.setInt(2, booking.getCustomer().getCustomerId());
-            st.setInt(3, 1);
-            st.setInt(4, booking.getPaidAmount());
+            st.setInt(1, booking.getCustomer().getCustomerId());
+            st.setInt(2, booking.getPaymentMethodCheckIn().getPaymentMethodId());
             st.executeUpdate();
 
             try (ResultSet generatedKeys = st.getGeneratedKeys()) {
@@ -348,14 +342,30 @@ public class BookingDAO {
         }
         return false;
     }
-    public boolean updateBookingTotalPrice(Booking booking) {
+
+    public boolean updateBookingPaidAmount(Booking booking) {
         String sql = "UPDATE [dbo].[Booking]\n"
-                + "   SET [TotalPrice] = ? , [PayDay] = ?\n"
+                + "   SET [PaidAmount] = ?\n"
                 + " WHERE [BookingId] = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, booking.getTotalPrice()); 
-            st.setDate(2, Date.valueOf(LocalDate.now()));
+            st.setInt(1, booking.getPaidAmount());
+            st.setInt(2, booking.getBookingId());
+            return st.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        return false;
+    }
+
+    public boolean updateBookingTotalPrice(Booking booking) {
+        String sql = "UPDATE [dbo].[Booking]\n"
+                + "   SET [TotalPrice] = ? , [PayDay] = GETDATE(), [PaymentMethodId] = ?\n"
+                + " WHERE [BookingId] = ?";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getTotalPrice());
+            st.setInt(2, booking.getPaymentMethod().getPaymentMethodId());
             st.setInt(3, booking.getBookingId());
             return st.executeUpdate() > 0;
         } catch (SQLException ex) {
@@ -365,11 +375,15 @@ public class BookingDAO {
     }
 
     //get booking by payday
-    public List<Booking> getBookingByPayDay(Date payDay) {
+    public List<Booking> getBookingByPayDay(Date payDay, String phone) {
         List<Booking> bookings = new ArrayList<>();
-        String sql = "SELECT * FROM Booking WHERE PayDay = ? and Status = 'Completed CheckOut'";
+        String sql = "SELECT b.* FROM Booking b join Customer c on b.customerId = c.customerId "
+                + "WHERE DATEDIFF(Day, ?, b.PayDay) = 0 and b.Status = 'Completed CheckOut'";
+        if(phone != null && !phone.isEmpty()) sql += " and c.phoneNumber = ?";
+        System.out.println(sql);
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setDate(1, payDay);
+            if(phone != null && !phone.isEmpty()) st.setString(2, phone);
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     Booking booking = new Booking();
@@ -378,7 +392,7 @@ public class BookingDAO {
                     booking.setPayDay(rs.getDate("PayDay"));
                     booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setStatus(rs.getString("status"));
-                    booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
+                    booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingID")));
                     bookings.add(booking);
                 }
             }
@@ -388,4 +402,87 @@ public class BookingDAO {
         return bookings;
     }
 
+    public String getPaymentNameByBookingId(int bookingId) {
+        String sql = "SELECT pm.PaymentName "
+                + "FROM Booking b "
+                + "JOIN PaymentMethod pm ON b.PaymentMethodIdCheckIn = pm.PaymentMethodId "
+                + "WHERE b.BookingId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bookingId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("PaymentName");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //update total price in booking
+    public void updateTotalPrice(Booking booking) {
+        String sql = "UPDATE Booking SET TotalPrice = ? WHERE BookingID = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getTotalPrice());
+            st.setInt(2, booking.getBookingId());
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //get booking by query
+    public List<Booking> getBookingsCustomerCheckout(int customerId) {
+        List<Booking> bookings = new ArrayList<>();
+        String sql = "select distinct b.* from Customer c join Booking b on c.CustomerId = b.CustomerId \n"
+                + "join BookingDetail bd on bd.BookingId = b.BookingId\n"
+                + "where bd.EndDate >= CAST(GETDATE() As Date) And b.Status = 'Completed CheckIn'\n"
+                + "AND c.customerId = ?";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, customerId);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Booking booking = new Booking();
+                booking.setBookingId(rs.getInt("BookingID"));
+                booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
+                booking.setPayDay(rs.getDate("PayDay"));
+                booking.setTotalPrice(rs.getInt("TotalPrice"));
+                booking.setStatus(rs.getString("status"));
+                booking.setPaidAmount(rs.getInt("paidAmount"));
+                booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
+                bookings.add(booking);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
+
+    //get booking by query
+    public List<Booking> getBookingCheckout() {
+        List<Booking> bookings = new ArrayList<>();
+        String sql = "select distinct b.* from Customer c join Booking b on c.CustomerId = b.CustomerId \n"
+                + "join BookingDetail bd on bd.BookingId = b.BookingId\n"
+                + "where bd.EndDate >= CAST(GETDATE() As Date) And b.Status = 'Completed CheckIn'";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Booking booking = new Booking();
+                    booking.setBookingId(rs.getInt("BookingID"));
+                    booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
+                    booking.setPayDay(rs.getDate("PayDay"));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
+                    booking.setStatus(rs.getString("status"));
+                    booking.setPaidAmount(rs.getInt("paidAmount"));
+                    booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
+                    bookings.add(booking);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
 }

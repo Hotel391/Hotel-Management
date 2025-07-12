@@ -1,0 +1,171 @@
+/* 
+    Created on : Jul 7, 2025, 8:32:40 PM
+    Author     : HieuTT
+*/
+:root {
+    --agoda-primary: #1a73e8;
+    --agoda-secondary: #d93025;
+    --agoda-background: #f8f9fa;
+    --agoda-text: #202124;
+    --agoda-border: #ddd;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--agoda-background);
+    color: var(--agoda-text);
+}
+
+.container {
+    padding-top: 30px;
+}
+
+.cart-wrapper {
+    display: flex;
+    gap: 20px;
+}
+
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 2;
+}
+
+.cart-item {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--agoda-border);
+}
+
+.cart-top {
+    display: flex;
+    position: relative;
+    border-bottom: 1px solid var(--agoda-border);
+    cursor: pointer;
+}
+
+.room-image {
+    width: 160px;
+    height: auto;
+    object-fit: cover;
+}
+
+.room-info {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.room-info h5 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.rating {
+    color: #fbbc05;
+    font-size: 1rem;
+}
+
+.review-count {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: var(--agoda-secondary);
+    background: none;
+    border: none;
+    font-size: 1rem;
+}
+
+.delete-btn:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.cart-bottom {
+    padding: 10px;
+    padding-top: 5px;
+    cursor: pointer;
+}
+
+.cart-bottom-left {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.room-checkbox {
+    margin-top: -45px;
+    transform: scale(1.5);
+    cursor: pointer;
+}
+
+.details-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 8px;
+}
+
+.details-list li {
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+}
+
+.view-details {
+    color: var(--agoda-primary);
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.view-details:hover {
+    text-decoration: underline;
+}
+
+.room-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--agoda-secondary);
+    text-align: right;
+}
+
+.cart-summary {
+    flex: 1;
+    position: sticky;
+    top: 30px;
+    height: fit-content;
+    background: white;
+    border: 1px solid var(--agoda-border);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.cart-summary h4 {
+    margin-bottom: 20px;
+}
+
+#checkout-btn {
+    background-color: var(--agoda-primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    width: 100%;
+    font-size: 1.1rem;
+    border-radius: 8px;
+}
+
+#checkout-btn:hover {
+    background-color: #0059c1;
+}
+#cart-total{
+    color: var(--agoda-secondary);
+}

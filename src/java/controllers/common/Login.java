@@ -71,7 +71,7 @@ public class Login extends HttpServlet {
             if (customerInfo != null) {
                 System.out.println("Info: " + customerInfo);
                 session.setAttribute("customerInfo", customerInfo);
-                response.sendRedirect("customer/home");
+                response.sendRedirect("home");
                 return;
             }
 
@@ -153,8 +153,6 @@ public class Login extends HttpServlet {
         }
 
         if ("logout".equals(service)) {
-            session.removeAttribute("customerInfo");
-            session.removeAttribute("employeeInfo");
             session.invalidate();
             response.sendRedirect("login");
         }

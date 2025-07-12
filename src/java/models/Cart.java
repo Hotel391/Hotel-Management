@@ -1,6 +1,8 @@
 package models;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Cart {
 
@@ -14,6 +16,11 @@ public class Cart {
     private boolean isPayment;
     private Customer customer;
     private PaymentMethod paymentMethod;
+    private int adults;
+    private int children;
+    private int roomNumber;
+    private Room room;
+    private List<CartService> cartServices = new ArrayList<>();
 
     public Cart() {
     }
@@ -110,5 +117,42 @@ public class Cart {
     public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
-    
+
+    public int getAdults() {
+        return adults;
+    }
+    public void setAdults(int adults) {
+        this.adults = adults;
+    }
+
+    public int getChildren() {
+        return children;
+    }
+
+    public void setChildren(int children) {
+        this.children = children;
+    }
+    public int getRoomNumber() {
+        return roomNumber;
+    }
+    public void setRoomNumber(int roomNumber) {
+        this.roomNumber = roomNumber;
+    }
+    public Room getRoom() {
+        return room;
+    }
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+    public List<CartService> getCartServices() {
+        return cartServices;
+    }
+    public void setCartServices(List<CartService> cartServices) {
+        this.cartServices = cartServices;
+    }
+
+    @Override
+    public String toString() {
+        return "Cart{" + "cartId=" + cartId + ", totalPrice=" + totalPrice + ", payDay=" + payDay + ", status=" + status + ", startDate=" + startDate + ", endDate=" + endDate + ", isActive=" + isActive + ", isPayment=" + isPayment + ", customer=" + customer + ", paymentMethod=" + paymentMethod + ", adults=" + adults + ", children=" + children + ", roomNumber=" + roomNumber + ", room=" + room + ", cartServices=" + cartServices + '}';
+    }
 }

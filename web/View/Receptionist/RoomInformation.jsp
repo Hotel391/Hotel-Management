@@ -39,6 +39,23 @@
                 font-weight: 700;
                 color: #c0392b;
             }
+            .back-button {
+                margin-bottom: 1rem;
+            }
+            .back-button a {
+                display: flex;
+                align-items: center;
+                color: #2c3e50;
+                text-decoration: none;
+                font-weight: 500;
+            }
+            .back-button a:hover {
+                color: #1a252f;
+            }
+            .back-button .arrow {
+                margin-right: 0.5rem;
+                font-size: 1.2rem;
+            }
         </style>
     </head>
     <body>
@@ -55,11 +72,21 @@
                         </div>
                     </c:if>
 
+                    <div class="back-button">
+                        <form action="${pageContext.request.contextPath}/receptionist/roomInformation" method="post">
+                            <input type="hidden" name="action" value="back">
+                            <button type="submit" class="btn-back">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </button>
+                        </form>
+                    </div>
+
                     <div class="card card-hotel p-4 mb-4">
                         <div class="section-header">Thông tin đặt phòng</div>
                         <div class="row mb-3">
                             <div class="col-md-4"><strong>Ngày nhận phòng:</strong> <c:out value="${startDate}" /></div>
                             <div class="col-md-4"><strong>Ngày trả phòng:</strong> <c:out value="${endDate}" /></div>
+                            <div class="col-md-4"><strong>Số đêm:</strong> <c:out value="${numberOfNights}" /></div>
                         </div>
                         <table class="table table-hotel table-bordered">
                             <thead>
@@ -99,19 +126,16 @@
                                     <tbody>
                                         <c:forEach var="service" items="${room.includedServices}">
                                             <tr>
-                                                <td>${service.serviceName}</td>
+                                                <td>${service.service.serviceName}</td>
                                                 <td>
                                                     <c:choose>
-                                                        <c:when test="${service.price == 0}">Free</c:when>
+                                                        <c:when test="${service.service.price == 0}">Miễn phí</c:when>
                                                         <c:otherwise>
-                                                            <fmt:formatNumber value="${service.price}" type="number" groupingUsed="true"/> đ
+                                                            <fmt:formatNumber value="${service.service.price}" type="number" groupingUsed="true"/> đ
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </td>
-                                                <td>
-                                                    1
-                                                    <input type="hidden" name="serviceId_${room.roomNumber}" value="${service.serviceId}" />
-                                                </td>
+                                                <td>${service.quantity}</td>
                                             </tr>
                                         </c:forEach>
                                     </tbody>
@@ -129,7 +153,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    <tbody>
                                         <c:forEach var="service" items="${room.optionalServices}">
                                             <tr>
                                                 <td>
@@ -139,12 +162,12 @@
                                                            value="${service.serviceId}"
                                                            data-price="${service.price}"
                                                            data-room="${room.roomNumber}"
-                                                           <c:if test="${service.price == 0}">checked</c:if>>
-                                                    </td>
-                                                    <td>${service.serviceName}</td>
+                                                           data-service-id="${service.serviceId}">
+                                                </td>
+                                                <td>${service.serviceName}</td>
                                                 <td>
                                                     <c:choose>
-                                                        <c:when test="${service.price == 0}">Free</c:when>
+                                                        <c:when test="${service.price == 0}">Miễn phí</c:when>
                                                         <c:otherwise>
                                                             <fmt:formatNumber value="${service.price}" type="number" groupingUsed="true"/> đ
                                                         </c:otherwise>
@@ -157,12 +180,10 @@
                                                            name="quantity_${room.roomNumber}_${service.serviceId}"
                                                            class="form-control quantity-input"
                                                            style="width: 80px;"
-                                                           <c:if test="${service.price == 0}">readonly</c:if>>
-                                                    </td>
-                                                </tr>
+                                                           disabled>
+                                                </td>
+                                            </tr>
                                         </c:forEach>
-                                    </tbody>
-
                                     </tbody>
                                 </table>
                             </div>
@@ -199,12 +220,8 @@
             const totalPriceElement = document.getElementById('totalWithServices');
 
             document.querySelectorAll('.service-check').forEach(cb => {
-                const price = parseFloat(cb.getAttribute('data-price'));
                 const qtyInput = cb.closest('tr').querySelector('.quantity-input');
-
-                if (cb.checked && price === 0) {
-                    qtyInput.disabled = true;
-                }
+                qtyInput.disabled = !cb.checked;
 
                 cb.addEventListener('change', function () {
                     qtyInput.disabled = !this.checked;
@@ -214,28 +231,29 @@
 
             document.querySelectorAll('.quantity-input').forEach(input => {
                 input.addEventListener('input', function () {
-                    if (this.value < 1)
+                    if (this.value < 1) {
                         this.value = 1;
+                    }
                     calculateTotal();
                 });
             });
 
             function calculateTotal() {
-                let serviceCost = 0;
+                let optionalServiceCost = 0;
                 document.querySelectorAll('.service-check:checked').forEach(cb => {
                     const price = parseFloat(cb.getAttribute('data-price'));
+                    const qtyInput = cb.closest('tr').querySelector('.quantity-input');
+                    const qty = parseInt(qtyInput.value) || 1;
                     if (price > 0) {
-                        const qtyInput = cb.closest('tr').querySelector('.quantity-input');
-                        const qty = parseInt(qtyInput.value) || 1;
-                        serviceCost += price * qty;
+                        optionalServiceCost += price * qty;
                     }
                 });
-                serviceCostElement.innerText = serviceCost.toLocaleString('vi-VN') + " đ";
-                const total = basePrice + serviceCost;
-                totalPriceElement.innerText = total.toLocaleString('vi-VN') + " đ";
+                serviceCostElement.innerText = optionalServiceCost.toLocaleString('vi-VN') + ' đ';
+                const total = basePrice + optionalServiceCost;
+                totalPriceElement.innerText = total.toLocaleString('vi-VN') + ' đ';
             }
 
             calculateTotal();
         </script>
     </body>
-</html>
+</html

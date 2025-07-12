@@ -23,6 +23,7 @@ public class TypeRoom {
     private List<Review> reviews = new ArrayList<>();
     private int adults;
     private int children;
+    private int totalRooms;
     // Constructors
     public TypeRoom() {
     }
@@ -181,6 +182,12 @@ public class TypeRoom {
     }
     public void setChildren(int children) {
         this.children = children;
+    }
+    public int getTotalRooms() {
+        return totalRooms;
+    }
+    public void setTotalRooms(int totalRooms) {
+        this.totalRooms = totalRooms;
     }
     
     @Override

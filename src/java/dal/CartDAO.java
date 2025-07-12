@@ -40,9 +40,9 @@ public class CartDAO {
         }
         return instance;
     }
-
+    
     public final int[] serviceIdsDonNeedTimes = {1, 2, 4, 7};
-    private int[] serviceHaveMoneyButNoNeedTimes = {2};
+    private final int[] serviceHaveMoneyButNoNeedTimes = {2};
 
     public List<Cart> getCartByCustomerId(int customerId) {
         String sql = """
@@ -126,12 +126,12 @@ public class CartDAO {
         Map<Integer, Integer> requiredServices = getServiceCannotDisable(cart.getCartId());
         int numberOfNight = (int) ChronoUnit.DAYS.between(startDate.toLocalDate(), endDate.toLocalDate());
         requiredServices.replaceAll((serviceId, quantity) -> quantity * numberOfNight);
-        for (int id : serviceIdsDonNeedTimes) {
+        for(int id : serviceIdsDonNeedTimes) {
             if (requiredServices.containsKey(id)) {
                 requiredServices.put(id, 1);
             }
         }
-
+        
         List<CartService> currentServices = getCartServicesByCartId(cart.getCartId());
 
         Set<Integer> existingServiceIds = currentServices.stream()
@@ -156,9 +156,9 @@ public class CartDAO {
                 addServiceToCart(cart.getCartId(), serviceId, requiredQty);
             }
         }
-        int totalPrice = getTotalPriceOfCart(cart.getCartId(), numberOfNight)
-                + getTypeRoomPriceByCartId(cart.getCartId()) * (numberOfNight - 1)
-                + getTotalServicePriceHaveMoneyButNoNeedTimes(cart.getRoom().getTypeRoom().getTypeId()) * (numberOfNight - 1);
+        int totalPrice = getTotalPriceOfCart(cart.getCartId(), numberOfNight) +
+                getTypeRoomPriceByCartId(cart.getCartId()) * (numberOfNight - 1) +
+                getTotalServicePriceHaveMoneyButNoNeedTimes(cart.getRoom().getTypeRoom().getTypeId()) * (numberOfNight - 1);
 
         if (cart.getTotalPrice() != totalPrice) {
             cart.setTotalPrice(totalPrice);
@@ -545,6 +545,22 @@ public class CartDAO {
         return null;
     }
 
+    public boolean checkCartOfCustomer(int customerId, int cartId) {
+        String sql = "SELECT COUNT(*) FROM Cart WHERE CustomerId = ? AND CartId = ? And isPayment = 0 and isActive = 1";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            ps.setInt(2, cartId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return false;
+    }
+
     public List<CartService> getCartServicesByCartId(int cartId) {
         String sql = """
                 select cs.CartId,s.ServiceId,s.ServiceName,s.Price,cs.quantity from CartService cs
@@ -639,23 +655,23 @@ public class CartDAO {
         }
     }
 
-    public void deleteCartService(int cartId, int serviceId) {
-        String sql = "DELETE FROM CartService WHERE CartId = ? AND ServiceId = ?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, cartId);
-            ps.setInt(2, serviceId);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            // Handle exception
-        }
-    }
-
     public void updateCartServiceQuantity(int cartId, int serviceId, int quantity) {
         String sql = "UPDATE CartService SET quantity = ? WHERE CartId = ? AND ServiceId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, quantity);
             ps.setInt(2, cartId);
             ps.setInt(3, serviceId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            // Handle exception
+        }
+    }
+
+    public void deleteCartService(int cartId, int serviceId) {
+        String sql = "DELETE FROM CartService WHERE CartId = ? AND ServiceId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, cartId);
+            ps.setInt(2, serviceId);
             ps.executeUpdate();
         } catch (SQLException e) {
             // Handle exception

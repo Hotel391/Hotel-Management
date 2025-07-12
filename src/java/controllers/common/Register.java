@@ -18,6 +18,7 @@ import utility.EmailService;
 import utility.Encryption;
 import utility.Validation;
 import utility.ValidationRule;
+import utility.email_factory.EmailTemplateFactory.EmailType;
 
 public class Register extends HttpServlet {
     private static final ExecutorService emailExecutor = Executors.newFixedThreadPool(5);
@@ -95,7 +96,7 @@ public class Register extends HttpServlet {
         data.put("username", username);
         data.put("confirmLink",linkConfirm);
         emailExecutor.submit(() 
-                -> emailService.sendEmail(email, "Register Account", REGISTER_SUBJECT, data));
+                -> emailService.sendEmail(email, "Register Account", EmailType.REGISTER, data));
 
         response.sendRedirect(VERIFY_EMAIL_URL + email);
     }

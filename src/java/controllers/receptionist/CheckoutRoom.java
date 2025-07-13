@@ -47,6 +47,7 @@ import utility.email_factory.EmailTemplateFactory;
  */
 @WebServlet(name = "CheckoutRoom", urlPatterns = {"/receptionist/checkoutRoom"})
 public class CheckoutRoom extends HttpServlet {
+
     private static final ExecutorService emailExecutor = Executors.newFixedThreadPool(10);
 
     /**
@@ -122,9 +123,9 @@ public class CheckoutRoom extends HttpServlet {
                 //BookingDAO.getInstance().updateTotalPrice(bookingSelected);
 
             }
-            
+
             String unPaidAmount = request.getParameter("unPaidAmount");
-            if(unPaidAmount != null && !unPaidAmount.isEmpty()){
+            if (unPaidAmount != null && !unPaidAmount.isEmpty()) {
                 session.setAttribute("bookingId", bookingId);
                 session.setAttribute("status", "checkOut");
                 response.sendRedirect(request.getContextPath() + "/payment");
@@ -171,7 +172,7 @@ public class CheckoutRoom extends HttpServlet {
 
                 dal.BookingDAO.getInstance().updateBookingTotalPrice(booking);
                 dal.BookingDAO.getInstance().updateBookingStatus(booking);
-                
+
                 // Tính số đêm
                 long numberOfNights = 1;
                 if (!bookingDetail.isEmpty()) {
@@ -241,8 +242,6 @@ public class CheckoutRoom extends HttpServlet {
                         totalServicePrice += priceAtTime;
                     }
                 }
-                
-                
 
                 List<String> services = new ArrayList<>();
                 List<Integer> serviceQuantity = new ArrayList<>();
@@ -252,7 +251,7 @@ public class CheckoutRoom extends HttpServlet {
                     serviceQuantity.add(serviceQuantityMap.get(name));
                     servicePrice.add(servicePriceMap.get(name));
                 }
-                
+
                 Map<String, Object> data = new HashMap<>();
                 data.put("customerName", customerName);
                 data.put("email", email);
@@ -261,20 +260,19 @@ public class CheckoutRoom extends HttpServlet {
                 data.put("typeRoom", typeRoom);
                 data.put("quantityTypeRoom", quantityTypeRoom);
                 data.put("priceTypeRoom", priceTypeRoom);
-                data.put("services", Collections.EMPTY_LIST);
-                data.put("serviceQuantity", Collections.EMPTY_LIST);
-                data.put("servicePrice", Collections.EMPTY_LIST);
+                data.put("services", services);
+                data.put("serviceQuantity", serviceQuantity);
+                data.put("servicePrice", servicePrice);
                 data.put("paymentMethod", paymentMethod);
                 data.put("fineMoney", 0);
                 data.put("totalRoomPrice", totalRoomPrice);
                 data.put("totalServicePrice", totalServicePrice);
 
                 emailExecutor.submit(() -> {
-                    System.out.println("Sending email to " + email);
                     EmailService emailService = new EmailService();
-                    emailService.sendEmail(email, "Confirm Checkin information", EmailTemplateFactory.EmailType.CHECKIN, data);
+                    emailService.sendEmail(email, "Receipt information", EmailTemplateFactory.EmailType.RECEIPT, data);
                 });
-                
+
                 response.sendRedirect(request.getContextPath() + "/receptionist/receipt");
 
             }

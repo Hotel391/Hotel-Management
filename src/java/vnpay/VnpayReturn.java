@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpSession;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -104,40 +105,72 @@ public class VnpayReturn extends HttpServlet {
                     Date endDate = selectCart.getEndDate();
                     long numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
                     int typeId = 1;
-                    int priceAtTime = 0;
+
                     List<CartService> listCartService = dal.CartServiceDAO.getInstance().getAllCartServiceByCartId(bookingId);
                     List<RoomNService> listRoomNService = dal.CartServiceDAO.getInstance()
                             .selectAllRoomAndService(typeId);
 
+                    List<String> serviceNames = new ArrayList<>();
+                    List<Integer> serviceQuantities = new ArrayList<>();
+                    List<Integer> servicePrices = new ArrayList<>();
+
+                    int totalServicePrice = 0;
                     for (CartService cartService : listCartService) {
                         boolean matched = false;
+                        int priceAtTime = 0;
+                        int serviceId = cartService.getService().getServiceId();
+                        int quantity = cartService.getQuantity();
 
-                        for (RoomNService roomNService1 : listRoomNService) {
-                            if (cartService.getService().getServiceId() == roomNService1.getService().getServiceId()) {
-                                int quantity;
-                                if (roomNService1.getService().getServiceId() == 2) {
-                                    quantity = cartService.getQuantity() - roomNService1.getQuantity(); // dịch vụ đưa đón chỉ tính 1 lần
+                        for (RoomNService roomNService : listRoomNService) {
+                            if (serviceId == roomNService.getService().getServiceId()) {
+                                if (serviceId == 2) { // Dịch vụ đưa đón
+                                    quantity -= roomNService.getQuantity(); // Chỉ trừ 1 lần
                                 } else {
-                                    quantity = cartService.getQuantity() - (roomNService1.getQuantity() * (int) numberOfNights);
+                                    quantity -= roomNService.getQuantity() * (int) numberOfNights;
                                 }
 
                                 if (quantity < 0) {
                                     quantity = 0;
                                 }
-                                priceAtTime = quantity * roomNService1.getService().getPrice();
+
+                                priceAtTime = quantity * roomNService.getService().getPrice();
                                 matched = true;
                                 break;
                             }
                         }
 
-                        // Nếu dịch vụ không có trong RoomNService → tính toàn bộ
                         if (!matched) {
                             priceAtTime = cartService.getQuantity() * cartService.getService().getPrice();
                         }
 
                         cartService.setPriceAtTime(priceAtTime);
                         dal.CartServiceDAO.getInstance().updatePriceStTimeOfTableCartService(cartService);
+
+                        // Thêm vào danh sách
+                        serviceNames.add(cartService.getService().getServiceName());
+                        serviceQuantities.add(cartService.getQuantity()); // Ghi lại số lượng ban đầu khách chọn
+                        servicePrices.add(priceAtTime); // Ghi lại giá phải trả
+
+                        totalServicePrice += priceAtTime;
                     }
+
+                    int roomPrice = selectCart.getTotalPrice() - totalServicePrice;
+                    Customer customer = dal.CustomerDAO.getInstance().getCustomerByCustomerID(mainCustomerId);
+                    String customerName = customer.getFullName();
+                    String email = customer.getEmail();
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    String checkin = sdf.format(startDate);
+                    String checkout = sdf.format(endDate);
+                    int adults = selectCart.getAdults();
+                    int children = selectCart.getChildren();
+                    String roomNumber = selectCart.getRoomNumber() + "";
+
+                    PaymentMethod selectPaymentMethod = dal.PaymentMethodDAO.getInstance()
+                            .getPaymentMethodByPaymentMethodId(selectCart.getPaymentMethod().getPaymentMethodId());
+                    String paymentMethod = selectPaymentMethod.getPaymentName();
+
+                    Room room = dal.RoomDAO.getInstance().getRoomByNumber(selectCart.getRoomNumber());
+                    String typeRoomName = room.getTypeRoom().getTypeName();
                     
                 } else {
                     Cart cart = new Cart();
@@ -432,18 +465,17 @@ public class VnpayReturn extends HttpServlet {
                         data.put("typeRoom", typeRoom);
                         data.put("quantityTypeRoom", quantityTypeRoom);
                         data.put("priceTypeRoom", priceTypeRoom);
-                        data.put("services", Collections.EMPTY_LIST);
-                        data.put("serviceQuantity", Collections.EMPTY_LIST);
-                        data.put("servicePrice", Collections.EMPTY_LIST);
+                        data.put("services", services);
+                        data.put("serviceQuantity", serviceQuantity);
+                        data.put("servicePrice", servicePrice);
                         data.put("paymentMethod", paymentMethod);
                         data.put("fineMoney", 0);
                         data.put("totalRoomPrice", totalRoomPrice);
                         data.put("totalServicePrice", totalServicePrice);
 
                         emailExecutor.submit(() -> {
-                            System.out.println("Sending email to " + email);
                             EmailService emailService = new EmailService();
-                            emailService.sendEmail(email, "Confirm Checkin information", EmailType.CHECKIN, data);
+                            emailService.sendEmail(email, "Receipt information", EmailType.RECEIPT, data);
                         });
                         request.setAttribute("pageChange", "checkOut");
                         session.removeAttribute("listRoomNumber");

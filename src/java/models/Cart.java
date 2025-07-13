@@ -16,6 +16,7 @@ public class Cart {
     private boolean isActive;
     private boolean isPayment;
     private Customer customer;
+    private Customer mainCustomer;
     private PaymentMethod paymentMethod;
     private int adults;
     private int children;
@@ -37,6 +38,14 @@ public class Cart {
         this.isPayment = isPayment;
         this.customer = customer;
         this.paymentMethod = paymentMethod;
+    }
+
+    public Customer getMainCustomer() {
+        return mainCustomer;
+    }
+
+    public void setMainCustomer(Customer mainCustomer) {
+        this.mainCustomer = mainCustomer;
     }
 
     public int getCartId() {
@@ -122,6 +131,7 @@ public class Cart {
     public int getAdults() {
         return adults;
     }
+
     public void setAdults(int adults) {
         this.adults = adults;
     }
@@ -133,21 +143,27 @@ public class Cart {
     public void setChildren(int children) {
         this.children = children;
     }
+
     public int getRoomNumber() {
         return roomNumber;
     }
+
     public void setRoomNumber(int roomNumber) {
         this.roomNumber = roomNumber;
     }
+
     public Room getRoom() {
         return room;
     }
+
     public void setRoom(Room room) {
         this.room = room;
     }
+
     public List<CartService> getCartServices() {
         return cartServices;
     }
+
     public void setCartServices(List<CartService> cartServices) {
         this.cartServices = cartServices;
     }

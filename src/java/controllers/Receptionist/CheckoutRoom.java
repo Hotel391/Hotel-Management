@@ -39,6 +39,7 @@ import models.PaymentMethod;
 import models.Room;
 import models.TypeRoom;
 import utility.EmailService;
+import utility.email_factory.EmailTemplateFactory;
 
 /**
  *
@@ -271,7 +272,7 @@ public class CheckoutRoom extends HttpServlet {
                 emailExecutor.submit(() -> {
                     System.out.println("Sending email to " + email);
                     EmailService emailService = new EmailService();
-                    emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+                    emailService.sendEmail(email, "Confirm Checkin information", EmailTemplateFactory.EmailType.CHECKIN, data);
                 });
                 
                 response.sendRedirect(request.getContextPath() + "/receptionist/receipt");

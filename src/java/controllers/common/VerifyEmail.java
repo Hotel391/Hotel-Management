@@ -6,13 +6,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import models.EmailVerificationToken;
 import services.RegisterService;
 import utility.EmailService;
+import utility.email_factory.EmailTemplateFactory.EmailType;
 
 /**
  *
@@ -81,22 +81,21 @@ public class VerifyEmail extends HttpServlet {
                 + request.getServerPort()
                 + request.getContextPath();
 
-        resendEmail(request, token, List.of(REGISTER_URL, RESET_STATUS), email, linkRaw, emailService);
+        resendEmail(request, token, email, linkRaw, emailService);
 
         response.sendRedirect("verifyEmail?email=" + email + "&type=" + type + "&resend=true");
     }
 
-    private void resendEmail(HttpServletRequest request, EmailVerificationToken token,
-            List<String> method, String email, String linkRaw, EmailService emailService) {
+    private void resendEmail(HttpServletRequest request, EmailVerificationToken token, String email, String linkRaw, EmailService emailService) {
         //reset password
         String linkConfirm;
-        String type;
-        if (!method.get(1).equals(request.getParameter("type"))) {
+        EmailType type;
+        if (request.getParameter("type").equals(REGISTER_URL)) {
             linkConfirm = linkRaw + "/confirmEmail?token=" + token.getToken();
-            type = method.get(0);
+            type = EmailType.REGISTER;            
         } else {
             linkConfirm = linkRaw + "/confirmResetPassword?token=" + token.getToken();
-            type = method.get(1);
+            type = EmailType.RESET;
         }
         //register account
         Map<String, Object> data = new HashMap<>();

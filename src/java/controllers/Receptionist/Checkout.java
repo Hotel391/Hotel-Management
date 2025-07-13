@@ -14,6 +14,7 @@ import models.Customer;
 import models.Role;
 import utility.Validation;
 import dal.CustomerDAO;
+import dal.RoomDAO;
 import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import models.PaymentMethod;
 import models.Room;
 import models.TypeRoom;
 import utility.EmailService;
+import utility.email_factory.EmailTemplateFactory.EmailType;
 
 /**
  *
@@ -89,19 +91,22 @@ public class Checkout extends HttpServlet {
         }
 
         if ("addNew".equals(service)) {
-            
+            if (checkRoomConflict(request, response, session)) {
+                return;
+            }
+
             String emailSearch = request.getParameter("emailSearch");
 
             String paymentMethod = request.getParameter("paymentMethod");
 
             String genderValue = request.getParameter("gender");
-            
+
             String fullName = request.getParameter("fullName");
-            
+
             String cccd = request.getParameter("cccd");
-            
+
             boolean check = false;
-            
+
             if (genderValue == null || genderValue.isEmpty()) {
                 check = true;
                 request.setAttribute("genderError", "Vui lòng chọn giới tính");
@@ -172,8 +177,11 @@ public class Checkout extends HttpServlet {
         }
 
         if ("addExisted".equals(service)) {
+            if (checkRoomConflict(request, response, session)) {
+                return;
+            }
             String emailSearch = request.getParameter("emailSearch");
-            
+
             String email = request.getParameter("email");
 
             String paymentMethod = request.getParameter("paymentMethod");
@@ -351,7 +359,7 @@ public class Checkout extends HttpServlet {
         emailExecutor.submit(() -> {
             System.out.println("Sending email to " + email);
             EmailService emailService = new EmailService();
-            emailService.sendEmail(email, "Confirm Checkin information", "checkin", data);
+            emailService.sendEmail(email, "Confirm Checkin information", EmailType.valueOf("CHECKIN"), data);
         });
 
         session.removeAttribute("paidAmount");
@@ -492,6 +500,31 @@ public class Checkout extends HttpServlet {
 
         response.sendRedirect(request.getContextPath() + "/receptionist/stayingRoom");
 //                    session.removeAttribute("totalPrice");
+    }
+
+    private boolean checkRoomConflict(HttpServletRequest request, HttpServletResponse response, HttpSession session)
+            throws ServletException, IOException {
+
+        String[] roomNumbers = (String[]) session.getAttribute("roomNumbers");
+        String startDate = (String) session.getAttribute("startDate");
+        String endDate = (String) session.getAttribute("endDate");
+
+        if (roomNumbers != null && startDate != null && endDate != null) {
+            java.sql.Date startDateSql = java.sql.Date.valueOf(startDate);
+            java.sql.Date endDateSql = java.sql.Date.valueOf(endDate);
+
+            List<String> conflictRooms = RoomDAO.getInstance().getUnavailableRooms(
+                    java.util.Arrays.asList(roomNumbers), startDateSql, endDateSql
+            );
+
+            if (!conflictRooms.isEmpty()) {
+                request.setAttribute("roomConflictError", "Phòng đã bị đặt: " + String.join(", ", conflictRooms));
+                session.removeAttribute("selectedRooms");
+                request.getRequestDispatcher("/View/Receptionist/SearchRoom.jsp").forward(request, response);
+                return true;
+            }
+        }
+        return false;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

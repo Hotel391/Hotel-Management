@@ -58,10 +58,11 @@ public class CartServiceDAO {
     }
 
     public boolean updatePriceStTimeOfTableCartService(CartService cartService) {
-        String sql = "UPDATE CartService set priceAtTime = ? WHERE cartId = ?";
+        String sql = "UPDATE CartService set priceAtTime = ? WHERE cartId = ? AND serviceId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, cartService.getPriceAtTime());
             ps.setInt(2, cartService.getCartId());
+            ps.setInt(3, cartService.getService().getServiceId());
             ps.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -70,23 +71,27 @@ public class CartServiceDAO {
         return false;
     }
 
-    public RoomNService selectAllRoomAndService(int typeId, int serviceId) {
-
-        String sql = "select * from RoomNService where TypeId =? and ServiceId =?";
+    public List<RoomNService> selectAllRoomAndService(int typeId) {
+        List<RoomNService> listRoomNService = new ArrayList<>();
+        String sql = """
+                       select rns.TypeId, rns.ServiceId, rns.quantity, s.ServiceName, s.Price from RoomNService rns 
+                       join Service s on rns.ServiceId = s.ServiceId
+                       where TypeId = ? """;
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, typeId);
-            ptm.setInt(2, serviceId);
             try (ResultSet rs = ptm.executeQuery();) {
                 while (rs.next()) {
-                    RoomNService room = new RoomNService();
+                    RoomNService roomNService = new RoomNService();
                     TypeRoom typeRoom = new TypeRoom();
-                    typeRoom.setTypeId(rs.getInt("TypeId"));
-                    room.setTypeRoom(typeRoom);
                     Service service = new Service();
+                    typeRoom.setTypeId(rs.getInt("TypeId"));
                     service.setServiceId(rs.getInt("ServiceId"));
-                    room.setService(service);
-                    room.setQuantity(rs.getInt("quantity"));
-                    return room;
+                    roomNService.setQuantity(rs.getInt("quantity"));
+                    service.setServiceName(rs.getString("ServiceName"));
+                    service.setPrice(rs.getInt("Price"));
+                    roomNService.setTypeRoom(typeRoom);
+                    roomNService.setService(service);
+                    listRoomNService.add(roomNService);
                 }
 
             } catch (SQLException e) {
@@ -95,6 +100,6 @@ public class CartServiceDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return listRoomNService;
     }
 }

@@ -119,6 +119,16 @@ public class SearchRoom extends HttpServlet {
                     showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                     return;
                 }
+                List<String> conflictRooms = RoomDAO.getInstance().getUnavailableRooms(selectedRooms, startDate, endDate);
+
+                if (!conflictRooms.isEmpty()) {
+                    selectedRooms.removeAll(conflictRooms);
+                    session.setAttribute("selectedRooms", selectedRooms);
+
+                    request.setAttribute("errorMessage", "Phòng đã bị người khác đặt: " + String.join(", ", conflictRooms));
+                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
+                    return;
+                }
 
                 session.setAttribute("startDate", startDateStr);
                 session.setAttribute("endDate", endDateStr);
@@ -148,12 +158,6 @@ public class SearchRoom extends HttpServlet {
             }
         }
 
-        if (startDateStr == null || endDateStr == null || startDateStr.isEmpty() || endDateStr.isEmpty()) {
-            request.setAttribute("errorMessage", "Vui lòng chọn cả ngày nhận phòng và ngày trả phòng");
-            showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
-            return;
-        }
-
         if (startDateStr != null && !startDateStr.isEmpty() && endDateStr != null && !endDateStr.isEmpty()) {
             java.sql.Date startDate;
             java.sql.Date endDate;
@@ -162,6 +166,12 @@ public class SearchRoom extends HttpServlet {
                 endDate = java.sql.Date.valueOf(endDateStr);
             } catch (IllegalArgumentException e) {
                 request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ.");
+                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
+                return;
+            }
+
+            if (startDateStr == null || endDateStr == null || startDateStr.isEmpty() || endDateStr.isEmpty()) {
+                request.setAttribute("errorMessage", "Vui lòng chọn cả ngày nhận phòng và ngày trả phòng");
                 showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
@@ -176,7 +186,7 @@ public class SearchRoom extends HttpServlet {
             }
 
             if (endDate.compareTo(startDate) <= 0) {
-                request.setAttribute("errorMessage", "gày trả phong phải sau ngày nhận phòng.");
+                request.setAttribute("errorMessage", "ngày trả phong phải sau ngày nhận phòng.");
                 showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
@@ -197,7 +207,7 @@ public class SearchRoom extends HttpServlet {
                 try {
                     adult = Integer.parseInt(adultStr);
                     if (adult < 0) {
-                        adult = 0; // Ensure non-negative
+                        adult = 0;
                     }
                 } catch (NumberFormatException e) {
                     request.setAttribute("errorMessage", "Invalid adult number.");

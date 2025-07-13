@@ -10,16 +10,11 @@ package models;
  */
 public class Constants {
 
-    private Constants() {
-        // Prevent instantiation through reflection
-        throw new AssertionError("Cannot instantiate Constants class");
-    }
-
     public static final String GOOGLE_CLIENT_ID = "200776812058-qrg1li14uugvdeb351am8g4savbpjnvo.apps.googleusercontent.com";
 
     public static final String GOOGLE_CLIENT_SECRET = "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";
 
-    public static final String GOOGLE_REDIRECT_URI = "http://localhost:9999/fptHotel/login";
+    public static final String GOOGLE_REDIRECT_URI = "http://localhost:9999/vn_pay/login";
 
     public static final String GOOGLE_LINK_GET_TOKEN = "https://accounts.google.com/o/oauth2/token";
 

@@ -50,12 +50,6 @@
                         </div>
                     </c:if>
 
-                    <c:if test="${empty availableRooms and not empty startDateSearch and not empty endDateSearch}">
-                        <div class="alert alert-warning" role="alert">
-                            Không có phòng nào khả dụng cho khoảng thời gian này.
-                        </div>
-                    </c:if>
-
                     <div class="container-fluid p-4">
                         <form id="searchForm" method="get" action="${pageContext.request.contextPath}/receptionist/searchRoom">
                             <div class="row mb-3 align-items-end">
@@ -256,14 +250,26 @@
 
                                                                 window.onload = function () {
                                                                     const today = new Date();
+                                                                    const tomorrow = new Date(today);
+                                                                    tomorrow.setDate(today.getDate() + 1);
+
                                                                     const formattedToday = today.toISOString().split('T')[0];
+                                                                    const formattedTomorrow = tomorrow.toISOString().split('T')[0];
 
-                                                                    const startDate = document.getElementById("startDate");
-                                                                    if (startDate && !startDate.value) {
-                                                                        startDate.value = formattedToday;
+                                                                    const startDateInput = document.getElementById("startDate");
+                                                                    const endDateInput = document.getElementById("endDate");
+
+                                                                    if (startDateInput && !startDateInput.value) {
+                                                                        startDateInput.value = formattedToday;
                                                                     }
-                                                                };
 
+                                                                    if (endDateInput && !endDateInput.value) {
+                                                                        endDateInput.value = formattedTomorrow;
+                                                                    }
+
+                                                                    startDateInput.min = formattedToday;
+                                                                    endDateInput.min = formattedToday;
+                                                                };
         </script>
     </body>
 </html>

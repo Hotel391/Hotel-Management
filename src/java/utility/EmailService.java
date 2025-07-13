@@ -5,10 +5,10 @@ package utility;
  * @author TranTrungHieu
  */
 import utility.email_factory.EmailTemplateFactory;
+import utility.email_factory.EmailTemplateFactory.EmailType;
 import utility.email_factory.EmailContentBuilder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -56,7 +56,7 @@ public class EmailService {
         this.session = Session.getInstance(props, auth);
     }
 
-    public void sendEmail(String to, String subject, String type, Map<String, Object> data) {
+    public void sendEmail(String to, String subject, EmailType type, Map<String, Object> data) {
         try {
             EmailContentBuilder builder = EmailTemplateFactory.getBuilder(type);
             String htmlContent = builder.build(data);

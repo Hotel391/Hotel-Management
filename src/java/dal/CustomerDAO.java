@@ -611,6 +611,35 @@ public class CustomerDAO {
         }
         return 0;
     }
+
+    public Customer checkCustomerByEmail(String email) {
+        String sql = "Select * from Customer where Email = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setString(1, email);
+            try (ResultSet rs = ptm.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    customer.setFullName(rs.getString("FullName"));
+                    customer.setPhoneNumber(rs.getString("PhoneNumber"));
+                    customer.setEmail(rs.getString("Email"));
+                    customer.setActivate(rs.getBoolean("activate"));
+                    return customer;
+                }
+            }
+        } catch (SQLException e) {
+        }
+        return null;
+    }
     
-   
+    public void deactiveSpam(CustomerAccount account){
+         String sql = "UPDATE Customer SET activate = 0 WHERE CustomerId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, account.getCustomer().getCustomerId());
+            st.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

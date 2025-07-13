@@ -1,5 +1,6 @@
 package controllers.receptionist;
 
+import dal.RoomDAO;
 import dal.ServiceDAO;
 import dal.TypeRoomDAO;
 import java.io.IOException;
@@ -49,6 +50,14 @@ public class RoomInformation extends HttpServlet {
         java.sql.Date startDateSql = java.sql.Date.valueOf(startDate);
         java.sql.Date endDateSql = java.sql.Date.valueOf(endDate);
         long numberOfNights = (endDateSql.getTime() - startDateSql.getTime()) / (1000 * 60 * 60 * 24);
+
+        RoomDAO roomDAO = RoomDAO.getInstance();
+        List<String> conflictRooms = roomDAO.getUnavailableRooms(List.of(roomNumbers), startDateSql, endDateSql);
+        if (!conflictRooms.isEmpty()) {
+            request.setAttribute("errorMessage", "Các phòng sau đã bị đặt trong thời gian đã chọn: " + String.join(", ", conflictRooms));
+            request.getRequestDispatcher("/View/Receptionist/RoomInformation.jsp").forward(request, response);
+            return;
+        }
 
         for (String roomNumber : roomNumbers) {
             String typeName = roomTypeMap.get(roomNumber);
@@ -127,6 +136,17 @@ public class RoomInformation extends HttpServlet {
         java.sql.Date startDateSql = java.sql.Date.valueOf(startDate);
         java.sql.Date endDateSql = java.sql.Date.valueOf(endDate);
         long numberOfNights = (endDateSql.getTime() - startDateSql.getTime()) / (1000 * 60 * 60 * 24);
+        RoomDAO roomDAO = RoomDAO.getInstance();
+        List<String> conflictRooms = roomDAO.getUnavailableRooms(
+                java.util.Arrays.asList(roomNumbers), startDateSql, endDateSql
+        );
+
+        if (!conflictRooms.isEmpty()) {
+            request.setAttribute("errorMessage", "Phòng sau đã bị đặt trong khoảng thời gian đã chọn: " + String.join(", ", conflictRooms));
+            session.removeAttribute("selectedRooms");
+            request.getRequestDispatcher("/View/Receptionist/SearchRoom.jsp").forward(request, response);
+            return;
+        }
 
         Map<String, List<DetailService>> roomServicesMap = new HashMap<>();
         double totalServiceCost = 0;

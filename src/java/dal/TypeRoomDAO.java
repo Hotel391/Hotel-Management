@@ -429,10 +429,10 @@ public class TypeRoomDAO {
                     SELECT 
                         tr.TypeId,
                         tr.TypeName,
-                        tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
+                        tr.Price AS Price,
                         tr.Description,
                         COUNT(DISTINCT CASE 
-                            WHEN bd.BookingDetailId IS NULL and c.CartId is null THEN r.RoomNumber
+                            WHEN BookingDetailCheck.BookingDetailId IS NULL and c.CartId is null THEN r.RoomNumber
                             END) AS AvailableRoomCount,
                         AVG(rv.Rating * 1.0) AS Rating,
                         COUNT(distinct rv.ReviewId) AS numberOfReview,
@@ -440,9 +440,12 @@ public class TypeRoomDAO {
                         tr.Children+tr.Adult AS totalCapacity
                     FROM TypeRoom tr
                     JOIN Room r ON r.TypeId = tr.TypeId and r.isActive=1
-                    LEFT JOIN BookingDetail bd 
-                        ON bd.RoomNumber = r.RoomNumber
-                        AND NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+                    LEFT JOIN(
+                    	select bd.BookingDetailId,bd.RoomNumber from BookingDetail bd
+                    	join Booking b on b.BookingId=bd.BookingId and 
+                    	(b.Status='Completed Checkin' or b.Status='Processing')
+                    	where NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+                    ) BookingDetailCheck on BookingDetailCheck.RoomNumber=r.RoomNumber
                     LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber AND c.isPayment = 1
                         AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
                     LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
@@ -528,14 +531,22 @@ public class TypeRoomDAO {
                 SELECT COUNT(*) AS totalTypeRoom
                 FROM (
                     SELECT tr.TypeId,
-                        tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
+                        tr.Price AS Price,
+                        COUNT(DISTINCT CASE 
+                            WHEN BookingDetailCheck.BookingDetailId IS NULL and c.CartId is null THEN r.RoomNumber
+                            END) AS AvailableRoomCount,
                         tr.Adult,
                         tr.Children + tr.Adult AS totalCapacity
                     FROM TypeRoom tr
                     JOIN Room r ON r.TypeId = tr.TypeId
-                    LEFT JOIN BookingDetail bd 
-                        ON bd.RoomNumber = r.RoomNumber
-                        AND NOT (bd.EndDate < ? OR bd.StartDate > ?)
+                    LEFT JOIN(
+                        select bd.BookingDetailId,bd.RoomNumber from BookingDetail bd
+                        join Booking b on b.BookingId=bd.BookingId and 
+                        (b.Status='Completed Checkin' or b.Status='Processing')
+                        where NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+                    ) BookingDetailCheck on BookingDetailCheck.RoomNumber=r.RoomNumber
+                    LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber AND c.isPayment = 1
+                        AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
                     LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
                     LEFT JOIN Service s ON s.ServiceId = rns.ServiceId
                     LEFT JOIN (
@@ -546,11 +557,14 @@ public class TypeRoomDAO {
                         JOIN Service s ON s.ServiceId = rns.ServiceId
                         GROUP BY rns.TypeId
                     ) svc ON svc.TypeId = tr.TypeId
+                    WHERE BookingDetailCheck.BookingDetailId IS NULL AND c.CartId IS NULL
                     GROUP BY tr.TypeId, tr.Price, svc.ServicePrice, tr.Adult, tr.Children
                     ) AS t
-                WHERE t.Adult >= ? AND t.totalCapacity >= ?
+                WHERE t.AvailableRoomCount>0 and t.Adult >= ? AND t.totalCapacity >= ?
                 """);
         List<Object> params = new ArrayList<>();
+        params.add(startDate);
+        params.add(endDate);
         params.add(startDate);
         params.add(endDate);
         params.add(adult);
@@ -586,14 +600,14 @@ public class TypeRoomDAO {
                         tr.TypeName,
                         tr.Price AS OriginPrice,
                         COALESCE(svc.ServicePrice, 0) AS ServicePrice,
-                        tr.Price + COALESCE(svc.ServicePrice, 0) AS Price,
+                        tr.Price AS Price,
                         tr.Description,
                         tr.Adult,
                         tr.Children,
                         CASE 
                         WHEN tr.Adult >= ? AND tr.Adult + tr.Children >= ? THEN 
                             COUNT(DISTINCT CASE 
-                                WHEN bd.BookingDetailId IS NULL AND c.CartId IS NULL THEN r.RoomNumber
+                                WHEN BookingDetailCheck.BookingDetailId IS NULL AND c.CartId IS NULL THEN r.RoomNumber
                             END)
                         ELSE 0
                     END AS AvailableRoomCount,
@@ -604,9 +618,12 @@ public class TypeRoomDAO {
                         tr.Children + tr.Adult AS totalCapacity
                     FROM TypeRoom tr
                     JOIN Room r ON r.TypeId = tr.TypeId and r.isActive=1
-                    LEFT JOIN BookingDetail bd 
-                        ON bd.RoomNumber = r.RoomNumber
-                        AND NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+                    LEFT JOIN(
+                        select bd.BookingDetailId,bd.RoomNumber from BookingDetail bd
+                        join Booking b on b.BookingId=bd.BookingId and 
+                        (b.Status='Completed Checkin' or b.Status='Processing')
+                        where NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+                    ) BookingDetailCheck on BookingDetailCheck.RoomNumber=r.RoomNumber
                     LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
                     LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber
                         AND c.isPayment = 1
@@ -657,4 +674,66 @@ public class TypeRoomDAO {
         return null;
     }
 
+    public List<TypeRoom> getAllTypeRoomsForChatbot() {
+        List<TypeRoom> typeRooms = new ArrayList<>();
+        String sql = """
+            SELECT 
+                sub.TypeId,
+                sub.TypeName,
+                sub.Price,
+                sub.Description,
+                sub.Rating,
+                sub.numberOfReview,
+                sub.totalRooms,
+                sub.Adult,
+                sub.Children
+            FROM (
+                SELECT 
+                    tr.TypeId,
+                    tr.TypeName,
+                    tr.Price AS Price,
+                    tr.Description,
+                    AVG(rv.Rating * 1.0) AS Rating,
+                    COUNT(distinct rv.ReviewId) AS numberOfReview,
+                    count(distinct r.RoomNumber) as totalRooms,
+                    tr.Adult,
+                    tr.Children
+                FROM TypeRoom tr
+                JOIN Room r ON r.TypeId = tr.TypeId and r.isActive=1
+                LEFT JOIN BookingDetail bd2 ON bd2.RoomNumber = r.RoomNumber
+                LEFT JOIN Review rv ON rv.BookingDetailId = bd2.BookingDetailId
+                LEFT JOIN RoomNService rns ON tr.TypeId = rns.TypeId
+                LEFT JOIN Service s ON s.ServiceId = rns.ServiceId
+                LEFT JOIN (
+                    SELECT 
+                        rns.TypeId,
+                        SUM(rns.Quantity * s.Price) AS ServicePrice
+                    FROM RoomNService rns
+                    JOIN Service s ON s.ServiceId = rns.ServiceId
+                    GROUP BY rns.TypeId
+                ) svc ON svc.TypeId = tr.TypeId
+                GROUP BY tr.TypeId, tr.TypeName, tr.Price, tr.Description, svc.ServicePrice, tr.Adult, tr.Children
+            ) AS sub
+            """;
+
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                TypeRoom typeRoom = new TypeRoom();
+                typeRoom.setTypeId(rs.getInt("TypeId"));
+                typeRoom.setTypeName(rs.getString("TypeName"));
+                typeRoom.setPrice(rs.getInt("Price"));
+                typeRoom.setDescription(rs.getString("Description"));
+                typeRoom.setAverageRating(rs.getDouble("Rating"));
+                typeRoom.setNumberOfReviews(rs.getInt("numberOfReview"));
+                typeRoom.setTotalRooms(rs.getInt("totalRooms"));
+                typeRoom.setAdults(rs.getInt("Adult"));
+                typeRoom.setChildren(rs.getInt("Children"));
+                typeRoom.setImages(getRoomImagesByTypeId(typeRoom.getTypeId()));
+                typeRooms.add(typeRoom);
+            }
+        } catch (SQLException e) {
+            //
+        }
+        return typeRooms;
+    }
 }

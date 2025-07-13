@@ -110,17 +110,11 @@ public class SearchRoomCustomer extends HttpServlet {
     }
     private void setSortAttribute(HttpServletRequest request, String sort) {
         switch (sort) {
-            case "sub.Price":
-                request.setAttribute("sortOrder", "price-low");
-                break;
-            case "sub.Price DESC":
-                request.setAttribute("sortOrder", "price-high");
-                break;
-            case "sub.Rating DESC":
-                request.setAttribute("sortOrder", "rating-high");
-                break;
-            default:
-                break;
+            case "sub.Price" -> request.setAttribute("sortOrder", "price-low");
+            case "sub.Price DESC" -> request.setAttribute("sortOrder", "price-high");
+            case "sub.Rating DESC" -> request.setAttribute("sortOrder", "rating-high");
+            default -> {
+            }
         }
     }
 

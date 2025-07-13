@@ -18,6 +18,7 @@ import services.RegisterService;
 import utility.EmailService;
 import utility.Validation;
 import utility.ValidationRule;
+import utility.email_factory.EmailTemplateFactory.EmailType;
 
 /**
  *
@@ -59,7 +60,7 @@ public class ForgotPassword extends HttpServlet {
         Map<String,Object> data=new HashMap<>();
         data.put("username", email);
         data.put("confirmLink",linkConfirm);
-        emailExecutor.submit(() -> emailService.sendEmail(email, "Reset Password", "reset", data));
+        emailExecutor.submit(() -> emailService.sendEmail(email, "Reset Password", EmailType.RESET, data));
 
         response.sendRedirect("verifyEmail?email=" + email + "&type=reset");
     }

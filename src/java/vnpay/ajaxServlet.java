@@ -62,11 +62,11 @@ public class ajaxServlet extends HttpServlet {
         int totalPrice = 0;
         int bookingId = 0;
         String cartStatus = (String) session.getAttribute("cartStatus");
+            int cartId = (int) session.getAttribute("cartId");
 
         if ("cartPayment".equals(cartStatus)) {
             //customer thanh toán ở cart
             Customer checkCustomer = (Customer) session.getAttribute("mainCustomer");
-            int cartId = (int) session.getAttribute("cartId");
             bookingId = cartId;
             Cart cart = dal.CartDAO.getInstance().getCartByCartId(cartId);
 
@@ -91,7 +91,8 @@ public class ajaxServlet extends HttpServlet {
 //            cart.setIsPayment(false);
 //            dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
             session.removeAttribute("cartId");
-            session.removeAttribute("expireTime");
+            session.removeAttribute("expireTime-"+cartId);
+            session.removeAttribute("checkoutAttempts");
             session.removeAttribute("mainCustomer");
         } else {
             //thanh toán online ở reception
@@ -352,6 +353,7 @@ public class ajaxServlet extends HttpServlet {
                 session.setAttribute("listRoomNumber", listRoomNumbers);
                 session.setAttribute("totalPriceUpdate", totalAmount);
                 session.removeAttribute("bookingId");
+                
             }
         }
 
@@ -406,14 +408,14 @@ public class ajaxServlet extends HttpServlet {
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
         if ("cartPayment".equals(cartStatus)) {
-            int seconds  = (int)session.getAttribute("timeLeft");
+            int seconds  = (int)session.getAttribute("timeLeft-"+cartId);
             System.out.println(seconds);
 //            int minutes = (int) Math.ceil(seconds / 60.0);
 //            System.out.println(minutes);
             cld.add(Calendar.SECOND, seconds);
             String vnp_ExpireDate = formatter.format(cld.getTime());
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
-            session.removeAttribute("timeLeft");
+            session.removeAttribute("timeLeft-"+cartId);
         } else {
             cld.add(Calendar.MINUTE, 1); // tiếp tục dùng cld
             String vnp_ExpireDate = formatter.format(cld.getTime());

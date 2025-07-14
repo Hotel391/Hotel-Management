@@ -31,8 +31,7 @@
                     <h1 class="mb-4">Danh sách phòng checkout</h1>
                     <form class="mb-3" method="get">
                         <div class="input-group" style="max-width: 400px;">
-                            <input type="hidden" name="oldSearch" value="${oldSearch}">
-                            <input type="text" class="form-control" name="search" placeholder="Nhập số phòng..." value="${param.search}">
+                            <input type="text" class="form-control" name="phoneSearch" placeholder="Nhập số điện thoại" value="${param.phoneSearch}">
                             <button class="btn btn-outline-primary" type="submit">Search</button>
                             <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/receptionist/checkoutRoom">Clear</a>
                         </div>

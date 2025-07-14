@@ -32,28 +32,24 @@
 
                 <div class="main-content">
                     <div class="container-fluid p-4">
-                        <%
-                            String choose = request.getParameter("choose");
-                            if (choose == null) {
-                                  choose = "viewCustomerToday"; // mặc định tab đầu tiên nếu không có tham số choose
-                            }
-                        %>
+
+                        <c:set var="choose" value="${requestScope.choose != null ? requestScope.choose : param.choose}" />
 
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link <%= "viewCustomerToday".equals(choose) ? "active" : "" %>" 
+                                <a class="nav-link ${choose == 'viewCustomerToday' || choose == null ? 'active' : ''}" 
                                    href="${pageContext.request.contextPath}/receptionist/cartToBooking">
                                     Khách đến nhận phòng hôm nay
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link <%= "viewCustomerFuture".equals(choose) ? "active" : "" %>" 
+                                <a class="nav-link ${choose == 'viewCustomerFuture' ? 'active' : ''}" 
                                    href="${pageContext.request.contextPath}/receptionist/cartToBooking?choose=viewCustomerFuture">
                                     Khách đến trong khoảng thời gian đã đặt
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link <%= "viewCustomerHasDuaDon".equals(choose) ? "active" : "" %>" 
+                                <a class="nav-link ${choose == 'viewCustomerHasDuaDon' ? 'active' : ''}" 
                                    href="${pageContext.request.contextPath}/receptionist/cartToBooking?choose=viewCustomerHasDuaDon">
                                     Khách sắp đến có dịch vụ đưa đón trong tương lai
                                 </a>
@@ -114,7 +110,7 @@
                                             <td>
                                                 <button class="btn btn-sm btn-outline-primary"
                                                         onclick="showCustomerInfo('${c.mainCustomer.fullName}', '${c.mainCustomer.email}',
-                                                                        '${c.mainCustomer.phoneNumber}', '${c.mainCustomer.gender}')">
+                                                                        '${c.mainCustomer.phoneNumber}', '${c.mainCustomer.gender}', '${c.mainCustomer.CCCD}')">
                                                     <i class="bi bi-person-lines-fill"></i> Xem
                                                 </button>
                                             </td>
@@ -203,6 +199,65 @@
                         </div>
                     </div>
 
+                    <!-- Modal nhập CCCD -->
+                    <div class="modal fade" id="cccdModal" tabindex="-1" aria-labelledby="cccdModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <form action="${pageContext.request.contextPath}/receptionist/cartToBooking" method="post">
+                                <input type="hidden" name="choose" value="updateCCCD"/>
+                                <input type="hidden" name="cartStatus" value="${requestScope.cartStatus}"/>
+                                <input type="hidden" name="page" value="${requestScope.currentPage}">
+                                
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="cccdModalLabel">Nhập CCCD khách hàng</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Khách hàng này chưa có thông tin CCCD. Vui lòng nhập để tiếp tục.</p>
+                                        <input type="hidden" name="customerId" value="${requestScope.customerId}" />
+                                        
+                                        <div class="mb-3">
+                                            <label for="fullnameInput" class="form-label">Tên khách hàng</label>
+                                            <input type="text" class="form-control" id="fullnameInput" 
+                                                   name="fullName" value="${requestScope.fullname}" readonly />
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="emailInput" class="form-label">Email khách hàng</label>
+                                            <input type="text" class="form-control" id="emailInput" 
+                                                   name="email" value="${requestScope.email}" readonly />
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="cccdInput" class="form-label">CCCD</label>
+                                            <input type="text" class="form-control" name="cccd" id="cccdInput" required />
+                                        </div>
+                                        <c:if test="${not empty requestScope.cccdError}"> ${requestScope.cccdError}</c:if>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Script hiện modal nếu có lỗi -->
+                    <c:if test="${requestScope.error == 'errorBookToday' || requestScope.error == 'errorBookFuture'}">
+                        <script>
+                            document.addEventListener("DOMContentLoaded", function () {
+                                const cccdModalEl = document.getElementById('cccdModal');
+                                if (cccdModalEl) {
+                                    const cccdModal = new bootstrap.Modal(cccdModalEl);
+                                    cccdModal.show();
+                                } else {
+                                    console.warn("Không tìm thấy modal có id 'cccdModal'");
+                                }
+                            });
+                        </script>
+                    </c:if>
+
 
                     <!--thông tin khách hàng-->
                     <div class="modal fade" id="customerInfoModal" tabindex="-1" aria-hidden="true">
@@ -217,6 +272,7 @@
                                     <p><strong>Email:</strong> <span id="cusEmail"></span></p>
                                     <p><strong>Điện thoại:</strong> <span id="cusPhone"></span></p>
                                     <p><strong>Giới tính:</strong> <span id="cusGender"></span></p>
+                                    <p><strong>cccd:</strong> <span id="cusCCCD"></span></p>
                                 </div>
                             </div>
                         </div>
@@ -228,12 +284,14 @@
         </div>
         <script>
 //            hiện thông tin khách hàng
-            function showCustomerInfo(name, email, phone, gender) {
+            function showCustomerInfo(name, email, phone, gender, cccd) {
                 document.getElementById("cusName").innerText = name;
                 document.getElementById("cusEmail").innerText = email;
                 document.getElementById("cusPhone").innerText = phone;
                 const genderText = (gender === 'true' || gender === true) ? "Nam" : "Nữ";
                 document.getElementById("cusGender").innerText = genderText;
+                const displayText = cccd && cccd.trim() !== "" ? cccd : "Không có";
+                document.getElementById("cusCCCD").innerText = displayText;
                 new bootstrap.Modal(document.getElementById("customerInfoModal")).show();
             }
         </script>

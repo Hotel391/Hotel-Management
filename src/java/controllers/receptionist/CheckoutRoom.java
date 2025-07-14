@@ -93,6 +93,8 @@ public class CheckoutRoom extends HttpServlet {
             List<BookingDetail> detail = BookingDetailDAO.getInstance().getBookingDetailByBookingId(bookingSelected);
 
             int totalPrice = bookingSelected.getTotalPrice();
+            
+            int fineMoney = 0;
 
             for (BookingDetail bookingDetail : detail) {
 
@@ -102,23 +104,23 @@ public class CheckoutRoom extends HttpServlet {
 
                 LocalDate endDate = bookingDetail.getEndDate().toLocalDate();
                 LocalTime checkOutTime = LocalTime.now();
-                LocalTime expectedCheckOutTime = LocalTime.of(10, 0);
+                LocalTime expectedCheckOutTime = LocalTime.of(9, 0);
 
                 if (endDate.equals(LocalDate.now())) {
                     if (checkOutTime.isAfter(expectedCheckOutTime)) {
                         Duration duration = Duration.between(expectedCheckOutTime, checkOutTime);
                         long hoursLate = duration.toHours();
                         if (hoursLate <= 3) {
-                            //totalPrice += typePrice * 0.1 * hoursLate;
-                            System.out.println("totalPrice before 1pm: " + totalPrice);
+                            fineMoney += typePrice * 0.1 * hoursLate;
+                            System.out.println("fineMoney before 1pm: " + fineMoney);
                         } else {
-                            //totalPrice += typePrice;
-                            System.out.println("totalPrice   after 1pm: " + totalPrice);
+                            fineMoney += typePrice;
+                            System.out.println("fineMoney after 1pm: " + fineMoney);
                         }
                     }
                 }
                 //fineMoney
-                System.out.println("totalPrice: " + totalPrice);
+                session.setAttribute("fineMoney", fineMoney);
                 //bookingSelected.setTotalPrice(totalPrice);
                 //BookingDAO.getInstance().updateTotalPrice(bookingSelected);
 
@@ -289,10 +291,13 @@ public class CheckoutRoom extends HttpServlet {
         System.out.println("view");
 
         Date currentDate = new Date(millis);
+        
 
         HashMap<Booking, List<BookingDetail>> checkoutList = new LinkedHashMap<>();
 
-        List<Booking> bookingCheckout = BookingDAO.getInstance().getBookingCheckout();
+        String phoneSearch = request.getParameter("phoneSearch");
+                
+        List<Booking> bookingCheckout = BookingDAO.getInstance().getBookingCheckout(phoneSearch);
 
         for (Booking booking : bookingCheckout) {
             List<BookingDetail> detailList = BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking);

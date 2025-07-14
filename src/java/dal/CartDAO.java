@@ -5,17 +5,23 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import models.Booking;
+import models.BookingDetail;
 
 import models.Cart;
 import models.CartService;
+import models.Customer;
+import models.DetailService;
 import models.PaymentMethod;
 import models.Room;
 import models.Service;
@@ -103,7 +109,13 @@ public class CartDAO {
 
         if (cart.isIsActive()) {
             deactivateCartIfStartDatePast(cart, today);
+        }
+        
+        if (cart.isIsActive()){
             handleRoomNumberConflict(cart, startDate, endDate);
+        }
+        
+        if (cart.isIsActive()){
             updateCartPricingAndServices(cart, startDate, endDate);
         }
 
@@ -729,6 +741,9 @@ public class CartDAO {
                     cart.setStartDate(rs.getDate("StartDate"));
                     cart.setEndDate(rs.getDate("EndDate"));
                     cart.setIsActive(rs.getBoolean("IsActive"));
+                    PaymentMethod paymentMethod = new PaymentMethod();
+                    paymentMethod.setPaymentMethodId(rs.getInt("PaymentMethodId"));
+                    cart.setPaymentMethod(paymentMethod);
                     cart.setIsPayment(rs.getBoolean("isPayment"));
                     cart.setAdults(rs.getInt("Adults"));
                     cart.setChildren(rs.getInt("Children"));
@@ -799,8 +814,8 @@ public class CartDAO {
             }
         }
     }
-    
-    public Cart checkCart(int cartId, int customerId){
+
+    public Cart checkCart(int cartId, int customerId) {
         String sql = """
                 SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive,
                                                 c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber
@@ -834,5 +849,161 @@ public class CartDAO {
         }
 
         return null;
+    }
+
+    public List<Cart> getAllCompletedCheckInCarts() {
+        List<Cart> listCart = new ArrayList<>();
+        String sql = """
+        SELECT c.CartId, c.StartDate, c.EndDate, c.TotalPrice, c.RoomNumber, c.Status,
+               c.PayDay, c.isActive, c.isPayment,
+               pm.PaymentMethodId, pm.PaymentName,
+               cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender,
+               s.ServiceId, s.ServiceName, s.Price, cs.Quantity
+        FROM Cart c
+        JOIN PaymentMethod pm ON c.PaymentMethodId = pm.PaymentMethodId
+        JOIN Customer cus ON c.mainCustomerId = cus.CustomerId
+        LEFT JOIN CartService cs ON c.CartId = cs.CartId
+        LEFT JOIN Service s ON s.ServiceId = cs.ServiceId
+        WHERE c.Status = 'Completed CheckIn' AND c.isPayment = 1
+        ORDER BY c.CartId
+    """;
+
+        try (PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
+            Map<Integer, Cart> cartMap = new LinkedHashMap<>();
+            while (rs.next()) {
+                int cartId = rs.getInt("CartId");
+                Cart cart = cartMap.get(cartId);
+                if (cart == null) {
+                    cart = new Cart();
+                    cart.setCartId(cartId);
+                    cart.setStartDate(rs.getDate("StartDate"));
+                    cart.setEndDate(rs.getDate("EndDate"));
+                    cart.setTotalPrice(rs.getInt("TotalPrice"));
+                    cart.setRoomNumber(rs.getInt("RoomNumber"));
+                    cart.setStatus(rs.getString("Status"));
+                    cart.setPayDay(rs.getTimestamp("PayDay"));
+                    cart.setIsActive(rs.getBoolean("isActive"));
+                    cart.setIsPayment(rs.getBoolean("isPayment"));
+
+                    PaymentMethod pm = new PaymentMethod(rs.getInt("PaymentMethodId"), rs.getString("PaymentName"));
+                    cart.setPaymentMethod(pm);
+
+                    Customer cus = new Customer();
+                    cus.setCustomerId(rs.getInt("CustomerId"));
+                    cus.setFullName(rs.getString("FullName"));
+                    cus.setEmail(rs.getString("Email"));
+                    cus.setPhoneNumber(rs.getString("PhoneNumber"));
+                    cus.setGender(rs.getBoolean("Gender"));
+                    cart.setMainCustomer(cus);
+
+                    cartMap.put(cartId, cart);
+                }
+
+                int serviceId = rs.getInt("ServiceId");
+                if (serviceId != 0) {
+                    Service service = new Service(serviceId, rs.getString("ServiceName"), rs.getInt("Price"));
+                    int quantity = rs.getInt("Quantity");
+                    CartService cs = new CartService();
+                    cs.setService(service);
+                    cs.setQuantity(quantity);
+                    cart.getCartServices().add(cs);
+                }
+            }
+            listCart.addAll(cartMap.values());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return listCart;
+    }
+
+    public int insertCartToBooking(Booking booking) {
+        String sql = """
+        INSERT INTO Booking (PayDay, Status, CustomerId, PaidAmount, PaymentMethodIdCheckIn)
+        VALUES (?, ?, ?, ?, ?)""";
+
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setTimestamp(1, new java.sql.Timestamp(booking.getPayDay().getTime()));
+            st.setString(2, booking.getStatus());
+            st.setInt(3, booking.getCustomer().getCustomerId());
+            st.setInt(4, booking.getPaidAmount());
+            st.setInt(5, booking.getPaymentMethodCheckIn().getPaymentMethodId());
+
+            st.executeUpdate();
+
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1); // BookingId
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
+
+    public int insertCartToBookingDetail(BookingDetail bd) {
+        String sql = """
+                 INSERT INTO BookingDetail (StartDate, EndDate, BookingId, RoomNumber, TotalAmount)
+                 VALUES (?, ?, ?, ?, ?)""";
+        try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            st.setDate(1, bd.getStartDate());
+            st.setDate(2, bd.getEndDate());
+            st.setInt(3, bd.getBooking().getBookingId());
+            st.setInt(4, bd.getRoom().getRoomNumber());
+            st.setInt(5, bd.getTotalAmount());
+
+            st.executeUpdate();
+            try (ResultSet rs = st.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1); // BookingDetailId
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public void insertDetailServices(int bookingDetailId, List<DetailService> services) {
+        String sql = """
+        INSERT INTO DetailService (BookingDetailId, ServiceId, quantity, PriceAtTime)
+        VALUES (?, ?, ?, ?)
+    """;
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            for (DetailService ds : services) {
+                st.setInt(1, bookingDetailId);
+                st.setInt(2, ds.getService().getServiceId());
+                st.setInt(3, ds.getQuantity());
+                st.setInt(4, ds.getPriceAtTime());
+                st.addBatch();
+            }
+            st.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteCartAndCartServiceById(int cartId) {
+        String deleteCartServiceSql = "DELETE FROM CartService WHERE CartId = ?";
+        String deleteCartSql = "DELETE FROM Cart WHERE CartId = ?";
+
+        try (
+                PreparedStatement ps1 = con.prepareStatement(deleteCartServiceSql); PreparedStatement ps2 = con.prepareStatement(deleteCartSql)) {
+            // Xóa CartService trước do có khóa ngoại tới Cart
+            ps1.setInt(1, cartId);
+            ps1.executeUpdate();
+
+            // Xóa Cart
+            ps2.setInt(1, cartId);
+            ps2.executeUpdate();
+
+            System.out.println("Đã xóa cartId = " + cartId + " thành công.");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi xóa cartId: " + cartId, e);
+        }
     }
 }

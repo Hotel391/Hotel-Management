@@ -359,7 +359,7 @@ public class Checkout extends HttpServlet {
         emailExecutor.submit(() -> {
             System.out.println("Sending email to " + email);
             EmailService emailService = new EmailService();
-            emailService.sendEmail(email, "Confirm Checkin information", EmailType.valueOf("CHECKIN"), data);
+            emailService.sendEmail(email, "Confirm Checkin information", EmailType.CHECKIN, data);
         });
 
         session.removeAttribute("paidAmount");

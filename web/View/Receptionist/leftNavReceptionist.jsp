@@ -20,6 +20,7 @@
                 <li><a href="${pageContext.request.contextPath}/receptionist/checkoutRoom"><span><i class="bi bi-door-open"></i></span>View Checkout Room</a></li>
                 <li><a href="${pageContext.request.contextPath}/receptionist/searchRoom"><span><i class="bi bi-search"></i></span>Search Room</a></li>
                 <li><a href="${pageContext.request.contextPath}/receptionist/stayingRoom"><span><i class="bi bi-house-door"></i></span>Staying Room</a></li>
+                <li><a href="${pageContext.request.contextPath}/receptionist/cartToBooking"><span><i class="bi bi-check2-circle"></i></span>Guest Arrival - Check In</a></li>
             </ul>
         </div>
         <div class="contact-container">

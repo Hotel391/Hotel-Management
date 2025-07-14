@@ -109,7 +109,13 @@ public class CartDAO {
 
         if (cart.isIsActive()) {
             deactivateCartIfStartDatePast(cart, today);
+        }
+        
+        if (cart.isIsActive()){
             handleRoomNumberConflict(cart, startDate, endDate);
+        }
+        
+        if (cart.isIsActive()){
             updateCartPricingAndServices(cart, startDate, endDate);
         }
 

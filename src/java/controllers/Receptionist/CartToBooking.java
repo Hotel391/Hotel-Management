@@ -33,6 +33,8 @@ import models.Service;
 @WebServlet(name = "CartToBooking", urlPatterns = {"/receptionist/cartToBooking"})
 public class CartToBooking extends HttpServlet {
 
+    private String pagee = "page";
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -41,24 +43,65 @@ public class CartToBooking extends HttpServlet {
             choose = "viewCustomerToday";
         }
 
+//        if ("search".equals(choose)) {
+//            String email = request.getParameter("searchEmail");
+//            String source = request.getParameter("source"); // viewCustomerToday / viewCustomerFuture / viewCustomerHasDuaDon
+//            List<Cart> allCarts = dal.CartDAO.getInstance().getAllCompletedCheckInCarts();
+//            List<Cart> filtered = new ArrayList<>();
+//            LocalDateTime now = LocalDateTime.now();
+//
+//            for (Cart cart : allCarts) {
+//                boolean match = false;
+//
+//                if ("viewCustomerToday".equals(source)) {
+//                    LocalDate today = now.toLocalDate();
+//                    if (cart.getStartDate().toLocalDate().equals(today) && now.toLocalTime().isAfter(LocalTime.NOON)) {
+//                        match = true;
+//                        request.setAttribute("cartStatus", "bookToday");
+//                    }
+//                } else if ("viewCustomerFuture".equals(source)) {
+//                    LocalDateTime startLimit = cart.getStartDate().toLocalDate().atTime(12, 0);
+//                    LocalDateTime endLimit = cart.getEndDate().toLocalDate().atTime(9, 0);
+//                    if (now.isAfter(startLimit) && now.isBefore(endLimit)) {
+//                        match = true;
+//                        request.setAttribute("cartStatus", "bookFuture");
+//                    }
+//                } else if ("viewCustomerHasDuaDon".equals(source)) {
+//                    LocalDateTime startLimit = cart.getStartDate().toLocalDate().atTime(12, 0);
+//                    LocalDateTime endLimit = cart.getEndDate().toLocalDate().atTime(9, 0);
+//                    boolean hasServiceId2 = cart.getCartServices().stream().anyMatch(cs -> cs.getService().getServiceId() == 2);
+//                    if (now.isAfter(startLimit) && now.isBefore(endLimit) && hasServiceId2) {
+//                        match = true;
+//                        request.setAttribute("cartStatus", "view");
+//                    }
+//                }
+//
+//                if (match && cart.getMainCustomer().getEmail().equalsIgnoreCase(email)) {
+//                    filtered.add(cart);
+//                }
+//            }
+//
+//            paginateCartList(request, filtered);
+//            request.getRequestDispatcher("/View/Receptionist/CartToBooking.jsp").forward(request, response);
+//        }
+
         if ("viewCustomerToday".equals(choose)) {
             List<Cart> allCarts = dal.CartDAO.getInstance().getAllCompletedCheckInCarts();
-            List<Cart> listCartCompleteBank = new ArrayList<>();
+            List<Cart> filteredCarts = new ArrayList<>();
 
             LocalDateTime now = LocalDateTime.now();
             LocalDate today = now.toLocalDate();
 
             for (Cart cart : allCarts) {
                 LocalDate cartStartDate = cart.getStartDate().toLocalDate();
-
-                // Chỉ lấy cart có startDate là hôm nay và sau 12h trưa
                 if (cartStartDate.equals(today) && now.toLocalTime().isAfter(LocalTime.NOON)) {
-                    listCartCompleteBank.add(cart);
+                    filteredCarts.add(cart);
                 }
             }
 
+            paginateCartList(request, filteredCarts); // thêm dòng này
+
             request.setAttribute("cartStatus", "bookToday");
-            request.setAttribute("listCartCompleteBank", listCartCompleteBank);
             request.getRequestDispatcher("/View/Receptionist/CartToBooking.jsp").forward(request, response);
         }
 
@@ -69,20 +112,12 @@ public class CartToBooking extends HttpServlet {
             LocalDateTime now = LocalDateTime.now();
 
             for (Cart cart : allCarts) {
-                LocalDateTime startLimit = cart.getStartDate().toLocalDate().atTime(12, 0); // 12h trưa startDate
-                LocalDateTime endLimit = cart.getEndDate().toLocalDate().atTime(9, 0);     // 9h sáng endDate
+                LocalDateTime startLimit = cart.getStartDate().toLocalDate().atTime(12, 0);
+                LocalDateTime endLimit = cart.getEndDate().toLocalDate().atTime(9, 0);
 
-                System.out.println("CartId: " + cart.getCartId());
-                System.out.println("Start Limit: " + startLimit);
-                System.out.println("End Limit: " + endLimit);
-                System.out.println("Now: " + now);
-
-                // Điều kiện thời gian
                 if (now.isAfter(startLimit) && now.isBefore(endLimit)) {
                     boolean hasServiceId2 = false;
-
-                    // Lấy danh sách dịch vụ trong giỏ
-                    List<CartService> services = cart.getCartServices(); // đảm bảo cart có setCartServices khi truy vấn
+                    List<CartService> services = cart.getCartServices();
 
                     if (services != null) {
                         for (CartService cs : services) {
@@ -94,19 +129,13 @@ public class CartToBooking extends HttpServlet {
                     }
 
                     if (hasServiceId2) {
-                        System.out.println("==> Được thêm (có serviceId = 2)");
                         listCartCompleteBank.add(cart);
-                    } else {
-                        System.out.println("==> Không có serviceId = 2");
                     }
-
-                } else {
-                    System.out.println("==> Không thỏa điều kiện thời gian");
                 }
             }
 
             request.setAttribute("cartStatus", "view");
-            request.setAttribute("listCartCompleteBank", listCartCompleteBank);
+            paginateCartList(request, listCartCompleteBank);
             request.getRequestDispatcher("/View/Receptionist/CartToBooking.jsp").forward(request, response);
         }
 
@@ -117,24 +146,16 @@ public class CartToBooking extends HttpServlet {
             LocalDateTime now = LocalDateTime.now();
 
             for (Cart cart : allCarts) {
-                LocalDateTime startLimit = cart.getStartDate().toLocalDate().atTime(12, 0); // 12h trưa startDate
-                LocalDateTime endLimit = cart.getEndDate().toLocalDate().atTime(9, 0);     // 9h sáng endDate
-
-                System.out.println("CartId: " + cart.getCartId());
-                System.out.println("Start Limit: " + startLimit);
-                System.out.println("End Limit: " + endLimit);
-                System.out.println("Now: " + now);
+                LocalDateTime startLimit = cart.getStartDate().toLocalDate().atTime(12, 0);
+                LocalDateTime endLimit = cart.getEndDate().toLocalDate().atTime(9, 0);
 
                 if (now.isAfter(startLimit) && now.isBefore(endLimit)) {
-                    System.out.println("==> Được thêm");
                     listCartCompleteBank.add(cart);
-                } else {
-                    System.out.println("==> Không thỏa điều kiện");
                 }
             }
 
             request.setAttribute("cartStatus", "bookFuture");
-            request.setAttribute("listCartCompleteBank", listCartCompleteBank);
+            paginateCartList(request, listCartCompleteBank);
             request.getRequestDispatcher("/View/Receptionist/CartToBooking.jsp").forward(request, response);
         }
 
@@ -223,13 +244,14 @@ public class CartToBooking extends HttpServlet {
 
                 // Thành công
                 String ch = null;
+                String pageStr = request.getParameter("page");
                 String cartStatus = request.getParameter("cartStatus");
-                if("bookToday".equalsIgnoreCase(cartStatus)){
+                if ("bookToday".equalsIgnoreCase(cartStatus)) {
                     ch = "viewCustomerToday";
-                }else if("bookFuture".equalsIgnoreCase(cartStatus)){
+                } else if ("bookFuture".equalsIgnoreCase(cartStatus)) {
                     ch = "viewCustomerFuture";
                 }
-                response.sendRedirect(request.getContextPath() + "/receptionist/cartToBooking?choose=" + ch);
+                response.sendRedirect(request.getContextPath() + "/receptionist/cartToBooking?choose=" + ch+"&page="+pageStr);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -237,6 +259,27 @@ public class CartToBooking extends HttpServlet {
                 request.getRequestDispatcher("/View/Receptionist/CartToBooking.jsp").forward(request, response);
             }
         }
+    }
+
+    private void paginateCartList(HttpServletRequest request, List<Cart> fullList) {
+        String pageStr = request.getParameter("page");
+        int page = pageStr != null ? Integer.parseInt(pageStr) : 1;
+        int recordsPerPage = 3;
+
+        int totalRecords = fullList.size();
+        int totalPages = (int) Math.ceil(totalRecords * 1.0 / recordsPerPage);
+
+        if (page > totalPages && totalPages > 0) {
+            page = totalPages;
+        }
+
+        int start = (page - 1) * recordsPerPage;
+        int end = Math.min(start + recordsPerPage, totalRecords);
+        List<Cart> paginatedList = fullList.subList(start, end);
+
+        request.setAttribute("listCartCompleteBank", paginatedList);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
     }
 
     @Override

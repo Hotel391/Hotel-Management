@@ -32,20 +32,54 @@
 
                 <div class="main-content">
                     <div class="container-fluid p-4">
+                        <%
+                            String choose = request.getParameter("choose");
+                            if (choose == null) {
+                                  choose = "viewCustomerToday"; // mặc định tab đầu tiên nếu không có tham số choose
+                            }
+                        %>
+
                         <ul class="nav nav-tabs mb-3">
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/receptionist/cartToBooking">
-                                    Khách đến nhận phòng hôm nay</a>
+                                <a class="nav-link <%= "viewCustomerToday".equals(choose) ? "active" : "" %>" 
+                                   href="${pageContext.request.contextPath}/receptionist/cartToBooking">
+                                    Khách đến nhận phòng hôm nay
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/receptionist/cartToBooking?choose=viewCustomerFuture">
-                                    Khách đến trong khoảng thời gian đã đặt</a>
+                                <a class="nav-link <%= "viewCustomerFuture".equals(choose) ? "active" : "" %>" 
+                                   href="${pageContext.request.contextPath}/receptionist/cartToBooking?choose=viewCustomerFuture">
+                                    Khách đến trong khoảng thời gian đã đặt
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link active" href="${pageContext.request.contextPath}/receptionist/cartToBooking?choose=viewCustomerHasDuaDon">
-                                    Khách sắp đến có dịch vụ đưa đón trong tương lai</a>
+                                <a class="nav-link <%= "viewCustomerHasDuaDon".equals(choose) ? "active" : "" %>" 
+                                   href="${pageContext.request.contextPath}/receptionist/cartToBooking?choose=viewCustomerHasDuaDon">
+                                    Khách sắp đến có dịch vụ đưa đón trong tương lai
+                                </a>
                             </li>
                         </ul>
+
+
+                        <!--                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <form method="get" action="${pageContext.request.contextPath}/receptionist/cartToBooking" class="d-flex mb-3">
+                                                        <input type="hidden" name="choose" value="search" />
+                        
+                        <c:if test="${requestScope.cartStatus == 'bookToday'}">
+                            <input type="hidden" name="source" value="viewCustomerToday" />
+                        </c:if>
+                        <c:if test="${requestScope.cartStatus == 'bookFuture'}">
+                            <input type="hidden" name="source" value="viewCustomerFuture" />
+                        </c:if>
+                        <c:if test="${requestScope.cartStatus == 'view'}">
+                            <input type="hidden" name="source" value="viewCustomerHasDuaDon" />
+                        </c:if>
+
+                        <input type="email" name="searchEmail" class="form-control me-2" placeholder="Tìm theo email" required />
+                        <button class="btn btn-primary" type="submit">Tìm</button>
+                    </form>
+                </div>-->
+
 
                         <!--table list cart đã thanh toán thành công-->
                         <div class="table-container">
@@ -109,6 +143,7 @@
                                                         <input type="hidden" name="endDate" value="${c.endDate}" />
                                                         <input type="hidden" name="roomNumber" value="${c.roomNumber}" />
                                                         <input type="hidden" name="choose" value="cartToBooking" />
+                                                        <input type="hidden" name="page" value="${requestScope.currentPage}">
 
                                                         <c:if test="${requestScope.cartStatus == 'bookFuture'}">
                                                             <input type="hidden" name="cartStatus" value="bookFuture" />
@@ -132,6 +167,24 @@
                                     </c:forEach>
                                 </tbody>
                             </table>
+
+                            <!-- Nút phân trang -->
+                            <div class="d-flex justify-content-center mt-3">
+                                <nav>
+                                    <ul class="pagination">
+                                        <c:forEach begin="1" end="${totalPages}" var="i">
+                                            <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                <form action="${pageContext.request.contextPath}/receptionist/cartToBooking" method="get">
+                                                    <input type="hidden" name="choose" value="${param.choose}" />
+
+                                                    <button class="page-link">${i}</button>
+                                                    <input type="hidden" name="page" value="${i}" />
+                                                </form>
+                                            </li>
+                                        </c:forEach>
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
                     </div>
 

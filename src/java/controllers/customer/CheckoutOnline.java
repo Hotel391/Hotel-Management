@@ -47,22 +47,66 @@ public class CheckoutOnline extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
 
         HttpSession session = request.getSession();
+        CustomerAccount customerAccount = (CustomerAccount) session.getAttribute("customerInfo");
+
+        Boolean fromCart = (Boolean) session.getAttribute("fromCart");
+
+        if (fromCart != null && fromCart) {
+            Integer attempts = (Integer) session.getAttribute("checkoutAttempts");
+            if (attempts == null) {
+                attempts = 0;
+            }
+            attempts++;
+            System.out.println("attemps: " + attempts);
+            if (attempts > 3) {
+                dal.CustomerDAO.getInstance().deactiveSpam(customerAccount);
+                session.removeAttribute("customerInfo");
+                response.sendRedirect("home");
+                return;
+            }
+
+            session.setAttribute("checkoutAttempts", attempts);
+
+            session.setAttribute("fromCart", false); // reset flag để không tính lần reload sau
+        }
+
+        
 
         int cartId = Integer.parseInt(request.getParameter("cartId"));
-//        int cartId = 3;
 
         request.setAttribute("cartId", cartId);
-        Cart checkCart = CartDAO.getInstance().getCartByCartId(cartId);
 
-        Long expireTime = (Long) session.getAttribute("expireTime");
+        Cart checkCart = CartDAO.getInstance().checkCart(cartId, customerAccount.getCustomer().getCustomerId());
+
+        if (checkCart == null) {
+            CartDAO.getInstance().updateCartToFail(checkCart);
+            session.removeAttribute("expireTime-"+cartId);
+            request.setAttribute("cartNotTrue", "Đây không phải giỏ hàng của bạn");
+            request.getRequestDispatcher("/View/Customer/BookingError.jsp").forward(request, response);
+            return;
+        }
+
+        Long expireTime = (Long) session.getAttribute("expireTime-"+cartId);
 
         if (expireTime == null) {
+            if (!checkCart.isIsActive()) {
+                request.setAttribute("nonActive", "Giỏ hàng không hợp lệ");
+                request.getRequestDispatcher("/View/Customer/BookingError.jsp").forward(request, response);
+                return;
+            }
+
+            if (checkCart.isIsPayment()) {
+                request.setAttribute("donePayment", "Giỏ hàng đã được thanh toán");
+                request.getRequestDispatcher("/View/Customer/BookingError.jsp").forward(request, response);
+                return;
+            }
 
             //check room available
-            CartDAO.getInstance().handleRoomNumberConflict(checkCart, checkCart.getStartDate(), checkCart.getEndDate());
+            CartDAO.getInstance().changeRoomNumber(checkCart, checkCart.getStartDate(), checkCart.getEndDate());
 
-            if (!checkCart.isIsActive()) {
-                session.removeAttribute("expireTime");
+            if (checkCart.getRoomNumber() == 0) {
+                CartDAO.getInstance().updateCartToFail(checkCart);
+                session.removeAttribute("expireTime-"+cartId);
                 request.setAttribute("noAvailableRoom", "Loại phòng này tạm thời đã hết phòng");
                 request.getRequestDispatcher("/View/Customer/BookingError.jsp").forward(request, response);
                 return;
@@ -70,7 +114,7 @@ public class CheckoutOnline extends HttpServlet {
 
             //set payment time limitation
             expireTime = System.currentTimeMillis() + 3 * 60 * 1000;
-            session.setAttribute("expireTime", expireTime);
+            session.setAttribute("expireTime-" + cartId, expireTime);
             long currentTimeMillis = System.currentTimeMillis();
             Timestamp sqlTimestamp = new Timestamp(currentTimeMillis);
             checkCart.setPayDay(sqlTimestamp);
@@ -84,27 +128,6 @@ public class CheckoutOnline extends HttpServlet {
 
         if (service == null) {
             service = "view";
-        }
-
-        CustomerAccount customerAccount = (CustomerAccount) session.getAttribute("customerInfo");
-
-        List<Cart> cartOfCustomer = CartDAO.getInstance().getCartByCustomerId(customerAccount.getCustomer().getCustomerId());
-
-        boolean checkTrueCart = true;
-        for (Cart cart : cartOfCustomer) {
-            if (cart.getCartId() == checkCart.getCartId()) {
-                System.out.println(cart);
-                checkTrueCart = false;
-                System.out.println(checkTrueCart);
-            }
-        }
-
-        if (checkTrueCart == true) {
-            CartDAO.getInstance().updateCartOverTime(checkCart);
-            session.removeAttribute("expireTime");
-            request.setAttribute("cartNotTrue", "Đây không phải giỏ hàng của bạn");
-            request.getRequestDispatcher("/View/Customer/BookingError.jsp").forward(request, response);
-            return;
         }
 
         List<CartService> cartServices = CartServiceDAO.getInstance().getAllCartServiceByCartId(cartId);
@@ -136,8 +159,8 @@ public class CheckoutOnline extends HttpServlet {
             System.out.println("timeLeft: " + timeLeft);
 
             if (timeLeft == 0) {
-                CartDAO.getInstance().updateCartOverTime(checkCart);
-                session.removeAttribute("expireTime");
+                CartDAO.getInstance().updateCartToFail(checkCart);
+                session.removeAttribute("expireTime-"+cartId);
                 request.setAttribute("overTime", "Đã quá thời gian thanh toán");
                 request.getRequestDispatcher("/View/Customer/BookingError.jsp").forward(request, response);
                 return;
@@ -183,7 +206,7 @@ public class CheckoutOnline extends HttpServlet {
 
                 System.out.println("main customer: " + mainCustomer);
 
-                session.setAttribute("timeLeft", timeLeft);
+                session.setAttribute("timeLeft-"+cartId, timeLeft);
 
                 session.setAttribute("cartStatus", "cartPayment");
 

@@ -788,7 +788,7 @@ public class CartDAO {
         }
     }
 
-    public void updateCartOverTime(Cart cart) {
+    public void updateCartToFail(Cart cart) {
         String sql = "update Cart set Status = 'Failed' , isPayment = 0, PayDay = null  where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, cart.getCartId());

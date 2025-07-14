@@ -143,7 +143,10 @@
                         </div>
                     </c:forEach>
                 </div>
-
+                
+                <form id="formCheckSpam" action="${pageContext.request.contextPath}/check" method="post">
+                    <input type="hidden" name="cartIdCheck" value="">
+                </form>
                 <!-- CART SUMMARY -->
                 <div class="cart-summary">
                     <h4>Tổng giá</h4>
@@ -278,6 +281,9 @@
                         const cartItems = document.querySelectorAll('.cart-item');
                         const totalElement = document.getElementById('cart-total');
                         const checkoutBtn = document.getElementById('checkout-btn');
+                        const form = document.getElementById('formCheckSpam');
+                        const cartIdInput = form.querySelector('input[name="cartIdCheck"]');
+                        
 
                         function updateTotalPrice() {
                             const selected = document.querySelector('.room-checkbox:checked');
@@ -289,7 +295,8 @@
                                 const cartId = item.dataset.cartId;
                                 checkoutBtn.disabled = false;
                                 checkoutBtn.onclick = function () {
-                                    window.location.href = 'checkout?cartId=' + cartId;
+                                    cartIdInput.value = cartId;
+                                    form.submit();
                                 };
                             } else {
                                 totalElement.innerText = '0 ₫';

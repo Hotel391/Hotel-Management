@@ -92,7 +92,7 @@
                                                 <td>${e.role.roleName}</td>
                                                 <td>
                                                     <a href="${pageContext.request.contextPath}/admin/page?service=activateManager&employeeID=${e.employeeId}&activate=${not e.activate}" 
-                                                       onclick="return confirm('Bạn chắc chắn muốn đóng tài khoản này?');">
+                                                       onclick="return confirm('Bạn chắc chắn muốn chuyển trạng thái tài khoản này?');">
                                                         <button type="submit" class="btn btn-sm ${e.activate ? 'btn-warning' : 'btn-success'}" title="Chuyển trạng thái">
                                                             <i class="bi bi-power"></i>
                                                         </button>

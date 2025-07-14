@@ -724,7 +724,7 @@ public class CartDAO {
     //write function get cart by cartId
     public Cart getCartByCartId(int cartId) {
         String sql = """
-                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive,
+                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive, c.CustomerId
                                 c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber
                                 FROM Cart c
                                 WHERE c.CartId = ?
@@ -741,6 +741,9 @@ public class CartDAO {
                     cart.setStartDate(rs.getDate("StartDate"));
                     cart.setEndDate(rs.getDate("EndDate"));
                     cart.setIsActive(rs.getBoolean("IsActive"));
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    cart.setCustomer(customer);
                     PaymentMethod paymentMethod = new PaymentMethod();
                     paymentMethod.setPaymentMethodId(rs.getInt("PaymentMethodId"));
                     cart.setPaymentMethod(paymentMethod);

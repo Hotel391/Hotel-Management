@@ -202,7 +202,8 @@ public class VnpayReturn extends HttpServlet {
 
                 request.setAttribute("pageChange", "cartStatus");
                 session.removeAttribute("cartStatus");
-                session.removeAttribute("timeLeft");
+                session.removeAttribute("timeLeft-"+bookingId);
+                session.removeAttribute("checkoutAttempts");
                 session.removeAttribute("mainCustomerId");
             } else {
                 Booking booking = new Booking();

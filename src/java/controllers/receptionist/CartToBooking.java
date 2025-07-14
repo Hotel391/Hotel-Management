@@ -264,7 +264,7 @@ public class CartToBooking extends HttpServlet {
     private void paginateCartList(HttpServletRequest request, List<Cart> fullList) {
         String pageStr = request.getParameter("page");
         int page = pageStr != null ? Integer.parseInt(pageStr) : 1;
-        int recordsPerPage = 1;
+        int recordsPerPage = 3;
 
         int totalRecords = fullList.size();
         int totalPages = (int) Math.ceil(totalRecords * 1.0 / recordsPerPage);

@@ -89,8 +89,6 @@ public class VnpayReturn extends HttpServlet {
 
             if ("cartPayment".equalsIgnoreCase(cartStatus)) {
                 int mainCustomerId = (int) session.getAttribute("mainCustomerId");
-                session.removeAttribute("timeLeft");
-                session.removeAttribute("cartStatus");
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);
@@ -203,7 +201,8 @@ public class VnpayReturn extends HttpServlet {
                 }
 
                 request.setAttribute("pageChange", "cartStatus");
-//                session.removeAttribute("cartStatus");
+                session.removeAttribute("cartStatus");
+                session.removeAttribute("timeLeft");
                 session.removeAttribute("mainCustomerId");
             } else {
                 Booking booking = new Booking();

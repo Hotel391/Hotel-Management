@@ -51,7 +51,7 @@ public class CheckoutOnline extends HttpServlet {
 
         Boolean fromCart = (Boolean) session.getAttribute("fromCart");
         Integer attempts = (Integer) session.getAttribute("checkoutAttempts");
-        System.out.println("attemps v" + attempts);
+        System.out.println("attemps version: " + attempts);
         if (attempts == null) {
             attempts = 0;
         }
@@ -102,7 +102,7 @@ public class CheckoutOnline extends HttpServlet {
             }
 
             //set payment time limitation
-            expireTime = System.currentTimeMillis() + 5 * 1000;
+            expireTime = System.currentTimeMillis() + 60 * 1000;
             session.setAttribute("expireTime-" + cartId, expireTime);
             long currentTimeMillis = System.currentTimeMillis();
             Timestamp sqlTimestamp = new Timestamp(currentTimeMillis);

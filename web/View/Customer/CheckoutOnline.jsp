@@ -9,8 +9,9 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <!DOCTYPE html>
 <html>
-    <%
-        long expireTime = (long) request.getAttribute("expireTime");
+    <%  
+        int cartId = (int)request.getAttribute("cartId");
+        long expireTime = (long) request.getAttribute("expireTime-" + cartId);
     %>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -18,6 +19,7 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/Customer/CheckoutOnline.css"/>
     </head>
     <body>
+        <p><%= expireTime %></p>
         <div class="header">
             <div class="header-content">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -26,7 +28,7 @@
                         FPT Hotel
                     </div>
                 </div>
-                <button class="login-btn">Đăng nhập</button>
+                <!--<button class="login-btn">Đăng nhập</button>-->
             </div>
         </div>
 
@@ -192,11 +194,11 @@
                             </div>
                         </div>
                         <input type="hidden" name="service" value="confirmInformation">
-                        <input type="hidden" name="timeLeft" id="timeLeft" value="">
+                        <input type="hidden" name="timeLeft-${cartId}" id="timeLeft-${cartId}" value="">
                         <input type="hidden" name="cartId" value="${requestScope.cartId}">
                         <div class="contact-info">Hệ thống sẽ gửi email xác nhận đặt phòng ngay sau khi quý khách hoàn thành bước thanh toán!</div>
                         <div class="contact-info" style="color: red;">⚠️Quý khách vui lòng kiểm tra chính xác địa chỉ email của mình một lần nữa!⚠️</div>
-                        <button class="continue-btn">KẾ TIẾP: BƯỚC THANH TOÁN</button>
+                        <button class="continue-btn" type="submit">KẾ TIẾP: BƯỚC THANH TOÁN</button>
                     </form>
                 </div>
 
@@ -266,6 +268,9 @@
                 // Thời gian hết hạn từ server (miliseconds)
                 const expireTime = <%= expireTime%>;
                 const countdownElement = document.getElementById("countdown-timer");
+                const form = document.getElementById('checkout-form');
+                const cartIdInput = form.querySelector('input[name="cartId"]').value;
+                console.log("cartId: " + cartIdInput);
 
                 console.log(expireTime);
 
@@ -274,8 +279,8 @@
                     const distance = expireTime - now;
                     if (distance <= 0) {
                         document.getElementById("countdown-timer").innerText = "Đã hết thời gian giữ phòng!";
-                        document.getElementById("timeLeft").value = 0;
-                        document.getElementById("checkout-form").submit();
+                        document.getElementById("timeLeft-"+cartIdInput).value = 0;
+                        document.getElementById('checkout-form').submit();
                         return;
                     }
 
@@ -284,7 +289,7 @@
                     document.getElementById("countdown-timer").innerText = "⏰" +
                             (minutes < 10 ? '0' : '') + minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
                     
-                    document.getElementById("timeLeft").value = Math.floor(distance / 1000);
+                    document.getElementById("timeLeft-" + cartIdInput).value = Math.floor(distance / 1000);
                 }
 
                 // Gọi mỗi giây

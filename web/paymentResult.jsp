@@ -29,14 +29,9 @@
         </c:if>
 
         <c:if test="${pageChange == null}">
-            <c:if test="${sessionScope.cartStatus != null}">
-                <div onclick="location.href = '${pageContext.request.contextPath}/home'"> về trang home</div>
-            </c:if>
-            <c:if test="${sessionScope.cartStatus == null}">
-                <div onclick="location.href = '${pageContext.request.contextPath}/receptionist/searchRoom'" style="cursor:pointer;">
-                    Về trang tìm phòng
-                </div>
-            </c:if>
+            <div onclick="location.href = '${pageContext.request.contextPath}/receptionist/searchRoom'" style="cursor:pointer;">
+                Về trang tìm phòng
+            </div>
         </c:if>
 
         <c:if test="${pageChange == 'cartStatus'}">

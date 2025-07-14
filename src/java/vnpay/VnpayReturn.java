@@ -89,7 +89,6 @@ public class VnpayReturn extends HttpServlet {
 
             if ("cartPayment".equalsIgnoreCase(cartStatus)) {
                 int mainCustomerId = (int) session.getAttribute("mainCustomerId");
-                session.removeAttribute("timeLeft");
                 if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);
@@ -172,6 +171,26 @@ public class VnpayReturn extends HttpServlet {
                     Room room = dal.RoomDAO.getInstance().getRoomByNumber(selectCart.getRoomNumber());
                     String typeRoomName = room.getTypeRoom().getTypeName();
 
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("customerName", customerName);
+                    data.put("email", email);
+                    data.put("typeRoomName", typeRoomName);
+                    data.put("roomNumber", roomNumber);
+                    data.put("checkin", checkin);
+                    data.put("checkout", checkout);
+                    data.put("adults", adults);
+                    data.put("children", children);
+                    data.put("paymentMethod", paymentMethod);
+                    data.put("serviceNames", serviceNames);
+                    data.put("serviceQuantities", serviceQuantities);
+                    data.put("servicePrices", servicePrices);
+                    data.put("totalServicePrice", totalServicePrice);
+                    emailExecutor.submit(() -> {
+                        System.out.println("Sending email to " + email);
+                        EmailService emailService = new EmailService();
+                        emailService.sendEmail(email, "Confirm Booking information", EmailType.BOOKING_FROM_CART, data);
+                    });
+
                 } else {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);
@@ -182,7 +201,9 @@ public class VnpayReturn extends HttpServlet {
                 }
 
                 request.setAttribute("pageChange", "cartStatus");
-//                session.removeAttribute("cartStatus");
+                session.removeAttribute("cartStatus");
+                session.removeAttribute("timeLeft-"+bookingId);
+                session.removeAttribute("checkoutAttempts");
                 session.removeAttribute("mainCustomerId");
             } else {
                 Booking booking = new Booking();
@@ -343,7 +364,7 @@ public class VnpayReturn extends HttpServlet {
                         emailExecutor.submit(() -> {
                             System.out.println("Sending email to " + email);
                             EmailService emailService = new EmailService();
-                            emailService.sendEmail(email, "Confirm Checkin information", EmailType.valueOf("CHECKIN"), data);
+                            emailService.sendEmail(email, "Confirm Checkin information", EmailType.CHECKIN, data);
                         });
 
                         session.removeAttribute("paidAmount");

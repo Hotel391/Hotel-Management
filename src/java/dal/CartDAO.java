@@ -109,7 +109,13 @@ public class CartDAO {
 
         if (cart.isIsActive()) {
             deactivateCartIfStartDatePast(cart, today);
+        }
+        
+        if (cart.isIsActive()){
             handleRoomNumberConflict(cart, startDate, endDate);
+        }
+        
+        if (cart.isIsActive()){
             updateCartPricingAndServices(cart, startDate, endDate);
         }
 
@@ -851,7 +857,7 @@ public class CartDAO {
         SELECT c.CartId, c.StartDate, c.EndDate, c.TotalPrice, c.RoomNumber, c.Status,
                c.PayDay, c.isActive, c.isPayment,
                pm.PaymentMethodId, pm.PaymentName,
-               cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender,
+               cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender, cus.CCCD,
                s.ServiceId, s.ServiceName, s.Price, cs.Quantity
         FROM Cart c
         JOIN PaymentMethod pm ON c.PaymentMethodId = pm.PaymentMethodId

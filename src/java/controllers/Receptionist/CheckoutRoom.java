@@ -289,10 +289,13 @@ public class CheckoutRoom extends HttpServlet {
         System.out.println("view");
 
         Date currentDate = new Date(millis);
+        
 
         HashMap<Booking, List<BookingDetail>> checkoutList = new LinkedHashMap<>();
 
-        List<Booking> bookingCheckout = BookingDAO.getInstance().getBookingCheckout();
+        String phoneSearch = request.getParameter("phoneSearch");
+                
+        List<Booking> bookingCheckout = BookingDAO.getInstance().getBookingCheckout(phoneSearch);
 
         for (Booking booking : bookingCheckout) {
             List<BookingDetail> detailList = BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking);

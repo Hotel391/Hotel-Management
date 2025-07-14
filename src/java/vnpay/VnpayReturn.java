@@ -154,9 +154,9 @@ public class VnpayReturn extends HttpServlet {
                     }
 
                     int roomPrice = selectCart.getTotalPrice() - totalServicePrice;
-                    Customer customer = dal.CustomerDAO.getInstance().getCustomerByCustomerID(mainCustomerId);
-                    String customerName = customer.getFullName();
-                    String email = customer.getEmail();
+                    Customer mainCustomer = dal.CustomerDAO.getInstance().getCustomerByCustomerID(mainCustomerId);
+                    String mainCustomerName = mainCustomer.getFullName();
+                    String mainEmail = mainCustomer.getEmail();
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     String checkin = sdf.format(startDate);
                     String checkout = sdf.format(endDate);
@@ -172,8 +172,8 @@ public class VnpayReturn extends HttpServlet {
                     String typeRoomName = room.getTypeRoom().getTypeName();
 
                     Map<String, Object> data = new HashMap<>();
-                    data.put("customerName", customerName);
-                    data.put("email", email);
+                    data.put("customerName", mainCustomerName);
+                    data.put("email", mainEmail);
                     data.put("typeRoomName", typeRoomName);
                     data.put("roomNumber", roomNumber);
                     data.put("checkin", checkin);
@@ -187,10 +187,22 @@ public class VnpayReturn extends HttpServlet {
                     data.put("servicePrices", servicePrices);
                     data.put("totalServicePrice", totalServicePrice);
                     emailExecutor.submit(() -> {
-                        System.out.println("Sending email to " + email);
                         EmailService emailService = new EmailService();
-                        emailService.sendEmail(email, "Confirm Booking information", EmailType.BOOKING_FROM_CART, data);
+                        emailService.sendEmail(mainEmail, "Confirm Booking information", EmailType.BOOKING_FROM_CART, data);
                     });
+
+                    if (mainCustomerId != selectCart.getCustomer().getCustomerId()) {
+                        Customer customer = dal.CustomerDAO.getInstance()
+                                .getCustomerByCustomerID(selectCart.getCustomer().getCustomerId());
+                        String customerName = customer.getFullName();
+                        String email = customer.getEmail();
+                        data.put("customerName", customerName);
+                        data.put("email", email);
+                        emailExecutor.submit(() -> {
+                            EmailService emailService = new EmailService();
+                            emailService.sendEmail(mainEmail, "Confirm Booking information", EmailType.BOOKING_FROM_CART, data);
+                        });
+                    }
 
                 } else {
                     Cart cart = new Cart();
@@ -204,7 +216,7 @@ public class VnpayReturn extends HttpServlet {
 
                 request.setAttribute("pageChange", "cartStatus");
                 session.removeAttribute("cartStatus");
-                session.removeAttribute("timeLeft-"+bookingId);
+                session.removeAttribute("timeLeft-" + bookingId);
                 session.removeAttribute("checkoutAttempts");
                 session.removeAttribute("mainCustomerId");
             } else {
@@ -288,13 +300,8 @@ public class VnpayReturn extends HttpServlet {
                             priceTypeRoom.add(totalPrice);
                         }
 
-                        
-
-                        
-                        
                         // Lấy danh sách BookingDetail
                         List<BookingDetail> bookingDetails = dal.BookingDetailDAO.getInstance().getBookingDetailsByBookingId(bookingId);
-                        
 
                         for (BookingDetail bd : bookingDetails) {
                             int bdId = bd.getBookingDetailId();
@@ -314,7 +321,7 @@ public class VnpayReturn extends HttpServlet {
                             serviceQuantity.add(serviceQuantityMap.get(name));
                             servicePrice.add(servicePriceMap.get(name));
                         }
-                        
+
                         //tổng tiền
                         int total = (int) session.getAttribute("paidAmount");
 
@@ -545,7 +552,7 @@ public class VnpayReturn extends HttpServlet {
 
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *

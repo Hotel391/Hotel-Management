@@ -236,11 +236,11 @@ public class CartToBooking extends HttpServlet {
         System.out.println(fullname);
         System.out.println(cccd);
         
-        if (!cccd.matches("\\d{15}")) {
+        if (!cccd.matches("\\d{12}")) {
             request.setAttribute("fullname", fullname);
             request.setAttribute("email", email);
             request.setAttribute("customerId", customerId); // PHẢI có
-            request.setAttribute("cccdError", "Căn cước công dân phải gồm đúng 15 chữ số.");
+            request.setAttribute("cccdError", "Căn cước công dân phải gồm đúng 12 chữ số.");
 
             request.setAttribute("error", "errorBookToday"); // hoặc errorBookFuture
             request.setAttribute("cartStatus", cartStatus);

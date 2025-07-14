@@ -180,6 +180,7 @@ public class VnpayReturn extends HttpServlet {
                     data.put("checkout", checkout);
                     data.put("adults", adults);
                     data.put("children", children);
+                    data.put("roomPrice", roomPrice);
                     data.put("paymentMethod", paymentMethod);
                     data.put("serviceNames", serviceNames);
                     data.put("serviceQuantities", serviceQuantities);

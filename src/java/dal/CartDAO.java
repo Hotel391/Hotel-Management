@@ -791,7 +791,7 @@ public class CartDAO {
     }
 
     public void updateCartInCheckout(Cart cart) {
-        String sql = "update Cart set Status = 'Processing' , isPayment = 1, PayDay = ?  where cartId = ?";
+        String sql = "update Cart set Status = 'Processing' , isPayment = 1, PayDay = ?, paymentMethodId = 1  where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setTimestamp(1, cart.getPayDay());
             ptm.setInt(2, cart.getCartId());
@@ -801,7 +801,7 @@ public class CartDAO {
     }
 
     public void updateCartToFail(Cart cart) {
-        String sql = "update Cart set Status = 'Failed' , isPayment = 0, PayDay = null  where cartId = ?";
+        String sql = "update Cart set Status = 'Pending' , isPayment = 0, PayDay = null, paymentMethod = null  where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, cart.getCartId());
             ptm.executeUpdate();

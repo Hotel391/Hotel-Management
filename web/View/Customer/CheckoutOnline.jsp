@@ -26,7 +26,7 @@
                         FPT Hotel
                     </div>
                 </div>
-                <button class="login-btn">Đăng nhập</button>
+                <!--<button class="login-btn">Đăng nhập</button>-->
             </div>
         </div>
 

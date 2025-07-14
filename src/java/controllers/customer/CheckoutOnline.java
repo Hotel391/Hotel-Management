@@ -100,7 +100,7 @@ public class CheckoutOnline extends HttpServlet {
                 return;
             }
 
-            expireTime = System.currentTimeMillis() + 5 * 60 * 1000;
+            expireTime = System.currentTimeMillis() + 5 * 1000;
             session.setAttribute("expireTime-" + cartId, expireTime);
             long currentTimeMillis = System.currentTimeMillis();
             Timestamp sqlTimestamp = new Timestamp(currentTimeMillis);
@@ -146,6 +146,7 @@ public class CheckoutOnline extends HttpServlet {
             if (timeLeft == 0) {
                 if (attempts > 3) {
                     dal.CustomerDAO.getInstance().deactiveSpam(customerAccount);
+                    CartDAO.getInstance().updateCartToFail(checkCart);
                     session.removeAttribute("customerInfo");
                     response.sendRedirect("home");
                     return;

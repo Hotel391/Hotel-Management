@@ -249,8 +249,8 @@ public class Checkout extends HttpServlet {
         String startDateStr = (String) session.getAttribute("startDate");
         String endDateStr = (String) session.getAttribute("endDate");
         String[] roomNumbers = (String[]) session.getAttribute("roomNumbers");
-        Map<String, List<DetailService>> roomServicesMap
-                = (Map<String, List<DetailService>>) session.getAttribute("roomServicesMap");
+//        Map<String, List<DetailService>> roomServicesMap
+//                = (Map<String, List<DetailService>>) session.getAttribute("roomServicesMap");
 
         // Sau khi đã insert BookingDetail và DetailService
         // Tạo các list cần thiết
@@ -302,34 +302,26 @@ public class Checkout extends HttpServlet {
             priceTypeRoom.add(totalPrice);
         }
 
-        // Lấy danh sách dịch vụ
-        if (roomServicesMap != null) {
-            for (String roomNumber : roomNumbers) {
-                List<DetailService> list = roomServicesMap.get(roomNumber);
-                if (list != null) {
-                    for (DetailService d : list) {
-                        String serviceName = d.getService().getServiceName();
-                        int quantity = d.getQuantity();
-                        int price = d.getService().getPrice();
+        // Lấy danh sách BookingDetail
+        List<BookingDetail> bookingDetails = dal.BookingDetailDAO.getInstance().getBookingDetailsByBookingId(bookingId);
 
-                        // Cộng dồn số lượng nếu đã có
-                        serviceQuantityMap.put(serviceName,
-                                serviceQuantityMap.getOrDefault(serviceName, 0) + quantity);
+        for (BookingDetail bd : bookingDetails) {
+            int bdId = bd.getBookingDetailId();
+            List<DetailService> servicesList = dal.DetailServiceDAO.getInstance().getServicesByBookingDetailId(bdId);
+            for (DetailService d : servicesList) {
+                String serviceName = d.getService().getServiceName();
+                int quantity = d.getQuantity();
+                int priceAtTime = d.getPriceAtTime();
 
-                        // Ghi lại giá
-                        servicePriceMap.putIfAbsent(serviceName, price);
-                    }
-                }
+                serviceQuantityMap.put(serviceName, serviceQuantityMap.getOrDefault(serviceName, 0) + quantity);
+                servicePriceMap.put(serviceName, servicePriceMap.getOrDefault(serviceName, 0) + priceAtTime);
             }
         }
 
-        // đẩy vào list danh sách các dịch vụ của tất cả
-        for (String serviceName : serviceQuantityMap.keySet()) {
-            services.add(serviceName);
-            int quantity = serviceQuantityMap.get(serviceName);
-            int unitPrice = servicePriceMap.get(serviceName);
-            serviceQuantity.add(quantity);
-            servicePrice.add(quantity * unitPrice);
+        for (String name : serviceQuantityMap.keySet()) {
+            services.add(name);
+            serviceQuantity.add(serviceQuantityMap.get(name));
+            servicePrice.add(servicePriceMap.get(name));
         }
 
         //tổng tiền

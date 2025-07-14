@@ -90,7 +90,6 @@ public class CheckoutOnline extends HttpServlet {
                 return;
             }
 
-            //check room available
             CartDAO.getInstance().changeRoomNumber(checkCart, checkCart.getStartDate(), checkCart.getEndDate());
 
             if (checkCart.getRoomNumber() == 0) {
@@ -101,8 +100,7 @@ public class CheckoutOnline extends HttpServlet {
                 return;
             }
 
-            //set payment time limitation
-            expireTime = System.currentTimeMillis() + 60 * 1000;
+            expireTime = System.currentTimeMillis() + 5 * 60 * 1000;
             session.setAttribute("expireTime-" + cartId, expireTime);
             long currentTimeMillis = System.currentTimeMillis();
             Timestamp sqlTimestamp = new Timestamp(currentTimeMillis);

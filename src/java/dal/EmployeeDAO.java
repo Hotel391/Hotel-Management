@@ -132,7 +132,7 @@ public class EmployeeDAO {
         String sql = """
                      select e.*, r.RoleName from Employee e
                      join Role r on r.RoleId=e.RoleId where (Username COLLATE SQL_Latin1_General_CP1_CI_AS = ? 
-                     or email COLLATE SQL_Latin1_General_CP1_CI_AS = ?) and Password=?""";
+                     or email COLLATE SQL_Latin1_General_CP1_CI_AS = ?) and Password=? and e.activate = 1""";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setString(1, username);
 

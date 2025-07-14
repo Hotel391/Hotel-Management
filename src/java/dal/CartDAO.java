@@ -110,12 +110,12 @@ public class CartDAO {
         if (cart.isIsActive()) {
             deactivateCartIfStartDatePast(cart, today);
         }
-        
-        if (cart.isIsActive()){
+
+        if (cart.isIsActive()) {
             handleRoomNumberConflict(cart, startDate, endDate);
         }
-        
-        if (cart.isIsActive()){
+
+        if (cart.isIsActive()) {
             updateCartPricingAndServices(cart, startDate, endDate);
         }
 
@@ -774,11 +774,17 @@ public class CartDAO {
     }
 
     public void updateStatusAndIsPayment(Cart cart) {
-        String sql = "update Cart set Status = ? , isPayment = ? where cartId = ?";
+        String sql = "update Cart set Status = ? , isPayment = ?, PaymentMethodId = ? where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, cart.getStatus());
             ptm.setBoolean(2, cart.isIsPayment());
-            ptm.setInt(3, cart.getCartId());
+            if (cart.getPaymentMethod() == null) {
+                ptm.setNull(3, java.sql.Types.INTEGER);
+            } else {
+                ptm.setInt(3, cart.getPaymentMethod().getPaymentMethodId());
+            }
+
+            ptm.setInt(4, cart.getCartId());
             ptm.executeUpdate();
         } catch (Exception e) {
         }

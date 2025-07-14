@@ -196,6 +196,7 @@ public class VnpayReturn extends HttpServlet {
                     cart.setCartId(bookingId);
                     cart.setStatus("Failed");
                     cart.setIsPayment(false);
+                    cart.setPaymentMethod(null);
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
                     transSuccess = false;
                 }

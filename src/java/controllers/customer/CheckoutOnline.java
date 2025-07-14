@@ -144,6 +144,7 @@ public class CheckoutOnline extends HttpServlet {
             System.out.println("timeLeft: " + timeLeft);
 
             if (timeLeft == 0) {
+                attempts++;
                 if (attempts > 3) {
                     dal.CustomerDAO.getInstance().deactiveSpam(customerAccount);
                     CartDAO.getInstance().updateCartToFail(checkCart);
@@ -151,7 +152,6 @@ public class CheckoutOnline extends HttpServlet {
                     response.sendRedirect("home");
                     return;
                 }
-                attempts++;
                 session.setAttribute("checkoutAttempts", attempts);
                 System.out.println("attemps: " + attempts);
                 CartDAO.getInstance().updateCartToFail(checkCart);

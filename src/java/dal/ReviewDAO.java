@@ -15,6 +15,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import models.Room;
 
 public class ReviewDAO {
 
@@ -172,5 +173,60 @@ public class ReviewDAO {
             //
         }
         return reviews;
+    }
+
+    public List<Review> getTop10FiveStarReviews() {
+        String sql = """
+        SELECT TOP 10 
+               r.ReviewId, r.Rating, r.FeedBack, r.[Date],
+               c.FullName, r.Username, 
+               bd.BookingDetailId, 
+               t.TypeId, t.TypeName
+        FROM Review r
+        JOIN BookingDetail bd ON r.BookingDetailId = bd.BookingDetailId
+        JOIN Room ro ON bd.RoomNumber = ro.RoomNumber
+        JOIN TypeRoom t ON ro.TypeId = t.TypeId
+        JOIN Booking b ON bd.BookingId = b.BookingId
+        JOIN CustomerAccount ca ON r.Username = ca.Username
+        JOIN Customer c ON ca.CustomerId = c.CustomerId
+        WHERE r.Rating = 5
+        ORDER BY r.[Date] DESC
+    """;
+
+        List<Review> list = new ArrayList<>();
+        try (PreparedStatement ptm = con.prepareStatement(sql); ResultSet rs = ptm.executeQuery()) {
+            while (rs.next()) {
+                Review review = new Review();
+                review.setReviewId(rs.getInt("ReviewId"));
+                review.setRating(rs.getInt("Rating"));
+                review.setFeedBack(rs.getString("FeedBack"));
+                review.setDate(rs.getDate("Date"));
+
+                Customer cus = new Customer();
+                cus.setFullName(rs.getString("FullName"));
+                CustomerAccount acc = new CustomerAccount();
+                acc.setUsername(rs.getString("Username"));
+                acc.setCustomer(cus);
+
+                TypeRoom typeRoom = new TypeRoom();
+                typeRoom.setTypeId(rs.getInt("TypeId"));
+                typeRoom.setTypeName(rs.getString("TypeName"));
+
+                Room room = new Room();
+                room.setTypeRoom(typeRoom);
+
+                Booking booking = new Booking(); // placeholder nếu cần thêm BookingId
+                BookingDetail bookingDetail = new BookingDetail();
+                bookingDetail.setBooking(booking);
+                bookingDetail.setRoom(room);
+
+                review.setBookingDetail(bookingDetail);
+                review.setCustomerAccount(acc);
+                list.add(review);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

@@ -379,11 +379,15 @@ public class BookingDAO {
         List<Booking> bookings = new ArrayList<>();
         String sql = "SELECT b.* FROM Booking b join Customer c on b.customerId = c.customerId "
                 + "WHERE DATEDIFF(Day, ?, b.PayDay) = 0 and b.Status = 'Completed CheckOut'";
-        if(phone != null && !phone.isEmpty()) sql += " and c.phoneNumber = ?";
+        if (phone != null && !phone.isEmpty()) {
+            sql += " and c.phoneNumber = ?";
+        }
         System.out.println(sql);
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setDate(1, payDay);
-            if(phone != null && !phone.isEmpty()) st.setString(2, phone);
+            if (phone != null && !phone.isEmpty()) {
+                st.setString(2, phone);
+            }
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     Booking booking = new Booking();
@@ -460,13 +464,19 @@ public class BookingDAO {
     }
 
     //get booking by query
-    public List<Booking> getBookingCheckout() {
+    public List<Booking> getBookingCheckout(String phone) {
         List<Booking> bookings = new ArrayList<>();
         String sql = "select distinct b.* from Customer c join Booking b on c.CustomerId = b.CustomerId \n"
                 + "join BookingDetail bd on bd.BookingId = b.BookingId\n"
                 + "where bd.EndDate >= CAST(GETDATE() As Date) And b.Status = 'Completed CheckIn'";
+        if (phone != null && !phone.isEmpty()) {
+            sql += " AND c.PhoneNumber = ?";
+        }
+
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            
+            if (phone != null && !phone.isEmpty()) {
+                st.setString(1, phone);
+            }
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     Booking booking = new Booking();

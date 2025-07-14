@@ -171,7 +171,7 @@ public class VnpayReturn extends HttpServlet {
 
                     Room room = dal.RoomDAO.getInstance().getRoomByNumber(selectCart.getRoomNumber());
                     String typeRoomName = room.getTypeRoom().getTypeName();
-                    
+
                 } else {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);
@@ -182,7 +182,7 @@ public class VnpayReturn extends HttpServlet {
                 }
 
                 request.setAttribute("pageChange", "cartStatus");
-                session.removeAttribute("cartStatus");
+//                session.removeAttribute("cartStatus");
                 session.removeAttribute("mainCustomerId");
             } else {
                 Booking booking = new Booking();
@@ -343,7 +343,7 @@ public class VnpayReturn extends HttpServlet {
                         emailExecutor.submit(() -> {
                             System.out.println("Sending email to " + email);
                             EmailService emailService = new EmailService();
-                            emailService.sendEmail(email, "Receipt Information", EmailType.RECEIPT, data);
+                            emailService.sendEmail(email, "Confirm Checkin information", EmailType.valueOf("CHECKIN"), data);
                         });
 
                         session.removeAttribute("paidAmount");

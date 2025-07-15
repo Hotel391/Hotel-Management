@@ -100,7 +100,7 @@ public class CheckoutOnline extends HttpServlet {
                 return;
             }
 
-            expireTime = System.currentTimeMillis() + 5 * 1000;
+            expireTime = System.currentTimeMillis() + 60 * 5 * 1000;
             session.setAttribute("expireTime-" + cartId, expireTime);
             long currentTimeMillis = System.currentTimeMillis();
             Timestamp sqlTimestamp = new Timestamp(currentTimeMillis);

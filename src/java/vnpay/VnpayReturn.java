@@ -94,6 +94,9 @@ public class VnpayReturn extends HttpServlet {
                     cart.setCartId(bookingId);
                     cart.setStatus("Completed CheckIn");
                     cart.setIsPayment(true);
+                    PaymentMethod paymentMehtod = new PaymentMethod();
+                    paymentMehtod.setPaymentMethodId(1);
+                    cart.setPaymentMethod(paymentMehtod);
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
                     dal.CartDAO.getInstance().updateMainCustomerId(mainCustomerId, bookingId);
                     transSuccess = true;

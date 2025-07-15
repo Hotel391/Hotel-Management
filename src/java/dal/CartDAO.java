@@ -747,7 +747,7 @@ public class CartDAO {
     //write function get cart by cartId
     public Cart getCartByCartId(int cartId) {
         String sql = """
-                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive, c.CustomerId
+                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive, c.CustomerId,
                                 c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber
                                 FROM Cart c
                                 WHERE c.CartId = ?
@@ -817,7 +817,7 @@ public class CartDAO {
     }
 
     public void updateCartInCheckout(Cart cart) {
-        String sql = "update Cart set Status = 'Processing' , isPayment = 1, PayDay = ?, paymentMethodId = 1  where cartId = ?";
+        String sql = "update Cart set Status = 'Processing' , isPayment = 1, PayDay = ?, PaymentMethodId = 1  where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setTimestamp(1, cart.getPayDay());
             ptm.setInt(2, cart.getCartId());
@@ -827,7 +827,7 @@ public class CartDAO {
     }
 
     public void updateCartToFail(Cart cart) {
-        String sql = "update Cart set Status = 'Pending' , isPayment = 0, PayDay = null, paymentMethodId = null  where cartId = ?";
+        String sql = "update Cart set Status = 'Pending' , isPayment = 0, PayDay = null  where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, cart.getCartId());
             ptm.executeUpdate();

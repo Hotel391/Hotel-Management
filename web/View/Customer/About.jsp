@@ -45,7 +45,7 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-lg-6">
-                                <div class="about_title"><h2>The River / 10 năm phát triển vượt bậc</h2></div>
+                                <div class="about_title"><h2>FPTHotel / 1 năm phát triển vượt bậc</h2></div>
                             </div>
                         </div>
                         <div class="row about_row">
@@ -54,7 +54,7 @@
                             <div class="col-lg-6">
                                 <div class="about_content">
                                     <div class="about_text">
-                                        <p>Khách sạn The River là điểm đến lý tưởng cho du khách trong và ngoài nước. Với hơn 10 năm hoạt động, chúng tôi luôn nỗ lực mang đến những dịch vụ đẳng cấp, không gian sang trọng và trải nghiệm nghỉ dưỡng tuyệt vời nhất. Đội ngũ nhân viên chuyên nghiệp, thân thiện và các tiện nghi hiện đại sẽ làm bạn hài lòng trong từng khoảnh khắc lưu trú.</p>
+                                        <p>Khách sạn FPTHotel là điểm đến lý tưởng cho du khách trong và ngoài nước. Với hơn 1 năm hoạt động, chúng tôi luôn nỗ lực mang đến những dịch vụ đẳng cấp, không gian sang trọng và trải nghiệm nghỉ dưỡng tuyệt vời nhất. Đội ngũ nhân viên chuyên nghiệp, thân thiện và các tiện nghi hiện đại sẽ làm bạn hài lòng trong từng khoảnh khắc lưu trú.</p>
                                     </div>
                                     <div class="about_sig"><img src="${pageContext.request.contextPath}/Image/sig.png" alt=""></div>
                                 </div>
@@ -87,26 +87,26 @@
                                 <div class="split_section_right_content">
                                     <div class="split_section_title"><h1>Khu Nghỉ Dưỡng Cao Cấp</h1></div>
                                     <div class="split_section_text">
-                                        <p>Chúng tôi tự hào sở hữu hệ thống phòng nghỉ tiện nghi, hồ bơi ngoài trời, nhà hàng cao cấp và nhiều dịch vụ thư giãn. Mỗi chi tiết đều được chăm chút nhằm đem lại sự thoải mái tối đa cho quý khách. Hãy để The River trở thành nơi bạn tìm thấy sự yên bình và sang trọng trong mỗi kỳ nghỉ.</p>
+                                        <p>Chúng tôi tự hào sở hữu hệ thống phòng nghỉ tiện nghi, hồ bơi ngoài trời, nhà hàng cao cấp và nhiều dịch vụ thư giãn. Mỗi chi tiết đều được chăm chút nhằm đem lại sự thoải mái tối đa cho quý khách. Hãy để FPTHotel trở thành nơi bạn tìm thấy sự yên bình và sang trọng trong mỗi kỳ nghỉ.</p>
                                     </div>
 
                                     <!-- Milestones -->
                                     <div class="milestones_container d-flex flex-row align-items-start justify-content-start flex-wrap">
                                         <div class="milestone d-flex flex-row align-items-start justify-content-start">
                                             <div class="milestone_content">
-                                                <div class="milestone_counter" data-end-value="45">0</div>
+                                                <div class="milestone_counter" data-end-value="0">${availableRoomCount}</div>
                                                 <div class="milestone_title">Phòng sẵn có</div>
                                             </div>
                                         </div>
                                         <div class="milestone d-flex flex-row align-items-start justify-content-start">
                                             <div class="milestone_content">
-                                                <div class="milestone_counter" data-end-value="21" data-sign-after="K">0</div>
+                                                <div class="milestone_counter" data-end-value="0">${touristThisYear}</div>
                                                 <div class="milestone_title">Khách du lịch trong năm</div>
                                             </div>
                                         </div>
                                         <div class="milestone d-flex flex-row align-items-start justify-content-start">
                                             <div class="milestone_content">
-                                                <div class="milestone_counter" data-end-value="2">0</div>
+                                                <div class="milestone_counter" data-end-value="0">1</div>
                                                 <div class="milestone_title">Hồ bơi</div>
                                             </div>
                                         </div>
@@ -180,7 +180,6 @@
             </div>
             <jsp:include page="Footer.jsp" />
         </div>
-        <jsp:include page="/View/chatbot.jsp"/>
         <script src="${pageContext.request.contextPath}/js/jquery-3.3.1.min.js"></script>
         <script src="${pageContext.request.contextPath}/Css/bootstrap-4.1.2/popper.js"></script>
         <script src="${pageContext.request.contextPath}/Css/bootstrap-4.1.2/bootstrap.min.js"></script>

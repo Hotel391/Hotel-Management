@@ -144,7 +144,7 @@ public class CartDAO {
         } catch (SQLException e) {
             // Handle exception
         }
-        return false;
+        return true;
     }
 
     private void reactivateCartIfRoomAvailable(Cart cart, Date startDate, Date endDate) {
@@ -430,7 +430,7 @@ public class CartDAO {
                 LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber
                     AND c.isPayment = 1
                     AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
-                where BookingDetailCheck.BookingDetailId is null and c.CartId is null and r.RoomNumber=? and and r.IsActive=1
+                where BookingDetailCheck.BookingDetailId is null and c.CartId is null and r.RoomNumber=?
                 """;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDate(1, checkin);
@@ -517,7 +517,7 @@ public class CartDAO {
                 ) BookingDetailCheck on BookingDetailCheck.RoomNumber=r.RoomNumber
                 left join Cart c on c.RoomNumber=r.RoomNumber and c.isPayment=1
                 AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
-                where r.TypeId=? and BookingDetailCheck.BookingDetailId is null and c.CartId is null and r.IsActive=1
+                where r.TypeId=? and BookingDetailCheck.BookingDetailId is null and c.CartId is null
                 order by r.RoomNumber desc
                 """;
         try (PreparedStatement ps = con.prepareStatement(sql)) {

@@ -18,7 +18,28 @@
         <title>Thông tin tài khoản</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-        <link rel="stylesheet" href="Css/Customer/Profile.css"/>
+        <style>
+            .setting-card {
+                background-color: #ffffff;
+                border: 1px solid #e5eaf0;
+                border-radius: 12px;
+                padding: 24px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            }
+
+            .form-label {
+                font-weight: 500;
+                color: #212b36;
+                font-size: 14px;
+            }
+
+            .form-control {
+                border-radius: 8px;
+                font-size: 15px;
+                color: #212b36;
+            }
+
+        </style>
     </head>
     <body style="background-color: #f5f7fa;">
         <jsp:include page="Header.jsp" />

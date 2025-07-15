@@ -106,7 +106,7 @@ public class CartToBooking extends HttpServlet {
                 // Nhận các thông số từ form
                 int cartId = Integer.parseInt(request.getParameter("cartId"));
                 int paidAmount = Integer.parseInt(request.getParameter("paidAmount"));
-                String payDayStr = request.getParameter("payDay");  // Định dạng phải là: yyyy-MM-dd HH:mm:ss
+                String payDayStr = request.getParameter("payDay"); 
                 String status = request.getParameter("status");
                 int customerId = Integer.parseInt(request.getParameter("customerId"));
                 int paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));
@@ -236,11 +236,11 @@ public class CartToBooking extends HttpServlet {
         System.out.println(fullname);
         System.out.println(cccd);
         
-        if (!cccd.matches("\\d{15}")) {
+        if (!cccd.matches("\\d{12}")) {
             request.setAttribute("fullname", fullname);
             request.setAttribute("email", email);
             request.setAttribute("customerId", customerId); // PHẢI có
-            request.setAttribute("cccdError", "Căn cước công dân phải gồm đúng 15 chữ số.");
+            request.setAttribute("cccdError", "Căn cước công dân phải gồm đúng 12 chữ số.");
 
             request.setAttribute("error", "errorBookToday"); // hoặc errorBookFuture
             request.setAttribute("cartStatus", cartStatus);

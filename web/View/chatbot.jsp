@@ -45,7 +45,7 @@
         display: flex;
     }
 
-    #gemini-widget .header {
+    #gemini-widget .header-chat {
         background: #4285f4;
         color: white;
         padding: 10px;
@@ -113,7 +113,7 @@
     <div id="gemini-toggle" onclick="toggleChat()"><i class="bi bi-chat-fill"></i></div>
 
     <div id="gemini-popup">
-        <div class="header">
+        <div class="header-chat">
             <span>Chatbot AI</span>
             <button onclick="toggleChat()"><i class="bi bi-x-lg"></i></button>
         </div>

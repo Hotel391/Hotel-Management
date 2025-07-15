@@ -106,7 +106,6 @@ public class CartDAO {
         LocalDate today = LocalDate.now();
         Date startDate = cart.getStartDate();
         Date endDate = cart.getEndDate();
-        boolean check=true;
         
         if (!cart.isIsActive() && !startDate.before(Date.valueOf(today))) {
             reactivateCartIfRoomAvailable(cart, startDate, endDate);
@@ -118,10 +117,9 @@ public class CartDAO {
 
         if(cart.isIsActive() && !checkRoomOfCartStatus(cart.getCartId())){
             handleRoomNumberConflict(cart, startDate, endDate);
-            check = false;
         }
 
-        if (cart.isIsActive() && check) {
+        if (cart.isIsActive()) {
             handleRoomNumberConflict(cart, startDate, endDate);
         }
 

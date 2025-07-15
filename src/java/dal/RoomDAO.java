@@ -768,4 +768,33 @@ public class RoomDAO {
         }
         return conflictRooms;
     }
+
+    public int getAvailableRoomCount() {
+        String sql = "SELECT COUNT(*) FROM Room WHERE isActive = 1";
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int getTouristThisYear() {
+        String sql = """
+            SELECT COUNT(DISTINCT CustomerId)
+            FROM Booking
+            WHERE YEAR(PayDay) = YEAR(GETDATE())
+              AND Status IN (N'Completed CheckIn', N'Completed CheckOut')
+        """;
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

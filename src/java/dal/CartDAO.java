@@ -106,6 +106,7 @@ public class CartDAO {
         LocalDate today = LocalDate.now();
         Date startDate = cart.getStartDate();
         Date endDate = cart.getEndDate();
+        boolean check=true;
 
         if (cart.isIsActive()) {
             deactivateCartIfStartDatePast(cart, today);
@@ -113,9 +114,10 @@ public class CartDAO {
 
         if(cart.isIsActive() && !checkRoomOfCartStatus(cart.getCartId())){
             handleRoomNumberConflict(cart, startDate, endDate);
+            check = false;
         }
 
-        if (cart.isIsActive()) {
+        if (cart.isIsActive() && check) {
             handleRoomNumberConflict(cart, startDate, endDate);
         }
 
@@ -295,7 +297,7 @@ public class CartDAO {
     }
 
     private int getTotalServicePriceHaveMoneyButNoNeedTimes(int typeId) {
-        if (serviceHaveMoneyButNoNeedTimes == null || serviceHaveMoneyButNoNeedTimes.length == 0) {
+        if (serviceHaveMoneyButNoNeedTimes.length == 0) {
             return 0;
         }
         StringBuilder placeholders = new StringBuilder();

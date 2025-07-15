@@ -25,7 +25,7 @@
         <div class="containerBox">
             <jsp:include page="leftNavReceptionist.jsp" /> 
             <div class="right-section">
-                <c:set var="title" value="Checkout Room Today" scope="request"/>
+                <c:set var="title" value="Checkout Room" scope="request"/>
                 <jsp:include page="topNavReceptionist.jsp" />
                 <div class="main-content">
                     <h1 class="mb-4">Danh sách phòng checkout</h1>

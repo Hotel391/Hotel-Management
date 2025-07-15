@@ -285,9 +285,9 @@
                     document.getElementById("timeLeft-" + cartIdInput).value = Math.floor(distance / 1000);
                 }
 
-                // Gọi mỗi giây
+                
                 setInterval(updateCountdown, 1000);
-                // Gọi ngay khi trang tải xong
+                
                 window.onload = updateCountdown;
             </script>
     </body>

@@ -41,7 +41,7 @@
                 <li><a href="home" class="text-white text-decoration-none fw-semibold">Trang chủ</a></li>
                 <li><a href="about" class="text-white text-decoration-none fw-semibold">Giới thiệu</a></li>
                 <li><a href="searchRoom" class="text-white text-decoration-none fw-semibold">Phòng</a></li>
-                <li><a href="contact.html" class="text-white text-decoration-none fw-semibold">Liên hệ</a></li>
+                <li><a href="contact" class="text-white text-decoration-none fw-semibold">Liên hệ</a></li>
             </ul>
         </nav>
 
@@ -108,7 +108,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const path = window.location.pathname.toLowerCase();
-        const isWhitePage = path.includes("home") || path.includes("login") || path.includes("register") || path.includes("about") || path === "/";
+        const isWhitePage = path.includes("home") || path.includes("login") || path.includes("register") || path.includes("about")||path.includes("contact") || path === "/";
 
         if (!isWhitePage) {
             document.querySelectorAll('.main_nav a').forEach(link => {

@@ -171,7 +171,9 @@
                                         <c:forEach begin="1" end="${totalPages}" var="i">
                                             <li class="page-item ${i == currentPage ? 'active' : ''}">
                                                 <form action="${pageContext.request.contextPath}/receptionist/cartToBooking" method="get">
-                                                    <input type="hidden" name="choose" value="${param.choose}" />
+                                                    <c:set var="choose" value="${param.choose != null ? param.choose : 'viewCustomerToday'}" />
+                                                    <input type="hidden" name="choose" value="${choose}" />
+
 
                                                     <button class="page-link">${i}</button>
                                                     <input type="hidden" name="page" value="${i}" />
@@ -206,7 +208,7 @@
                                 <input type="hidden" name="choose" value="updateCCCD"/>
                                 <input type="hidden" name="cartStatus" value="${requestScope.cartStatus}"/>
                                 <input type="hidden" name="page" value="${requestScope.currentPage}">
-                                
+
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="cccdModalLabel">Nhập CCCD khách hàng</h5>
@@ -215,35 +217,35 @@
                                     <div class="modal-body">
                                         <p>Khách hàng này chưa có thông tin CCCD. Vui lòng nhập để tiếp tục.</p>
                                         <input type="hidden" name="customerId" value="${requestScope.customerId}" />
-                                        
+
                                         <div class="mb-3">
                                             <label for="fullnameInput" class="form-label">Tên khách hàng</label>
                                             <input type="text" class="form-control" id="fullnameInput" 
                                                    name="fullName" value="${requestScope.fullname}" readonly />
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label for="emailInput" class="form-label">Email khách hàng</label>
                                             <input type="text" class="form-control" id="emailInput" 
                                                    name="email" value="${requestScope.email}" readonly />
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label for="cccdInput" class="form-label">CCCD</label>
                                             <input type="text" class="form-control" name="cccd" id="cccdInput" required />
                                         </div>
                                         <c:if test="${not empty requestScope.cccdError}"> ${requestScope.cccdError}</c:if>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-primary">Cập nhật</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                        </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Cập nhật</button>
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                    </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Script hiện modal nếu có lỗi -->
+                        <!-- Script hiện modal nếu có lỗi -->
                     <c:if test="${requestScope.error == 'errorBookToday' || requestScope.error == 'errorBookFuture'}">
                         <script>
                             document.addEventListener("DOMContentLoaded", function () {

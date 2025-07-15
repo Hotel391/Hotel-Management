@@ -21,6 +21,7 @@ public class PromptBuilder {
         sb.append(searchLink).append("\n");
         sb.append("Link tìm phòng theo yêu cầu: ").append(searchLink).append("\n");
         sb.append("Bạn có thể gợi ý người dùng thêm các param như: checkin, checkout, adults, children, minPrice, maxPrice\n");
+        sb.append("Các param này không được phép trả lời về phía người dùng. Mà hãy sử dụng từ ngữ bình thường như 'ngày bắt đầu'(checkin), ngày kết thúc(checkout), số người tham gia(adults, children), giá trị thấp nhất(minPrice), giá trị cao nhất(maxPrice)\n");
         sb.append("Các param này sử dụng bằng cách thêm vào cuối link tìm kiếm, ví dụ: \n");
         sb.append(searchLink).append("?checkin=2023-10-01&checkout=2023-10-05&adults=2&children=1\n");
         sb.append("Nếu không có param nào, bạn có thể để trống link tìm kiếm.\n");

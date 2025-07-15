@@ -118,7 +118,7 @@
                                         <div class="row">
                                             <div class="col">
                                                 <div class="home_content text-center">
-                                                    <div class="home_title">Xin chào!</div>
+                                                   <div class="home_title" style="font-size: 60px;">Xin chào!</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -133,7 +133,7 @@
                                         <div class="row">
                                             <div class="col">
                                                 <div class="home_content text-center">
-                                                    <div class="home_title">Sang Trọng, Độc Đáo, Chu Đáo</div>
+                                                    <div class="home_title"style="font-size: 60px;">Sang Trọng, Độc Đáo, Chu Đáo</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -148,7 +148,7 @@
                                         <div class="row">
                                             <div class="col">
                                                 <div class="home_content text-center">
-                                                    <div class="home_title">Phong cách Châu Âu - Đáng Nhớ</div>
+                                                    <div class="home_title"style="font-size: 60px;">Phong cách Châu Âu - Đáng Nhớ</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -175,7 +175,7 @@
                         <div class="row">
                             <div class="col">
                                 <div class="booking_title text-center">
-                                    <h2>Top 5 hoa hậu</h2>
+                                    <h2>Siêu Phòng Đắt Khách</h2>
                                 </div>
 
                                 <div class="booking_slider_container">
@@ -365,7 +365,6 @@
             </div>
             <jsp:include page="Footer.jsp" />
         </div>
-        <jsp:include page="/View/chatbot.jsp"/>
         <script src="${pageContext.request.contextPath}/Js/jquery-3.3.1.min.js"></script>
         <script src="${pageContext.request.contextPath}/Css/bootstrap-4.1.2/popper.js"></script>
         <script src="${pageContext.request.contextPath}/Css/bootstrap-4.1.2/bootstrap.min.js"></script>

@@ -60,7 +60,7 @@ public class CustomerDAO {
 
             if (rs.next()) {
                 // Create and populate Role
-                Role role = new Role(rs.getInt(8));
+                Role role = new Role(rs.getInt("RoleId"));
                 role.setRoleId(rs.getInt("RoleId"));
                 role.setRoleName(rs.getString("RoleName"));
 
@@ -630,9 +630,9 @@ public class CustomerDAO {
         }
         return null;
     }
-    
-    public void deactiveSpam(CustomerAccount account){
-         String sql = "UPDATE Customer SET activate = 0 WHERE CustomerId = ?";
+
+    public void deactiveSpam(CustomerAccount account) {
+        String sql = "UPDATE Customer SET activate = 0 WHERE CustomerId = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, account.getCustomer().getCustomerId());
             st.executeUpdate();

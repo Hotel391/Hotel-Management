@@ -107,7 +107,11 @@ public class CartDAO {
         Date startDate = cart.getStartDate();
         Date endDate = cart.getEndDate();
         boolean check=true;
-
+        
+        if (!cart.isIsActive() && !startDate.before(Date.valueOf(today))) {
+            reactivateCartIfRoomAvailable(cart, startDate, endDate);
+        }
+        
         if (cart.isIsActive()) {
             deactivateCartIfStartDatePast(cart, today);
         }
@@ -123,10 +127,6 @@ public class CartDAO {
 
         if (cart.isIsActive()) {
             updateCartPricingAndServices(cart, startDate, endDate);
-        }
-
-        if (!cart.isIsActive() && !startDate.before(Date.valueOf(today))) {
-            reactivateCartIfRoomAvailable(cart, startDate, endDate);
         }
     }
 

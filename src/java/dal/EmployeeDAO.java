@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import utility.Encryption;
+import java.sql.Statement;
 
 public class EmployeeDAO {
 
@@ -197,7 +198,7 @@ public class EmployeeDAO {
             String sqlEmployee = "INSERT INTO Employee (username, password, fullName,"
                     + " phoneNumber, email, gender, registrationDate, activate,  roleId) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = con.prepareStatement(sqlEmployee)) {
+            try (PreparedStatement stmt = con.prepareStatement(sqlEmployee, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, emp.getUsername());
                 stmt.setString(2, emp.getPassword());
                 stmt.setString(3, emp.getFullName());
@@ -208,6 +209,13 @@ public class EmployeeDAO {
                 stmt.setBoolean(8, emp.isActivate());
                 stmt.setInt(9, emp.getRole().getRoleId());
                 stmt.executeUpdate();
+
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int employeeId = generatedKeys.getInt(1);
+                        emp.setEmployeeId(employeeId);
+                    }
+                }
             }
 
             if (emp.getCleanerFloor() != null) {

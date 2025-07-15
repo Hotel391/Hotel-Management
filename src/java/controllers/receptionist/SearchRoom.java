@@ -25,6 +25,8 @@ public class SearchRoom extends HttpServlet {
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");
         String typeRoomIdStr = request.getParameter("typeRoomId");
+        String adultStr = request.getParameter("adult");
+        String childrenStr = request.getParameter("children");
         String checkInAction = request.getParameter("checkIn");
         String removeRoomNumber = request.getParameter("removeRoomNumber");
         String addRoomNumber = request.getParameter("addRoom");
@@ -38,30 +40,31 @@ public class SearchRoom extends HttpServlet {
             selectedRooms = new ArrayList<>();
         }
 
-
         if (addRoomNumber != null && !addRoomNumber.isEmpty()) {
             if (!selectedRooms.contains(addRoomNumber)) {
                 selectedRooms.add(addRoomNumber);
             }
             session.setAttribute("selectedRooms", selectedRooms);
-            response.sendRedirect(request.getContextPath() + "/receptionist/searchRoom?startDate=" +
-                (startDateStr != null ? startDateStr : "") + "&endDate=" +
-                (endDateStr != null ? endDateStr : "") + "&typeRoomId=" +
-                (typeRoomIdStr != null ? typeRoomIdStr : "") + "&page=" + page);
+            response.sendRedirect(request.getContextPath() + "/receptionist/searchRoom?startDate="
+                    + (startDateStr != null ? startDateStr : "") + "&endDate="
+                    + (endDateStr != null ? endDateStr : "") + "&typeRoomId="
+                    + (typeRoomIdStr != null ? typeRoomIdStr : "") + "&adult="
+                    + (adultStr != null ? adultStr : "") + "&children="
+                    + (childrenStr != null ? childrenStr : "") + "&page=" + page);
             return;
         }
-
 
         if (removeRoomNumber != null && !removeRoomNumber.isEmpty()) {
             selectedRooms.remove(removeRoomNumber);
             session.setAttribute("selectedRooms", selectedRooms);
-            response.sendRedirect(request.getContextPath() + "/receptionist/searchRoom?startDate=" +
-                (startDateStr != null ? startDateStr : "") + "&endDate=" +
-                (endDateStr != null ? endDateStr : "") + "&typeRoomId=" +
-                (typeRoomIdStr != null ? typeRoomIdStr : "") + "&page=" + page);
+            response.sendRedirect(request.getContextPath() + "/receptionist/searchRoom?startDate="
+                    + (startDateStr != null ? startDateStr : "") + "&endDate="
+                    + (endDateStr != null ? endDateStr : "") + "&typeRoomId="
+                    + (typeRoomIdStr != null ? typeRoomIdStr : "") + "&adult="
+                    + (adultStr != null ? adultStr : "") + "&children="
+                    + (childrenStr != null ? childrenStr : "") + "&page=" + page);
             return;
         }
-
 
         Map<String, String> selectedRoomTypes = new HashMap<>();
         for (String roomNumber : selectedRooms) {
@@ -81,6 +84,8 @@ public class SearchRoom extends HttpServlet {
         request.setAttribute("startDateSearch", startDateStr != null ? startDateStr : "");
         request.setAttribute("endDateSearch", endDateStr != null ? endDateStr : "");
         request.setAttribute("typeRoomIdSearch", typeRoomIdStr != null ? typeRoomIdStr : "");
+        request.setAttribute("adultSearch", adultStr != null ? adultStr : "");
+        request.setAttribute("childrenSearch", childrenStr != null ? childrenStr : "");
         request.setAttribute("currentPage", page);
         request.setAttribute("typeRooms", RoomDAO.getInstance().getAllTypeRoom());
         request.setAttribute("selectedRooms", selectedRooms);
@@ -89,13 +94,13 @@ public class SearchRoom extends HttpServlet {
         if (checkInAction != null) {
             if (selectedRooms.isEmpty()) {
                 request.setAttribute("errorMessage", "Please select at least one room to book.");
-                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
 
             if (startDateStr == null || endDateStr == null || startDateStr.isEmpty() || endDateStr.isEmpty()) {
                 request.setAttribute("errorMessage", "Vui lòng chọn cả ngày nhận phòng và ngày trả phòng");
-                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
 
@@ -104,14 +109,24 @@ public class SearchRoom extends HttpServlet {
                 java.sql.Date endDate = java.sql.Date.valueOf(endDateStr);
 
                 if (startDateStr.compareTo(new java.text.SimpleDateFormat("yyyy-MM-dd").format(new Date())) < 0) {
-                    request.setAttribute("errorMessage", "Ngày nhận phòng bắt đầu từ ngày hôm này.");
-                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+                    request.setAttribute("errorMessage", "Ngày nhận phòng bắt đầu từ ngày hôm nay.");
+                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                     return;
                 }
 
                 if (endDate.compareTo(startDate) <= 0) {
                     request.setAttribute("errorMessage", "Ngày trả phong phải sau ngày nhận phòng.");
-                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
+                    return;
+                }
+                List<String> conflictRooms = RoomDAO.getInstance().getUnavailableRooms(selectedRooms, startDate, endDate);
+
+                if (!conflictRooms.isEmpty()) {
+                    selectedRooms.removeAll(conflictRooms);
+                    session.setAttribute("selectedRooms", selectedRooms);
+
+                    request.setAttribute("errorMessage", "Phòng đã bị người khác đặt: " + String.join(", ", conflictRooms));
+                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                     return;
                 }
 
@@ -138,16 +153,9 @@ public class SearchRoom extends HttpServlet {
                 return;
             } catch (IllegalArgumentException e) {
                 request.setAttribute("errorMessage", "Invalid date format.");
-                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
-        }
-
- 
-        if (startDateStr == null || endDateStr == null || startDateStr.isEmpty() || endDateStr.isEmpty()) {
-            request.setAttribute("errorMessage", "Vui lòng chọn cả ngày nhận phòng và ngày trả phòng");
-            showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
-            return;
         }
 
         if (startDateStr != null && !startDateStr.isEmpty() && endDateStr != null && !endDateStr.isEmpty()) {
@@ -158,7 +166,13 @@ public class SearchRoom extends HttpServlet {
                 endDate = java.sql.Date.valueOf(endDateStr);
             } catch (IllegalArgumentException e) {
                 request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ.");
-                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
+                return;
+            }
+
+            if (startDateStr == null || endDateStr == null || startDateStr.isEmpty() || endDateStr.isEmpty()) {
+                request.setAttribute("errorMessage", "Vui lòng chọn cả ngày nhận phòng và ngày trả phòng");
+                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
 
@@ -166,43 +180,71 @@ public class SearchRoom extends HttpServlet {
             String todayStr = sdf.format(new Date());
 
             if (startDateStr.compareTo(todayStr) < 0) {
-                request.setAttribute("errorMessage", "Ngày nhận phòng bắt đầu từ ngày hôm này.");
-                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+                request.setAttribute("errorMessage", "Ngày nhận phòng bắt đầu từ ngày hôm nay.");
+                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
 
             if (endDate.compareTo(startDate) <= 0) {
-                request.setAttribute("errorMessage", "gày trả phong phải sau ngày nhận phòng.");
-                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+                request.setAttribute("errorMessage", "ngày trả phong phải sau ngày nhận phòng.");
+                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
 
             Integer typeRoomId = null;
+            Integer adult = null;
+            Integer children = null;
             if (typeRoomIdStr != null && !typeRoomIdStr.isEmpty()) {
                 try {
                     typeRoomId = Integer.parseInt(typeRoomIdStr);
                 } catch (NumberFormatException e) {
                     request.setAttribute("errorMessage", "Invalid room type.");
-                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
+                    return;
+                }
+            }
+            if (adultStr != null && !adultStr.isEmpty()) {
+                try {
+                    adult = Integer.parseInt(adultStr);
+                    if (adult < 0) {
+                        adult = 0;
+                    }
+                } catch (NumberFormatException e) {
+                    request.setAttribute("errorMessage", "Invalid adult number.");
+                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
+                    return;
+                }
+            }
+            if (childrenStr != null && !childrenStr.isEmpty()) {
+                try {
+                    children = Integer.parseInt(childrenStr);
+                    if (children < 0) {
+                        children = 0; // Ensure non-negative
+                    }
+                } catch (NumberFormatException e) {
+                    request.setAttribute("errorMessage", "Invalid children number.");
+                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                     return;
                 }
             }
 
-            List<Room> availableRooms = RoomDAO.getInstance().searchAvailableRooms(startDate, endDate, typeRoomId, page, recordsPerPage);
-            int totalRecords = RoomDAO.getInstance().countAvailableRooms(startDate, endDate, typeRoomId);
+            List<Room> availableRooms = RoomDAO.getInstance().searchAvailableRooms(startDate, endDate, typeRoomId, adult, children, page, recordsPerPage);
+            int totalRecords = RoomDAO.getInstance().countAvailableRooms(startDate, endDate, typeRoomId, adult, children);
             int totalPages = (int) Math.ceil(totalRecords * 1.0 / recordsPerPage);
 
+            System.out.println("Available rooms size: " + availableRooms.size() + ", Total records: " + totalRecords + ", Total pages: " + totalPages);
             request.setAttribute("availableRooms", availableRooms);
             request.setAttribute("totalPages", totalPages);
         }
 
-        showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, pageStr);
+        showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
     }
+
     private double calculateTotalPriceMultiple(String[] roomNumbers, String startDateStr, String endDateStr) {
         if (roomNumbers == null || roomNumbers.length == 0 || startDateStr == null || endDateStr == null) {
-            System.out.println("calculateTotalPriceMultiple: Invalid input - roomNumbers=" + 
-                              (roomNumbers == null ? "null" : Arrays.toString(roomNumbers)) + 
-                              ", startDate=" + startDateStr + ", endDate=" + endDateStr);
+            System.out.println("calculateTotalPriceMultiple: Invalid input - roomNumbers="
+                    + (roomNumbers == null ? "null" : Arrays.toString(roomNumbers))
+                    + ", startDate=" + startDateStr + ", endDate=" + endDateStr);
             return 0;
         }
         try {
@@ -238,14 +280,17 @@ public class SearchRoom extends HttpServlet {
     }
 
     private void showSearchRoom(HttpServletRequest request, HttpServletResponse response,
-            String startDateStr, String endDateStr, String typeRoomIdStr, String pageStr)
+            String startDateStr, String endDateStr, String typeRoomIdStr, String adultStr, String childrenStr, String pageStr)
             throws ServletException, IOException {
         request.setAttribute("startDateSearch", startDateStr != null ? startDateStr : "");
         request.setAttribute("endDateSearch", endDateStr != null ? endDateStr : "");
         request.setAttribute("typeRoomIdSearch", typeRoomIdStr != null ? typeRoomIdStr : "");
+        request.setAttribute("adultSearch", adultStr != null ? adultStr : "");
+        request.setAttribute("childrenSearch", childrenStr != null ? childrenStr : "");
         request.setAttribute("currentPage", pageStr != null ? Integer.parseInt(pageStr) : 1);
         request.getRequestDispatcher("/View/Receptionist/SearchRoom.jsp").forward(request, response);
     }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -260,6 +305,6 @@ public class SearchRoom extends HttpServlet {
 
     @Override
     public String getServletInfo() {
-        return "Search room based on dates and room type.";
+        return "Search room based on dates, room type, adult, and children.";
     }
 }

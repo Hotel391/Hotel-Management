@@ -1,86 +1,99 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%> 
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page import="models.CustomerAccount"%>
+<%@page import="models.Customer"%>
+
+<%
+    CustomerAccount ca = (CustomerAccount) request.getAttribute("customerAccount");
+    String fullName = (ca != null && ca.getCustomer() != null) ? ca.getCustomer().getFullName() : "A";
+    String initial = fullName.length() > 0 ? fullName.substring(0, 1).toUpperCase() : "A";
+    request.setAttribute("initialLetter", initial);
+    request.setAttribute("activeTab", "profile");
+%>
+
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Profile</title>
-        <%--style for dashbord--%>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-              integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-              crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/navDashboardStyle.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/dashboardStyle.css" />
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/mainDashboardStyle.css" />
-        <%--write more in following--%>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <title>Thông tin tài khoản</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+        <style>
+            .setting-card {
+                background-color: #ffffff;
+                border: 1px solid #e5eaf0;
+                border-radius: 12px;
+                padding: 24px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            }
+
+            .form-label {
+                font-weight: 500;
+                color: #212b36;
+                font-size: 14px;
+            }
+
+            .form-control {
+                border-radius: 8px;
+                font-size: 15px;
+                color: #212b36;
+            }
+
+        </style>
     </head>
-    <body>
-        <div class="containerBox">
-            <jsp:include page="leftNav.jsp" />
-            <div class="right-section">
-                <c:set var="title" value="Home Page" scope="request"/>
-                <jsp:include page="topNav.jsp" />
-                <div class="d-flex justify-content-center align-items-start mt-3" style="min-height: calc(100vh - 60px); padding-top: 10px;">
-                    <div class="card shadow-sm text-dark" style="background-color: #ffffff; width: 100%; max-width: 700px;">
+    <body style="background-color: #f5f7fa;">
+        <jsp:include page="Header.jsp" />
 
-                        <div class="card-header bg-primary text-white">
-                            <h4 class="mb-0">Customer Profile</h4>
+        <div class="container-xl py-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 col-xl-9">
+                    <div class="row">
+                        <!-- Sidebar -->
+                        <div class="col-md-3">
+                            <jsp:include page="SidebarProfile.jsp" />
                         </div>
-                        <div class="card-body">
-                            <dl class="row">
-                                <dt class="col-sm-3">Username:</dt>
-                                <dd class="col-sm-9">${customerAccount.username}</dd>
 
-                                <dt class="col-sm-3">Full Name:</dt>
-                                <dd class="col-sm-9">${customerAccount.customer.fullName}</dd>
+                        <!-- Content -->
+                        <div class="col-md-9">
+                            <div class="setting-card">
+                                <h5 class="mb-4">Thông tin tài khoản</h5>
+                                <form method="post" action="${pageContext.request.contextPath}/customerProfile?service=update&username=${customerAccount.username}">
+                                    <div class="mb-3">
+                                        <label for="fullName" class="form-label">Họ và tên</label>
+                                        <input type="text" class="form-control" id="fullName" name="fullName"
+                                               value="${customerAccount.customer.fullName}" readonly>
+                                    </div>
 
-                                <dt class="col-sm-3">Email:</dt>
-                                <dd class="col-sm-9">${customerAccount.customer.email}</dd>
-                                
-                                <c:if test="${customerAccount.customer.phoneNumber != null}">
-                                <dt class="col-sm-3">Phone Number:</dt>
-                                <dd class="col-sm-9">${customerAccount.customer.phoneNumber}</dd>
-                                </c:if>
-                                
-                                <dt class="col-sm-3">Gender:</dt>
-                                <dd class="col-sm-9">
-                                    <c:choose>
-                                        <c:when test="${customerAccount.customer.gender}">Male</c:when>
-                                        <c:otherwise>Female</c:otherwise>
-                                    </c:choose>
-                                </dd>
-                            </dl>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="gender" class="form-label">Giới tính</label>
+                                            <select class="form-select" id="gender" name="gender" readonly>
+                                                <option value="true" ${customerAccount.customer.gender ? "selected" : ""}>Nam</option>
+                                                <option value="false" ${!customerAccount.customer.gender ? "selected" : ""}>Nữ</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="phoneNumber" class="form-label">Số điện thoại</label>
+                                            <input type="text" class="form-control" id="phoneNumber" name="phoneNumber"
+                                                   value="${customerAccount.customer.phoneNumber}"readonly>
+                                        </div>
+                                    </div>
 
-                            <!--back home,update profile-->
-                            <div class="mt-4 d-flex gap-2">
-                                <a href="${pageContext.request.contextPath}/home" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left-circle"></i> Back to Home
-                                </a>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" value="${customerAccount.customer.email}" readonly>
+                                    </div>
 
-                                <a href="${pageContext.request.contextPath}/customerProfile?service=update&username=${customerAccount.username}" class="btn btn-primary">
-                                    <i class="bi bi-pencil-square"></i> Update Profile
-                                </a>
-
-                                <a href="${pageContext.request.contextPath}/customerProfile?service=changePass&username=${customerAccount.username}" class="btn btn-warning">
-                                    <i class="bi bi-key"></i> Change Password
-                                </a>
-
-                                <a href="${pageContext.request.contextPath}/customerProfile?service=changeUserName&username=${customerAccount.username}" class="btn btn-primary">
-                                    <i class="bi bi-pencil-square"></i> Change username
-                                </a>
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-primary">Chỉnh sửa</button>
+                                    </div>
+                                </form> 
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <%--script for dashbord--%>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
-        <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
-        <%--write more in following--%>
+                    </div> 
+                </div> 
+            </div> 
+        </div> 
     </body>
+
 </html>

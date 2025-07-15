@@ -147,14 +147,37 @@ public class Login extends HttpServlet {
                 session.setAttribute("customerInfo", accInfo);
             } else {
                 CustomerAccount accInfo = CustomerAccountDAO.getInstance().checkAccountByEmail(userInfo.getEmail());
-                session.setAttribute("customerInfo", accInfo);
+                
+                if (accInfo == null) {
+
+                    CustomerAccount accountForExistedCustomer = new CustomerAccount();
+
+                    accountForExistedCustomer.setCustomer(CustomerDAO.getInstance().checkCustomerByEmail(userInfo.getEmail()));
+
+                    //set username for google account
+                    String[] part = userInfo.getEmail().split("@");
+                    if (CustomerAccountDAO.getInstance().isUsernameExisted(part[0])) {
+                        accountForExistedCustomer.setUsername(generateRandomString(8));
+                        while (CustomerAccountDAO.getInstance().isUsernameExisted(accountForExistedCustomer.getUsername())) {
+                            accountForExistedCustomer.setUsername(generateRandomString(8));
+                        }
+                    } else {
+                        accountForExistedCustomer.setUsername(part[0]);
+                    }
+                    CustomerAccountDAO.getInstance().insertCustomerAccount(accountForExistedCustomer);
+                    session.setAttribute("customerInfo", accountForExistedCustomer);
+                } else if (!accInfo.getCustomer().getActivate()) {
+                    System.out.println("deactive");
+                    response.sendRedirect("home");
+                    return;
+                }else{
+                    session.setAttribute("customerInfo", accInfo);
+                }
             }
-            response.sendRedirect("customer/home");
+            response.sendRedirect("home");
         }
 
         if ("logout".equals(service)) {
-            session.removeAttribute("customerInfo");
-            session.removeAttribute("employeeInfo");
             session.invalidate();
             response.sendRedirect("login");
         }

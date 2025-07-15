@@ -39,6 +39,23 @@
                 font-weight: 700;
                 color: #c0392b;
             }
+            .back-button {
+                margin-bottom: 1rem;
+            }
+            .back-button a {
+                display: flex;
+                align-items: center;
+                color: #2c3e50;
+                text-decoration: none;
+                font-weight: 500;
+            }
+            .back-button a:hover {
+                color: #1a252f;
+            }
+            .back-button .arrow {
+                margin-right: 0.5rem;
+                font-size: 1.2rem;
+            }
         </style>
     </head>
     <body>
@@ -54,6 +71,15 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
                         </div>
                     </c:if>
+
+                    <div class="back-button">
+                        <form action="${pageContext.request.contextPath}/receptionist/roomInformation" method="post">
+                            <input type="hidden" name="action" value="back">
+                            <button type="submit" class="btn-back">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </button>
+                        </form>
+                    </div>
 
                     <div class="card card-hotel p-4 mb-4">
                         <div class="section-header">Thông tin đặt phòng</div>
@@ -195,8 +221,6 @@
 
             document.querySelectorAll('.service-check').forEach(cb => {
                 const qtyInput = cb.closest('tr').querySelector('.quantity-input');
-
-                // Enable quantity input only if checkbox is checked
                 qtyInput.disabled = !cb.checked;
 
                 cb.addEventListener('change', function () {
@@ -228,8 +252,7 @@
                 const total = basePrice + optionalServiceCost;
                 totalPriceElement.innerText = total.toLocaleString('vi-VN') + ' đ';
             }
-
             calculateTotal();
         </script>
     </body>
-</html>
+</html

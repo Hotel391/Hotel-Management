@@ -1,6 +1,5 @@
 package controllers.manager;
 
-
 import dal.CustomerAccountDAO;
 import dal.EmployeeDAO;
 import dal.RoleDAO;
@@ -140,6 +139,7 @@ public class EmployeeController extends HttpServlet {
     private Employee addEmployee(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         boolean hasError = false;
+        List<String> errorMessages = new ArrayList<>();
         Employee emp = new Employee();
 
         try {
@@ -159,10 +159,6 @@ public class EmployeeController extends HttpServlet {
 
             hasError = validateAddEmployeeInput(request, username, password, fullName, phoneNumber, email, roleId, hasError);
 
-            if (hasError) {
-                return null;
-            }
-
             emp.setUsername(username);
             emp.setPassword(Encryption.toSHA256(password));
             emp.setFullName(fullName);
@@ -181,7 +177,7 @@ public class EmployeeController extends HttpServlet {
                 try {
                     startFloor = Integer.valueOf(startFloorStr);
                 } catch (NumberFormatException e) {
-                    request.setAttribute("error", "Invalid start floor number.");
+                    errorMessages.add("Tầng bắt đầu không hợp lệ.");
                     hasError = true;
                 }
             }
@@ -190,13 +186,13 @@ public class EmployeeController extends HttpServlet {
                 try {
                     endFloor = Integer.valueOf(endFloorStr);
                 } catch (NumberFormatException e) {
-                    request.setAttribute("error", "Invalid end floor number.");
+                    errorMessages.add("Tầng kết thúc không hợp lệ.");
                     hasError = true;
                 }
             }
 
             if (startFloor != null && endFloor != null && startFloor >= endFloor) {
-                request.setAttribute("error", "Start floor must be less than end floor.");
+                errorMessages.add("Tầng bắt đầu phải nhỏ hơn tầng kết thúc.");
                 hasError = true;
             }
 
@@ -207,9 +203,13 @@ public class EmployeeController extends HttpServlet {
                     cf.setEndFloor(endFloor);
                     emp.setCleanerFloor(cf);
                 } else {
-                    request.setAttribute("error", "Start floor and End floor must be provided for Cleaner role.");
+                    errorMessages.add("Vui lòng nhập đầy đủ tầng bắt đầu và tầng kết thúc cho vai trò nhân viên dọn phòng.");
                     hasError = true;
                 }
+            }
+
+            if (!errorMessages.isEmpty()) {
+                request.setAttribute("addErrors", errorMessages);
             }
 
             if (hasError) {
@@ -218,7 +218,8 @@ public class EmployeeController extends HttpServlet {
 
             return emp;
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "An error occurred: " + e.getMessage());
+            errorMessages.add("Đã xảy ra lỗi: " + e.getMessage());
+            request.setAttribute("addErrors", errorMessages);
             return null;
         }
     }
@@ -226,12 +227,13 @@ public class EmployeeController extends HttpServlet {
     private Employee editEmployee(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         boolean hasError = false;
+        List<String> errorMessages = new ArrayList<>();
         Employee emp = new Employee();
 
         try {
             String employeeIdStr = request.getParameter("employeeId");
             if (employeeIdStr == null || employeeIdStr.trim().isEmpty()) {
-                request.setAttribute("error", "Employee ID is required for update.");
+                errorMessages.add("Employee ID is required for update.");
                 hasError = true;
             } else {
                 emp.setEmployeeId(Integer.parseInt(employeeIdStr));
@@ -251,10 +253,6 @@ public class EmployeeController extends HttpServlet {
 
             hasError = validateEditEmployeeInput(request, username, fullName, phoneNumber, email, roleId, emp.getEmployeeId(), hasError);
 
-            if (hasError) {
-                return null;
-            }
-
             emp.setUsername(username);
             emp.setFullName(fullName);
             emp.setPhoneNumber(phoneNumber);
@@ -273,7 +271,7 @@ public class EmployeeController extends HttpServlet {
                 try {
                     startFloor = Integer.valueOf(startFloorStr);
                 } catch (NumberFormatException e) {
-                    request.setAttribute("error", "Invalid start floor number.");
+                    errorMessages.add("Tầng bắt đầu không hợp lệ.");
                     hasError = true;
                 }
             }
@@ -282,13 +280,13 @@ public class EmployeeController extends HttpServlet {
                 try {
                     endFloor = Integer.valueOf(endFloorStr);
                 } catch (NumberFormatException e) {
-                    request.setAttribute("error", "Invalid end floor number.");
+                    errorMessages.add("Tầng bắt đầu không hợp lệ.");
                     hasError = true;
                 }
             }
 
             if (startFloor != null && endFloor != null && startFloor >= endFloor) {
-                request.setAttribute("error", "Start floor must be less than end floor.");
+                errorMessages.add("Tầng bắt đầu phải nhỏ hơn tầng kết thúc..");
                 hasError = true;
             }
 
@@ -298,9 +296,11 @@ public class EmployeeController extends HttpServlet {
                     cleanerFloor.setStartFloor(startFloor);
                     cleanerFloor.setEndFloor(endFloor);
                     emp.setCleanerFloor(cleanerFloor);
-                } else {
-                    emp.setCleanerFloor(null);
                 }
+            }
+
+            if (!errorMessages.isEmpty()) {
+                request.setAttribute("editErrors_" + emp.getEmployeeId(), errorMessages);
             }
 
             if (hasError) {
@@ -309,7 +309,8 @@ public class EmployeeController extends HttpServlet {
 
             return emp;
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "An error occurred: " + e.getMessage());
+            errorMessages.add("An error occurred: " + e.getMessage());
+            request.setAttribute("editErrors_" + emp.getEmployeeId(), errorMessages);
             return null;
         }
     }
@@ -397,7 +398,7 @@ public class EmployeeController extends HttpServlet {
         }
 
         if (!errorMessages.isEmpty()) {
-            request.setAttribute("errorMessages", errorMessages);
+            request.setAttribute("editErrors_" + employeeId, errorMessages);
             hasError = true;
         }
 

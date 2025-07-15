@@ -348,7 +348,7 @@
 
                                                             <div class="modal-body">
 
-                                                                <c:forEach var="img" items="${trl.images}">
+                                                                <c:forEach var="img" items="${trl.roomImages}">
 
                                                                     <div class="typeroom-img">
                                                                         <img src="${pageContext.request.contextPath}/Image/${fn:replace(trl.typeName, ' ', '')}/${img.image}" alt="${trl.typeName} Image"/>

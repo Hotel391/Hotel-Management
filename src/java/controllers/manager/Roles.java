@@ -1,6 +1,5 @@
 package controllers.manager;
 
-
 import dal.RoleDAO;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
@@ -11,8 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import models.Role;
 
-
-
 @WebServlet(name = "ManagerRoles", urlPatterns = {"/manager/roles"})
 public class Roles extends HttpServlet {
 
@@ -21,7 +18,7 @@ public class Roles extends HttpServlet {
             throws ServletException, IOException {
         List<Role> roleList = RoleDAO.getInstance().getAllRoles();
         if (roleList == null || roleList.isEmpty()) {
-            request.setAttribute("error", "No roles found or error retrieving roles.");
+            request.setAttribute("error", "Không tìm thấy vai trò hoặc có lỗi khi lấy vai trò.");
         }
         request.setAttribute("listRole", roleList);
         request.getRequestDispatcher("/View/Manager/Role.jsp").forward(request, response);
@@ -39,49 +36,49 @@ public class Roles extends HttpServlet {
                     case "add":
                         String roleNameAdd = request.getParameter("roleName");
                         if (roleNameAdd == null || roleNameAdd.trim().isEmpty()) {
-                            error = "Role name cannot be empty.";
+                            error = "Tên vai trò không được để trống.";
                             break;
                         }
                         if (roleNameAdd.trim().length() > 50) {
-                            error = "Role name must be less than 50 characters.";
+                            error = "Tên vai trò phải ít hơn 50 ký tự.";
                             break;
                         }
                         Role newRole = new Role(0, roleNameAdd.trim());
                         if (!RoleDAO.getInstance().addRole(newRole)) {
-                            error = "Failed to add role. Role name may already exist.";
+                            error = "Thêm vai trò thất bại. Tên vai trò có thể đã tồn tại.";
                         }
                         break;
                     case "update":
                         int roleIdUpdate = Integer.parseInt(request.getParameter("roleId"));
                         String roleNameUpdate = request.getParameter("roleName");
                         if (roleNameUpdate == null || roleNameUpdate.trim().isEmpty()) {
-                            error = "Role name cannot be empty.";
+                            error = "Tên vai trò không được để trống.";
                             break;
                         }
                         if (roleNameUpdate.trim().length() > 50) {
-                            error = "Role name must be less than 50 characters.";
+                            error = "Tên vai trò phải ít hơn 50 ký tự.";
                             break;
                         }
                         Role updatedRole = new Role(roleIdUpdate, roleNameUpdate.trim());
                         if (!RoleDAO.getInstance().updateRole(updatedRole)) {
-                            error = "Failed to update role. Role may not exist or name may already exist.";
+                            error = "Cập nhật vai trò thất bại. Vai trò có thể không tồn tại hoặc tên đã tồn tại.";
                         }
                         break;
                     case "delete":
                         int roleIdDelete = Integer.parseInt(request.getParameter("roleId"));
                         if (!RoleDAO.getInstance().deleteRole(roleIdDelete)) {
-                            error = "Failed to delete role. Role may be in use or not exist.";
+                            error = "Xóa vai trò thất bại. Vai trò có thể đang được sử dụng hoặc không tồn tại.";
                         }
                         break;
                     default:
-                        error = "Invalid action specified.";
+                        error = "Hành động không hợp lệ.";
                         break;
                 }
             } else {
-                error = "No action specified.";
+                error = "Không có hành động được chỉ định.";
             }
         } catch (NumberFormatException e) {
-            error = "Invalid role ID format: " + e.getMessage();
+            error = "Định dạng Mã vai trò không hợp lệ: " + e.getMessage();
         }
 
         if (error != null) {
@@ -90,10 +87,5 @@ public class Roles extends HttpServlet {
         } else {
             response.sendRedirect(request.getContextPath() + "/manager/roles");
         }
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Servlet for managing roles in the admin panel";
     }
 }

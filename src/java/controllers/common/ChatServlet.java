@@ -180,7 +180,7 @@ public class ChatServlet extends HttpServlet {
 
             return "Không có phản hồi từ Gemini.";
         } catch (JsonSyntaxException | IOException e) {
-            return "Đã xảy ra lỗi trong quá trình kết nối đến AI. Vui lòng thử lại sau.";
+            return "Đã xảy ra lỗi. Vui lòng thử lại sau.";
         }
     }
 }

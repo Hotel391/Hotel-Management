@@ -52,7 +52,7 @@
                             </form>
                             <p class="w-100 text-center">&mdash; Or Sign In With &mdash;</p>
                             <div class="social d-flex text-center">
-                                <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:9999/fptHotel/login&response_type=code
+                                <a href="https://accounts.google.com/o/oauth2/auth?scope=email%20profile%20openid&redirect_uri=http://localhost:9999/vn_pay/login&response_type=code
                                    &client_id=200776812058-qrg1li14uugvdeb351am8g4savbpjnvo.apps.googleusercontent.com&approval_prompt=force&state=loginGoogle" class="px-2 py-2 mr-md-1 rounded"><span class="ion-logo-google mr-2"></span> Google</a>
 
                             </div>

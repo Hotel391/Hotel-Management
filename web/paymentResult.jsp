@@ -27,13 +27,16 @@
                 Xem thông tin đặt phòng (Check-in)
             </div>
         </c:if>
-        
+
         <c:if test="${pageChange == null}">
             <div onclick="location.href = '${pageContext.request.contextPath}/receptionist/searchRoom'" style="cursor:pointer;">
                 Về trang tìm phòng
             </div>
         </c:if>
-        
+
+        <c:if test="${pageChange == 'cartStatus'}">
+            <div onclick="location.href = '${pageContext.request.contextPath}/home'"> về trang home</div>
+        </c:if>
 
         <section style="margin-top: 50px; text-align: center;">
             <div>
@@ -50,7 +53,7 @@
                         <i class="fas fa-check-circle"></i>
                     </h3>
                     <p style="font-size: 18px; margin-top: 15px;">Vui lòng để ý số điện thoại của nhân viên tư vấn:</p>
-                    <strong style="color: red; font-size: 24px;">0383459560</strong>
+                    <strong style="color: red; font-size: 24px;">0123456789</strong>
                 </div>
             </c:if>
 
@@ -62,7 +65,7 @@
                     </h3>
                     <p style="font-size: 18px; margin-top: 15px;">Cảm ơn quý khách đã dùng dịch vụ của chúng tôi.</p>
                     <p style="font-size: 18px;">Liên hệ tổng đài để được tư vấn:</p>
-                    <strong style="color: red; font-size: 24px;">số điện thoại</strong>
+                    <strong style="color: red; font-size: 24px;">0123456789</strong>
                 </div>
             </c:if>
 
@@ -73,7 +76,7 @@
                         Chúng tôi đã tiếp nhận đơn hàng, xin chờ quá trình xử lý!
                     </h3>
                     <p style="font-size: 18px; margin-top: 15px;">Vui lòng để ý số điện thoại của nhân viên tư vấn:</p>
-                    <strong style="color: red; font-size: 24px;">số điện thoại</strong>
+                    <strong style="color: red; font-size: 24px;">0123456789</strong>
                 </div>
             </c:if>
         </section>

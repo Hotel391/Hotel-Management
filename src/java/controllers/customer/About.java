@@ -1,6 +1,7 @@
 package controllers.customer;
 
 import dal.ReviewDAO;
+import dal.RoomDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -20,6 +21,12 @@ public class About extends HttpServlet {
         List<Review> topReviews = reviewDAO.getTop10FiveStarReviews();
         request.setAttribute("topReviews", topReviews);
 
+        RoomDAO roomDAO = RoomDAO.getInstance();
+        int availableRoomCount = roomDAO.getAvailableRoomCount();
+        int touristThisYear = roomDAO.getTouristThisYear();
+
+        request.setAttribute("availableRoomCount", availableRoomCount);
+        request.setAttribute("touristThisYear", touristThisYear);
         request.getRequestDispatcher("/View/Customer/About.jsp").forward(request, response);
     }
 

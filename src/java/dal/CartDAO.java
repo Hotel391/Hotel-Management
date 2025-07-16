@@ -1,5 +1,6 @@
 package dal;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -83,7 +84,7 @@ public class CartDAO {
     private Cart mapCartFromResultSet(ResultSet rs) throws SQLException {
         Cart cart = new Cart();
         cart.setCartId(rs.getInt("CartId"));
-        cart.setTotalPrice(rs.getInt("TotalPrice"));
+        cart.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
         cart.setStatus(rs.getString("Status"));
         cart.setStartDate(rs.getDate("StartDate"));
         cart.setEndDate(rs.getDate("EndDate"));
@@ -214,9 +215,9 @@ public class CartDAO {
                 + getTypeRoomPriceByCartId(cart.getCartId()) * (numberOfNight - 1)
                 + getTotalServicePriceHaveMoneyButNoNeedTimes(cart.getRoom().getTypeRoom().getTypeId()) * (numberOfNight - 1);
 
-        if (cart.getTotalPrice() != totalPrice) {
-            cart.setTotalPrice(totalPrice);
-            updateCartTotalPrice(cart.getCartId(), totalPrice);
+        if (!cart.getTotalPrice().equals(BigInteger.valueOf(totalPrice))) {
+            cart.setTotalPrice(BigInteger.valueOf(totalPrice));
+            updateCartTotalPrice(cart.getCartId(), BigInteger.valueOf(totalPrice));
         }
 
     }
@@ -327,10 +328,10 @@ public class CartDAO {
         return 0;
     }
 
-    private void updateCartTotalPrice(int cartId, int totalPrice) {
+    private void updateCartTotalPrice(int cartId, BigInteger totalPrice) {
         String sql = "UPDATE Cart SET TotalPrice = ? WHERE CartId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, totalPrice);
+            ps.setLong(1, totalPrice.longValue());
             ps.setInt(2, cartId);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -759,7 +760,7 @@ public class CartDAO {
                 if (rs.next()) {
                     Cart cart = new Cart();
                     cart.setCartId(rs.getInt("CartId"));
-                    cart.setTotalPrice(rs.getInt("TotalPrice"));
+                    cart.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
                     cart.setStatus(rs.getString("Status"));
                     cart.setStartDate(rs.getDate("StartDate"));
                     cart.setEndDate(rs.getDate("EndDate"));
@@ -861,7 +862,7 @@ public class CartDAO {
                 if (rs.next()) {
                     Cart cart = new Cart();
                     cart.setCartId(rs.getInt("CartId"));
-                    cart.setTotalPrice(rs.getInt("TotalPrice"));
+                    cart.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
                     cart.setStatus(rs.getString("Status"));
                     cart.setStartDate(rs.getDate("StartDate"));
                     cart.setEndDate(rs.getDate("EndDate"));
@@ -910,7 +911,7 @@ public class CartDAO {
                     cart.setCartId(cartId);
                     cart.setStartDate(rs.getDate("StartDate"));
                     cart.setEndDate(rs.getDate("EndDate"));
-                    cart.setTotalPrice(rs.getInt("TotalPrice"));
+                    cart.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
                     cart.setRoomNumber(rs.getInt("RoomNumber"));
                     cart.setStatus(rs.getString("Status"));
                     cart.setPayDay(rs.getTimestamp("PayDay"));
@@ -958,7 +959,7 @@ public class CartDAO {
             st.setTimestamp(1, new java.sql.Timestamp(booking.getPayDay().getTime()));
             st.setString(2, booking.getStatus());
             st.setInt(3, booking.getCustomer().getCustomerId());
-            st.setInt(4, booking.getPaidAmount());
+            st.setLong(4, booking.getPaidAmount().longValue());
             st.setInt(5, booking.getPaymentMethodCheckIn().getPaymentMethodId());
 
             st.executeUpdate();
@@ -984,7 +985,7 @@ public class CartDAO {
             st.setDate(2, bd.getEndDate());
             st.setInt(3, bd.getBooking().getBookingId());
             st.setInt(4, bd.getRoom().getRoomNumber());
-            st.setInt(5, bd.getTotalAmount());
+            st.setLong(5, bd.getTotalAmount().longValue());
 
             st.executeUpdate();
             try (ResultSet rs = st.getGeneratedKeys()) {
@@ -1008,7 +1009,7 @@ public class CartDAO {
                 st.setInt(1, bookingDetailId);
                 st.setInt(2, ds.getService().getServiceId());
                 st.setInt(3, ds.getQuantity());
-                st.setInt(4, ds.getPriceAtTime());
+                st.setLong(4, ds.getPriceAtTime().longValue());
                 st.addBatch();
             }
             st.executeBatch();

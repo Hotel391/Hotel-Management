@@ -5,6 +5,8 @@ import models.Room;
 import models.RoomNService;
 import models.Service;
 import models.TypeRoom;
+
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -122,7 +124,7 @@ public class RoomDAO {
                 TypeRoom t = new TypeRoom();
                 t.setTypeId(rs.getInt("TypeId"));
                 t.setTypeName(rs.getString("TypeName"));
-                t.setPrice(rs.getInt("Price"));
+                t.setPrice(new BigInteger(rs.getString("Price")));
                 r.setTypeRoom(t);
                 return r;
             }
@@ -164,7 +166,7 @@ public class RoomDAO {
                     typeRoom.setTypeId(rs.getInt("TypeId"));
                     typeRoom.setTypeName(rs.getString("TypeName"));
                     typeRoom.setDescription(rs.getString("Description"));
-                    typeRoom.setPrice(rs.getInt("Price"));
+                    typeRoom.setPrice(new BigInteger(rs.getString("Price")));
 
                     foundRoom = new Room(roomNumber, rs.getBoolean("isCleaner"),
                             rs.getBoolean("IsActive"), typeRoom);
@@ -242,7 +244,7 @@ public class RoomDAO {
                         typeRoom.setTypeId(rs.getInt("TypeId"));
                         typeRoom.setTypeName(rs.getString("TypeName"));
                         typeRoom.setDescription(rs.getString("Description"));
-                        typeRoom.setPrice(rs.getInt("Price"));
+                        typeRoom.setPrice(new BigInteger(rs.getString("Price")));
 
                         foundRoom = new Room(rNumber, rs.getBoolean("isCleaner"),
                                 rs.getBoolean("IsActive"), typeRoom);
@@ -348,7 +350,7 @@ public class RoomDAO {
             while (rs.next()) {
                 TypeRoom tr = new TypeRoom(rs.getInt(1),
                         rs.getString(2), rs.getString(3),
-                        rs.getInt(4));
+                        new BigInteger(rs.getString(4)));
                 listTypeRoom.add(tr);
             }
 
@@ -451,7 +453,7 @@ public class RoomDAO {
                     TypeRoom typeRoom = new TypeRoom();
                     typeRoom.setTypeId(typeId);
                     typeRoom.setTypeName(typeName);
-                    typeRoom.setPrice(price);
+                    typeRoom.setPrice(new BigInteger(rs.getString("Price")));
 
                     Room room = new Room(roomNumber, isCleaner, typeRoom);
                     stayingRooms.add(room);
@@ -554,7 +556,7 @@ public class RoomDAO {
                 TypeRoom typeRoom = new TypeRoom();
                 typeRoom.setTypeId(rs.getInt("TypeId"));
                 typeRoom.setTypeName(rs.getString("TypeName"));
-                typeRoom.setPrice(rs.getInt("Price"));
+                typeRoom.setPrice(new BigInteger(rs.getString("Price")));
                 typeRoom.setDescription(rs.getString("Description"));
                 typeRoom.setMaxAdult(rs.getInt("Adult")); // Map to maxAdult
                 typeRoom.setMaxChildren(rs.getInt("Children")); // Map to maxChildren

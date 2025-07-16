@@ -1,6 +1,7 @@
 package dal;
 
 import java.sql.Statement;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -51,7 +52,7 @@ public class BookingDetailDAO {
                 bookingDetail.setStartDate(rs.getDate("StartDate"));
                 bookingDetail.setEndDate(rs.getDate("EndDate"));
                 bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
-                bookingDetail.setTotalAmount(rs.getInt("TotalAmount"));
+                bookingDetail.setTotalAmount(new BigInteger(rs.getString("TotalAmount")));
                 bookingDetail.setServices(
                         DetailServiceDAO.getInstance()
                                 .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
@@ -138,7 +139,7 @@ public class BookingDetailDAO {
                 bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
                 bookingDetail.setStartDate(rs.getDate("StartDate"));
                 bookingDetail.setEndDate(rs.getDate("EndDate"));
-                bookingDetail.setTotalAmount(rs.getInt("TotalAmount"));
+                bookingDetail.setTotalAmount(new BigInteger(rs.getString("TotalAmount")));
 
                 Room room = new Room();
                 room.setRoomNumber(rs.getInt("RoomNumber"));
@@ -190,7 +191,7 @@ public class BookingDetailDAO {
             st.setDate(2, detail.getEndDate());
             st.setInt(3, detail.getBooking().getBookingId());
             st.setInt(4, detail.getRoom().getRoomNumber());
-            st.setInt(5, detail.getTotalAmount());
+            st.setLong(5, detail.getTotalAmount().longValue());
             st.executeUpdate();
 
             try (ResultSet generatedKeys = st.getGeneratedKeys()) {
@@ -211,7 +212,7 @@ public class BookingDetailDAO {
                 + "   SET [TotalAmount] = ?\n"
                 + " WHERE BookingDetailId = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setInt(1, detail.getTotalAmount());
+            st.setLong(1, detail.getTotalAmount().longValue());
             st.setInt(2, detail.getBookingDetailId());
             st.executeUpdate();
             return true;
@@ -299,10 +300,10 @@ public class BookingDetailDAO {
                     Room room = new Room();
 
                     booking.setBookingId(rs.getInt("BookingId"));
-                    booking.setPaidAmount(rs.getInt("PaidAmount"));
+                    booking.setPaidAmount(new BigInteger(rs.getString("PaidAmount")));
 
                     bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
-                    bookingDetail.setTotalAmount(rs.getInt("TotalAmount"));
+                    bookingDetail.setTotalAmount(new BigInteger(rs.getString("TotalAmount")));
                     bookingDetail.setStartDate(rs.getDate("StartDate"));
                     bookingDetail.setEndDate(rs.getDate("EndDate"));
 
@@ -470,7 +471,7 @@ public class BookingDetailDAO {
                 bookingDetail.setStartDate(rs.getDate("StartDate"));
                 bookingDetail.setEndDate(rs.getDate("EndDate"));
                 bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
-                bookingDetail.setTotalAmount(rs.getInt("TotalAmount"));
+                bookingDetail.setTotalAmount(new BigInteger(rs.getString("TotalAmount")));
                 bookingDetail.setServices(
                         DetailServiceDAO.getInstance()
                                 .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));

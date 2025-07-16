@@ -1,11 +1,13 @@
 package models;
 
+import java.math.BigInteger;
+
 public class DetailService {
 
     private BookingDetail bookingDetail;  
     private Service service;            
     private int quantity;
-    private int priceAtTime;
+    private BigInteger priceAtTime;
 
     public DetailService() {
     }
@@ -16,11 +18,11 @@ public class DetailService {
         this.quantity = quantity;
     }
 
-    public int getPriceAtTime() {
+    public BigInteger getPriceAtTime() {
         return priceAtTime;
     }
 
-    public void setPriceAtTime(int priceAtTime) {
+    public void setPriceAtTime(BigInteger priceAtTime) {
         this.priceAtTime = priceAtTime;
     }
 

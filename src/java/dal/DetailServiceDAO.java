@@ -4,6 +4,7 @@
  */
 package dal;
 
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -94,7 +95,7 @@ public class DetailServiceDAO {
 
                 // Gán số lượng và giá tại thời điểm
                 detail.setQuantity(rs.getInt("Quantity"));
-                detail.setPriceAtTime(rs.getInt("PriceAtTime")); // phải có setter trong DetailService
+                detail.setPriceAtTime(new BigInteger(rs.getString("PriceAtTime"))); // phải có setter trong DetailService
 
                 // Tạo và gán Service
                 Service service = new Service();

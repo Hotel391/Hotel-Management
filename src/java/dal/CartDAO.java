@@ -107,16 +107,16 @@ public class CartDAO {
         LocalDate today = LocalDate.now();
         Date startDate = cart.getStartDate();
         Date endDate = cart.getEndDate();
-        
+
         if (!cart.isIsActive() && !startDate.before(Date.valueOf(today))) {
             reactivateCartIfRoomAvailable(cart, startDate, endDate);
         }
-        
+
         if (cart.isIsActive()) {
             deactivateCartIfStartDatePast(cart, today);
         }
 
-        if(cart.isIsActive() && !checkRoomOfCartStatus(cart.getCartId())){
+        if (cart.isIsActive() && !checkRoomOfCartStatus(cart.getCartId())) {
             handleRoomNumberConflict(cart, startDate, endDate);
         }
 
@@ -129,7 +129,7 @@ public class CartDAO {
         }
     }
 
-    private boolean checkRoomOfCartStatus(int cartId){
+    private boolean checkRoomOfCartStatus(int cartId) {
         String sql = """
                 select r.IsActive from Room r
                 join Cart ca on ca.RoomNumber=r.RoomNumber
@@ -891,7 +891,7 @@ public class CartDAO {
                c.PayDay, c.isActive, c.isPayment,
                pm.PaymentMethodId, pm.PaymentName,
                cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender,cus.CCCD, 
-               s.ServiceId, s.ServiceName, s.Price, cs.Quantity
+               s.ServiceId, s.ServiceName, s.Price, cs.Quantity, cs.priceAtTime
         FROM Cart c
         JOIN PaymentMethod pm ON c.PaymentMethodId = pm.PaymentMethodId
         JOIN Customer cus ON c.mainCustomerId = cus.CustomerId
@@ -940,6 +940,8 @@ public class CartDAO {
                     CartService cs = new CartService();
                     cs.setService(service);
                     cs.setQuantity(quantity);
+                    BigInteger r = new BigInteger(rs.getString("priceAtTime"));
+                    cs.setPriceAtTime(r);
                     cart.getCartServices().add(cs);
                 }
             }

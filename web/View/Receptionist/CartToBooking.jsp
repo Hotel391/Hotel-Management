@@ -93,6 +93,7 @@
                                         <th scope="col">Khách hàng</th>
                                         <th scope="col">Số phòng</th>
                                         <th scope="col">Dịch vụ</th>
+                                        <th>trống</th>
                                             <c:if test="${requestScope.cartStatus != 'view'}">
                                             <th scope="">Nhận phòng</th>
                                             </c:if>
@@ -131,12 +132,15 @@
                                                     </c:forEach>
                                                 </ul>
                                             </td>
+                                            <td>${c.payDay}</td>
                                             <c:if test="${requestScope.cartStatus != 'view'}">
                                                 <td>
                                                     <form method="post" action="${pageContext.request.contextPath}/receptionist/cartToBooking">
                                                         <input type="hidden" name="cartId" value="${c.cartId}" />
                                                         <input type="hidden" name="paidAmount" value="${c.totalPrice}" />
-                                                        <input type="hidden" name="payDay" value="${c.payDay}" />
+                                                        <fmt:formatDate value="${c.payDay}" pattern="yyyy-MM-dd HH:mm:ss" var="formattedPayDay" />
+                                                        <input type="hidden" name="payDay" value="${formattedPayDay}" />
+
                                                         <input type="hidden" name="status" value="${c.status}" />
                                                         <input type="hidden" name="customerId" value="${c.mainCustomer.customerId}" />
                                                         <input type="hidden" name="paymentMethodId" value="${c.paymentMethod.paymentMethodId}" />
@@ -145,7 +149,7 @@
                                                         <input type="hidden" name="roomNumber" value="${c.roomNumber}" />
                                                         <input type="hidden" name="choose" value="cartToBooking" />
                                                         <input type="hidden" name="page" value="${requestScope.currentPage}">
-                                                        
+
                                                         <input type="hidden" name="searchEmail" value="${param.searchEmail}"/>
 
                                                         <c:forEach var="s" items="${c.cartServices}">

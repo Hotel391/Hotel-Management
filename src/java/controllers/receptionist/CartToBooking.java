@@ -16,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import models.Booking;
 import models.BookingDetail;
@@ -63,8 +64,24 @@ public class CartToBooking extends HttpServlet {
                 int customerId = Integer.parseInt(request.getParameter("customerId"));
                 int paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));
                 String startDateStr = request.getParameter("startDate");
+
                 String endDateStr = request.getParameter("endDate");
                 int roomNumber = Integer.parseInt(request.getParameter("roomNumber"));
+
+                System.out.println("====== [DEBUG PARAMS] ======");
+                System.out.println("cartId = " + request.getParameter("cartId"));
+                System.out.println("paidAmount = " + request.getParameter("paidAmount"));
+                System.out.println("payDayStr = " + request.getParameter("payDay"));
+                System.out.println("status = " + request.getParameter("status"));
+                System.out.println("customerId = " + request.getParameter("customerId"));
+                System.out.println("paymentMethodId = " + request.getParameter("paymentMethodId"));
+                System.out.println("startDateStr = " + request.getParameter("startDate"));
+                System.out.println("endDateStr = " + request.getParameter("endDate"));
+                System.out.println("roomNumber = " + request.getParameter("roomNumber"));
+                System.out.println("choose = " + request.getParameter("choose"));
+                System.out.println("searchEmail = " + request.getParameter("searchEmail"));
+                System.out.println("page = " + request.getParameter("page"));
+                System.out.println("============================");
 
                 Customer selectCustomer = dal.CustomerDAO.getInstance().getCustomerByCustomerID(customerId);
 
@@ -93,6 +110,12 @@ public class CartToBooking extends HttpServlet {
                 String[] serviceIds = request.getParameterValues("serviceId");
                 String[] quantities = request.getParameterValues("quantity");
                 String[] priceAtTimes = request.getParameterValues("priceAtTime");
+
+                System.out.println("===== [DEBUG SERVICES] =====");
+                System.out.println("serviceIds = " + Arrays.toString(serviceIds));
+                System.out.println("quantities = " + Arrays.toString(quantities));
+                System.out.println("priceAtTimes = " + Arrays.toString(priceAtTimes));
+                System.out.println("============================");
 
                 List<DetailService> detailServices = new ArrayList<>();
                 if (serviceIds != null) {
@@ -189,6 +212,12 @@ public class CartToBooking extends HttpServlet {
     private void viewCustomerFuture(HttpServletRequest request, HttpServletResponse response, String email)
             throws ServletException, IOException {
         List<Cart> allCarts = dal.CartDAO.getInstance().getAllCompletedCheckInCarts();
+        for (Cart allCart : allCarts) {
+            for (CartService cartService : allCart.getCartServices()) {
+                System.out.println(cartService.getService());
+                System.out.println(cartService.getPriceAtTime());
+            }
+        }
         List<Cart> listCartCompleteBank = new ArrayList<>();
         for (Cart cart : listCartCompleteBank) {
             System.out.println(cart.getMainCustomer().getCCCD());

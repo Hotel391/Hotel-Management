@@ -60,7 +60,7 @@ public class CustomerDAO {
 
             if (rs.next()) {
                 // Create and populate Role
-                Role role = new Role(rs.getInt(8));
+                Role role = new Role(rs.getInt("RoleId"));
                 role.setRoleId(rs.getInt("RoleId"));
                 role.setRoleName(rs.getString("RoleName"));
 
@@ -199,13 +199,12 @@ public class CustomerDAO {
 
     public int insertCustomer(Customer customer) {
         String sql = """
-                     insert into Customer (FullName,Email,Gender,activate,RoleId)\r
-                     values (?,?,?,?,4)""";
+                     insert into Customer (FullName,Email,Gender,RoleId)\r
+                     values (?,?,?,4)""";
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, customer.getFullName());
             st.setString(2, customer.getEmail());
             st.setBoolean(3, customer.getGender());
-            st.setBoolean(4, customer.getActivate());
 
             st.executeUpdate();
 
@@ -631,14 +630,24 @@ public class CustomerDAO {
         }
         return null;
     }
-    
-    public void deactiveSpam(CustomerAccount account){
-         String sql = "UPDATE Customer SET activate = 0 WHERE CustomerId = ?";
+
+    public void deactiveSpam(CustomerAccount account) {
+        String sql = "UPDATE Customer SET activate = 0 WHERE CustomerId = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, account.getCustomer().getCustomerId());
             st.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+    public void updatePhoneNumberAndGender(Customer customer){
+        String sql = "update Customer set PhoneNumber = ?, Gender = ? where Email = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setString(1, customer.getPhoneNumber());
+            ptm.setBoolean(2, customer.getGender());
+            ptm.setString(3, customer.getEmail());
+            ptm.executeUpdate();
+        } catch (SQLException e) {
         }
     }
 

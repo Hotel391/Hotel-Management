@@ -122,15 +122,16 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <c:if test="${not empty errorMessages}">
+                                        <c:if test="${not empty requestScope.addErrors}">
                                             <div class="alert alert-danger">
                                                 <ul>
-                                                    <c:forEach var="error" items="${errorMessages}">
+                                                    <c:forEach var="error" items="${requestScope.addErrors}">
                                                         <li>${error}</li>
                                                         </c:forEach>
                                                 </ul>
                                             </div>
                                         </c:if>
+
                                         <div class="row g-3">
                                             <div class="col-md-6">
                                                 <label for="usernameAdd" class="form-label">Tên Đăng Nhập</label>
@@ -197,16 +198,18 @@
                                         </div>
 
                                         <div class="modal-body">
-                                            <!-- Hiển thị tất cả lỗi nếu có -->
-                                            <c:if test="${not empty errorMessages}">
+                                            <c:set var="editErrorKey" value="editErrors_${emp.employeeId}" />
+                                            <c:if test="${not empty requestScope[editErrorKey]}">
                                                 <div class="alert alert-danger">
                                                     <ul>
-                                                        <c:forEach var="error" items="${errorMessages}">
+                                                        <c:forEach var="error" items="${requestScope[editErrorKey]}">
                                                             <li>${error}</li>
                                                             </c:forEach>
                                                     </ul>
                                                 </div>
                                             </c:if>
+
+
 
                                             <div class="row g-3">
                                                 <div class="col-md-6">
@@ -402,8 +405,8 @@
                                                         });
 
                                                         document.addEventListener('DOMContentLoaded', function () {
-                                                            const showEditModalId = ${not empty requestScope.showEditModalId};
-                                                            if (showEditModalId) {
+                                                            const showEditModalId = "<c:out value='${showEditModalId}' default=''/>";
+                                                            if (showEditModalId !== "") {
                                                                 const editEmployeeModalEl = document.getElementById("editEmployeeModal_" + showEditModalId);
                                                                 if (editEmployeeModalEl) {
                                                                     const modal = new bootstrap.Modal(editEmployeeModalEl);

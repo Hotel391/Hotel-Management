@@ -62,4 +62,5 @@
             </div>
         </div>
     </div>
+                    <jsp:include page="/View/chatbot.jsp" />
 </footer>

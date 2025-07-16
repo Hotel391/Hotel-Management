@@ -45,7 +45,7 @@
         display: flex;
     }
 
-    #gemini-widget .header {
+    #gemini-widget .header-chat {
         background: #4285f4;
         color: white;
         padding: 10px;
@@ -113,15 +113,15 @@
     <div id="gemini-toggle" onclick="toggleChat()"><i class="bi bi-chat-fill"></i></div>
 
     <div id="gemini-popup">
-        <div class="header">
+        <div class="header-chat">
             <span>Chatbot AI</span>
             <button onclick="toggleChat()"><i class="bi bi-x-lg"></i></button>
         </div>
         <div id="chatBox" class="chat-box"></div>
         <textarea id="question" rows="3" placeholder="Nhập câu hỏi..."></textarea>
         <div class="controls">
-            <button onclick="sendQuestion()">Gửi</button>
             <button onclick="clearChat()"><i class="bi bi-trash3"></i></button>
+            <button onclick="sendQuestion()">Gửi</button>
         </div>
     </div>
 </div>

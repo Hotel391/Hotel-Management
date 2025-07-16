@@ -85,6 +85,7 @@ public class ajaxServlet extends HttpServlet {
                 int mainCustomerId = dal.CustomerDAO.getInstance().insertCustomerOnline(checkCustomer);
                 session.setAttribute("mainCustomerId", mainCustomerId);
             } else {
+                dal.CustomerDAO.getInstance().updatePhoneNumberAndGender(checkCustomer);
                 session.setAttribute("mainCustomerId", customerByEmail.getCustomerId());
             }
 //            cart.setStatus("Processing");

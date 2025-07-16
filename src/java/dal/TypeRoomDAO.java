@@ -12,6 +12,8 @@ import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import models.RoomImage;
 import models.RoomNService;
 import models.Service;
 
@@ -735,5 +737,52 @@ public class TypeRoomDAO {
             //
         }
         return typeRooms;
+    }
+    
+    public List<TypeRoom> getTop5MostBookedRoomTypes() {
+        List<TypeRoom> topRoomTypes = new ArrayList<>();
+        String sql = """
+        SELECT TOP 5 
+            tr.TypeId, 
+            tr.TypeName, 
+            tr.Description, 
+            tr.Price, 
+            tr.Adult, 
+            tr.Children, 
+            COUNT(bd.BookingDetailId) AS BookingCount
+        FROM TypeRoom tr
+        JOIN Room r ON tr.TypeId = r.TypeId
+        LEFT JOIN BookingDetail bd ON r.RoomNumber = bd.RoomNumber
+        JOIN Booking b ON bd.BookingId = b.BookingId 
+        WHERE b.Status IN ('Completed Checkin', 'Processing', 'Completed')
+        GROUP BY tr.TypeId, tr.TypeName, tr.Description, tr.Price, tr.Adult, tr.Children
+        ORDER BY BookingCount DESC
+    """;
+
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                TypeRoom typeRoom = new TypeRoom();
+                int typeId = rs.getInt("TypeId");
+                typeRoom.setTypeId(typeId);
+                typeRoom.setTypeName(rs.getString("TypeName"));
+                typeRoom.setDescription(rs.getString("Description"));
+                typeRoom.setPrice(rs.getInt("Price"));
+                typeRoom.setMaxAdult(rs.getInt("Adult"));
+                typeRoom.setMaxChildren(rs.getInt("Children"));
+
+                List<RoomImage> imageObjects = RoomImageDAO.getInstance().getRoomImagesByTypeId(typeId);
+
+                List<String> imagePaths = imageObjects.stream()
+                        .map(RoomImage::getImage)
+                        .collect(Collectors.toList());
+
+                typeRoom.setImages(imagePaths);
+
+                topRoomTypes.add(typeRoom);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return topRoomTypes;
     }
 }

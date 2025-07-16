@@ -472,9 +472,8 @@ public class BookingDAO {
         if (phone != null && !phone.isEmpty()) {
             sql += " AND c.PhoneNumber = ?";
         }
-        
-        //abcdefgh
 
+        //abcdefgh
         try (PreparedStatement st = con.prepareStatement(sql)) {
             if (phone != null && !phone.isEmpty()) {
                 st.setString(1, phone);
@@ -496,5 +495,65 @@ public class BookingDAO {
             e.printStackTrace();
         }
         return bookings;
+    }
+
+    public List<Booking> getBookingByCustomerIdAndStatus(int customerId, int page, int pageSize, String status, Date currentDate) {
+        List<Booking> bookings = new ArrayList<>();
+        String sql = "SELECT DISTINCT b.* FROM Booking b "
+                + "JOIN BookingDetail bd ON b.BookingId = bd.BookingId "
+                + "WHERE b.CustomerID = ? ";
+
+        if ("upcoming".equals(status)) {
+            sql += "AND b.Status = 'Completed CheckIn' ";
+        } else if ("completed".equals(status)) {
+            sql += "AND b.Status = 'Completed CheckOut' ";
+        }
+
+        sql += "ORDER BY b.BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, customerId);
+            st.setInt(2, (page - 1) * pageSize);
+            st.setInt(3, pageSize);
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Booking booking = new Booking();
+                    booking.setBookingId(rs.getInt("BookingID"));
+                    booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
+                    booking.setPayDay(rs.getDate("PayDay"));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
+                    booking.setStatus(rs.getString("Status"));
+                    booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
+                    bookings.add(booking);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
+
+    public int getTotalBookingsByCustomerIdAndStatus(int customerId, String status, Date currentDate) {
+        String sql = "SELECT COUNT(DISTINCT b.BookingId) FROM Booking b "
+                + "JOIN BookingDetail bd ON b.BookingId = bd.BookingId "
+                + "WHERE b.CustomerID = ? ";
+
+        if ("upcoming".equals(status)) {
+            sql += "AND b.Status = 'Completed CheckIn' ";
+        } else if ("completed".equals(status)) {
+            sql += "AND b.Status = 'Completed CheckOut' ";
+        }
+
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, customerId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

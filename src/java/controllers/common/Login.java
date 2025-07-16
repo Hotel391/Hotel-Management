@@ -147,17 +147,13 @@ public class Login extends HttpServlet {
                 session.setAttribute("customerInfo", accInfo);
             } else {
                 CustomerAccount accInfo = CustomerAccountDAO.getInstance().checkAccountByEmail(userInfo.getEmail());
-                if(!accInfo.getCustomer().getActivate()){
-                    System.out.println("deactive");
-                    response.sendRedirect("home");
-                    return;
-                }
+                
                 if (accInfo == null) {
-                    
+
                     CustomerAccount accountForExistedCustomer = new CustomerAccount();
-                    
+
                     accountForExistedCustomer.setCustomer(CustomerDAO.getInstance().checkCustomerByEmail(userInfo.getEmail()));
-                    
+
                     //set username for google account
                     String[] part = userInfo.getEmail().split("@");
                     if (CustomerAccountDAO.getInstance().isUsernameExisted(part[0])) {
@@ -169,9 +165,14 @@ public class Login extends HttpServlet {
                         accountForExistedCustomer.setUsername(part[0]);
                     }
                     CustomerAccountDAO.getInstance().insertCustomerAccount(accountForExistedCustomer);
+                    session.setAttribute("customerInfo", accountForExistedCustomer);
+                } else if (!accInfo.getCustomer().getActivate()) {
+                    System.out.println("deactive");
+                    response.sendRedirect("home");
+                    return;
+                }else{
+                    session.setAttribute("customerInfo", accInfo);
                 }
-                System.out.println("test account google: " + accInfo);
-                session.setAttribute("customerInfo", accInfo);
             }
             response.sendRedirect("home");
         }

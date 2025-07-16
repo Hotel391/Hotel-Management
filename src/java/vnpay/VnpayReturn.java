@@ -94,6 +94,9 @@ public class VnpayReturn extends HttpServlet {
                     cart.setCartId(bookingId);
                     cart.setStatus("Completed CheckIn");
                     cart.setIsPayment(true);
+                    PaymentMethod paymentMehtod = new PaymentMethod();
+                    paymentMehtod.setPaymentMethodId(1);
+                    cart.setPaymentMethod(paymentMehtod);
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
                     dal.CartDAO.getInstance().updateMainCustomerId(mainCustomerId, bookingId);
                     transSuccess = true;
@@ -154,9 +157,9 @@ public class VnpayReturn extends HttpServlet {
                     }
 
                     int roomPrice = selectCart.getTotalPrice() - totalServicePrice;
-                    Customer customer = dal.CustomerDAO.getInstance().getCustomerByCustomerID(mainCustomerId);
-                    String customerName = customer.getFullName();
-                    String email = customer.getEmail();
+                    Customer mainCustomer = dal.CustomerDAO.getInstance().getCustomerByCustomerID(mainCustomerId);
+                    String mainCustomerName = mainCustomer.getFullName();
+                    String mainEmail = mainCustomer.getEmail();
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     String checkin = sdf.format(startDate);
                     String checkout = sdf.format(endDate);
@@ -172,37 +175,51 @@ public class VnpayReturn extends HttpServlet {
                     String typeRoomName = room.getTypeRoom().getTypeName();
 
                     Map<String, Object> data = new HashMap<>();
-                    data.put("customerName", customerName);
-                    data.put("email", email);
+                    data.put("customerName", mainCustomerName);
+                    data.put("email", mainEmail);
                     data.put("typeRoomName", typeRoomName);
                     data.put("roomNumber", roomNumber);
                     data.put("checkin", checkin);
                     data.put("checkout", checkout);
                     data.put("adults", adults);
                     data.put("children", children);
+                    data.put("roomPrice", roomPrice);
                     data.put("paymentMethod", paymentMethod);
                     data.put("serviceNames", serviceNames);
                     data.put("serviceQuantities", serviceQuantities);
                     data.put("servicePrices", servicePrices);
                     data.put("totalServicePrice", totalServicePrice);
                     emailExecutor.submit(() -> {
-                        System.out.println("Sending email to " + email);
                         EmailService emailService = new EmailService();
-                        emailService.sendEmail(email, "Confirm Booking information", EmailType.BOOKING_FROM_CART, data);
+                        emailService.sendEmail(mainEmail, "Confirm Booking information", EmailType.BOOKING_FROM_CART, data);
                     });
+
+                    if (mainCustomerId != selectCart.getCustomer().getCustomerId()) {
+                        Customer customer = dal.CustomerDAO.getInstance()
+                                .getCustomerByCustomerID(selectCart.getCustomer().getCustomerId());
+                        String customerName = customer.getFullName();
+                        String email = customer.getEmail();
+                        data.put("customerName", customerName);
+                        data.put("email", email);
+                        emailExecutor.submit(() -> {
+                            EmailService emailService = new EmailService();
+                            emailService.sendEmail(mainEmail, "Confirm Booking information", EmailType.BOOKING_FROM_CART, data);
+                        });
+                    }
 
                 } else {
                     Cart cart = new Cart();
                     cart.setCartId(bookingId);
                     cart.setStatus("Failed");
                     cart.setIsPayment(false);
+                    cart.setPaymentMethod(null);
                     dal.CartDAO.getInstance().updateStatusAndIsPayment(cart);
                     transSuccess = false;
                 }
 
                 request.setAttribute("pageChange", "cartStatus");
                 session.removeAttribute("cartStatus");
-                session.removeAttribute("timeLeft-"+bookingId);
+                session.removeAttribute("timeLeft-" + bookingId);
                 session.removeAttribute("checkoutAttempts");
                 session.removeAttribute("mainCustomerId");
             } else {
@@ -233,8 +250,8 @@ public class VnpayReturn extends HttpServlet {
                         String startDateStr = (String) session.getAttribute("startDate");
                         String endDateStr = (String) session.getAttribute("endDate");
                         String[] roomNumbers = (String[]) session.getAttribute("roomNumbers");
-                        Map<String, List<DetailService>> roomServicesMap
-                                = (Map<String, List<DetailService>>) session.getAttribute("roomServicesMap");
+//                        Map<String, List<DetailService>> roomServicesMap
+//                                = (Map<String, List<DetailService>>) session.getAttribute("roomServicesMap");
 
                         // Sau khi đã insert BookingDetail và DetailService
                         // Tạo các list cần thiết
@@ -286,34 +303,26 @@ public class VnpayReturn extends HttpServlet {
                             priceTypeRoom.add(totalPrice);
                         }
 
-                        // Lấy danh sách dịch vụ
-                        if (roomServicesMap != null) {
-                            for (String roomNumber : roomNumbers) {
-                                List<DetailService> list = roomServicesMap.get(roomNumber);
-                                if (list != null) {
-                                    for (DetailService d : list) {
-                                        String serviceName = d.getService().getServiceName();
-                                        int quantity = d.getQuantity();
-                                        int price = d.getService().getPrice();
+                        // Lấy danh sách BookingDetail
+                        List<BookingDetail> bookingDetails = dal.BookingDetailDAO.getInstance().getBookingDetailsByBookingId(bookingId);
 
-                                        // Cộng dồn số lượng nếu đã có
-                                        serviceQuantityMap.put(serviceName,
-                                                serviceQuantityMap.getOrDefault(serviceName, 0) + quantity);
+                        for (BookingDetail bd : bookingDetails) {
+                            int bdId = bd.getBookingDetailId();
+                            List<DetailService> servicesList = dal.DetailServiceDAO.getInstance().getServicesByBookingDetailId(bdId);
+                            for (DetailService d : servicesList) {
+                                String serviceName = d.getService().getServiceName();
+                                int quantity = d.getQuantity();
+                                int priceAtTime = d.getPriceAtTime();
 
-                                        // Ghi lại giá
-                                        servicePriceMap.putIfAbsent(serviceName, price);
-                                    }
-                                }
+                                serviceQuantityMap.put(serviceName, serviceQuantityMap.getOrDefault(serviceName, 0) + quantity);
+                                servicePriceMap.put(serviceName, servicePriceMap.getOrDefault(serviceName, 0) + priceAtTime);
                             }
                         }
 
-                        // đẩy vào list danh sách các dịch vụ của tất cả
-                        for (String serviceName : serviceQuantityMap.keySet()) {
-                            services.add(serviceName);
-                            int quantity = serviceQuantityMap.get(serviceName);
-                            int unitPrice = servicePriceMap.get(serviceName);
-                            serviceQuantity.add(quantity);
-                            servicePrice.add(quantity * unitPrice);
+                        for (String name : serviceQuantityMap.keySet()) {
+                            services.add(name);
+                            serviceQuantity.add(serviceQuantityMap.get(name));
+                            servicePrice.add(servicePriceMap.get(name));
                         }
 
                         //tổng tiền
@@ -546,7 +555,7 @@ public class VnpayReturn extends HttpServlet {
 
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *

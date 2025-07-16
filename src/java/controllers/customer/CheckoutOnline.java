@@ -51,7 +51,7 @@ public class CheckoutOnline extends HttpServlet {
 
         Boolean fromCart = (Boolean) session.getAttribute("fromCart");
         Integer attempts = (Integer) session.getAttribute("checkoutAttempts");
-        System.out.println("attemps v" + attempts);
+        System.out.println("attemps version: " + attempts);
         if (attempts == null) {
             attempts = 0;
         }
@@ -90,7 +90,6 @@ public class CheckoutOnline extends HttpServlet {
                 return;
             }
 
-            //check room available
             CartDAO.getInstance().changeRoomNumber(checkCart, checkCart.getStartDate(), checkCart.getEndDate());
 
             if (checkCart.getRoomNumber() == 0) {
@@ -101,8 +100,7 @@ public class CheckoutOnline extends HttpServlet {
                 return;
             }
 
-            //set payment time limitation
-            expireTime = System.currentTimeMillis() + 5 * 1000;
+            expireTime = System.currentTimeMillis() + 60 * 5 * 1000;
             session.setAttribute("expireTime-" + cartId, expireTime);
             long currentTimeMillis = System.currentTimeMillis();
             Timestamp sqlTimestamp = new Timestamp(currentTimeMillis);
@@ -146,13 +144,14 @@ public class CheckoutOnline extends HttpServlet {
             System.out.println("timeLeft: " + timeLeft);
 
             if (timeLeft == 0) {
+                attempts++;
                 if (attempts > 3) {
                     dal.CustomerDAO.getInstance().deactiveSpam(customerAccount);
+                    CartDAO.getInstance().updateCartToFail(checkCart);
                     session.removeAttribute("customerInfo");
                     response.sendRedirect("home");
                     return;
                 }
-                attempts++;
                 session.setAttribute("checkoutAttempts", attempts);
                 System.out.println("attemps: " + attempts);
                 CartDAO.getInstance().updateCartToFail(checkCart);

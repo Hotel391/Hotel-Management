@@ -106,22 +106,45 @@ public class CartDAO {
         LocalDate today = LocalDate.now();
         Date startDate = cart.getStartDate();
         Date endDate = cart.getEndDate();
-
-        if (cart.isIsActive()) {
-            deactivateCartIfStartDatePast(cart, today);
-        }
         
-        if (cart.isIsActive()){
-            handleRoomNumberConflict(cart, startDate, endDate);
-        }
-        
-        if (cart.isIsActive()){
-            updateCartPricingAndServices(cart, startDate, endDate);
-        }
-
         if (!cart.isIsActive() && !startDate.before(Date.valueOf(today))) {
             reactivateCartIfRoomAvailable(cart, startDate, endDate);
         }
+        
+        if (cart.isIsActive()) {
+            deactivateCartIfStartDatePast(cart, today);
+        }
+
+        if(cart.isIsActive() && !checkRoomOfCartStatus(cart.getCartId())){
+            handleRoomNumberConflict(cart, startDate, endDate);
+        }
+
+        if (cart.isIsActive()) {
+            handleRoomNumberConflict(cart, startDate, endDate);
+        }
+
+        if (cart.isIsActive()) {
+            updateCartPricingAndServices(cart, startDate, endDate);
+        }
+    }
+
+    private boolean checkRoomOfCartStatus(int cartId){
+        String sql = """
+                select r.IsActive from Room r
+                join Cart ca on ca.RoomNumber=r.RoomNumber
+                where ca.CartId=?
+                """;
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, cartId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBoolean("IsActive");
+                }
+            }
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return true;
     }
 
     private void reactivateCartIfRoomAvailable(Cart cart, Date startDate, Date endDate) {
@@ -272,7 +295,7 @@ public class CartDAO {
     }
 
     private int getTotalServicePriceHaveMoneyButNoNeedTimes(int typeId) {
-        if (serviceHaveMoneyButNoNeedTimes == null || serviceHaveMoneyButNoNeedTimes.length == 0) {
+        if (serviceHaveMoneyButNoNeedTimes.length == 0) {
             return 0;
         }
         StringBuilder placeholders = new StringBuilder();
@@ -724,7 +747,7 @@ public class CartDAO {
     //write function get cart by cartId
     public Cart getCartByCartId(int cartId) {
         String sql = """
-                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive,
+                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive, c.CustomerId,
                                 c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber
                                 FROM Cart c
                                 WHERE c.CartId = ?
@@ -741,6 +764,9 @@ public class CartDAO {
                     cart.setStartDate(rs.getDate("StartDate"));
                     cart.setEndDate(rs.getDate("EndDate"));
                     cart.setIsActive(rs.getBoolean("IsActive"));
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("CustomerId"));
+                    cart.setCustomer(customer);
                     PaymentMethod paymentMethod = new PaymentMethod();
                     paymentMethod.setPaymentMethodId(rs.getInt("PaymentMethodId"));
                     cart.setPaymentMethod(paymentMethod);
@@ -774,18 +800,24 @@ public class CartDAO {
     }
 
     public void updateStatusAndIsPayment(Cart cart) {
-        String sql = "update Cart set Status = ? , isPayment = ? where cartId = ?";
+        String sql = "update Cart set Status = ? , isPayment = ?, PaymentMethodId = ? where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, cart.getStatus());
             ptm.setBoolean(2, cart.isIsPayment());
-            ptm.setInt(3, cart.getCartId());
+            if (cart.getPaymentMethod() == null) {
+                ptm.setNull(3, java.sql.Types.INTEGER);
+            } else {
+                ptm.setInt(3, cart.getPaymentMethod().getPaymentMethodId());
+            }
+
+            ptm.setInt(4, cart.getCartId());
             ptm.executeUpdate();
         } catch (Exception e) {
         }
     }
 
     public void updateCartInCheckout(Cart cart) {
-        String sql = "update Cart set Status = 'Processing' , isPayment = 1, PayDay = ?  where cartId = ?";
+        String sql = "update Cart set Status = 'Processing' , isPayment = 1, PayDay = ?, PaymentMethodId = 1  where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setTimestamp(1, cart.getPayDay());
             ptm.setInt(2, cart.getCartId());
@@ -795,7 +827,7 @@ public class CartDAO {
     }
 
     public void updateCartToFail(Cart cart) {
-        String sql = "update Cart set Status = 'Failed' , isPayment = 0, PayDay = null  where cartId = ?";
+        String sql = "update Cart set Status = 'Pending' , isPayment = 0, PayDay = null  where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, cart.getCartId());
             ptm.executeUpdate();
@@ -857,7 +889,7 @@ public class CartDAO {
         SELECT c.CartId, c.StartDate, c.EndDate, c.TotalPrice, c.RoomNumber, c.Status,
                c.PayDay, c.isActive, c.isPayment,
                pm.PaymentMethodId, pm.PaymentName,
-               cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender, cus.CCCD,
+               cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender, cus.CCCD, 
                s.ServiceId, s.ServiceName, s.Price, cs.Quantity
         FROM Cart c
         JOIN PaymentMethod pm ON c.PaymentMethodId = pm.PaymentMethodId
@@ -893,6 +925,7 @@ public class CartDAO {
                     cus.setFullName(rs.getString("FullName"));
                     cus.setEmail(rs.getString("Email"));
                     cus.setPhoneNumber(rs.getString("PhoneNumber"));
+                    cus.setCCCD(rs.getString("CCCD"));
                     cus.setGender(rs.getBoolean("Gender"));
                     cart.setMainCustomer(cus);
 

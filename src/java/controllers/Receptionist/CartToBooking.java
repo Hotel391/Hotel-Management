@@ -41,60 +41,11 @@ public class CartToBooking extends HttpServlet {
 
         String choose = request.getParameter("choose");
         if (choose == null) {
-            choose = "viewCustomerToday";
-        }
-
-//        if ("search".equals(choose)) {
-//            String email = request.getParameter("searchEmail");
-//            String source = request.getParameter("source"); // viewCustomerToday / viewCustomerFuture / viewCustomerHasDuaDon
-//            List<Cart> allCarts = dal.CartDAO.getInstance().getAllCompletedCheckInCarts();
-//            List<Cart> filtered = new ArrayList<>();
-//            LocalDateTime now = LocalDateTime.now();
-//
-//            for (Cart cart : allCarts) {
-//                boolean match = false;
-//
-//                if ("viewCustomerToday".equals(source)) {
-//                    LocalDate today = now.toLocalDate();
-//                    if (cart.getStartDate().toLocalDate().equals(today) && now.toLocalTime().isAfter(LocalTime.NOON)) {
-//                        match = true;
-//                        request.setAttribute("cartStatus", "bookToday");
-//                    }
-//                } else if ("viewCustomerFuture".equals(source)) {
-//                    LocalDateTime startLimit = cart.getStartDate().toLocalDate().atTime(12, 0);
-//                    LocalDateTime endLimit = cart.getEndDate().toLocalDate().atTime(9, 0);
-//                    if (now.isAfter(startLimit) && now.isBefore(endLimit)) {
-//                        match = true;
-//                        request.setAttribute("cartStatus", "bookFuture");
-//                    }
-//                } else if ("viewCustomerHasDuaDon".equals(source)) {
-//                    LocalDateTime startLimit = cart.getStartDate().toLocalDate().atTime(12, 0);
-//                    LocalDateTime endLimit = cart.getEndDate().toLocalDate().atTime(9, 0);
-//                    boolean hasServiceId2 = cart.getCartServices().stream().anyMatch(cs -> cs.getService().getServiceId() == 2);
-//                    if (now.isAfter(startLimit) && now.isBefore(endLimit) && hasServiceId2) {
-//                        match = true;
-//                        request.setAttribute("cartStatus", "view");
-//                    }
-//                }
-//
-//                if (match && cart.getMainCustomer().getEmail().equalsIgnoreCase(email)) {
-//                    filtered.add(cart);
-//                }
-//            }
-//
-//            paginateCartList(request, filtered);
-//            request.getRequestDispatcher("/View/Receptionist/CartToBooking.jsp").forward(request, response);
-//        }
-        if ("viewCustomerToday".equals(choose)) {
-            viewCustomerToday(request, response);
+            choose = "viewCustomerFuture";
         }
 
         if ("viewCustomerHasDuaDon".equalsIgnoreCase(choose)) {
-            viewCustomerHasDuaDon(request, response);
-        }
-
-        if ("viewCustomerFuture".equals(choose)) {
-            viewCustomerFuture(request, response);
+            viewCustomerHasDuaDon(request, response, null);
         }
 
         if ("updateCCCD".equalsIgnoreCase(choose)) {
@@ -106,7 +57,7 @@ public class CartToBooking extends HttpServlet {
                 // Nhận các thông số từ form
                 int cartId = Integer.parseInt(request.getParameter("cartId"));
                 int paidAmount = Integer.parseInt(request.getParameter("paidAmount"));
-                String payDayStr = request.getParameter("payDay");  // Định dạng phải là: yyyy-MM-dd HH:mm:ss
+                String payDayStr = request.getParameter("payDay");
                 String status = request.getParameter("status");
                 int customerId = Integer.parseInt(request.getParameter("customerId"));
                 int paymentMethodId = Integer.parseInt(request.getParameter("paymentMethodId"));
@@ -115,20 +66,18 @@ public class CartToBooking extends HttpServlet {
                 int roomNumber = Integer.parseInt(request.getParameter("roomNumber"));
 
                 Customer selectCustomer = dal.CustomerDAO.getInstance().getCustomerByCustomerID(customerId);
-                String cartStatus = request.getParameter("cartStatus");
+
                 if (selectCustomer.getCCCD() == null) {
                     request.setAttribute("customerId", selectCustomer.getCustomerId());
                     request.setAttribute("fullname", selectCustomer.getFullName());
                     request.setAttribute("email", selectCustomer.getEmail());
-                    if ("bookToday".equalsIgnoreCase(cartStatus)) {
-                        request.setAttribute("error", "errorBookToday");
-                        request.setAttribute("choose", "viewCustomerToday");
-                        viewCustomerToday(request, response);
-                    } else if ("bookFuture".equalsIgnoreCase(cartStatus)) {
-                        request.setAttribute("error", "errorBookFuture");
-                        request.setAttribute("choose", "viewCustomerFuture");
-                        viewCustomerFuture(request, response);
-                    }
+
+                    request.setAttribute("error", "errorBookFuture");
+                    request.setAttribute("choose", "viewCustomerFuture");
+                    String email = request.getParameter("searchEmail");
+
+                    viewCustomerFuture(request, response, email);
+
                     return;
                 }
 
@@ -206,12 +155,10 @@ public class CartToBooking extends HttpServlet {
                 String ch = null;
                 String pageStr = request.getParameter("page");
 
-                if ("bookToday".equalsIgnoreCase(cartStatus)) {
-                    ch = "viewCustomerToday";
-                } else if ("bookFuture".equalsIgnoreCase(cartStatus)) {
-                    ch = "viewCustomerFuture";
-                }
-                response.sendRedirect(request.getContextPath() + "/receptionist/cartToBooking?choose=" + ch + "&page=" + pageStr);
+                ch = "viewCustomerFuture";
+
+                response.sendRedirect(request.getContextPath()
+                        + "/receptionist/cartToBooking?choose=" + ch + "&page=" + pageStr + "&success=true&action=addBooking");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -219,76 +166,32 @@ public class CartToBooking extends HttpServlet {
                 request.getRequestDispatcher("/View/Receptionist/CartToBooking.jsp").forward(request, response);
             }
         }
-    }
 
-    private void updateCccd(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String cartStatus = request.getParameter("cartStatus");
-        String customerIdstr = request.getParameter("customerId");
-        String email = request.getParameter("email");
-        String fullname = request.getParameter("fullname");
-        int customerId = Integer.parseInt(customerIdstr);
-        String cccd = request.getParameter("cccd");
-        
-        System.out.println(cartStatus);
-        System.out.println(customerIdstr);
-        System.out.println(email);
-        System.out.println(fullname);
-        System.out.println(cccd);
-        
-        if (!cccd.matches("\\d{12}")) {
-            request.setAttribute("fullname", fullname);
-            request.setAttribute("email", email);
-            request.setAttribute("customerId", customerId); // PHẢI có
-            request.setAttribute("cccdError", "Căn cước công dân phải gồm đúng 12 chữ số.");
-
-            request.setAttribute("error", "errorBookToday"); // hoặc errorBookFuture
-            request.setAttribute("cartStatus", cartStatus);
-
-            if ("bookToday".equalsIgnoreCase(cartStatus) || cartStatus == null) {
-                request.setAttribute("error", "errorBookToday");
-                request.setAttribute("choose", "viewCustomerToday");
-                viewCustomerToday(request, response);
-            } else if ("bookFuture".equalsIgnoreCase(cartStatus)) {
-                request.setAttribute("error", "errorBookFuture");
+        if ("search".equals(choose)) {
+            String email = request.getParameter("searchEmail");
+            String source = request.getParameter("source"); // viewCustomerFuture / viewCustomerHasDuaDon
+            request.setAttribute("source", "search");
+            if ("viewCustomerFuture".equalsIgnoreCase(source)) {
                 request.setAttribute("choose", "viewCustomerFuture");
-                viewCustomerFuture(request, response);
-            }
-            return;
-        }
-        dal.CustomerDAO.getInstance().updateCustomerCCCD(cccd, customerId);
-        if("bookToday".equalsIgnoreCase(cartStatus)){
-            viewCustomerToday(request, response);
-        }else if("bookFuture".equalsIgnoreCase(cartStatus)){
-            viewCustomerFuture(request, response);
-        }
-    }
-
-    private void viewCustomerToday(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        List<Cart> allCarts = dal.CartDAO.getInstance().getAllCompletedCheckInCarts();
-        List<Cart> filteredCarts = new ArrayList<>();
-
-        LocalDateTime now = LocalDateTime.now();
-        LocalDate today = now.toLocalDate();
-
-        for (Cart cart : allCarts) {
-            LocalDate cartStartDate = cart.getStartDate().toLocalDate();
-            if (cartStartDate.equals(today) && now.toLocalTime().isAfter(LocalTime.NOON)) {
-                filteredCarts.add(cart);
+                viewCustomerFuture(request, response, email);
+            } else if ("viewCustomerHasDuaDon".equalsIgnoreCase(source)) {
+                request.setAttribute("choose", "viewCustomerHasDuaDon");
+                viewCustomerHasDuaDon(request, response, email);
             }
         }
 
-        paginateCartList(request, filteredCarts); // thêm dòng này
-
-        request.setAttribute("cartStatus", "bookToday");
-        request.getRequestDispatcher("/View/Receptionist/CartToBooking.jsp").forward(request, response);
+        if ("viewCustomerFuture".equals(choose)) {
+            viewCustomerFuture(request, response, null);
+        }
     }
 
-    private void viewCustomerFuture(HttpServletRequest request, HttpServletResponse response)
+    private void viewCustomerFuture(HttpServletRequest request, HttpServletResponse response, String email)
             throws ServletException, IOException {
         List<Cart> allCarts = dal.CartDAO.getInstance().getAllCompletedCheckInCarts();
         List<Cart> listCartCompleteBank = new ArrayList<>();
+        for (Cart cart : listCartCompleteBank) {
+            System.out.println(cart.getMainCustomer().getCCCD());
+        }
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -297,7 +200,11 @@ public class CartToBooking extends HttpServlet {
             LocalDateTime endLimit = cart.getEndDate().toLocalDate().atTime(9, 0);
 
             if (now.isAfter(startLimit) && now.isBefore(endLimit)) {
-                listCartCompleteBank.add(cart);
+                if (email == null || email.trim().isEmpty()) {
+                    listCartCompleteBank.add(cart);
+                } else if (email.equalsIgnoreCase(cart.getMainCustomer().getEmail())) {
+                    listCartCompleteBank.add(cart);
+                }
             }
         }
 
@@ -306,7 +213,7 @@ public class CartToBooking extends HttpServlet {
         request.getRequestDispatcher("/View/Receptionist/CartToBooking.jsp").forward(request, response);
     }
 
-    private void viewCustomerHasDuaDon(HttpServletRequest request, HttpServletResponse response)
+    private void viewCustomerHasDuaDon(HttpServletRequest request, HttpServletResponse response, String email)
             throws ServletException, IOException {
         List<Cart> allCarts = dal.CartDAO.getInstance().getAllCompletedCheckInCarts();
         List<Cart> listCartCompleteBank = new ArrayList<>();
@@ -331,7 +238,11 @@ public class CartToBooking extends HttpServlet {
                 }
 
                 if (hasServiceId2) {
-                    listCartCompleteBank.add(cart);
+                    if (email == null || email.trim().isEmpty()) {
+                        listCartCompleteBank.add(cart);
+                    } else if (email.equalsIgnoreCase(cart.getMainCustomer().getEmail())) {
+                        listCartCompleteBank.add(cart);
+                    }
                 }
             }
         }
@@ -362,6 +273,41 @@ public class CartToBooking extends HttpServlet {
         request.setAttribute("totalPages", totalPages);
     }
 
+    private void updateCccd(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String cartStatus = request.getParameter("cartStatus");
+        String customerIdstr = request.getParameter("customerId");
+        String email = request.getParameter("email");
+        String fullname = request.getParameter("fullname");
+        int customerId = Integer.parseInt(customerIdstr);
+        String cccd = request.getParameter("cccd");
+        String searchEmail = request.getParameter("searchEmail");
+
+        System.out.println(cartStatus);
+        System.out.println(customerIdstr);
+        System.out.println(email);
+        System.out.println(fullname);
+        System.out.println(cccd);
+
+        if (!cccd.matches("\\d{12}")) {
+            request.setAttribute("fullname", fullname);
+            request.setAttribute("email", email);
+            request.setAttribute("customerId", customerId); // PHẢI có
+            request.setAttribute("cccdError", "Căn cước công dân phải gồm đúng 12 chữ số.");
+
+            request.setAttribute("cartStatus", cartStatus);
+
+            request.setAttribute("error", "errorBookFuture");
+            request.setAttribute("choose", "viewCustomerFuture");
+            viewCustomerFuture(request, response, searchEmail);
+
+            return;
+        }
+        dal.CustomerDAO.getInstance().updateCustomerCCCD(cccd, customerId);
+
+        viewCustomerFuture(request, response, searchEmail);
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -379,4 +325,24 @@ public class CartToBooking extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
+//    private void viewCustomerToday(HttpServletRequest request, HttpServletResponse response)
+//            throws ServletException, IOException {
+//        List<Cart> allCarts = dal.CartDAO.getInstance().getAllCompletedCheckInCarts();
+//        List<Cart> filteredCarts = new ArrayList<>();
+//
+//        LocalDateTime now = LocalDateTime.now();
+//        LocalDate today = now.toLocalDate();
+//
+//        for (Cart cart : allCarts) {
+//            LocalDate cartStartDate = cart.getStartDate().toLocalDate();
+//            if (cartStartDate.equals(today) && now.toLocalTime().isAfter(LocalTime.NOON)) {
+//                filteredCarts.add(cart);
+//            }
+//        }
+//
+//        paginateCartList(request, filteredCarts); // thêm dòng này
+//
+//        request.setAttribute("cartStatus", "bookToday");
+//        request.getRequestDispatcher("/View/Receptionist/CartToBooking.jsp").forward(request, response);
+//    }
 }

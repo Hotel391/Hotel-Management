@@ -16,6 +16,7 @@ import utility.Validation;
 import dal.CustomerDAO;
 import dal.RoomDAO;
 import jakarta.servlet.http.HttpSession;
+import java.math.BigInteger;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -256,16 +257,16 @@ public class Checkout extends HttpServlet {
         // Tạo các list cần thiết
         List<String> typeRoom = new ArrayList<>();
         List<Integer> quantityTypeRoom = new ArrayList<>();
-        List<Integer> priceTypeRoom = new ArrayList<>();
+        List<BigInteger> priceTypeRoom = new ArrayList<>();
         List<String> services = new ArrayList<>();
         List<Integer> serviceQuantity = new ArrayList<>();
-        List<Integer> servicePrice = new ArrayList<>();
+        List<BigInteger> servicePrice = new ArrayList<>();
 
         // Tạo map đếm loại phòng
         Map<String, Integer> typeCountMap = new LinkedHashMap<>();
-        Map<String, Integer> typePriceMap = new LinkedHashMap<>();
+        Map<String, BigInteger> typePriceMap = new LinkedHashMap<>();
         Map<String, Integer> serviceQuantityMap = new LinkedHashMap<>();
-        Map<String, Integer> servicePriceMap = new LinkedHashMap<>();
+        Map<String, BigInteger> servicePriceMap = new LinkedHashMap<>();
 
         long numberOfNights = 1; // default
         if (startDateStr != null && endDateStr != null) {
@@ -282,7 +283,7 @@ public class Checkout extends HttpServlet {
             TypeRoom type = dal.TypeRoomDAO.getInstance().getTypeRoomById(typeId);
 
             String typeName = type.getTypeName();
-            int price = type.getPrice();
+            BigInteger price = type.getPrice();
 
             if (!typeCountMap.containsKey(typeName)) {
                 typeCountMap.put(typeName, 1);
@@ -295,8 +296,10 @@ public class Checkout extends HttpServlet {
         //chỗ ghi list đây
         for (String typeName : typeCountMap.keySet()) {
             int quantity = typeCountMap.get(typeName);
-            int unitPrice = typePriceMap.get(typeName);
-            int totalPrice = (int) (quantity * unitPrice * numberOfNights);
+            BigInteger unitPrice = typePriceMap.get(typeName);
+            BigInteger totalPrice = unitPrice
+                    .multiply(BigInteger.valueOf(quantity))
+                    .multiply(BigInteger.valueOf(numberOfNights));
             typeRoom.add(typeName);
             quantityTypeRoom.add(quantity);
             priceTypeRoom.add(totalPrice);
@@ -311,10 +314,12 @@ public class Checkout extends HttpServlet {
             for (DetailService d : servicesList) {
                 String serviceName = d.getService().getServiceName();
                 int quantity = d.getQuantity();
-                int priceAtTime = d.getPriceAtTime();
+                BigInteger priceAtTime = d.getPriceAtTime();
 
                 serviceQuantityMap.put(serviceName, serviceQuantityMap.getOrDefault(serviceName, 0) + quantity);
-                servicePriceMap.put(serviceName, servicePriceMap.getOrDefault(serviceName, 0) + priceAtTime);
+                BigInteger current = servicePriceMap.getOrDefault(serviceName, BigInteger.ZERO);
+                servicePriceMap.put(serviceName, current.add(priceAtTime));
+
             }
         }
 
@@ -325,10 +330,22 @@ public class Checkout extends HttpServlet {
         }
 
         //tổng tiền
-        int total = 0;
+        BigInteger total = BigInteger.ZERO;
         Object obj = session.getAttribute("totalPrice");
-        if (obj instanceof Double) {
-            total = ((Double) obj).intValue();
+        if (obj instanceof BigInteger) {
+            total = (BigInteger) obj;
+        } else if (obj instanceof Integer) {
+            total = BigInteger.valueOf((Integer) obj);
+        } else if (obj instanceof Long) {
+            total = BigInteger.valueOf((Long) obj);
+        } else if (obj instanceof String) {
+            try {
+                total = new BigInteger((String) obj);
+            } catch (NumberFormatException e) {
+                total = BigInteger.ZERO;
+            }
+        } else if (obj != null) {
+            throw new IllegalStateException("totalPrice in session has unsupported type: " + obj.getClass());
         }
 
         //tên phương thức thanh toán
@@ -364,11 +381,23 @@ public class Checkout extends HttpServlet {
     private void checkInByMoney(HttpServletRequest request, HttpServletResponse response, int customerId)
             throws ServletException, IOException {
         HttpSession session = request.getSession();
-        int totalPrice = 0;
+        BigInteger totalPrice = BigInteger.ZERO;
         int bookingId = 0;
         Object obj = session.getAttribute("totalPrice");
-        if (obj instanceof Double) {
-            totalPrice = ((Double) obj).intValue();
+        if (obj instanceof BigInteger) {
+            totalPrice = (BigInteger) obj;
+        } else if (obj instanceof Integer) {
+            totalPrice = BigInteger.valueOf((Integer) obj);
+        } else if (obj instanceof Long) {
+            totalPrice = BigInteger.valueOf((Long) obj);
+        } else if (obj instanceof String) {
+            try {
+                totalPrice = new BigInteger((String) obj);
+            } catch (NumberFormatException e) {
+                totalPrice = BigInteger.ZERO;
+            }
+        } else if (obj != null) {
+            throw new IllegalStateException("totalPrice in session has unsupported type: " + obj.getClass());
         }
         Booking booking = new Booking();
         Customer customer = new Customer();
@@ -410,7 +439,7 @@ public class Checkout extends HttpServlet {
             double totalRoomPrice = roomPrice * numberOfNights;
 
             // Tính tổng tiền dịch vụ (nếu có)
-            int totalServiceCost = 0;
+            BigInteger totalServiceCost = BigInteger.ZERO;
             if (roomServicesMap != null && roomServicesMap.containsKey(roomNumberStr)) {
                 List<DetailService> serviceList = roomServicesMap.get(roomNumberStr);
                 List<DetailService> includedList = includedServiceQuantities != null
@@ -433,14 +462,14 @@ public class Checkout extends HttpServlet {
 
                     int finalQuantity = quantity - includedQuantity;
                     if (finalQuantity > 0) {
-                        int total = finalQuantity * priceAtTime;
-                        totalServiceCost += total;
+                        BigInteger total = BigInteger.valueOf(finalQuantity).multiply(BigInteger.valueOf(priceAtTime));
+                        totalServiceCost = totalServiceCost.add(total);
                     }
                 }
             }
 
             // Tổng tiền phòng + dịch vụ
-            int totalAmount = (int) Math.round(totalRoomPrice) + totalServiceCost;
+            BigInteger totalAmount = BigInteger.valueOf(Math.round(totalRoomPrice)).add(totalServiceCost);
 
             // Tạo BookingDetail
             BookingDetail bookingDetail = new BookingDetail();
@@ -478,7 +507,7 @@ public class Checkout extends HttpServlet {
 
                     int finalQuantity = quantity - includedQuantity;
                     if (finalQuantity >= 0) {
-                        int total = finalQuantity * priceAtTime;
+                        BigInteger total = BigInteger.valueOf(finalQuantity).multiply(BigInteger.valueOf(priceAtTime));
 
                         dal.DetailServiceDAO.getInstance().insertDetailService(
                                 bookingDetailId, serviceId, quantity, total

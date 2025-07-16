@@ -100,8 +100,24 @@ public class ajaxServlet extends HttpServlet {
             //thanh toán online ở reception
             if (status.equals("checkIn")) {
                 Object obj = session.getAttribute("totalPrice");
+//                if (obj instanceof BigInteger) {
+//                    totalPrice = (BigInteger) obj;
+//                }
+
                 if (obj instanceof BigInteger) {
                     totalPrice = (BigInteger) obj;
+                } else if (obj instanceof Integer) {
+                    totalPrice = BigInteger.valueOf((Integer) obj);
+                } else if (obj instanceof Long) {
+                    totalPrice = BigInteger.valueOf((Long) obj);
+                } else if (obj instanceof String) {
+                    try {
+                        totalPrice = new BigInteger((String) obj);
+                    } catch (NumberFormatException e) {
+                        totalPrice = BigInteger.ZERO;
+                    }
+                } else if (obj != null) {
+                    throw new IllegalStateException("totalPrice in session has unsupported type: " + obj.getClass());
                 }
 
                 int customerId = (int) session.getAttribute("customerId");
@@ -315,7 +331,7 @@ public class ajaxServlet extends HttpServlet {
                             BigInteger priceAtTime = d.getPriceAtTime();
 
                             serviceQuantityMap.put(serviceName, serviceQuantityMap.getOrDefault(serviceName, 0) + quantity);
-                            servicePriceMap.put(serviceName, servicePriceMap.getOrDefault(serviceName, BigInteger.ZERO).add(priceAtTime) );
+                            servicePriceMap.put(serviceName, servicePriceMap.getOrDefault(serviceName, BigInteger.ZERO).add(priceAtTime));
                             totalServicePrice = totalServicePrice.add(priceAtTime);
                         }
                     }

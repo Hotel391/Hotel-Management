@@ -342,7 +342,7 @@ public class VnpayReturn extends HttpServlet {
                         }
 
                         //tổng tiền
-                        int total = (int) session.getAttribute("paidAmount");
+                        BigInteger total = (BigInteger) session.getAttribute("paidAmount");
 
                         //tên phương thức thanh toán
                         String paymentMethod = dal.BookingDAO.getInstance().getPaymentNameByBookingId(bookingId);

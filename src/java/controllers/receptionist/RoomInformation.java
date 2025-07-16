@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.math.BigInteger;
 import models.DetailService;
 import models.Service;
 import models.TypeRoom;
@@ -67,7 +68,8 @@ public class RoomInformation extends HttpServlet {
                     Map<String, Object> roomDetail = new HashMap<>();
                     roomDetail.put("roomNumber", roomNumber);
                     roomDetail.put("typeName", typeName);
-                    roomDetail.put("price", typeRoom.getPrice() * numberOfNights);
+                    BigInteger totalPricee = typeRoom.getPrice().multiply(BigInteger.valueOf(numberOfNights));
+                    roomDetail.put("price", totalPricee);
 
                     List<DetailService> includedServices = new ArrayList<>();
                     for (Service s : ServiceDAO.getInstance().getServicesByTypeRoom(typeRoom.getTypeId())) {

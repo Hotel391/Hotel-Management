@@ -20,6 +20,7 @@ import dal.BookingDetailDAO;
 import dal.CustomerDAO;
 import dal.TypeRoomDAO;
 import jakarta.servlet.http.HttpSession;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -93,7 +94,7 @@ public class CheckoutRoom extends HttpServlet {
             List<BookingDetail> detail = BookingDetailDAO.getInstance().getBookingDetailByBookingId(bookingSelected);
 
             int totalPrice = bookingSelected.getTotalPrice();
-            
+
             int fineMoney = 0;
 
             for (BookingDetail bookingDetail : detail) {
@@ -156,11 +157,11 @@ public class CheckoutRoom extends HttpServlet {
                 List<Integer> listRoomNumbers = new ArrayList<>();
 
                 List<BookingDetail> bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetailsByBookingId(bookingId);
-                int paidAmount = bookingDetail.get(0).getBooking().getPaidAmount();
+                BigInteger paidAmount = bookingDetail.get(0).getBooking().getPaidAmount();
 
-                int totalAmount = 0;
+                BigInteger totalAmount = BigInteger.ZERO;
                 for (BookingDetail detailItem : bookingDetail) {
-                    totalAmount += detailItem.getTotalAmount();
+                    totalAmount = totalAmount.add(detailItem.getTotalAmount());
                     listRoomNumbers.add(detailItem.getRoom().getRoomNumber());
                 }
 
@@ -185,7 +186,7 @@ public class CheckoutRoom extends HttpServlet {
 
                 // Tính loại phòng
                 Map<String, Integer> typeCountMap = new LinkedHashMap<>();
-                Map<String, Integer> typePriceMap = new LinkedHashMap<>();
+                Map<String, BigInteger> typePriceMap = new LinkedHashMap<>();
 
                 for (BookingDetail bd : bookingDetail) {
                     int roomNumber = bd.getRoom().getRoomNumber();
@@ -196,7 +197,7 @@ public class CheckoutRoom extends HttpServlet {
                     Room room = dal.RoomDAO.getInstance().getRoomByRoomNumber(roomNumber);
                     TypeRoom type = room.getTypeRoom();
                     String typeName = type.getTypeName();
-                    int unitPrice = type.getPrice();
+                    BigInteger unitPrice = type.getPrice();
 
                     typeCountMap.put(typeName, typeCountMap.getOrDefault(typeName, 0) + 1);
                     typePriceMap.put(typeName, unitPrice);
@@ -213,23 +214,25 @@ public class CheckoutRoom extends HttpServlet {
 
                 List<String> typeRoom = new ArrayList<>();
                 List<Integer> quantityTypeRoom = new ArrayList<>();
-                List<Integer> priceTypeRoom = new ArrayList<>();
-                int totalRoomPrice = 0;
-                int totalServicePrice = 0;
+                List<BigInteger> priceTypeRoom = new ArrayList<>();
+                BigInteger totalRoomPrice = BigInteger.ZERO;
+                BigInteger totalServicePrice = BigInteger.ZERO;
 
                 for (String typeName : typeCountMap.keySet()) {
                     int quantity = typeCountMap.get(typeName);
-                    int unitPrice = typePriceMap.get(typeName);
-                    int total = quantity * unitPrice * (int) numberOfNights;
+                    BigInteger unitPrice = typePriceMap.get(typeName);
+                    BigInteger total = unitPrice
+                            .multiply(BigInteger.valueOf(quantity))
+                            .multiply(BigInteger.valueOf((int) numberOfNights));
                     typeRoom.add(typeName);
                     quantityTypeRoom.add(quantity);
                     priceTypeRoom.add(total);
-                    totalRoomPrice += total;
+                    totalRoomPrice = totalRoomPrice.add(total);
                 }
 
                 // Tính tổng dịch vụ
                 Map<String, Integer> serviceQuantityMap = new LinkedHashMap<>();
-                Map<String, Integer> servicePriceMap = new LinkedHashMap<>();
+                Map<String, BigInteger> servicePriceMap = new LinkedHashMap<>();
 
                 for (BookingDetail bd : bookingDetail) {
                     int bdId = bd.getBookingDetailId();
@@ -237,17 +240,17 @@ public class CheckoutRoom extends HttpServlet {
                     for (DetailService d : servicesList) {
                         String serviceName = d.getService().getServiceName();
                         int quantity = d.getQuantity();
-                        int priceAtTime = d.getPriceAtTime();
+                        BigInteger priceAtTime = d.getPriceAtTime();
 
                         serviceQuantityMap.put(serviceName, serviceQuantityMap.getOrDefault(serviceName, 0) + quantity);
-                        servicePriceMap.put(serviceName, servicePriceMap.getOrDefault(serviceName, 0) + priceAtTime);
-                        totalServicePrice += priceAtTime;
+                        servicePriceMap.put(serviceName, servicePriceMap.getOrDefault(serviceName, BigInteger.ZERO).add(priceAtTime));
+                        totalServicePrice = totalServicePrice.add(priceAtTime);
                     }
                 }
 
                 List<String> services = new ArrayList<>();
                 List<Integer> serviceQuantity = new ArrayList<>();
-                List<Integer> servicePrice = new ArrayList<>();
+                List<BigInteger> servicePrice = new ArrayList<>();
                 for (String name : serviceQuantityMap.keySet()) {
                     services.add(name);
                     serviceQuantity.add(serviceQuantityMap.get(name));
@@ -291,12 +294,11 @@ public class CheckoutRoom extends HttpServlet {
         System.out.println("view");
 
         Date currentDate = new Date(millis);
-        
 
         HashMap<Booking, List<BookingDetail>> checkoutList = new LinkedHashMap<>();
 
         String phoneSearch = request.getParameter("phoneSearch");
-                
+
         List<Booking> bookingCheckout = BookingDAO.getInstance().getBookingCheckout(phoneSearch);
 
         for (Booking booking : bookingCheckout) {

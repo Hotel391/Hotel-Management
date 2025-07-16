@@ -6,6 +6,7 @@ public class Review {
 
     private int reviewId;
     private int rating;
+    private String username;
     private String feedBack;
     private Date date;
     private BookingDetail bookingDetail;
@@ -69,6 +70,17 @@ public class Review {
 
     public void setCustomerAccount(CustomerAccount customerAccount) {
         this.customerAccount = customerAccount;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Override
+    public String toString() {
+        return "Review{" + "reviewId=" + reviewId + ", rating=" + rating + ", feedBack=" + feedBack + ", date=" + date + ", bookingDetail=" + bookingDetail.getBooking().getBookingId() + ", customerAccount=" + customerAccount.getCustomer().getFullName() + '}';
     }
     
     

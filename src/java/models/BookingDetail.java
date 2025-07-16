@@ -1,17 +1,31 @@
 package models;
 
+import java.math.BigInteger;
 import java.sql.Date;
+import java.util.List;
 
 public class BookingDetail {
 
     private int bookingDetailId;
+    private BigInteger totalAmount;
     private Date startDate;
     private Date endDate;
     private Booking booking;
     private Room room;
+    private List<DetailService> services;
 
     public BookingDetail() {
     }
+
+    public BookingDetail(int bookingDetailId, Date startDate, Date endDate, Booking booking, Room room, List<DetailService> services) {
+        this.bookingDetailId = bookingDetailId;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.booking = booking;
+        this.room = room;
+        this.services = services;
+    }
+    
 
     public BookingDetail(int bookingDetailId, Date startDate, Date endDate, Booking booking, Room room) {
         this.bookingDetailId = bookingDetailId;
@@ -19,6 +33,14 @@ public class BookingDetail {
         this.endDate = endDate;
         this.booking = booking;
         this.room = room;
+    }
+
+    public List<DetailService> getServices() {
+        return services;
+    }
+
+    public void setServices(List<DetailService> services) {
+        this.services = services;
     }
 
     public int getBookingDetailId() {
@@ -60,6 +82,19 @@ public class BookingDetail {
     public void setRoom(Room room) {
         this.room = room;
     }
+
+    public BigInteger getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigInteger totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+    @Override
+    public String toString() {
+        return "BookingDetail{" + "bookingDetailId=" + bookingDetailId + ", startDate=" + startDate + ", endDate=" + endDate + ", booking=" + booking + ", room=" + room + '}';
+    }
+    
     
     
 }

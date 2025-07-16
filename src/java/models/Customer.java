@@ -10,9 +10,27 @@ public class Customer {
     private String CCCD;
     private boolean activate;
     private Role role;
+    private CustomerAccount customerAccount;
 
     public Customer() {
     }
+
+    public Customer(int customerId, String fullName, String phoneNumber, String email, boolean gender, String CCCD, boolean activate, Role role, CustomerAccount customerAccount) {
+        this.customerId = customerId;
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.gender = gender;
+        this.CCCD = CCCD;
+        this.activate = activate;
+        this.role = role;
+        this.customerAccount = customerAccount;
+    }
+    
+    
+    
+    
+    
 
     public Customer(int customerId, String fullName, String phoneNumber, String email, boolean gender, String CCCD, boolean activate, Role role) {
         this.customerId = customerId;
@@ -57,7 +75,7 @@ public class Customer {
         this.email = email;
     }
 
-    public boolean isGender() {
+    public boolean getGender() {
         return gender;
     }
 
@@ -73,7 +91,7 @@ public class Customer {
         this.CCCD = CCCD;
     }
 
-    public boolean isActivate() {
+    public boolean getActivate() {
         return activate;
     }
 
@@ -87,6 +105,19 @@ public class Customer {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public CustomerAccount getCustomerAccount() {
+        return customerAccount;
+    }
+
+    public void setCustomerAccount(CustomerAccount customerAccount) {
+        this.customerAccount = customerAccount;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" + "customerId=" + customerId + ", fullName=" + fullName + ", phoneNumber=" + phoneNumber + ", email=" + email + ", gender=" + gender + ", CCCD=" + CCCD + ", activate=" + activate + ", role=" + role + ", customerAccount=" + customerAccount + '}';
     }
     
     

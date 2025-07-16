@@ -1,0 +1,250 @@
+/* 
+    Created on : Jul 7, 2025, 8:32:40 PM
+    Author     : HieuTT
+*/
+:root {
+    --agoda-primary: #1a73e8;
+    --agoda-secondary: #d93025;
+    --agoda-background: #f8f9fa;
+    --agoda-text: #202124;
+    --agoda-border: #ddd;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--agoda-background);
+    color: var(--agoda-text);
+}
+
+.container {
+    padding-top: 30px;
+}
+
+.cart-wrapper {
+    display: flex;
+    gap: 20px;
+}
+
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 2;
+}
+
+.cart-item {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--agoda-border);
+}
+
+.cart-item.paid {
+    border: 1px solid #d1e7dd;
+    background-color: #e9f7ef;
+    opacity: 0.9;
+    cursor: default;
+}
+
+.cart-item.paid .cart-bottom {
+    pointer-events: none;
+}
+
+.cart-item.paid .cart-bottom .view-details {
+    pointer-events: auto;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.payment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background-color: #d1e7dd;
+    color: #0f5132;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.payment-badge:hover {
+    background-color: #c3e5d3;
+}
+.payment-badge i {
+    font-size: 1rem;
+}
+
+.cart-top {
+    display: flex;
+    position: relative;
+    border-bottom: 1px solid var(--agoda-border);
+    cursor: pointer;
+}
+
+.room-image {
+    width: 160px;
+    height: auto;
+    object-fit: cover;
+}
+
+.room-info {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.room-info h5 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.rating {
+    color: #fbbc05;
+    font-size: 1rem;
+}
+
+.review-count {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: var(--agoda-secondary);
+    background: none;
+    border: none;
+    font-size: 1rem;
+}
+
+.delete-btn:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.cart-bottom {
+    padding: 10px;
+    padding-top: 5px;
+    cursor: pointer;
+}
+.cart-bottom.inactive {
+    background-color: #f0f0f0;
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.cart-bottom-left {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.room-checkbox {
+    margin-top: -69px;
+    transform: scale(1.5);
+    cursor: pointer;
+}
+.service-checkbox{
+    transform: scale(1.5);
+    cursor: pointer;
+}
+
+.details-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 8px;
+}
+
+.details-list li {
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+}
+
+.view-details {
+    color: var(--agoda-primary);
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.view-details:hover {
+    text-decoration: underline;
+}
+
+.room-price {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--agoda-secondary);
+    text-align: right;
+}
+
+.cart-summary {
+    flex: 1;
+    position: sticky;
+    top: 30px;
+    height: fit-content;
+    background: white;
+    border: 1px solid var(--agoda-border);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.cart-summary h4 {
+    margin-bottom: 20px;
+}
+
+#checkout-btn {
+    background-color: var(--agoda-primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    width: 100%;
+    font-size: 1.1rem;
+    border-radius: 8px;
+}
+
+#checkout-btn:hover {
+    background-color: #0059c1;
+}
+#cart-total{
+    color: var(--agoda-secondary);
+}
+
+@media (max-width: 768px) {
+    .cart-wrapper {
+        flex-direction: column;
+    }
+
+    .cart-items {
+        width: 100%;
+    }
+
+    .cart-item {
+        width: 100%;
+    }
+
+
+    .cart-summary {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto; /* <-- FIX QUAN TRỌNG! */
+        width: 100%;
+        z-index: 999;
+        border-radius: 0;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        background: white;
+    }
+
+    body {
+        padding-bottom: 200px; /* Đảm bảo không bị che khi scroll */
+    }
+}

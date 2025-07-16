@@ -1,24 +1,34 @@
 package models;
 
+import java.math.BigInteger;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.sql.Timestamp;
 
 public class Cart {
 
     private int cartId;
-    private int totalPrice;
-    private Date payDay;
+    private BigInteger totalPrice;
+    private Timestamp payDay;
     private String status;
     private Date startDate;
     private Date endDate;
     private boolean isActive;
     private boolean isPayment;
     private Customer customer;
+    private Customer mainCustomer;
     private PaymentMethod paymentMethod;
+    private int adults;
+    private int children;
+    private int roomNumber;
+    private Room room;
+    private List<CartService> cartServices = new ArrayList<>();
 
     public Cart() {
     }
 
-    public Cart(int cartId, int totalPrice, Date payDay, String status, Date startDate, Date endDate, boolean isActive, boolean isPayment, Customer customer, PaymentMethod paymentMethod) {
+    public Cart(int cartId, BigInteger totalPrice, Timestamp payDay, String status, Date startDate, Date endDate, boolean isActive, boolean isPayment, Customer customer, PaymentMethod paymentMethod) {
         this.cartId = cartId;
         this.totalPrice = totalPrice;
         this.payDay = payDay;
@@ -31,6 +41,14 @@ public class Cart {
         this.paymentMethod = paymentMethod;
     }
 
+    public Customer getMainCustomer() {
+        return mainCustomer;
+    }
+
+    public void setMainCustomer(Customer mainCustomer) {
+        this.mainCustomer = mainCustomer;
+    }
+
     public int getCartId() {
         return cartId;
     }
@@ -39,19 +57,19 @@ public class Cart {
         this.cartId = cartId;
     }
 
-    public int getTotalPrice() {
+    public BigInteger getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(int totalPrice) {
+    public void setTotalPrice(BigInteger totalPrice) {
         this.totalPrice = totalPrice;
     }
 
-    public Date getPayDay() {
+    public Timestamp getPayDay() {
         return payDay;
     }
 
-    public void setPayDay(Date payDay) {
+    public void setPayDay(Timestamp payDay) {
         this.payDay = payDay;
     }
 
@@ -110,5 +128,49 @@ public class Cart {
     public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
     }
-    
+
+    public int getAdults() {
+        return adults;
+    }
+
+    public void setAdults(int adults) {
+        this.adults = adults;
+    }
+
+    public int getChildren() {
+        return children;
+    }
+
+    public void setChildren(int children) {
+        this.children = children;
+    }
+
+    public int getRoomNumber() {
+        return roomNumber;
+    }
+
+    public void setRoomNumber(int roomNumber) {
+        this.roomNumber = roomNumber;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    public List<CartService> getCartServices() {
+        return cartServices;
+    }
+
+    public void setCartServices(List<CartService> cartServices) {
+        this.cartServices = cartServices;
+    }
+
+    @Override
+    public String toString() {
+        return "Cart{" + "cartId=" + cartId + ", totalPrice=" + totalPrice + ", payDay=" + payDay + ", status=" + status + ", startDate=" + startDate + ", endDate=" + endDate + ", isActive=" + isActive + ", isPayment=" + isPayment + ", customer=" + customer + ", paymentMethod=" + paymentMethod + ", adults=" + adults + ", children=" + children + ", roomNumber=" + roomNumber + ", room=" + room + ", cartServices=" + cartServices + '}';
+    }
 }

@@ -2,14 +2,16 @@ package models;
 
 public class CleanerFloor {
     private Employee employee;
-    private int floor;
+    private int startFloor;
+    private int endFloor;
 
     public CleanerFloor() {
     }
 
-    public CleanerFloor(Employee employee, int floor) {
+    public CleanerFloor(Employee employee, int startFloor, int endFloor) {
         this.employee = employee;
-        this.floor = floor;
+        this.startFloor = startFloor;
+        this.endFloor = endFloor;
     }
 
     public Employee getEmployee() {
@@ -20,13 +22,25 @@ public class CleanerFloor {
         this.employee = employee;
     }
 
-    public int getFloor() {
-        return floor;
+    public int getStartFloor() {
+        return startFloor;
     }
 
-    public void setFloor(int floor) {
-        this.floor = floor;
+    public void setStartFloor(int startFloor) {
+        this.startFloor = startFloor;
     }
+
+    public int getEndFloor() {
+        return endFloor;
+    }
+
+    public void setEndFloor(int endFloor) {
+        this.endFloor = endFloor;
+    }
+    
+    
+
+   
     
     
 }

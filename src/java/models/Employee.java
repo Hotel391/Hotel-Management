@@ -1,8 +1,11 @@
 package models;
 
 import java.sql.Date;
+import models.CleanerFloor;
 
 public class Employee {
+    public static final int ROLE_CLEANER = 3;
+
     private int employeeId;
     private String username;
     private String password;
@@ -16,10 +19,10 @@ public class Employee {
     private Date registrationDate;
     private boolean activate;
     private Role role;
+    private CleanerFloor cleanerFloor;
 
     public Employee() {
     }
-
     public Employee(int employeeId, String username, String password, String fullName, String address, String phoneNumber, String email, boolean gender, String CCCD, Date dateOfBirth, Date registrationDate, boolean activate, Role role) {
         this.employeeId = employeeId;
         this.username = username;
@@ -35,6 +38,28 @@ public class Employee {
         this.activate = activate;
         this.role = role;
     }
+    
+
+    public Employee(int employeeId, String username, String password, String fullName, String address, String phoneNumber, String email, boolean gender, String CCCD, Date dateOfBirth, Date registrationDate, boolean activate, Role role, CleanerFloor cleanerFloor) {
+        this.employeeId = employeeId;
+        this.username = username;
+        this.password = password;
+        this.fullName = fullName;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.gender = gender;
+        this.CCCD = CCCD;
+        this.dateOfBirth = dateOfBirth;
+        this.registrationDate = registrationDate;
+        this.activate = activate;
+        this.role = role;
+        this.cleanerFloor = cleanerFloor;
+    }
+    
+    
+    
+    
 
     public int getEmployeeId() {
         return employeeId;
@@ -139,5 +164,20 @@ public class Employee {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    public CleanerFloor getCleanerFloor() {
+        return cleanerFloor;
+    }
+
+    public void setCleanerFloor(CleanerFloor cleanerFloor) {
+        this.cleanerFloor = cleanerFloor;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee{" + "employeeId=" + employeeId + ", username=" + username + ", password=" + password + ", fullName=" + fullName + ", address=" + address + ", phoneNumber=" + phoneNumber + ", email=" + email + ", gender=" + gender + ", CCCD=" + CCCD + ", dateOfBirth=" + dateOfBirth + ", registrationDate=" + registrationDate + ", activate=" + activate + ", role=" + role + ", cleanerFloor=" + cleanerFloor + '}';
+    }
+    
+    
     
 }

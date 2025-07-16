@@ -2,6 +2,7 @@ package dal;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class DBContext {
     protected Connection connect;
@@ -12,8 +13,8 @@ public class DBContext {
                 ";databaseName="+dbName;
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver"); 
             connect = DriverManager.getConnection(url, userID, password);
-         }catch (Exception ex){
-             ex.printStackTrace();
+         }catch (ClassNotFoundException | SQLException ex){
+             //
          }
      }
 

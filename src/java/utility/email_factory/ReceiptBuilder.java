@@ -1,5 +1,6 @@
 package utility.email_factory;
 
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -15,13 +16,13 @@ public class ReceiptBuilder implements EmailContentBuilder {
     public String build(Map<String, Object> data) {
         List<String> typeRoom = (List<String>) data.get("typeRoom");
         List<Integer> quantityTypeRoom = (List<Integer>) data.get("quantityTypeRoom");
-        List<Integer> priceTypeRoom = (List<Integer>) data.get("priceTypeRoom");
+        List<BigInteger> priceTypeRoom = (List<BigInteger>) data.get("priceTypeRoom");
         List<String> services = (List<String>) data.get("services");
         List<Integer> serviceQuantity = (List<Integer>) data.get("serviceQuantity");
-        List<Integer> servicePrice = (List<Integer>) data.get("servicePrice");
-        int totalRoomPrice = (int) data.get("totalRoomPrice");
-        int totalServicePrice = (int) data.get("totalServicePrice");
-        int fineMoney = (int) data.get("fineMoney");
+        List<BigInteger> servicePrice = (List<BigInteger>) data.get("servicePrice");
+        BigInteger totalRoomPrice = (BigInteger) data.get("totalRoomPrice");
+        BigInteger totalServicePrice = (BigInteger) data.get("totalServicePrice");
+        BigInteger fineMoney = (BigInteger) data.get("fineMoney");
         String paymentMethod = (String) data.get("paymentMethod");
         String customerName = (String) data.get("customerName");
         StringBuilder receipt = new StringBuilder();
@@ -169,7 +170,7 @@ public class ReceiptBuilder implements EmailContentBuilder {
                                         VNĐ</td>
                                     </tr>
                 """);
-        if (fineMoney > 0) {
+        if (fineMoney.compareTo(BigInteger.ZERO) > 0) {
             receipt.append("""
                     <tr>
                         <td>Tiền phạt:</td>
@@ -181,7 +182,7 @@ public class ReceiptBuilder implements EmailContentBuilder {
         receipt.append("""
                 <tr class="total">
                     <td>Tổng cộng:</td>
-                    <td>""").append(String.format("%,d", totalRoomPrice + totalServicePrice + fineMoney)).append("""
+                    <td>""").append(String.format("%,d", totalRoomPrice.add(totalServicePrice).add(fineMoney))).append("""
                                         VNĐ</td>
                         </tr>
                     </table>

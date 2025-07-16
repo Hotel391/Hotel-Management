@@ -1,5 +1,6 @@
 package utility.email_factory;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -26,10 +27,10 @@ public class BookingFromCartEmailBuilder implements EmailContentBuilder {
         String paymentMethod = (String) data.get("paymentMethod");
         List<String> serviceNames = (List<String>) data.get("serviceNames");
         List<Integer> serviceQuantities = (List<Integer>) data.get("serviceQuantities");
-        List<Integer> servicePrices = (List<Integer>) data.get("servicePrices");
-        int roomPrice = (int) data.get("roomPrice");
-        int totalServicePrice = (int) data.get("totalServicePrice");
-        int totalPrice = roomPrice + totalServicePrice;
+        List<BigInteger> servicePrices = (List<BigInteger>) data.get("servicePrices");
+        BigInteger roomPrice = (BigInteger) data.get("roomPrice");
+        BigInteger totalServicePrice = (BigInteger) data.get("totalServicePrice");
+        BigInteger totalPrice = roomPrice.add(totalServicePrice);
         StringBuilder content = new StringBuilder();
         content.append("""
 <!DOCTYPE html>

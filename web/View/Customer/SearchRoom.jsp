@@ -150,7 +150,7 @@
                                         <input type="hidden" name="checkout" value="${param.checkout}" />
                                         <input type="hidden" name="adults" value="${adults}" />
                                         <input type="hidden" name="children" value="${children}" />
-                                        <p>${errorPrice}</p>
+                                        <p style="color: red;">${errorPrice}</p>
                                         <button class="apply-button">Áp Dụng</button>
                                     </div>
                                 </form>
@@ -271,8 +271,8 @@
                 return false;
             }
 
-            if (minVal !== null && maxVal !== null && maxVal <= minVal) {
-                alert("Giá ĐẾN phải lớn hơn giá TỪ.");
+            if (minVal !== null && maxVal !== null && maxVal < minVal) {
+                alert("Giá Max phải lớn hơn hoặc bằng giá Min.");
                 return false;
             }
 

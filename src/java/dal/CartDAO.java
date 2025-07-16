@@ -211,13 +211,12 @@ public class CartDAO {
                 addServiceToCart(cart.getCartId(), serviceId, requiredQty);
             }
         }
-        int totalPrice = getTotalPriceOfCart(cart.getCartId(), numberOfNight)
-                + getTypeRoomPriceByCartId(cart.getCartId()) * (numberOfNight - 1)
-                + getTotalServicePriceHaveMoneyButNoNeedTimes(cart.getRoom().getTypeRoom().getTypeId()) * (numberOfNight - 1);
-
-        if (!cart.getTotalPrice().equals(BigInteger.valueOf(totalPrice))) {
-            cart.setTotalPrice(BigInteger.valueOf(totalPrice));
-            updateCartTotalPrice(cart.getCartId(), BigInteger.valueOf(totalPrice));
+        BigInteger totalPrice = getTotalPriceOfCart(cart.getCartId(), numberOfNight)
+                .add(getTypeRoomPriceByCartId(cart.getCartId()).multiply(BigInteger.valueOf((long)numberOfNight - 1)))
+                .add(getTotalServicePriceHaveMoneyButNoNeedTimes(cart.getRoom().getTypeRoom().getTypeId()).multiply(BigInteger.valueOf((long)numberOfNight - 1)));
+        if (!cart.getTotalPrice().equals(totalPrice)) {
+            cart.setTotalPrice(totalPrice);
+            updateCartTotalPrice(cart.getCartId(), totalPrice);
         }
 
     }
@@ -242,7 +241,7 @@ public class CartDAO {
         }
     }
 
-    private int getTypeRoomPriceByCartId(int cartId) {
+    private BigInteger getTypeRoomPriceByCartId(int cartId) {
         String sql = """
                 select tr.Price as totalPrice from Cart c
                 join Room r on r.RoomNumber=c.RoomNumber
@@ -253,16 +252,16 @@ public class CartDAO {
             ps.setInt(1, cartId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt("totalPrice");
+                    return new BigInteger(rs.getString("totalPrice"));
                 }
             }
         } catch (SQLException e) {
             // Handle exception
         }
-        return 0;
+        return BigInteger.ZERO;
     }
 
-    private int getTotalPriceOfCart(int cartId, int numberOfNight) {
+    private BigInteger getTotalPriceOfCart(int cartId, long numberOfNight) {
         String sql = """
                 select tr.Price+ISNULL(csp.totalServicePrice, 0)-ISNULL(rnsp.totalRoomServicePrice, 0) * ?
                 as CalculatedTotalPrice
@@ -270,34 +269,34 @@ public class CartDAO {
                 join Room r on r.RoomNumber=c.RoomNumber
                 join TypeRoom tr on tr.TypeId=r.TypeId
                 left join (
-                    select cs.CartId, Sum(cs.quantity* s.Price) as totalServicePrice  from CartService cs
+                    select cs.CartId, Sum(CAST(cs.quantity AS BIGINT)* s.Price) as totalServicePrice  from CartService cs
                     join Service s on s.ServiceId=cs.ServiceId
                     group by cs.CartId
                 ) csp on csp.CartId=c.CartId
                 left join (
-                    select rns.TypeId, Sum(rns.quantity* s.Price) as totalRoomServicePrice  from RoomNService rns
+                    select rns.TypeId, Sum(CAST(rns.quantity AS BIGINT)* s.Price) as totalRoomServicePrice  from RoomNService rns
                     join Service s on s.ServiceId=rns.ServiceId
                     group by rns.TypeId
                 ) rnsp on rnsp.TypeId=tr.TypeId
                 where c.CartId=?
                 """;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, numberOfNight);
+            ps.setLong(1, numberOfNight);
             ps.setInt(2, cartId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt("CalculatedTotalPrice");
+                    return new BigInteger(rs.getString("CalculatedTotalPrice"));
                 }
             }
         } catch (SQLException e) {
             // Handle exception
         }
-        return 0;
+        return BigInteger.ZERO;
     }
 
-    private int getTotalServicePriceHaveMoneyButNoNeedTimes(int typeId) {
+    private BigInteger getTotalServicePriceHaveMoneyButNoNeedTimes(int typeId) {
         if (serviceHaveMoneyButNoNeedTimes.length == 0) {
-            return 0;
+            return BigInteger.ZERO;
         }
         StringBuilder placeholders = new StringBuilder();
         for (int i = 0; i < serviceHaveMoneyButNoNeedTimes.length; i++) {
@@ -319,13 +318,13 @@ public class CartDAO {
             }
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt("totalServicePrice");
+                    return new BigInteger(rs.getString("totalServicePrice"));
                 }
             }
         } catch (SQLException e) {
             // Handle exception
         }
-        return 0;
+        return BigInteger.ZERO;
     }
 
     private void updateCartTotalPrice(int cartId, BigInteger totalPrice) {
@@ -457,7 +456,7 @@ public class CartDAO {
         LocalDate checkinLocal = checkin.toLocalDate();
         LocalDate checkoutLocal = checkout.toLocalDate();
         int numberOfNight = (int) ChronoUnit.DAYS.between(checkinLocal, checkoutLocal);
-        int totalPrice = getTotalPriceOfTypeRoom(typeId) * numberOfNight;
+        BigInteger totalPrice = getTotalPriceOfTypeRoom(typeId).multiply(BigInteger.valueOf(numberOfNight));
         if (roomNumber == 0) {
             return false;
         }
@@ -472,7 +471,7 @@ public class CartDAO {
             ps.setString(6, status);
             ps.setInt(7, adults);
             ps.setInt(8, children);
-            ps.setInt(9, totalPrice);
+            ps.setLong(9, totalPrice.longValue());
             int affectedRows = ps.executeUpdate();
             if (affectedRows > 0) {
                 try (var rs = ps.getGeneratedKeys()) {
@@ -489,7 +488,7 @@ public class CartDAO {
         return false;
     }
 
-    private int getTotalPriceOfTypeRoom(int typeId) {
+    private BigInteger getTotalPriceOfTypeRoom(int typeId) {
         String sql = """
                 select tr.Price as totalPrice from TypeRoom tr
                 where tr.TypeId=?
@@ -498,13 +497,13 @@ public class CartDAO {
             ps.setInt(1, typeId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt("totalPrice");
+                    return new BigInteger(rs.getString("totalPrice"));
                 }
             }
         } catch (SQLException e) {
-            //
+            // Handle exception
         }
-        return 0;
+        return BigInteger.ZERO;
     }
 
     private int getRoomNumber(int typeId, Date checkin, Date checkout) {

@@ -426,7 +426,7 @@ public class TypeRoomDAO {
         return price;
     }
 
-    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, Integer minPrice, Integer maxPrice, int adult, int children, String orderByClause) {
+    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, BigInteger minPrice, BigInteger maxPrice, int adult, int children, String orderByClause) {
         List<TypeRoom> availableTypeRooms = Collections.synchronizedList(new ArrayList<>());
         StringBuilder sql = new StringBuilder("""
                 SELECT * FROM (
@@ -530,7 +530,7 @@ public class TypeRoomDAO {
         return getTotalTypeRoom(startDate, endDate, null, null, 2, 1);
     }
 
-    public int getTotalTypeRoom(Date startDate, Date endDate, Integer minPrice, Integer maxPrice, int adult, int children) {
+    public int getTotalTypeRoom(Date startDate, Date endDate, BigInteger minPrice, BigInteger maxPrice, int adult, int children) {
         StringBuilder sql = new StringBuilder("""
                 SELECT COUNT(*) AS totalTypeRoom
                 FROM (

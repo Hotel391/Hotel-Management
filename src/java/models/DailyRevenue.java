@@ -1,15 +1,16 @@
 package models;
 
+import java.math.BigInteger;
+
 public class DailyRevenue {
     private String weekdayName;
     private int day;
-    private double totalPrice;
+    private BigInteger totalPrice;
 
     public DailyRevenue() {
     }
 
-    
-    public DailyRevenue(String weekdayName, int day, double totalPrice) {
+    public DailyRevenue(String weekdayName, int day, BigInteger totalPrice) {
         this.weekdayName = weekdayName;
         this.day = day;
         this.totalPrice = totalPrice;
@@ -31,11 +32,11 @@ public class DailyRevenue {
         this.day = day;
     }
 
-    public double getTotalPrice() {
+    public BigInteger getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
+    public void setTotalPrice(BigInteger totalPrice) {
         this.totalPrice = totalPrice;
     }
     

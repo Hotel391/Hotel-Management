@@ -107,7 +107,9 @@ public class VnpayReturn extends HttpServlet {
                     Date startDate = selectCart.getStartDate();
                     Date endDate = selectCart.getEndDate();
                     long numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
-                    int typeId = 1;
+                    
+                    Room roomSelect = dal.RoomDAO.getInstance().getRoomByNumber(selectCart.getRoomNumber());
+                    int typeId = roomSelect.getTypeRoom().getTypeId();
 
                     List<CartService> listCartService = dal.CartServiceDAO.getInstance().getAllCartServiceByCartId(bookingId);
                     List<RoomNService> listRoomNService = dal.CartServiceDAO.getInstance()

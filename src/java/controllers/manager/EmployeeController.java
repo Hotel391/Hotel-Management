@@ -191,11 +191,6 @@ public class EmployeeController extends HttpServlet {
                 }
             }
 
-            if (startFloor != null && endFloor != null && startFloor >= endFloor) {
-                errorMessages.add("Tầng bắt đầu phải nhỏ hơn tầng kết thúc.");
-                hasError = true;
-            }
-
             if ("Cleaner".equalsIgnoreCase(emp.getRole().getRoleName())) {
                 if (startFloor != null && endFloor != null) {
                     CleanerFloor cf = new CleanerFloor();
@@ -283,11 +278,6 @@ public class EmployeeController extends HttpServlet {
                     errorMessages.add("Tầng bắt đầu không hợp lệ.");
                     hasError = true;
                 }
-            }
-
-            if (startFloor != null && endFloor != null && startFloor >= endFloor) {
-                errorMessages.add("Tầng bắt đầu phải nhỏ hơn tầng kết thúc..");
-                hasError = true;
             }
 
             if ("Cleaner".equalsIgnoreCase(emp.getRole().getRoleName())) {
@@ -404,5 +394,5 @@ public class EmployeeController extends HttpServlet {
 
         return hasError;
     }
-
+    
 }

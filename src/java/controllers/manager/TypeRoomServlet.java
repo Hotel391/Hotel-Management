@@ -337,7 +337,7 @@ public class TypeRoomServlet extends HttpServlet {
                     int quantityNum = 0;
                     try {
                         quantityNum = Integer.parseInt(quantity);
-                        if(quantityNum < 1 && quantityNum > 10){
+                        if(quantityNum < 1 || quantityNum > 10){
                             throw new NumberFormatException();
                         }
                     } catch (NumberFormatException e) {

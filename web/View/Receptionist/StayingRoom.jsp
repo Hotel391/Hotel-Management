@@ -99,6 +99,7 @@
                             <input type="hidden" name="page" value="${param.page}" />
                             <input type="hidden" name="search" value="${param.search}" />
                             <input type="hidden" name="oldSearch" value="${param.oldSearch}" />
+                            <c:set var="serviceCannotDisable" value="${serviceCannotDisable}"/>
                             <div class="modal fade" id="serviceModal" tabindex="-1" aria-modal="true" role="dialog">
                                 <div class="modal-dialog modal-dialog-scrollable modal-lg">
                                     <div class="modal-content">
@@ -117,15 +118,26 @@
                                                     <ul>
                                                         <c:forEach var="ds" items="${detailService}">
                                                             <div class="form-check d-flex align-items-center mb-2">
-                                                                <input class="form-check-input me-2"
-                                                                       type="checkbox" name="serviceIds"
-                                                                       value="${ds.service.serviceId}" checked />
+                                                                <input name="serviceIds" type="checkbox" class="service-checkbox" value="${ds.service.serviceId}" checked style="transform: scale(1.5); margin-right: 10px;"
+                                                                    <c:if test="${serviceCannotDisable[ds.service.serviceId] != null}">
+                                                                    disabled 
+                                                                </c:if>
+                                                                />
+                                                                <c:if test="${serviceCannotDisable[ds.service.serviceId] != null}">
+                                                                    <input type="hidden" name="serviceIds" value="${ds.service.serviceId}" />
+                                                                </c:if>
                                                                 <label class="form-check-label flex-grow-1">
                                                                     <strong>${ds.service.serviceName}</strong>
                                                                     <span class="text-muted">-
                                                                         ${ds.service.price} VNĐ</span>
                                                                 </label>
-                                                                <input type="number" name="quantity_${ds.service.serviceId}" value="${ds.quantity}" />
+                                                                <input type="number" name="quantity_${ds.service.serviceId}" value="${ds.quantity}" 
+                                                                    <c:if test="${ds.service.price == 0 || ds.service.serviceName eq 'Dịch vụ đưa đón'}">
+                                                                        readonly 
+                                                                    </c:if>
+                                                                    min="${serviceCannotDisable[ds.service.serviceId] != null ? serviceCannotDisable[ds.service.serviceId] : 1}"
+                                                                    max="1000"
+                                                                />
                                                                 <input type="hidden" name="oldQuantity_${ds.service.serviceId}" value="${ds.quantity}" />
                                                             </div>
                                                         </c:forEach>
@@ -152,7 +164,7 @@
                                                                         VNĐ</span>
                                                                 </label>
                                                                 <input type="number" name="otherQuantities"
-                                                                       min="1" class="form-control ms-2"
+                                                                       min="1" max="1000" class="form-control ms-2"
                                                                        style="width: 90px;" />
                                                             </div>
                                                         </c:forEach>

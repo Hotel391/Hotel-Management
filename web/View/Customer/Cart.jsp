@@ -243,7 +243,7 @@
                                                            <c:if test="${s.service.price == 0 || s.service.serviceName eq 'Dịch vụ đưa đón'}">
                                                                readonly 
                                                            </c:if>
-                                                           min="${serviceCannotDisable[s.service.serviceId] != null ? serviceCannotDisable[s.service.serviceId] : 0}"
+                                                           min="${serviceCannotDisable[s.service.serviceId] != null ? serviceCannotDisable[s.service.serviceId] : 1}"
                                                            />
                                                 </td>
                                             </tr>

@@ -181,8 +181,10 @@ public class RoomInformation extends HttpServlet {
                             if (qtyParam != null) {
                                 try {
                                     quantity = Integer.parseInt(qtyParam);
-                                    if (quantity <= 0) {
-                                        quantity = 1;
+                                    if (quantity < 1 || quantity > 1000) {
+                                        request.setAttribute("errorMessage", "Số lượng dịch vụ phải từ 1 đến 1000.");
+                                        request.getRequestDispatcher("/View/Receptionist/RoomInformation.jsp").forward(request, response);
+                                        return;
                                     }
                                 } catch (NumberFormatException ignored) {
                                     System.out.println("Invalid quantity for serviceId: " + serviceId + ", Room: " + roomNumber + ", Defaulting to 1");

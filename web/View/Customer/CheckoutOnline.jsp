@@ -30,7 +30,11 @@
                     <div class="countdown-timer" id="countdown-timer"></div>
                 </div>
             </div>
-
+            <form action="${pageContext.request.contextPath}/checkout">
+                <input type="hidden" name="service" value="back">
+                <input type="hidden" name="cartId" value="${requestScope.cartId}">
+                <button type="submit" class="btn btn-primary">Back</button>
+            </form>
             <div class="main-content">
 
                 <div class="booking-form">
@@ -285,9 +289,9 @@
                     document.getElementById("timeLeft-" + cartIdInput).value = Math.floor(distance / 1000);
                 }
 
-                
+
                 setInterval(updateCountdown, 1000);
-                
+
                 window.onload = updateCountdown;
             </script>
     </body>

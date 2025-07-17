@@ -1,3 +1,4 @@
+
 <%-- 
     Document   : CartToBooking
     Created on : 12 thg 7, 2025, 21:10:09
@@ -7,6 +8,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"  %>
 <!DOCTYPE html>
 <html>
     <head>
@@ -33,15 +35,10 @@
                 <div class="main-content">
                     <div class="container-fluid p-4">
 
-                        <c:set var="choose" value="${requestScope.choose != null ? requestScope.choose : param.choose}" />
+                        <c:set var="choose" value="${requestScope.choose != null ? requestScope.choose : (param.choose != null ? param.choose : 'viewCustomerFuture')}" />
+
 
                         <ul class="nav nav-tabs mb-3">
-                            <li class="nav-item">
-                                <a class="nav-link ${choose == 'viewCustomerToday' || choose == null ? 'active' : ''}" 
-                                   href="${pageContext.request.contextPath}/receptionist/cartToBooking">
-                                    Khách đến nhận phòng hôm nay
-                                </a>
-                            </li>
                             <li class="nav-item">
                                 <a class="nav-link ${choose == 'viewCustomerFuture' ? 'active' : ''}" 
                                    href="${pageContext.request.contextPath}/receptionist/cartToBooking?choose=viewCustomerFuture">
@@ -57,25 +54,33 @@
                         </ul>
 
 
-                        <!--                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <form method="get" action="${pageContext.request.contextPath}/receptionist/cartToBooking" class="d-flex mb-3">
-                                                        <input type="hidden" name="choose" value="search" />
-                        
-                        <c:if test="${requestScope.cartStatus == 'bookToday'}">
-                            <input type="hidden" name="source" value="viewCustomerToday" />
-                        </c:if>
-                        <c:if test="${requestScope.cartStatus == 'bookFuture'}">
-                            <input type="hidden" name="source" value="viewCustomerFuture" />
-                        </c:if>
-                        <c:if test="${requestScope.cartStatus == 'view'}">
-                            <input type="hidden" name="source" value="viewCustomerHasDuaDon" />
-                        </c:if>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <form method="get" action="${pageContext.request.contextPath}/receptionist/cartToBooking" class="d-flex mb-3">
+                                <input type="hidden" name="choose" value="search" />
+                                <input type="hidden" name="page" value="${requestScope.currentPage}">
 
-                        <input type="email" name="searchEmail" class="form-control me-2" placeholder="Tìm theo email" required />
-                        <button class="btn btn-primary" type="submit">Tìm</button>
-                    </form>
-                </div>-->
+                                <c:if test="${requestScope.cartStatus == 'bookFuture'}">
+                                    <input type="hidden" name="source" value="viewCustomerFuture" />
+                                </c:if>
+                                <c:if test="${requestScope.cartStatus == 'view'}">
+                                    <input type="hidden" name="source" value="viewCustomerHasDuaDon" />
+                                </c:if>
 
+                                <input type="email" name="searchEmail" class="form-control me-2" placeholder="Tìm theo email" required />
+                                <button class="btn btn-primary" type="submit">Tìm</button>
+                            </form>
+                        </div>
+
+                        <!--thông báo thành công-->
+                        <c:if test="${param.success == 'true'}">
+                            <div id="successAlert" class="alert alert-success alert-dismissible fade show mt-3 mx-auto text-center" role="alert" style="width: fit-content;">
+                                <c:choose>
+                                    <c:when test="${param.action == 'addBooking'}">Nhận phòng thành công!</c:when>
+                                    <c:otherwise>Cập nhật căn cước công dân thành công!</c:otherwise>
+                                </c:choose>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </c:if>
 
                         <!--table list cart đã thanh toán thành công-->
                         <div class="table-container">
@@ -105,7 +110,8 @@
                                         <tr>
                                             <td>${c.startDate}</td>
                                             <td>${c.endDate}</td>
-                                            <td>${c.totalPrice}</td>
+                                            <td><fmt:formatNumber value="${c.totalPrice}" pattern="#,##0 'VNĐ'" />
+                                            </td>
                                             <td>${c.paymentMethod.paymentName}</td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-primary"
@@ -140,13 +146,9 @@
                                                         <input type="hidden" name="roomNumber" value="${c.roomNumber}" />
                                                         <input type="hidden" name="choose" value="cartToBooking" />
                                                         <input type="hidden" name="page" value="${requestScope.currentPage}">
+                                                        
+                                                        <input type="hidden" name="searchEmail" value="${param.searchEmail}"/>
 
-                                                        <c:if test="${requestScope.cartStatus == 'bookFuture'}">
-                                                            <input type="hidden" name="cartStatus" value="bookFuture" />
-                                                        </c:if>
-                                                        <c:if test="${requestScope.cartStatus == 'bookToday'}">
-                                                            <input type="hidden" name="cartStatus" value="bookToday" />
-                                                        </c:if>
                                                         <c:forEach var="s" items="${c.cartServices}">
                                                             <input type="hidden" name="serviceId" value="${s.service.serviceId}" />
                                                             <input type="hidden" name="quantity" value="${s.quantity}" />
@@ -171,7 +173,19 @@
                                         <c:forEach begin="1" end="${totalPages}" var="i">
                                             <li class="page-item ${i == currentPage ? 'active' : ''}">
                                                 <form action="${pageContext.request.contextPath}/receptionist/cartToBooking" method="get">
-                                                    <input type="hidden" name="choose" value="${param.choose}" />
+                                                    <c:if test="${requestScope.source == 'search'}">
+                                                        <input type="hidden" name="choose" value="search" />
+                                                        <input type="hidden" name="searchEmail" value="${param.searchEmail}"/>
+                                                        <c:if test="${requestScope.cartStatus == 'bookFuture'}">
+                                                            <input type="hidden" name="source" value="viewCustomerFuture" />
+                                                        </c:if>
+                                                        <c:if test="${requestScope.cartStatus == 'view'}">
+                                                            <input type="hidden" name="source" value="viewCustomerHasDuaDon" />
+                                                        </c:if>
+                                                    </c:if>
+                                                    <c:if test="${requestScope.source != 'search'}">
+                                                        <input type="hidden" name="choose" value="${choose}" />
+                                                    </c:if>
 
                                                     <button class="page-link">${i}</button>
                                                     <input type="hidden" name="page" value="${i}" />
@@ -184,29 +198,14 @@
                         </div>
                     </div>
 
-                    <!--danh sách dịch vụ-->
-                    <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Dịch vụ đã sử dụng</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body" id="serviceModalBody">
-                                    <!-- danh sách dịch vụ sẽ được JS thêm vào đây -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Modal nhập CCCD -->
                     <div class="modal fade" id="cccdModal" tabindex="-1" aria-labelledby="cccdModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <form action="${pageContext.request.contextPath}/receptionist/cartToBooking" method="post">
                                 <input type="hidden" name="choose" value="updateCCCD"/>
-                                <input type="hidden" name="cartStatus" value="${requestScope.cartStatus}"/>
                                 <input type="hidden" name="page" value="${requestScope.currentPage}">
-                                
+                                <input type="hidden" name="searchEmail" value="${param.searchEmail}"/>
+
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="cccdModalLabel">Nhập CCCD khách hàng</h5>
@@ -215,36 +214,36 @@
                                     <div class="modal-body">
                                         <p>Khách hàng này chưa có thông tin CCCD. Vui lòng nhập để tiếp tục.</p>
                                         <input type="hidden" name="customerId" value="${requestScope.customerId}" />
-                                        
+
                                         <div class="mb-3">
                                             <label for="fullnameInput" class="form-label">Tên khách hàng</label>
                                             <input type="text" class="form-control" id="fullnameInput" 
                                                    name="fullName" value="${requestScope.fullname}" readonly />
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label for="emailInput" class="form-label">Email khách hàng</label>
                                             <input type="text" class="form-control" id="emailInput" 
                                                    name="email" value="${requestScope.email}" readonly />
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             <label for="cccdInput" class="form-label">CCCD</label>
                                             <input type="text" class="form-control" name="cccd" id="cccdInput" required />
                                         </div>
                                         <c:if test="${not empty requestScope.cccdError}"> ${requestScope.cccdError}</c:if>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-primary">Cập nhật</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                        </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Cập nhật</button>
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                    </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Script hiện modal nếu có lỗi -->
-                    <c:if test="${requestScope.error == 'errorBookToday' || requestScope.error == 'errorBookFuture'}">
+                        <!-- Script hiện modal nếu có lỗi -->
+                    <c:if test="${requestScope.error == 'errorBookFuture'}">
                         <script>
                             document.addEventListener("DOMContentLoaded", function () {
                                 const cccdModalEl = document.getElementById('cccdModal');
@@ -294,6 +293,28 @@
                 document.getElementById("cusCCCD").innerText = displayText;
                 new bootstrap.Modal(document.getElementById("customerInfoModal")).show();
             }
+
+
+            document.addEventListener('DOMContentLoaded', function () {
+
+                //thông báo thành công
+                const alertBox = document.getElementById("successAlert");
+                if (alertBox) {
+                    setTimeout(() => {
+                        // Bootstrap fade out (optional)
+                        alertBox.classList.remove("show");
+                        alertBox.classList.add("fade");
+                        // Xóa phần tử khỏi DOM sau khi fade
+                        setTimeout(() => alertBox.remove(), 500);
+
+                        // Xoá param khỏi URL
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete("success");
+                        url.searchParams.delete("action");
+                        window.history.replaceState({}, document.title, url.toString());
+                    }, 3000); // Hiển thị 3s
+                }
+            });
         </script>
 
     </body>

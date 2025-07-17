@@ -32,7 +32,7 @@ import utility.Validation;
  */
 @WebServlet(name = "CheckoutOnline", urlPatterns = {"/checkout"})
 public class CheckoutOnline extends HttpServlet {
-
+    private int MAX_TIME_PAYMENT = 60 * 5 * 1000;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -100,7 +100,7 @@ public class CheckoutOnline extends HttpServlet {
                 return;
             }
 
-            expireTime = System.currentTimeMillis() + 5 * 1000;
+            expireTime = System.currentTimeMillis() + MAX_TIME_PAYMENT;
             session.setAttribute("expireTime-" + cartId, expireTime);
             long currentTimeMillis = System.currentTimeMillis();
             Timestamp sqlTimestamp = new Timestamp(currentTimeMillis);
@@ -134,6 +134,13 @@ public class CheckoutOnline extends HttpServlet {
 
             request.getRequestDispatcher("/View/Customer/CheckoutOnline.jsp").forward(request, response);
 
+        }
+        
+        if("back".equals(service)){
+            session.removeAttribute("expireTime-" + cartId);
+            CartDAO.getInstance().updateCartToFail(checkCart);
+             response.sendRedirect("cart");
+             return;
         }
 
         if ("confirmInformation".equals(service)) {

@@ -144,7 +144,7 @@ public class CartDAO {
         } catch (SQLException e) {
             // Handle exception
         }
-        return false;
+        return true;
     }
 
     private void reactivateCartIfRoomAvailable(Cart cart, Date startDate, Date endDate) {
@@ -430,7 +430,7 @@ public class CartDAO {
                 LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber
                     AND c.isPayment = 1
                     AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
-                where BookingDetailCheck.BookingDetailId is null and c.CartId is null and r.RoomNumber=? and and r.IsActive=1
+                where BookingDetailCheck.BookingDetailId is null and c.CartId is null and r.RoomNumber=?
                 """;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDate(1, checkin);
@@ -517,7 +517,7 @@ public class CartDAO {
                 ) BookingDetailCheck on BookingDetailCheck.RoomNumber=r.RoomNumber
                 left join Cart c on c.RoomNumber=r.RoomNumber and c.isPayment=1
                 AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
-                where r.TypeId=? and BookingDetailCheck.BookingDetailId is null and c.CartId is null and r.IsActive=1
+                where r.TypeId=? and BookingDetailCheck.BookingDetailId is null and c.CartId is null
                 order by r.RoomNumber desc
                 """;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -747,7 +747,7 @@ public class CartDAO {
     //write function get cart by cartId
     public Cart getCartByCartId(int cartId) {
         String sql = """
-                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive, c.CustomerId
+                SELECT c.CartId, c.TotalPrice, c.Status, c.StartDate, c.EndDate, c.isActive, c.CustomerId,
                                 c.isPayment, c.PaymentMethodId, c.Adults, c.Children, c.RoomNumber
                                 FROM Cart c
                                 WHERE c.CartId = ?
@@ -817,7 +817,7 @@ public class CartDAO {
     }
 
     public void updateCartInCheckout(Cart cart) {
-        String sql = "update Cart set Status = 'Processing' , isPayment = 1, PayDay = ?, paymentMethodId = 1  where cartId = ?";
+        String sql = "update Cart set Status = 'Processing' , isPayment = 1, PayDay = ?, PaymentMethodId = 1  where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setTimestamp(1, cart.getPayDay());
             ptm.setInt(2, cart.getCartId());
@@ -827,7 +827,7 @@ public class CartDAO {
     }
 
     public void updateCartToFail(Cart cart) {
-        String sql = "update Cart set Status = 'Pending' , isPayment = 0, PayDay = null, paymentMethodId = null  where cartId = ?";
+        String sql = "update Cart set Status = 'Pending' , isPayment = 0, PayDay = null  where cartId = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, cart.getCartId());
             ptm.executeUpdate();
@@ -889,7 +889,7 @@ public class CartDAO {
         SELECT c.CartId, c.StartDate, c.EndDate, c.TotalPrice, c.RoomNumber, c.Status,
                c.PayDay, c.isActive, c.isPayment,
                pm.PaymentMethodId, pm.PaymentName,
-               cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender,
+               cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender,cus.CCCD, 
                s.ServiceId, s.ServiceName, s.Price, cs.Quantity
         FROM Cart c
         JOIN PaymentMethod pm ON c.PaymentMethodId = pm.PaymentMethodId
@@ -925,6 +925,7 @@ public class CartDAO {
                     cus.setFullName(rs.getString("FullName"));
                     cus.setEmail(rs.getString("Email"));
                     cus.setPhoneNumber(rs.getString("PhoneNumber"));
+                    cus.setCCCD(rs.getString("CCCD"));
                     cus.setGender(rs.getBoolean("Gender"));
                     cart.setMainCustomer(cus);
 

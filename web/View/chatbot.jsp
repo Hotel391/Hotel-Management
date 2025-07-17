@@ -120,8 +120,8 @@
         <div id="chatBox" class="chat-box"></div>
         <textarea id="question" rows="3" placeholder="Nhập câu hỏi..."></textarea>
         <div class="controls">
-            <button onclick="sendQuestion()">Gửi</button>
             <button onclick="clearChat()"><i class="bi bi-trash3"></i></button>
+            <button onclick="sendQuestion()">Gửi</button>
         </div>
     </div>
 </div>

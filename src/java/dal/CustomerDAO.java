@@ -640,5 +640,15 @@ public class CustomerDAO {
             e.printStackTrace();
         }
     }
+    public void updatePhoneNumberAndGender(Customer customer){
+        String sql = "update Customer set PhoneNumber = ?, Gender = ? where Email = ?";
+        try (PreparedStatement ptm = con.prepareStatement(sql)) {
+            ptm.setString(1, customer.getPhoneNumber());
+            ptm.setBoolean(2, customer.getGender());
+            ptm.setString(3, customer.getEmail());
+            ptm.executeUpdate();
+        } catch (SQLException e) {
+        }
+    }
 
 }

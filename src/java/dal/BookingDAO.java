@@ -72,7 +72,7 @@ public class BookingDAO {
                 DailyRevenue dr = new DailyRevenue();
                 dr.setWeekdayName(rs.getString("WeekdayName"));
                 dr.setDay(rs.getInt("Day"));
-                dr.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
+                dr.setTotalPrice(rs.getDouble("TotalPrice"));
                 result.add(dr);
             }
         } catch (SQLException e) {
@@ -115,9 +115,9 @@ public class BookingDAO {
                     booking.setBookingId(rs.getInt("BookingID"));
                     booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerID")));
                     booking.setPayDay(rs.getDate("PayDay"));
-                    booking.setTotalPrice(rs.getBigDecimal("TotalPrice").toBigInteger());
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setStatus(rs.getString("Status"));
-                    booking.setPaidAmount(rs.getBigDecimal("paidAmount").toBigInteger());
+                    booking.setPaidAmount(rs.getInt("paidAmount"));
                     booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
                     booking.setPaymentMethodCheckIn(PaymentMethodDAO.getInstance().getPaymentMethodCheckInByBookingId(rs.getInt("BookingId")));
                     return booking;
@@ -204,7 +204,7 @@ public class BookingDAO {
                     booking.setBookingId(rs.getInt("BookingID"));
                     booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(customerId));
                     booking.setPayDay(rs.getDate("PayDay"));
-                    booking.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setPayDay(rs.getDate("PayDay"));
                     booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
                     bookings.add(booking);
@@ -248,7 +248,7 @@ public class BookingDAO {
                     booking.setBookingId(rs.getInt("BookingID"));
                     booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
                     booking.setPayDay(rs.getDate("PayDay"));
-                    booking.setTotalPrice( new BigInteger(rs.getString("TotalPrice")));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setStatus(rs.getString("status"));
                     booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
                     bookings.add(booking);
@@ -277,7 +277,7 @@ public class BookingDAO {
                     booking.setBookingId(rs.getInt("BookingID"));
                     booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
                     booking.setPayDay(rs.getDate("PayDay"));
-                    booking.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setStatus(rs.getString("status"));
                     booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
                     System.out.println(booking);
@@ -349,7 +349,7 @@ public class BookingDAO {
                 + " WHERE [BookingId] = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setLong(1, booking.getPaidAmount().longValue());
+            st.setInt(1, booking.getPaidAmount());
             st.setInt(2, booking.getBookingId());
             return st.executeUpdate() > 0;
         } catch (SQLException ex) {
@@ -364,7 +364,7 @@ public class BookingDAO {
                 + " WHERE [BookingId] = ?";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setLong(1, booking.getTotalPrice().longValue());
+            st.setInt(1, booking.getTotalPrice());
             st.setInt(2, booking.getPaymentMethod().getPaymentMethodId());
             st.setInt(3, booking.getBookingId());
             return st.executeUpdate() > 0;
@@ -394,7 +394,7 @@ public class BookingDAO {
                     booking.setBookingId(rs.getInt("BookingID"));
                     booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
                     booking.setPayDay(rs.getDate("PayDay"));
-                    booking.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setStatus(rs.getString("status"));
                     booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingID")));
                     bookings.add(booking);
@@ -427,7 +427,7 @@ public class BookingDAO {
     public void updateTotalPrice(Booking booking) {
         String sql = "UPDATE Booking SET TotalPrice = ? WHERE BookingID = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setLong(1, booking.getTotalPrice().longValue());
+            st.setInt(1, booking.getTotalPrice());
             st.setInt(2, booking.getBookingId());
             st.executeUpdate();
         } catch (SQLException e) {
@@ -451,9 +451,9 @@ public class BookingDAO {
                 booking.setBookingId(rs.getInt("BookingID"));
                 booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
                 booking.setPayDay(rs.getDate("PayDay"));
-                booking.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
+                booking.setTotalPrice(rs.getInt("TotalPrice"));
                 booking.setStatus(rs.getString("status"));
-                booking.setPaidAmount(new BigInteger(rs.getString("paidAmount")));
+                booking.setPaidAmount(rs.getInt("paidAmount"));
                 booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
                 bookings.add(booking);
             }
@@ -484,9 +484,9 @@ public class BookingDAO {
                     booking.setBookingId(rs.getInt("BookingID"));
                     booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
                     booking.setPayDay(rs.getDate("PayDay"));
-                    booking.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setStatus(rs.getString("status"));
-                    booking.setPaidAmount(new BigInteger(rs.getString("paidAmount")));
+                    booking.setPaidAmount(rs.getInt("paidAmount"));
                     booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
                     bookings.add(booking);
                 }
@@ -521,7 +521,7 @@ public class BookingDAO {
                     booking.setBookingId(rs.getInt("BookingID"));
                     booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
                     booking.setPayDay(rs.getDate("PayDay"));
-                    booking.setTotalPrice(new BigInteger(rs.getString("TotalPrice")));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
                     booking.setStatus(rs.getString("Status"));
                     booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingId")));
                     bookings.add(booking);

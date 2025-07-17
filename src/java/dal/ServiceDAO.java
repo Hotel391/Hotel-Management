@@ -318,8 +318,8 @@ public class ServiceDAO {
                 (SELECT Price FROM Service WHERE ServiceId = ?)
             WHERE BookingDetailId = ?""";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
-            ptm.setLong(1, quantity);
-            ptm.setLong(2, oldQuantity);
+            ptm.setInt(1, quantity);
+            ptm.setInt(2, oldQuantity);
             ptm.setInt(3, serviceId);
             ptm.setInt(4, bookingDetailId);
             ptm.executeUpdate();
@@ -333,8 +333,8 @@ public class ServiceDAO {
                 (SELECT Price FROM Service WHERE ServiceId = ?)
             WHERE BookingDetailId = ? AND ServiceId = ?""";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
-            ptm.setLong(1, quantity);
-            ptm.setLong(2, oldQuantity);
+            ptm.setInt(1, quantity);
+            ptm.setInt(2, oldQuantity);
             ptm.setInt(3, serviceId);
             ptm.setInt(4, bookingDetailId);
             ptm.setInt(5, serviceId);
@@ -377,7 +377,7 @@ public class ServiceDAO {
             ptm.setInt(1, bookingDetailId);
             ptm.setInt(2, serviceId);
             ptm.setInt(3, quantity);
-            ptm.setLong(4, quantity);
+            ptm.setInt(4, quantity);
             ptm.setInt(5, serviceId);
             ptm.executeUpdate();
         } catch (SQLException e) {
@@ -390,7 +390,7 @@ public class ServiceDAO {
                 (SELECT Price FROM Service WHERE ServiceId = ?)
             WHERE BookingDetailId = ?""";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
-            ptm.setLong(1, quantity);
+            ptm.setInt(1, quantity);
             ptm.setInt(2, serviceId);
             ptm.setInt(3, bookingDetailId);
             ptm.executeUpdate();

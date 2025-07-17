@@ -4,7 +4,6 @@
  */
 package dal;
 
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -49,7 +48,7 @@ public class CartServiceDAO {
                 cartService.setCartId(rs.getInt("CartId"));
                 cartService.setService(ServiceDAO.getInstance().getServiceById(rs.getInt("ServiceId")));
                 cartService.setQuantity(rs.getInt("quantity"));
-                cartService.setPriceAtTime(new BigInteger(rs.getString("priceAtTime")));
+                cartService.setPriceAtTime(rs.getInt("priceAtTime"));
                 list.add(cartService);
             }
         } catch (SQLException e) {
@@ -61,7 +60,7 @@ public class CartServiceDAO {
     public boolean updatePriceStTimeOfTableCartService(CartService cartService) {
         String sql = "UPDATE CartService set priceAtTime = ? WHERE cartId = ? AND serviceId = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setLong(1, cartService.getPriceAtTime().longValue());
+            ps.setInt(1, cartService.getPriceAtTime());
             ps.setInt(2, cartService.getCartId());
             ps.setInt(3, cartService.getService().getServiceId());
             ps.executeUpdate();

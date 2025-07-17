@@ -2,8 +2,6 @@ package dal;
 
 import java.sql.Statement;
 import models.TypeRoom;
-
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -59,7 +57,7 @@ public class TypeRoomDAO {
         try (PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             st.setString(1, typeRoom.getTypeName());
             st.setString(2, typeRoom.getDescription());
-            st.setLong(3, typeRoom.getPrice().longValue());
+            st.setInt(3, typeRoom.getPrice());
             st.setInt(4, typeRoom.getMaxAdult());
             st.setInt(5, typeRoom.getMaxChildren());
             
@@ -86,7 +84,7 @@ public class TypeRoomDAO {
                     typeRoom.setTypeId(rs.getInt(1));
                     typeRoom.setTypeName(rs.getString(2));
                     typeRoom.setDescription(rs.getString(3));
-                    typeRoom.setPrice(new BigInteger(rs.getString(4)));
+                    typeRoom.setPrice(rs.getInt(4));
                     return typeRoom;
                 }
             }
@@ -106,7 +104,7 @@ public class TypeRoomDAO {
                     typeRoom.setTypeId(rs.getInt(1));
                     typeRoom.setTypeName(rs.getString(2));
                     typeRoom.setDescription(rs.getString(3));
-                    typeRoom.setPrice(new BigInteger(rs.getString(4)));
+                    typeRoom.setPrice(rs.getInt(4));
                     return typeRoom;
                 }
             }
@@ -127,7 +125,7 @@ public class TypeRoomDAO {
                     typeRoom.setTypeId(rs.getInt(1));
                     typeRoom.setTypeName(rs.getString(2));
                     typeRoom.setDescription(rs.getString(3));
-                    typeRoom.setPrice(new BigInteger(rs.getString(4)));
+                    typeRoom.setPrice(rs.getInt(4));
                     return typeRoom;
                 }
             }
@@ -149,7 +147,7 @@ public class TypeRoomDAO {
                     typeRoom.setTypeId(rs.getInt(1));
                     typeRoom.setTypeName(rs.getString(2));
                     typeRoom.setDescription(rs.getString(3));
-                    typeRoom.setPrice(new BigInteger(rs.getString(4)));
+                    typeRoom.setPrice(rs.getInt(4));
                     typeRoom.setImages(RoomImageDAO.getInstance().getRoomImagesByTypeId(rs.getInt("TypeId")));
                     return typeRoom;
                 }
@@ -199,7 +197,7 @@ public class TypeRoomDAO {
                             typeId,
                             rs.getString("TypeName"),
                             rs.getString("Description"),
-                            new BigInteger(rs.getString("Price"))
+                            rs.getInt("Price")
                     );
                     map.put(typeId, typeRoom);
                     list.add(typeRoom);
@@ -249,7 +247,7 @@ public class TypeRoomDAO {
                     TypeRoom tr = new TypeRoom(rs.getInt(1),
                             rs.getString(2),
                             rs.getString(3),
-                            new BigInteger(rs.getString(4)));
+                            rs.getInt(4));
                     tr.setImages(RoomImageDAO.getInstance().getRoomImagesByTypeId(rs.getInt(1)));
                                
 
@@ -284,7 +282,7 @@ public class TypeRoomDAO {
                     TypeRoom tr = new TypeRoom(rs.getInt("typeId"),
                             rs.getString("typeName"),
                             rs.getString("description"),
-                            new BigInteger(rs.getString("price")),
+                            rs.getInt("price"),
                             rs.getInt("Adult"),
                             rs.getInt("Children"));
 
@@ -373,7 +371,7 @@ public class TypeRoomDAO {
                     TypeRoom typeRoom = new TypeRoom();
                     typeRoom.setTypeId(rs.getInt("typeId"));
                     typeRoom.setTypeName(rs.getString("typeName"));
-                    typeRoom.setPrice(new BigInteger(rs.getString("price")));
+                    typeRoom.setPrice(rs.getInt("price"));
                     typeRoom.setMaxAdult(rs.getInt("Adult"));
                     typeRoom.setMaxChildren(rs.getInt("Children"));
                     return typeRoom;
@@ -426,7 +424,7 @@ public class TypeRoomDAO {
         return price;
     }
 
-    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, BigInteger minPrice, BigInteger maxPrice, int adult, int children, String orderByClause) {
+    public List<TypeRoom> getAvailableTypeRooms(Date startDate, Date endDate, int pageIndex, int pageSize, Integer minPrice, Integer maxPrice, int adult, int children, String orderByClause) {
         List<TypeRoom> availableTypeRooms = Collections.synchronizedList(new ArrayList<>());
         StringBuilder sql = new StringBuilder("""
                 SELECT * FROM (
@@ -496,7 +494,7 @@ public class TypeRoomDAO {
                     typeRoom.setTypeId(rs.getInt("TypeId"));
                     typeRoom.setTypeName(rs.getString("TypeName"));
                     typeRoom.setNumberOfAvailableRooms(rs.getInt("AvailableRoomCount"));
-                    typeRoom.setPrice(new BigInteger(rs.getString("Price")));
+                    typeRoom.setPrice(rs.getInt("Price"));
                     typeRoom.setDescription(rs.getString("Description"));
                     typeRoom.setAverageRating(rs.getDouble("Rating"));
                     typeRoom.setNumberOfReviews(rs.getInt("numberOfReview"));
@@ -530,7 +528,7 @@ public class TypeRoomDAO {
         return getTotalTypeRoom(startDate, endDate, null, null, 2, 1);
     }
 
-    public int getTotalTypeRoom(Date startDate, Date endDate, BigInteger minPrice, BigInteger maxPrice, int adult, int children) {
+    public int getTotalTypeRoom(Date startDate, Date endDate, Integer minPrice, Integer maxPrice, int adult, int children) {
         StringBuilder sql = new StringBuilder("""
                 SELECT COUNT(*) AS totalTypeRoom
                 FROM (
@@ -657,9 +655,9 @@ public class TypeRoomDAO {
                     TypeRoom typeRoom = new TypeRoom();
                     typeRoom.setTypeId(rs.getInt("TypeId"));
                     typeRoom.setTypeName(rs.getString("TypeName"));
-                    typeRoom.setOriginPrice(new BigInteger(rs.getString("OriginPrice")));
-                    typeRoom.setServicePrice(new BigInteger(rs.getString("ServicePrice")));
-                    typeRoom.setPrice(new BigInteger(rs.getString("Price")));
+                    typeRoom.setOriginPrice(rs.getInt("OriginPrice"));
+                    typeRoom.setServicePrice(rs.getInt("ServicePrice"));
+                    typeRoom.setPrice(rs.getInt("Price"));
                     typeRoom.setDescription(rs.getString("Description"));
                     typeRoom.setAdults(rs.getInt("Adult"));
                     typeRoom.setChildren(rs.getInt("Children"));
@@ -725,7 +723,7 @@ public class TypeRoomDAO {
                 TypeRoom typeRoom = new TypeRoom();
                 typeRoom.setTypeId(rs.getInt("TypeId"));
                 typeRoom.setTypeName(rs.getString("TypeName"));
-                typeRoom.setPrice(new BigInteger(rs.getString("Price")));
+                typeRoom.setPrice(rs.getInt("Price"));
                 typeRoom.setDescription(rs.getString("Description"));
                 typeRoom.setAverageRating(rs.getDouble("Rating"));
                 typeRoom.setNumberOfReviews(rs.getInt("numberOfReview"));
@@ -768,7 +766,7 @@ public class TypeRoomDAO {
                 typeRoom.setTypeId(typeId);
                 typeRoom.setTypeName(rs.getString("TypeName"));
                 typeRoom.setDescription(rs.getString("Description"));
-                typeRoom.setPrice(new BigInteger(rs.getString("Price")));
+                typeRoom.setPrice(rs.getInt("Price"));
                 typeRoom.setMaxAdult(rs.getInt("Adult"));
                 typeRoom.setMaxChildren(rs.getInt("Children"));
 

@@ -67,7 +67,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <form method="post" class="d-inline" onsubmit="return confirmChangeStatus('${room.roomNumber}', ${room.isCleaner});">
+                                        <form method="post" class="d-inline">
                                             <input type="hidden" name="roomNumber" value="${room.roomNumber}" />
                                             <input type="hidden" name="status" value="${room.isCleaner}" />
                                             <button type="submit"
@@ -279,13 +279,6 @@
         </script>
     </c:if>
     <script>
-        function confirmChangeStatus(roomNumber, isCleaner) {
-            if (isCleaner) {
-                return confirm('Bạn có chắc phòng '+roomNumber+' cần dọn không?');
-            } else {
-                return confirm('Bạn có chắc phòng '+roomNumber+' không cần dọn nữa?');
-            }
-        }
         document.addEventListener("DOMContentLoaded", function () {
             const urlParams = new URLSearchParams(window.location.search);
             const success = urlParams.get('success');

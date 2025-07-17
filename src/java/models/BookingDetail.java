@@ -1,13 +1,12 @@
 package models;
 
-import java.math.BigInteger;
 import java.sql.Date;
 import java.util.List;
 
 public class BookingDetail {
 
     private int bookingDetailId;
-    private BigInteger totalAmount;
+    private int totalAmount;
     private Date startDate;
     private Date endDate;
     private Booking booking;
@@ -83,11 +82,11 @@ public class BookingDetail {
         this.room = room;
     }
 
-    public BigInteger getTotalAmount() {
+    public int getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(BigInteger totalAmount) {
+    public void setTotalAmount(int totalAmount) {
         this.totalAmount = totalAmount;
     }
     @Override

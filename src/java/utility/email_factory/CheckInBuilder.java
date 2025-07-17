@@ -1,6 +1,5 @@
 package utility.email_factory;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -19,11 +18,11 @@ public class CheckInBuilder implements EmailContentBuilder{
         String endDate = (String) data.get("endDate");
         List<String> typeRoom = (List<String>) data.get("typeRoom");
         List<Integer> quantityTypeRoom = (List<Integer>) data.get("quantityTypeRoom");
-        List<BigInteger> priceTypeRoom = (List<BigInteger>) data.get("priceTypeRoom");
+        List<Double> priceTypeRoom = (List<Double>) data.get("priceTypeRoom");
         List<String> services = (List<String>) data.get("services");
         List<Integer> serviceQuantity = (List<Integer>) data.get("serviceQuantity");
-        List<BigInteger> servicePrice = (List<BigInteger>) data.get("servicePrice");
-        BigInteger total = (BigInteger) data.get("total");
+        List<Integer> servicePrice = (List<Integer>) data.get("servicePrice");
+        int total = (int) data.get("total");
         String paymentMethod = (String) data.get("paymentMethod");
         StringBuilder confirmCheckin = new StringBuilder();
         // Tính số đêm giữa startDate và endDate (định dạng yyyy-MM-dd)

@@ -1,14 +1,12 @@
 package models;
 
-import java.math.BigInteger;
-
 public class CartService {
 
     private Cart cart;
     private int cartId;
     private Service service;
     private int quantity;
-    private BigInteger priceAtTime;
+    private int priceAtTime;
 
     public CartService() {
     }
@@ -42,11 +40,11 @@ public class CartService {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-
-    public BigInteger getPriceAtTime() {
+    
+    public int getPriceAtTime() {
         return priceAtTime;
     }
-    public void setPriceAtTime(BigInteger priceAtTime) {
+    public void setPriceAtTime(int priceAtTime) {
         this.priceAtTime = priceAtTime;
     }
     

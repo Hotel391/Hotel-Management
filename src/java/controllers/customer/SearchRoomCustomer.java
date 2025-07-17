@@ -1,8 +1,6 @@
 package controllers.customer;
 
 import java.io.IOException;
-import java.math.BigInteger;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -49,8 +47,8 @@ public class SearchRoomCustomer extends HttpServlet {
     } 
 
     private void handleDefault(HttpServletRequest request, Date checkin, Date checkout, int adult, int children) throws ServletException, IOException {
-        BigInteger minPrice = readMinPrice(request);
-        BigInteger maxPrice = readMaxPrice(request, minPrice);
+        Integer minPrice = readMinPrice(request);
+        Integer maxPrice = readMaxPrice(request, minPrice);
 
         int numberOfTypeRoom = dal.TypeRoomDAO.getInstance().getTotalTypeRoom(checkin, checkout,minPrice, maxPrice, adult, children);
         int totalPages = (int) Math.ceil((double) numberOfTypeRoom / PAGE_SIZE);
@@ -63,23 +61,23 @@ public class SearchRoomCustomer extends HttpServlet {
         request.setAttribute("typeRooms", typeRooms);
     }
 
-    private BigInteger readMinPrice(HttpServletRequest request) {
+    private Integer readMinPrice(HttpServletRequest request) {
         String minPriceStr = request.getParameter("minPrice");
-        return readInputField(request, "errorPrice", minPriceStr, s -> new BigInteger(s.replaceAll("\\D", "")),
+        return readInputField(request, "errorPrice", minPriceStr, s-> Integer.valueOf(s.replaceAll("\\D", "")), 
                     List.of(
-                        new ValidationRule<>(value -> value.compareTo(BigInteger.ZERO) >= 0, "Minimum price must be a non-negative number."),
-                        new ValidationRule<>(value -> value.compareTo(new BigInteger("10000000000")) <= 0, "Minimum price must be less than or equal to 10,000,000,000.")
+                        new ValidationRule<>(value-> value >= 0, "Minimum price must be a non-negative number."),
+                        new ValidationRule<>(value -> value <= 1000000000, "Minimum price must be less than or equal to 1,000,000,000.")
                     ));
     }
 
-    private BigInteger readMaxPrice(HttpServletRequest request, BigInteger minPrice) {
+    private Integer readMaxPrice(HttpServletRequest request, Integer minPrice) {
         String maxPriceStr = request.getParameter("maxPrice");
-        BigInteger baseMinPrice = minPrice == null ? BigInteger.ZERO : minPrice;
-        return readInputField(request, "errorPrice", maxPriceStr, s -> new BigInteger(s.replaceAll("\\D", "")),
+        Integer baseMinPrice = minPrice == null ? 0 : minPrice;
+        return readInputField(request, "errorPrice", maxPriceStr, s-> Integer.valueOf(s.replaceAll("\\D", "")), 
                     List.of(
-                        new ValidationRule<>(value -> value.compareTo(BigInteger.ZERO) > 0, "Maximum price must be a positive number."),
-                        new ValidationRule<>(value -> value.compareTo(baseMinPrice) >= 0, "Maximum price must be greater or equal to minimum price."),
-                        new ValidationRule<>(value -> value.compareTo(new BigInteger("10000000000")) <= 0, "Maximum price must be less than or equal to 10,000,000,000.")
+                        new ValidationRule<>(value-> value > 0, "Maximum price must be a positive number."),
+                        new ValidationRule<>(value -> value > baseMinPrice, "Maximum price must be greater than minimum price."),
+                        new ValidationRule<>(value -> value <= 1000000000, "Maximum price must be less than or equal to 1,000,000,000.")
                     ));
     }
 

@@ -1,13 +1,12 @@
 package models;
 
-import java.math.BigInteger;
 import java.sql.Date;
 
 public class Booking {
 
     private int bookingId;
-    private BigInteger totalPrice;
-    private BigInteger paidAmount;
+    private int totalPrice;
+    private int paidAmount;
     private Date payDay;
     private String status;
     private Customer customer;
@@ -17,7 +16,7 @@ public class Booking {
     public Booking() {
     }
 
-    public Booking(int bookingId, BigInteger totalPrice, BigInteger paidAmount, Date payDay, String status, Customer customer, PaymentMethod paymentMethod) {
+    public Booking(int bookingId, int totalPrice, int paidAmount, Date payDay, String status, Customer customer, PaymentMethod paymentMethod) {
         this.bookingId = bookingId;
         this.totalPrice = totalPrice;
         this.paidAmount = paidAmount;
@@ -27,11 +26,11 @@ public class Booking {
         this.paymentMethod = paymentMethod;
     }
 
-    public BigInteger getPaidAmount() {
+    public int getPaidAmount() {
         return paidAmount;
     }
 
-    public void setPaidAmount(BigInteger paidAmount) {
+    public void setPaidAmount(int paidAmount) {
         this.paidAmount = paidAmount;
     }
     
@@ -43,11 +42,11 @@ public class Booking {
         this.bookingId = bookingId;
     }
 
-    public BigInteger getTotalPrice() {
+    public int getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(BigInteger totalPrice) {
+    public void setTotalPrice(int totalPrice) {
         this.totalPrice = totalPrice;
     }
 

@@ -1,6 +1,5 @@
 package models;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +8,7 @@ public class TypeRoom {
     private int typeId;
     private String typeName;
     private String description;
-    private BigInteger price;
+    private int price;
     private int maxAdult;
     private int maxChildren;
     private List<RoomImage> images = new ArrayList<>();
@@ -19,8 +18,8 @@ public class TypeRoom {
     private double averageRating;
     private List<String> urlImages = new ArrayList<>();
     private int numberOfReviews;
-    private BigInteger originPrice;
-    private BigInteger servicePrice;
+    private int originPrice;
+    private int servicePrice;
     private List<Review> reviews = new ArrayList<>();
     private int adults;
     private int children;
@@ -30,14 +29,14 @@ public class TypeRoom {
     }
 
 
-    public TypeRoom(int typeId, String typeName, String description, BigInteger price) {
+    public TypeRoom(int typeId, String typeName, String description, int price) {
         this.typeId = typeId;
         this.typeName = typeName;
         this.description = description;
         this.price = price;
     }
-
-    public TypeRoom(int typeId, String typeName, String description, BigInteger price, int maxAdult, int maxChildren) {
+    
+    public TypeRoom(int typeId, String typeName, String description, int price, int maxAdult, int maxChildren) {
         this.typeId = typeId;
         this.typeName = typeName;
         this.description = description;
@@ -86,11 +85,11 @@ public class TypeRoom {
         this.description = description;
     }
 
-    public BigInteger getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(BigInteger price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 
@@ -154,16 +153,16 @@ public class TypeRoom {
     public void setNumberOfReviews(int numberOfReviews) {
         this.numberOfReviews = numberOfReviews;
     }
-    public BigInteger getOriginPrice() {
+    public int getOriginPrice() {
         return originPrice;
     }
-    public void setOriginPrice(BigInteger originPrice) {
+    public void setOriginPrice(int originPrice) {
         this.originPrice = originPrice;
     }
-    public BigInteger getServicePrice() {
+    public int getServicePrice() {
         return servicePrice;
     }
-    public void setServicePrice(BigInteger servicePrice) {
+    public void setServicePrice(int servicePrice) {
         this.servicePrice = servicePrice;
     }
     public List<Review> getReviews() {

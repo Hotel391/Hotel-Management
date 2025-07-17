@@ -1,6 +1,5 @@
 package models;
 
-import java.math.BigInteger;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +8,7 @@ import java.sql.Timestamp;
 public class Cart {
 
     private int cartId;
-    private BigInteger totalPrice;
+    private int totalPrice;
     private Timestamp payDay;
     private String status;
     private Date startDate;
@@ -28,7 +27,7 @@ public class Cart {
     public Cart() {
     }
 
-    public Cart(int cartId, BigInteger totalPrice, Timestamp payDay, String status, Date startDate, Date endDate, boolean isActive, boolean isPayment, Customer customer, PaymentMethod paymentMethod) {
+    public Cart(int cartId, int totalPrice, Timestamp payDay, String status, Date startDate, Date endDate, boolean isActive, boolean isPayment, Customer customer, PaymentMethod paymentMethod) {
         this.cartId = cartId;
         this.totalPrice = totalPrice;
         this.payDay = payDay;
@@ -57,11 +56,11 @@ public class Cart {
         this.cartId = cartId;
     }
 
-    public BigInteger getTotalPrice() {
+    public int getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(BigInteger totalPrice) {
+    public void setTotalPrice(int totalPrice) {
         this.totalPrice = totalPrice;
     }
 

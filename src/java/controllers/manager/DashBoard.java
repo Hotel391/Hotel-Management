@@ -2,8 +2,6 @@ package controllers.manager;
 
 import models.DailyRevenue;
 import java.io.IOException;
-import java.math.BigInteger;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +25,7 @@ public class DashBoard extends HttpServlet {
 
 
         List<String> label = generateWeekLabels();
-        List<BigInteger> data = mapRevenueToWeekLabels(dailyRevenue,label);
+        List<Integer> data = mapRevenueToWeekLabels(dailyRevenue,label);
         request.setAttribute("labels", label);
         request.setAttribute("data", data);
         request.setAttribute("availableRoomCount", dal.RoomDAO.getInstance().roomAvailableCount());
@@ -60,12 +58,12 @@ public class DashBoard extends HttpServlet {
         return label;
     }
 
-    public static List<BigInteger> mapRevenueToWeekLabels(List<DailyRevenue> revenues, List<String> label) {
-        List<BigInteger> data = new ArrayList<>(Collections.nCopies(7, BigInteger.ZERO));
+    public static List<Integer> mapRevenueToWeekLabels(List<DailyRevenue> revenues, List<String> label) {
+        List<Integer> data = new ArrayList<>(Collections.nCopies(7, 0));
         for (DailyRevenue dr : revenues) {
             int index = label.indexOf(dr.getWeekdayName());
             if (index != -1) {
-                data.set(index, dr.getTotalPrice());
+                data.set(index, (int) dr.getTotalPrice());
             }
         }
         return data;

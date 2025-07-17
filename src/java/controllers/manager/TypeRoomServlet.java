@@ -44,7 +44,7 @@ public class TypeRoomServlet extends HttpServlet {
         }
 
         if ("addTypeRoom".equals(service)) {
-            
+
             int maxAdult = 0, maxChildren = 0;
 
             String name = request.getParameter("typeName").trim();
@@ -52,7 +52,6 @@ public class TypeRoomServlet extends HttpServlet {
             String description = request.getParameter("typeDesc").trim();
             String maxAdultRaw = request.getParameter("maxAdult").trim();
             String maxChildrenRaw = request.getParameter("maxChildren").trim();
-            
 
             System.out.println("desc: " + description);
 
@@ -63,9 +62,19 @@ public class TypeRoomServlet extends HttpServlet {
                 check = true;
             }
 
-            if (Validation.validateField(request, "priceError", price_raw, "ROOM_PRICE_INT",
-                    "Price", "Chỉ bao gồm chữ số và lớn hơn 0")) {
+//            if (Validation.validateField(request, "priceError", price_raw, "ROOM_PRICE_INT",
+//                    "Price", "Chỉ bao gồm chữ số và lớn hơn 0")) {
+//                check = true;
+//            }
+            int price = 0;
+            try {
+                price = Integer.parseInt(price_raw);
+                if (!(100_000 <= price && price <= 10_000_000)) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException e) {
                 check = true;
+                request.setAttribute("priceError", "Vui lòng nhập giá trong khoảng từ 100,000 VND đến 10,000,000 VND");
             }
 
             if (TypeRoomDAO.getInstance().getTypeRoomByName(name) != null) {
@@ -75,18 +84,18 @@ public class TypeRoomServlet extends HttpServlet {
                 request.setAttribute("description", description);
                 request.setAttribute("nameExistedError", "Tên loại phòng đã tồn tại");
             }
-            
-            if(!maxAdultRaw.matches("^[1-9][0-9]*$")){
+
+            if (!maxAdultRaw.matches("^[1-9][0-9]*$")) {
                 check = true;
                 request.setAttribute("maxAdultError", "Chỉ được nhập số > 0");
-            }else{
+            } else {
                 maxAdult = Integer.parseInt(maxAdultRaw);
             }
-            
-            if(!maxChildrenRaw.matches("^[1-9][0-9]*$")){
+
+            if (!maxChildrenRaw.matches("^[1-9][0-9]*$")) {
                 check = true;
                 request.setAttribute("maxChildrenError", "Chỉ được nhập số > 0");
-            }else{
+            } else {
                 maxChildren = Integer.parseInt(maxChildrenRaw);
             }
 
@@ -95,7 +104,7 @@ public class TypeRoomServlet extends HttpServlet {
             for (Part part : fileParts) {
                 if (part.getName().equals("image") && part.getSize() > 0) {
                     String fileName = extractFileName(part);
-                    
+
                     if (fileName != null && part.getContentType() != null && part.getContentType().startsWith("image/")) {
                         imageParts.put(part, fileName);
                     }
@@ -124,8 +133,6 @@ public class TypeRoomServlet extends HttpServlet {
             System.out.println(imageParts);
 
             if (!check) {
-
-                int price = Integer.parseInt(price_raw);
                 TypeRoom typeRoom = new TypeRoom();
                 typeRoom.setDescription(description);
                 typeRoom.setPrice(price);
@@ -163,44 +170,29 @@ public class TypeRoomServlet extends HttpServlet {
 
             boolean check = false;
 
-
             String typeName = request.getParameter("typeName").trim();
             String priceRaw = request.getParameter("price").trim();
             String maxAdultRaw = request.getParameter("maxAdult").trim();
-            
+
             String maxChildrenRaw = request.getParameter("maxChildren").trim();
-            
+
             System.out.println("Adult: " + maxAdultRaw);
-            
+
             System.out.println("Children: " + maxChildrenRaw);
-            
+
             int price = 0;
-            
+
             int maxAdult = 0;
-            
+
             int maxChildren = 0;
 
             if (Validation.validateField(request, "nameError", typeName, "TYPE_ROOM_NAME_BASIC",
                     "Type Name", "Chỉ bao gồm chữ cái")) {
                 check = true;
             }
-            
-            if(!maxAdultRaw.matches("^[1-9]*$")){
-                check = true;
-                request.setAttribute("maxAdultError", "Chỉ được nhập số > 0");
-            }else{
-                maxAdult = Integer.parseInt(maxAdultRaw);
-            }
-            
-            if(!maxChildrenRaw.matches("^[1-9]*$")){
-                check = true;
-                request.setAttribute("maxChildrenError", "Chỉ được nhập số > 0");
-            }else{
-                maxChildren = Integer.parseInt(maxChildrenRaw);
-            }
 
             if (TypeRoomDAO.getInstance().getTypeRoomByNameAndId(typeName, typeRoomId) != null) {
-                
+
                 request.setAttribute("name", typeName);
                 request.setAttribute("price", priceRaw);
 //                request.setAttribute("description", description);
@@ -214,11 +206,48 @@ public class TypeRoomServlet extends HttpServlet {
                 return;
             }
 
-            if (Validation.validateField(request, "priceError", priceRaw, "ROOM_PRICE_INT",
-                    "Price", "Chỉ bao gồm chữ số")) {
+            try {
+                maxAdult = Integer.parseInt(maxAdultRaw);
+                if (maxAdult < 1 || maxAdult > 10) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException e) {
                 check = true;
+                request.setAttribute("maxAdultError", "Giới hạn người trong khoảng 1-10");
+            }
+
+            try {
+                maxChildren = Integer.parseInt(maxChildrenRaw);
+                if (maxChildren < 1 || maxChildren > 10) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException e) {
+                check = true;
+                request.setAttribute("maxChildrenError", "Giới hạn trẻ em trong khoảng 1-10");
+            }
+            if (!maxAdultRaw.matches("^[1-9][0-9]*$")) {
+                check = true;
+                request.setAttribute("maxAdultError", "Giới hạn người lớn trong khoảng 1-10");
             } else {
+                try {
+                    maxAdult = Integer.parseInt(maxAdultRaw);
+                    if (maxAdult < 1 || maxAdult > 10) {
+                        throw new NumberFormatException();
+                    }
+                } catch (NumberFormatException e) {
+                    check = true;
+                    request.setAttribute("maxAdultError", "Giới hạn người lớn trong khoảng 1-10");
+                }
+            }
+
+            try {
                 price = Integer.parseInt(priceRaw);
+                if (!(100_000 <= price && price <= 10_000_000)) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException e) {
+                check = true;
+                request.setAttribute("priceError", "Vui lòng nhập giá trong khoảng từ 100,000 VND đến 10,000,000 VND");
             }
 
             if (TypeRoomDAO.getInstance().getTypeRoomByNameAndPriceAndQuantity(typeRoomId, typeName, price, maxAdult, maxChildren) != null) {
@@ -372,20 +401,19 @@ public class TypeRoomServlet extends HttpServlet {
                         for (RoomNService rns : roomNService) {
 //                            typePrice -= (rns.getService().getPrice() * rns.getQuantity());
                             RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId, rns.getService().getServiceId());
-                            
+
                         }
                     }
 
 //                        RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId);
                     for (Map.Entry<Integer, Integer> entry : serviceQuantityMap.entrySet()) {
-                        
+
                         RoomNServiceDAO.getInstance().insertRoomNServiceByTypeId(typeId, entry.getKey(), entry.getValue());
 //                        typePrice += ServiceDAO.getInstance().getServiceByServiceId(entry.getKey()).getPrice() * entry.getValue();
-                        
+
                     }
 
                     //TypeRoomDAO.getInstance().updateTypeRoom(typeRoom.getTypeId(), typeRoom.getTypeName(), typePrice);
-
                     request.setAttribute("updateMessageService", "Cập nhật dịch vụ thành công");
                 }
 
@@ -401,7 +429,7 @@ public class TypeRoomServlet extends HttpServlet {
                     for (RoomNService rns : roomNService) {
 //                        typePrice -= (rns.getService().getPrice() * rns.getQuantity());
                         RoomNServiceDAO.getInstance().deleteRoomNServiceByTypeId(typeId, rns.getService().getServiceId());
-                        
+
                     }
                 }
 
@@ -432,9 +460,9 @@ public class TypeRoomServlet extends HttpServlet {
         }
 
         if ("addImg".equals(service)) {
-            
+
             int typeId = Integer.parseInt(request.getParameter("typeId"));
-            
+
             Collection<Part> fileParts = request.getParts();
             HashMap<Part, String> imageParts = new HashMap<>();
             for (Part part : fileParts) {
@@ -445,19 +473,19 @@ public class TypeRoomServlet extends HttpServlet {
                     }
                 }
             }
-            
-             for (Map.Entry<Part, String> imagePart : imageParts.entrySet()) {
-                    uploadImage(request, imagePart.getKey(), imagePart.getValue(), typeId);
 
-                    RoomImageDAO.getInstance().insertImage(typeId, imagePart.getValue());
-                }
-             
-             request.setAttribute("showModalImage", typeId);
-             
-             request.setAttribute("addImg", "Thêm ảnh thành công");
-            
-             showTypeRoom(request, response);
-            
+            for (Map.Entry<Part, String> imagePart : imageParts.entrySet()) {
+                uploadImage(request, imagePart.getKey(), imagePart.getValue(), typeId);
+
+                RoomImageDAO.getInstance().insertImage(typeId, imagePart.getValue());
+            }
+
+            request.setAttribute("showModalImage", typeId);
+
+            request.setAttribute("addImg", "Thêm ảnh thành công");
+
+            showTypeRoom(request, response);
+
         }
 
     }

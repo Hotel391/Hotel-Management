@@ -184,7 +184,7 @@
                                         <!-- Price -->
                                         <div class="mb-3">
                                             <label for="price" class="form-label">Giá (VND)</label>
-                                            <input type="number" class="form-control" id="price" name="price" required min="0" max="50000000"
+                                            <input type="number" class="form-control" id="price" name="price" required min="0" max="1000000"
                                                    value="${param.price}" />
                                         </div>
                                         <c:if test="${not empty requestScope.serviceNameUpdateError}">
@@ -212,7 +212,7 @@
                     <div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/manager/service?choose=insertService" novalidate>
+                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/manager/service?choose=insertService">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addRoleModalLabel">Thêm dịch vụ mới</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -226,7 +226,7 @@
                                         <div class="mb-3">
                                             <label for="roomTypeSelect" class="form-label">Giá (VNĐ)</label>
                                             <input type="number" id="newServicePriceAdd" name="priceServiceAdd" class="form-control"  value="${param.priceServiceAdd}" 
-                                                   min="0" max="50000000" required="">
+                                                   min="0" max="1000000" required="">
                                         </div>
                                         <c:if test="${not empty requestScope.nameAddError}">
                                             <div style="color: red;">${requestScope.nameAddError}</div>
@@ -237,7 +237,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <input type="submit" name="submit" class="btn btn-success" value="Thêm dịch vụ"/>
-                                        <input type="reset" name="reset" value="Reset"/>
+                                        <button type="button" onclick="clearForm()" class="btn btn-secondary">Clear</button>
                                         <input type="hidden" name="choose" value="insertService"/>
                                         <input type="hidden" name="serviceNameSearch" value="${param.serviceNameSearch}">
                                         <input type="hidden" name="page" value="${currentPage}" />
@@ -281,6 +281,11 @@
             </div>
         </div>
         <script>
+            function clearForm() {
+                document.getElementById("newServiceNameAdd").value = "";
+                document.getElementById("newServicePriceAdd").value = "";
+            }
+
             document.addEventListener('DOMContentLoaded', function () {
 
                 //thông báo thành công

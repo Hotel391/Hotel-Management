@@ -178,7 +178,7 @@
                     <div class="modal fade" id="addRoomModal" tabindex="-1" aria-labelledby="addRoomModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
-                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/manager/room?choose=insertRoom" novalidate>
+                                <form id="addRoleForm" method="post" action="${pageContext.request.contextPath}/manager/room?choose=insertRoom">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addRoleModalLabel">Thêm mới phòng</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -187,7 +187,7 @@
                                     <div class="modal-body">
                                         <div class="mb-3">
                                             <label for="roomNumberer" class="form-label">Số phòng</label>
-                                            <input type="text" id="newRoomNumber" name="roomNumber" class="form-control" value="${requestScope.roomNumber}" required="">
+                                            <input type="number" id="newRoomNumber" name="roomNumber" class="form-control" value="${requestScope.roomNumber}" required="" min="0">
                                         </div>
                                         <div class="mb-3">
                                             <label for="roomTypeSelect" class="form-label">Loại phòng</label>

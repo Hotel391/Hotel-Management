@@ -141,13 +141,13 @@ public class ManagerService extends HttpServlet {
 
         try {
             price = Integer.parseInt(priceStr);
-            if (price <= 0 || price > 50000000) {
-                request.setAttribute("priceUpdateError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 50000000 (50 triệu) vnd.");
+            if (price <= 0 || price > 1000000) {
+                request.setAttribute("priceUpdateError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 1000000 (1 triệu) vnđ.");
                 haveError = true;
             }
         } catch (NumberFormatException e) {
             haveError = true;
-            request.setAttribute("priceUpdateError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 50000000 (50 triệu) vnđ.");
+            request.setAttribute("priceUpdateError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 1000000 (1 triệu) vnđ.");
         }
 
         for (Service service : list) {
@@ -192,12 +192,12 @@ public class ManagerService extends HttpServlet {
 
         try {
             price = Integer.parseInt(priceStr);
-            if (price <= 0 || price > 50000000) {
-                request.setAttribute("priceAddError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 50000000 (50 triệu) vnđ.");
+            if (price <= 0 || price > 1000000) {
+                request.setAttribute("priceAddError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 1000000 (1 triệu) vnđ.");
                 haveError = true;
             }
         } catch (NumberFormatException e) {
-            request.setAttribute("priceAddError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 50000000 (50 triệu) vnđ.");
+            request.setAttribute("priceAddError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 1000000 (1 triệu) vnđ.");
             haveError = true;
         }
 

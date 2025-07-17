@@ -194,7 +194,7 @@ public class DetailRoom extends HttpServlet {
         Date checkout = getCheckoutDate(request, checkin);
         boolean isPayment = false;
         TypeRoom room = dal.TypeRoomDAO.getInstance().getTypeRoomByTypeId(checkin, checkout, typeId, adults, children, "", 0, 1);
-        if (room == null) {
+        if (room.getNumberOfAvailableRooms() == 0) {
             request.getSession().setAttribute("error", "Room is not available in this time range.");
             return false;
         }

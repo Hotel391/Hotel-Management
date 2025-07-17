@@ -77,13 +77,13 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">Check In</span>
-                                        <input class="form-control" type="date" name="checkin" value="${checkin}">
+                                        <input class="form-control" type="date" name="checkin" value="${checkin}" max="${maxCheckinDate}">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">Check out</span>
-                                        <input class="form-control" type="date" name="checkout" value="${checkout}">
+                                        <input class="form-control" type="date" name="checkout" value="${checkout}" max="${maxCheckoutDate}">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -141,16 +141,16 @@
                             <div id="inner-box" class="collapse show">
                                 <form method="get" onsubmit="return validatePriceRange()">
                                     <div class="price-filter-container">
-                                        <input type="number" maxlength="13" name="minPrice" class="price-input" min="0"
+                                        <input type="number" maxlength="13" name="minPrice" class="price-input" max="${maxPriceAvailable}"
                                                placeholder="₫ TỪ" value="${param.minPrice}" id="minPrice"/>
                                         <span class="price-separator">–</span>
-                                        <input type="number" maxlength="13" name="maxPrice" class="price-input" min="0"
+                                        <input type="number" maxlength="13" name="maxPrice" class="price-input" max="${maxPriceAvailable}"
                                                placeholder="₫ ĐẾN" value="${param.maxPrice}" id="maxPrice"/>
                                         <input type="hidden" name="checkin" value="${param.checkin}" />
                                         <input type="hidden" name="checkout" value="${param.checkout}" />
                                         <input type="hidden" name="adults" value="${adults}" />
                                         <input type="hidden" name="children" value="${children}" />
-                                        <p>${errorPrice}</p>
+                                        <p style="color: red;">${errorPrice}</p>
                                         <button class="apply-button">Áp Dụng</button>
                                     </div>
                                 </form>
@@ -259,6 +259,8 @@
         <jsp:include page="/View/chatbot.jsp"/>
     </body>
     <script>
+        const maxTimeSpan = ${maxTimeSpan};
+        const maxCheckoutDateStr = '${maxCheckoutDate}';
         function validatePriceRange() {
             const min = document.getElementById("minPrice").value;
             const max = document.getElementById("maxPrice").value;
@@ -271,8 +273,8 @@
                 return false;
             }
 
-            if (minVal !== null && maxVal !== null && maxVal <= minVal) {
-                alert("Giá ĐẾN phải lớn hơn giá TỪ.");
+            if (minVal !== null && maxVal !== null && maxVal < minVal) {
+                alert("Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu.");
                 return false;
             }
 
@@ -282,30 +284,38 @@
             const checkinInput = document.querySelector('input[name="checkin"]');
             const checkoutInput = document.querySelector('input[name="checkout"]');
 
-            function updateCheckoutMin() {
+            function updateCheckoutBounds() {
                 if (!checkinInput.value)
                     return;
 
                 const checkinDate = new Date(checkinInput.value);
-                const checkoutMinDate = new Date(checkinDate);
-                checkoutMinDate.setDate(checkinDate.getDate() + 1);
+                const minCheckoutDate = new Date(checkinDate);
+                minCheckoutDate.setDate(minCheckoutDate.getDate() + 1);
 
-                const minCheckoutStr = checkoutMinDate.toISOString().split("T")[0];
-                checkoutInput.setAttribute("min", minCheckoutStr);
+                const maxCheckoutBySpan = new Date(checkinDate);
+                maxCheckoutBySpan.setDate(maxCheckoutBySpan.getDate() + maxTimeSpan);
 
-                // Auto-update checkout value if invalid
-                if (!checkoutInput.value || new Date(checkoutInput.value) <= checkinDate) {
-                    checkoutInput.value = minCheckoutStr;
+                const maxCheckoutByLimit = new Date(maxCheckoutDateStr);
+                const maxCheckoutDate = (maxCheckoutBySpan < maxCheckoutByLimit) ? maxCheckoutBySpan : maxCheckoutByLimit;
+
+                const minStr = minCheckoutDate.toISOString().split("T")[0];
+                const maxStr = maxCheckoutDate.toISOString().split("T")[0];
+
+                checkoutInput.setAttribute("min", minStr);
+                checkoutInput.setAttribute("max", maxStr);
+
+                const currentCheckout = new Date(checkoutInput.value);
+                if (!checkoutInput.value || currentCheckout < minCheckoutDate || currentCheckout > maxCheckoutDate) {
+                    checkoutInput.value = minStr;
                 }
             }
 
-            // Set initial min
             const today = new Date().toISOString().split("T")[0];
             checkinInput.setAttribute("min", today);
-            updateCheckoutMin();
 
-            // Re-check when user changes checkin date
-            checkinInput.addEventListener("change", updateCheckoutMin);
+            updateCheckoutBounds();
+
+            checkinInput.addEventListener("change", updateCheckoutBounds);
         });
     </script>
 </html>

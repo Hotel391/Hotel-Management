@@ -72,10 +72,11 @@ public class BookingDAO {
                 DailyRevenue dr = new DailyRevenue();
                 dr.setWeekdayName(rs.getString("WeekdayName"));
                 dr.setDay(rs.getInt("Day"));
-                dr.setTotalPrice(rs.getDouble("TotalPrice"));
+                dr.setTotalPrice(rs.getLong("TotalPrice"));
                 result.add(dr);
             }
         } catch (SQLException e) {
+            //
         }
         return result;
     }

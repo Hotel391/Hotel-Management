@@ -143,7 +143,7 @@
                         </div>
                     </c:forEach>
                 </div>
-                
+
                 <form id="formCheckSpam" action="${pageContext.request.contextPath}/check" method="post">
                     <input type="hidden" name="cartIdCheck" value="">
                 </form>
@@ -244,6 +244,7 @@
                                                                readonly 
                                                            </c:if>
                                                            min="${serviceCannotDisable[s.service.serviceId] != null ? serviceCannotDisable[s.service.serviceId] : 0}"
+                                                           max="1000"
                                                            />
                                                 </td>
                                             </tr>
@@ -256,7 +257,7 @@
                                                 <td><c:out value="${s.serviceName}" /></td>
                                                 <td><fmt:formatNumber value="${s.price}" type="number" groupingUsed="true" /> ₫</td>
                                                 <td>
-                                                    <input type="number" name="oQuantity_${s.serviceId}" value="0" min="0" />
+                                                    <input type="number" name="oQuantity_${s.serviceId}" value="0" min="0" max="1000"/>
                                                 </td>
                                             </tr>
                                         </c:forEach>
@@ -277,75 +278,119 @@
         <!-- JS -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.4.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                        const checkboxes = document.querySelectorAll('.room-checkbox');
-                        const cartItems = document.querySelectorAll('.cart-item');
-                        const totalElement = document.getElementById('cart-total');
-                        const checkoutBtn = document.getElementById('checkout-btn');
-                        const form = document.getElementById('formCheckSpam');
-                        const cartIdInput = form.querySelector('input[name="cartIdCheck"]');
-                        
+                                        const checkboxes = document.querySelectorAll('.room-checkbox');
+                                        const cartItems = document.querySelectorAll('.cart-item');
+                                        const totalElement = document.getElementById('cart-total');
+                                        const checkoutBtn = document.getElementById('checkout-btn');
+                                        const form = document.getElementById('formCheckSpam');
+                                        const cartIdInput = form.querySelector('input[name="cartIdCheck"]');
 
-                        function updateTotalPrice() {
-                            const selected = document.querySelector('.room-checkbox:checked');
 
-                            if (selected) {
-                                const item = selected.closest('.cart-item');
-                                const price = parseInt(item.dataset.price);
-                                totalElement.innerText = price.toLocaleString('vi-VN') + ' ₫';
-                                const cartId = item.dataset.cartId;
-                                checkoutBtn.disabled = false;
-                                checkoutBtn.onclick = function () {
-                                    cartIdInput.value = cartId;
-                                    form.submit();
-                                };
-                            } else {
-                                totalElement.innerText = '0 ₫';
-                                checkoutBtn.disabled = true;
-                                checkoutBtn.onclick = null;
-                            }
-                        }
+                                        function updateTotalPrice() {
+                                            const selected = document.querySelector('.room-checkbox:checked');
 
-                        // Cập nhật trạng thái khi người dùng tick checkbox
-                        checkboxes.forEach(cb => {
-                            cb.addEventListener('click', function (e) {
-                                checkboxes.forEach(other => {
-                                    if (other !== this)
-                                        other.checked = false;
-                                });
-                                updateTotalPrice();
-                                e.stopPropagation();
-                            });
-                        });
+                                            if (selected) {
+                                                const item = selected.closest('.cart-item');
+                                                const price = parseInt(item.dataset.price);
+                                                totalElement.innerText = price.toLocaleString('vi-VN') + ' ₫';
+                                                const cartId = item.dataset.cartId;
+                                                checkoutBtn.disabled = false;
+                                                checkoutBtn.onclick = function () {
+                                                    cartIdInput.value = cartId;
+                                                    form.submit();
+                                                };
+                                            } else {
+                                                totalElement.innerText = '0 ₫';
+                                                checkoutBtn.disabled = true;
+                                                checkoutBtn.onclick = null;
+                                            }
+                                        }
 
-                        // Bấm vào phần nội dung cũng chọn được
-                        document.querySelectorAll('.cart-bottom').forEach(bottom => {
-                            bottom.addEventListener('click', function () {
-                                const thisCheckbox = this.querySelector('.room-checkbox');
-                                if (!thisCheckbox.checked) {
-                                    checkboxes.forEach(cb => cb.checked = false);
-                                    thisCheckbox.checked = true;
-                                } else {
-                                    thisCheckbox.checked = false;
-                                }
-                                updateTotalPrice();
-                            });
-                        });
+                                        // Cập nhật trạng thái khi người dùng tick checkbox
+                                        checkboxes.forEach(cb => {
+                                            cb.addEventListener('click', function (e) {
+                                                checkboxes.forEach(other => {
+                                                    if (other !== this)
+                                                        other.checked = false;
+                                                });
+                                                updateTotalPrice();
+                                                e.stopPropagation();
+                                            });
+                                        });
 
-                        // Xóa item và cập nhật tổng giá
-                        document.querySelectorAll('.delete-btn').forEach(btn => {
-                            btn.addEventListener('click', e => {
-                                const card = e.target.closest('.cart-item');
-                                card.remove();
-                                updateTotalPrice();
-                            });
-                        });
+                                        // Bấm vào phần nội dung cũng chọn được
+                                        document.querySelectorAll('.cart-bottom').forEach(bottom => {
+                                            bottom.addEventListener('click', function () {
+                                                const thisCheckbox = this.querySelector('.room-checkbox');
+                                                if (!thisCheckbox.checked) {
+                                                    checkboxes.forEach(cb => cb.checked = false);
+                                                    thisCheckbox.checked = true;
+                                                } else {
+                                                    thisCheckbox.checked = false;
+                                                }
+                                                updateTotalPrice();
+                                            });
+                                        });
 
-                        // Khởi tạo trạng thái ban đầu
-                        updateTotalPrice();
-                        function deleteCart(event, cartId) {
-                            event.stopPropagation();
-                            window.location.href = '?action=deleteCart&cartId=' + cartId;
-                        }
+                                        // Xóa item và cập nhật tổng giá
+                                        document.querySelectorAll('.delete-btn').forEach(btn => {
+                                            btn.addEventListener('click', e => {
+                                                const card = e.target.closest('.cart-item');
+                                                card.remove();
+                                                updateTotalPrice();
+                                            });
+                                        });
+
+                                        // Khởi tạo trạng thái ban đầu
+                                        updateTotalPrice();
+                                        function deleteCart(event, cartId) {
+                                            event.stopPropagation();
+                                            window.location.href = '?action=deleteCart&cartId=' + cartId;
+                                        }
+
+                                        const maxTimeSpan = ${maxTimeSpan};
+                                        const maxCheckoutDateStr = '${maxCheckoutDate}';
+
+                                        window.addEventListener('DOMContentLoaded', () => {
+                                            const checkinInput = document.querySelector('input[name="checkin"]');
+                                            const checkoutInput = document.querySelector('input[name="checkout"]');
+
+                                            if (!checkinInput || !checkoutInput)
+                                                return;
+
+                                            function updateCheckoutConstraints() {
+                                                if (!checkinInput.value)
+                                                    return;
+
+                                                const checkinDate = new Date(checkinInput.value);
+                                                const minCheckoutDate = new Date(checkinDate);
+                                                minCheckoutDate.setDate(minCheckoutDate.getDate() + 1);
+
+                                                const maxCheckoutSpanDate = new Date(checkinDate);
+                                                maxCheckoutSpanDate.setDate(maxCheckoutSpanDate.getDate() + maxTimeSpan);
+
+                                                const maxCheckoutLimitDate = new Date(maxCheckoutDateStr);
+                                                const maxCheckoutDate = maxCheckoutSpanDate < maxCheckoutLimitDate ? maxCheckoutSpanDate : maxCheckoutLimitDate;
+
+                                                const minStr = minCheckoutDate.toISOString().split("T")[0];
+                                                const maxStr = maxCheckoutDate.toISOString().split("T")[0];
+
+                                                checkoutInput.setAttribute("min", minStr);
+                                                checkoutInput.setAttribute("max", maxStr);
+
+                                                const currentCheckout = new Date(checkoutInput.value);
+                                                if (!checkoutInput.value || currentCheckout < minCheckoutDate || currentCheckout > maxCheckoutDate) {
+                                                    checkoutInput.value = minStr;
+                                                }
+                                            }
+
+                                            const today = new Date().toISOString().split("T")[0];
+                                            checkinInput.setAttribute("min", today);
+                                            checkinInput.setAttribute("max", maxCheckoutDateStr);
+
+                                            updateCheckoutConstraints();
+                                            checkinInput.addEventListener("change", updateCheckoutConstraints);
+                                        });
         </script>
     </body>
 

@@ -113,41 +113,32 @@
                     <p class="card-text">Chưa có đánh giá</p>
                 </c:if>
                 <div class="price"><fmt:formatNumber value="${selectedTypeRoom.price}" type="currency" currencyCode="VND" />/night</div>
-                <form>
+                <form method="post" action="detailRoom">
+                    <input type="hidden" name="action" value="addToCart">
                     <input type="hidden" name="typeRoomId" value="${selectedTypeRoom.typeId}">
                     <div class="form-group">
-                        <input name="checkin" value="${checkin}" type="date" class="form-control" min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" onchange="this.form.submit()" required>
+                        <input name="checkin" value="${checkin}" type="date" class="form-control" min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>"
+                               max="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(request.getAttribute("maxCheckinDate")) %>" required>
                         <label for="checkin">Check-in</label>
                     </div>
                     <div class="form-group">
-                        <input name="checkout" value="${checkout}" type="date" class="form-control" min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" onchange="this.form.submit()" required>
+                        <input name="checkout" value="${checkout}" type="date" class="form-control" min="<%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) %>" required>
                         <label for="checkout">Check-out</label>
                     </div>
                     <div class="form-group">
-                        <input name="adults" value="${adults}" type="number" class="form-control" min="1" max="${selectedTypeRoom.adults}" onchange="this.form.submit()" required>
+                        <input name="adults" value="${adults}" type="number" class="form-control" min="1" max="${selectedTypeRoom.adults}" required>
                         <label for="adults">Adults</label>
                     </div>
                     <div class="form-group">
-                        <input name="children" value="${children}" type="number" class="form-control" min="0" onchange="this.form.submit()" required>
+                        <input name="children" value="${children}" type="number" class="form-control" min="0" max="${selectedTypeRoom.children}" required>
                         <label for="children">Children</label>
                     </div>
-                    <div class="form-group">
-                        <c:if test="${selectedTypeRoom.numberOfAvailableRooms == 0}">
-                            <div class="alert alert-danger">No rooms available</div>
-                        </c:if>
-                    </div>
+                    <button type="submit" class="btn btn-primary">Add to cart</button>
+                    <c:if test="${not empty sessionScope.error}">
+                        <div class="alert alert-danger">${sessionScope.error}</div>
+                        <c:remove var="error" scope="session"/>
+                    </c:if>
                 </form>
-                <c:if test="${selectedTypeRoom.numberOfAvailableRooms > 0}">
-                    <form method="post">
-                        <input type="hidden" name="action" value="addToCart">
-                        <input type="hidden" name="typeRoomId" value="${selectedTypeRoom.typeId}">
-                        <input type="hidden" name="checkin" value="${checkin}">
-                        <input type="hidden" name="checkout" value="${checkout}">
-                        <input type="hidden" name="adults" value="${adults}">
-                        <input type="hidden" name="children" value="${children}">
-                        <button type="submit" class="btn btn-primary">Add to cart</button>
-                    </form>
-                </c:if>
             </div>
         </div>
         <div class="description-section">
@@ -338,6 +329,46 @@
                                     if (i < defaultRating)
                                         s.classList.add('selected');
                                 });
+                            });
+                            const maxTimeSpan = ${maxTimeSpan}; // số ngày tối đa giữa checkin và checkout
+                            const maxCheckoutDateStr = '${maxCheckoutDate}'; // giới hạn checkout từ server
+
+                            window.addEventListener('DOMContentLoaded', () => {
+                                const checkinInput = document.querySelector('input[name="checkin"]');
+                                const checkoutInput = document.querySelector('input[name="checkout"]');
+
+                                function updateCheckoutConstraints() {
+                                    if (!checkinInput.value)
+                                        return;
+
+                                    const checkinDate = new Date(checkinInput.value);
+                                    const minCheckoutDate = new Date(checkinDate);
+                                    minCheckoutDate.setDate(minCheckoutDate.getDate() + 1);
+
+                                    const maxCheckoutSpanDate = new Date(checkinDate);
+                                    maxCheckoutSpanDate.setDate(maxCheckoutSpanDate.getDate() + maxTimeSpan);
+
+                                    const maxCheckoutLimitDate = new Date(maxCheckoutDateStr);
+                                    const maxCheckoutDate = maxCheckoutSpanDate < maxCheckoutLimitDate ? maxCheckoutSpanDate : maxCheckoutLimitDate;
+
+                                    const minStr = minCheckoutDate.toISOString().split("T")[0];
+                                    const maxStr = maxCheckoutDate.toISOString().split("T")[0];
+
+                                    checkoutInput.setAttribute("min", minStr);
+                                    checkoutInput.setAttribute("max", maxStr);
+
+                                    const currentCheckout = new Date(checkoutInput.value);
+                                    if (!checkoutInput.value || currentCheckout < minCheckoutDate || currentCheckout > maxCheckoutDate) {
+                                        checkoutInput.value = minStr;
+                                    }
+                                }
+
+                                const today = new Date().toISOString().split("T")[0];
+                                checkinInput.setAttribute("min", today);
+
+                                updateCheckoutConstraints();
+
+                                checkinInput.addEventListener("change", updateCheckoutConstraints);
                             });
         </script>
     </body>

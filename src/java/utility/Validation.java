@@ -33,7 +33,7 @@ public class Validation {
         regexMap.put("EMAIL", Pattern.compile("^[a-zA-Z\\d_]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$"));
         regexMap.put("PASSWORD", Pattern.compile("^(?=.*[a-z])(?=.*\\d)(?=.*[ @#$%^&+=!])[A-Za-z\\d @#$%^&+=!]{8,}"));
         regexMap.put("ADDRESS", Pattern.compile("^[\\p{L}\\d\\s,./-]{5,255}$"));
-        regexMap.put("TYPE_ROOM_NAME_BASIC", Pattern.compile("^[a-zA-Z\\s]+$"));
+        regexMap.put("TYPE_ROOM_NAME_BASIC", Pattern.compile("^[A-Za-z\s]{1,100}$"));
         regexMap.put("ROOM_PRICE_INT", Pattern.compile("^[1-9]\\d{0,7}$"));
         regexMap.put("DESCRIPTION", Pattern.compile("^[\\p{L}\\d\\s,./-]{5,255}$"));
         regexMap.put("CCCD", Pattern.compile("^\\d{12}$"));

@@ -65,10 +65,11 @@
                             </div>
                             <!--form search-->
                             <form method="get" action="${pageContext.request.contextPath}/manager/service?choose=search" class="d-flex gap-2">
-                                <input type="text" name="serviceNameSearch"" 
+                                <input type="text" name="serviceNameSearch" id="serviceNameSearchId"
                                        class="form-control search-input" placeholder="Tên dịch vụ" value="${param.serviceNameSearch}"/>
                                 <button type="submit" class="btn btn-primary">Tìm</button>
-                                <a class="btn btn-secondary" href="${pageContext.request.contextPath}/manager/service">Reset</a>
+                                <button type="button" onclick="clearFormSearch()" class="btn btn-secondary">Clear</button>
+                                <!--<a class="btn btn-secondary" href="${pageContext.request.contextPath}/manager/service">Reset</a>-->
                                 <input type="hidden" name="choose" value="search">
                             </form>
                         </div>
@@ -281,6 +282,9 @@
             </div>
         </div>
         <script>
+            function clearFormSearch(){
+                document.getElementById("serviceNameSearchId").value = "";
+            }
             function clearForm() {
                 document.getElementById("newServiceNameAdd").value = "";
                 document.getElementById("newServicePriceAdd").value = "";

@@ -74,7 +74,8 @@
                                 </select>
 
                                 <button type="submit" class="btn btn-primary">Tìm</button>
-                                <a class="btn btn-secondary" href="${pageContext.request.contextPath}/manager/room">Reset</a>
+                                <input type="reset" name="reset" value="Reset">
+                                <!--<a class="btn btn-secondary" href="${pageContext.request.contextPath}/manager/room">Reload</a>-->
                                 <input type="hidden" name="choose" value="search">
                             </form>
                         </div>

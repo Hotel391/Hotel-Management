@@ -176,6 +176,7 @@
                                                 <td>
                                                     <input type="number"
                                                            min="1"
+                                                           max="1000"
                                                            value="1"
                                                            name="quantity_${room.roomNumber}_${service.serviceId}"
                                                            class="form-control quantity-input"

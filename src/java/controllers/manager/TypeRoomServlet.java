@@ -337,6 +337,9 @@ public class TypeRoomServlet extends HttpServlet {
                     int quantityNum = 0;
                     try {
                         quantityNum = Integer.parseInt(quantity);
+                        if(quantityNum < 1 && quantityNum > 10){
+                            throw new NumberFormatException();
+                        }
                     } catch (NumberFormatException e) {
                         request.setAttribute("typeId", typeId);
                         request.setAttribute("quantityError", "Vui lòng nhập số lượng trong khoảng từ 1 đến 10");

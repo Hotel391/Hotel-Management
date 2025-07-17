@@ -140,6 +140,7 @@ public class CheckoutRoom extends HttpServlet {
                 String customerName = CustomerDAO.getInstance().getCustomerByCustomerID(customerId).getFullName();
                 request.setAttribute("paymentMethodError", "Vui lòng chọn phương thức thanh toán cho khách hàng: " + customerName);
                 showCheckoutRoom(request, response);
+                return;
             }
 
             if ("online".equals(paymentMethodSelected)) {

@@ -785,4 +785,16 @@ public class TypeRoomDAO {
         }
         return topRoomTypes;
     }
+
+    public int getMaxPriceOfTypeRoom() {
+        String sql = "SELECT MAX(Price) AS MaxPrice FROM TypeRoom";
+        try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("MaxPrice");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0; // Default value if no price found
+    }
 }

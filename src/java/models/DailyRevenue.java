@@ -3,13 +3,13 @@ package models;
 public class DailyRevenue {
     private String weekdayName;
     private int day;
-    private double totalPrice;
+    private long totalPrice;
 
     public DailyRevenue() {
     }
 
-    
-    public DailyRevenue(String weekdayName, int day, double totalPrice) {
+
+    public DailyRevenue(String weekdayName, int day, long totalPrice) {
         this.weekdayName = weekdayName;
         this.day = day;
         this.totalPrice = totalPrice;
@@ -31,11 +31,11 @@ public class DailyRevenue {
         this.day = day;
     }
 
-    public double getTotalPrice() {
+    public long getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
+    public void setTotalPrice(long totalPrice) {
         this.totalPrice = totalPrice;
     }
     

@@ -103,7 +103,7 @@ public class SaveUpdateCartAction implements CartAction {
                 if(isProtected) {
                     defaultQuantity = serviceCannotDisable.get(serviceId);
                 }
-                if(quantity >= defaultQuantity){
+                if(quantity >= defaultQuantity && quantity <= 1000){
                     dal.CartDAO.getInstance().updateCartServiceQuantity(cartId, serviceId, quantity);
                 }
             } catch (NumberFormatException e) {
@@ -119,7 +119,7 @@ public class SaveUpdateCartAction implements CartAction {
                     int serviceId= Integer.parseInt(key.substring(9));
                     String quantityStr = request.getParameter("oQuantity_" + serviceId);
                     int quantity = Integer.parseInt(quantityStr);
-                    if (quantity > 0) {
+                    if (quantity > 0 && quantity <= 1000) {
                         dal.CartDAO.getInstance().addServiceToCart(cartId, serviceId, quantity);
                     }
                 } catch (NumberFormatException e) {

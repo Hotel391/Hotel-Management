@@ -33,8 +33,8 @@ public class Admin extends HttpServlet {
         }
 
         if (service.equals("changePass")) {
-            Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(username);
-            request.setAttribute("employee", em);
+//            Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(username);
+//            request.setAttribute("employee", em);
             request.getRequestDispatcher(linkInfoAdmin).forward(request, response);
         }
 

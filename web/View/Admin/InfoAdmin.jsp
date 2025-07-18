@@ -34,7 +34,7 @@
                     <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
                         <form action="${pageContext.request.contextPath}/admin/page" method="post" class="w-50">
                             <input type="hidden" name="service" value="changePass">
-                            <input type="hidden" name="username" value="${sessionScope.username}">
+                            <input type="hidden" name="username" value="${sessionScope.employeeInfo.username}">
 
                             <div class="input-group mb-3">
                                 <span class="input-group-text" id="visible-addon2">

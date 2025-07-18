@@ -167,10 +167,10 @@
                                             <!-- Tầng Bắt Đầu/Kết Thúc cho Cleaner -->
                                             <div class="col-md-6" id="floorFieldAdd" style="display:${isCleaner ? 'block' : 'none'};">
                                                 <label for="startFloor" class="form-label">Tầng Bắt Đầu</label>
-                                                <input type="number" id="startFloor" name="startFloor" value="${param.startFloor != null ? param.startFloor : ''}" class="form-control" min="1" max="6" />
+                                                <input type="number" id="startFloor" name="startFloor" value="${param.startFloor != null ? param.startFloor : ''}" class="form-control" min="1" max="7" />
 
                                                 <label for="endFloor" class="form-label">Tầng Kết Thúc</label>
-                                                <input type="number" id="endFloor" name="endFloor" value="${param.endFloor != null ? param.endFloor : ''}" class="form-control" min="1" max="6" />
+                                                <input type="number" id="endFloor" name="endFloor" value="${param.endFloor != null ? param.endFloor : ''}" class="form-control" min="1" max="7" />
                                             </div>
                                         </div>
                                     </div>
@@ -247,10 +247,10 @@
                                                 <!-- Tầng Bắt Đầu/Kết Thúc cho Cleaner -->
                                                 <div class="col-md-6" id="floorFieldEdit_${emp.employeeId}" style="display:${requestScope.roleId == 'Cleaner' || emp.role.roleName == 'Cleaner' ? 'block' : 'none'};">
                                                     <label for="startFloorEdit_${emp.employeeId}" class="form-label">Tầng Bắt Đầu</label>
-                                                    <input type="number" id="startFloorEdit_${emp.employeeId}" name="startFloor" value="${requestScope.startFloor != null ? requestScope.startFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.startFloor : '')}" class="form-control" min="1" max="6" />
+                                                    <input type="number" id="startFloorEdit_${emp.employeeId}" name="startFloor" value="${requestScope.startFloor != null ? requestScope.startFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.startFloor : '')}" class="form-control" min="1" max="7" />
 
                                                     <label for="endFloorEdit_${emp.employeeId}" class="form-label">Tầng Kết Thúc</label>
-                                                    <input type="number" id="endFloorEdit_${emp.employeeId}" name="endFloor" value="${requestScope.endFloor != null ? requestScope.endFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.endFloor : '')}" class="form-control" min="1" max="6" />
+                                                    <input type="number" id="endFloorEdit_${emp.employeeId}" name="endFloor" value="${requestScope.endFloor != null ? requestScope.endFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.endFloor : '')}" class="form-control" min="1" max="7" />
                                                 </div>
                                             </div>
                                         </div>

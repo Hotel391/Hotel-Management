@@ -509,8 +509,8 @@ public class BookingDAO {
         } else if ("completed".equals(status)) {
             sql += "AND b.Status = 'Completed CheckOut' ";
         }
-
-        sql += "ORDER BY b.BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        
+        sql += "ORDER BY b.BookingId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, customerId);

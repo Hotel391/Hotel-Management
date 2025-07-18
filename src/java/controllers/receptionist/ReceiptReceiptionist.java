@@ -43,6 +43,8 @@ public class ReceiptReceiptionist extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
 
         String service = request.getParameter("service");
+        
+        int endPage, bookTotal;
 
         if (service == null) {
             service = "view";
@@ -54,6 +56,9 @@ public class ReceiptReceiptionist extends HttpServlet {
 
             if (phone == null || phone.isBlank()) {
                 phone = "";
+            }else{
+                request.setAttribute("search", "search");
+                request.setAttribute("searchPhone", phone);
             }
 
             Date today = Date.valueOf(LocalDate.now());
@@ -63,14 +68,30 @@ public class ReceiptReceiptionist extends HttpServlet {
             HashMap<Booking, List<BookingDetail>> detailList = new LinkedHashMap<>();
 
             bookingList = BookingDAO.getInstance().getBookingByPayDay(today, phone);
+            
+            bookTotal = bookingList.size();
 
+            
+            endPage = bookTotal / 2;
+            
+            if(bookTotal % 2 != 0){
+                endPage++;
+            }
+            
+            int indexPage = Integer.parseInt(request.getParameter("page") == null ? "1" : request.getParameter("page"));
+            
+            bookingList = BookingDAO.getInstance().getBookingByPayDayPagination(today, phone, indexPage);
             for (Booking booking : bookingList) {
                 detailList.put(booking, BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking));
             }
-
-            System.out.println(detailList);
-
+            
+            System.out.println("Booking Pagination: " + bookingList);
+            
             request.setAttribute("bookList", bookingList);
+            
+            request.setAttribute("endPage", endPage);
+            
+            request.setAttribute("currentPage", indexPage);
 
             request.setAttribute("detailList", detailList);
 

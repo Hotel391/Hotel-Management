@@ -39,6 +39,12 @@ public class CustomerReceipt extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
 
         int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+        
+        int endPage = 0;
+        
+        int total = 0;
+        
+        int indexPage = Integer.parseInt(request.getParameter("page") == null ? "1" : request.getParameter("page"));
 
         Booking booking = BookingDAO.getInstance().getBookingByBookingId(bookingId);
 
@@ -48,14 +54,28 @@ public class CustomerReceipt extends HttpServlet {
 
         if (searchRoom != null && !searchRoom.isEmpty()) {
             int roomNumber = Integer.parseInt(searchRoom);
-            detailList = BookingDetailDAO.getInstance().getBookingDetailByBookingIdAndRoomNumber(booking, roomNumber);
+            total = BookingDetailDAO.getInstance().getBookingDetailByBookingIdAndRoomNumber(booking, roomNumber).size();
+            detailList = BookingDetailDAO.getInstance().getBookingDetailByBookingIdAndRoomNumberPagination(booking, roomNumber, indexPage);
+            request.setAttribute("search", "search");
+            request.setAttribute("searchRoom", roomNumber);
         } else {
-            detailList = BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking);
+            total = BookingDetailDAO.getInstance().getBookingDetailByBookingId(booking).size();
+            detailList = BookingDetailDAO.getInstance().getBookingDetailByBookingIdPagination(booking, indexPage);
         }
 
+        endPage = total / 2;
+        
+        if(total % 2 != 0) endPage++;
+        
         request.setAttribute("detailList", detailList);
 
         request.setAttribute("bookingInfo", booking);
+        
+        request.setAttribute("bookingId", bookingId);
+        
+        request.setAttribute("currentPage", indexPage);
+        
+        request.setAttribute("endPage", endPage);
 
         request.getRequestDispatcher("/View/Receptionist/CustomerReceipt.jsp").forward(request, response);
 

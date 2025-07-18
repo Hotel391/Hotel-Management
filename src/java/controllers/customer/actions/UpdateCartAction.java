@@ -26,7 +26,6 @@ public class UpdateCartAction implements CartAction {
     private final Date maxCheckoutDate = models.Cart.MAX_CHECKOUT_DATE;
     private final Date maxCheckinDate = models.Cart.MAX_CHECKIN_DATE;
     private final int maxServiceQuantity = Service.MAX_SERVICE_QUANTITY;
-    private final int minServiceQuantity = Service.MIN_SERVICE_QUANTITY;
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -34,7 +33,6 @@ public class UpdateCartAction implements CartAction {
         request.setAttribute("maxCheckinDate", this.maxCheckinDate);
         request.setAttribute("maxCheckoutDate", this.maxCheckoutDate);
         request.setAttribute("maxServiceQuantity", this.maxServiceQuantity);
-        request.setAttribute("minServiceQuantity", this.minServiceQuantity);
         int cartId = Integer.parseInt(request.getParameter("cartId"));
         HttpSession session = request.getSession();
         CustomerAccount customer = (CustomerAccount) session.getAttribute("customerInfo");

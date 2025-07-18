@@ -21,7 +21,7 @@
             <jsp:include page="leftNav.jsp" />
             <div class="right-section">
                 <!--change password-->
-                    <c:set var="title" value="Change Password" scope="request"/>
+                    <c:set var="title" value="Thay đổi mật khẩu tài khoản" scope="request"/>
                     <jsp:include page="topNav.jsp" />
 
                     <!-- Nút Back -->
@@ -91,7 +91,7 @@
                             </small>
 
 
-                            <button type="submit" class="btn btn-primary w-100">Change</button>
+                            <button type="submit" class="btn btn-primary w-100">Thay đổi</button>
                         </form>
                     </div>
             </div>

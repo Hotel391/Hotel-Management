@@ -149,7 +149,7 @@ public class Admin extends HttpServlet {
 
         if (isUsernameTaken(userNameManager)) {
             hasError = true;
-            request.setAttribute("usernameError", "Username already exists.");
+            request.setAttribute("usernameError", "Username đã được sử dụng.");
         }
 
         if (hasError) {

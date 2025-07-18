@@ -242,8 +242,8 @@
                                                            <c:if test="${s.service.price == 0 || s.service.serviceName eq 'Dịch vụ đưa đón'}">
                                                                readonly 
                                                            </c:if>
-                                                           min="${serviceCannotDisable[s.service.serviceId] != null ? serviceCannotDisable[s.service.serviceId] : 1}"
-                                                           max="1000"
+                                                           min="${serviceCannotDisable[s.service.serviceId] != null ? serviceCannotDisable[s.service.serviceId] : minServiceQuantity}"
+                                                           max="${maxServiceQuantity}"
                                                            />
                                                 </td>
                                             </tr>
@@ -256,7 +256,7 @@
                                                 <td><c:out value="${s.serviceName}" /></td>
                                                 <td><fmt:formatNumber value="${s.price}" type="number" groupingUsed="true" /> ₫</td>
                                                 <td>
-                                                    <input type="number" name="oQuantity_${s.serviceId}" value="0" min="0" max="1000"/>
+                                                    <input type="number" name="oQuantity_${s.serviceId}" value="0" min="${minServiceQuantity}" max="${maxServiceQuantity}"/>
                                                 </td>
                                             </tr>
                                         </c:forEach>

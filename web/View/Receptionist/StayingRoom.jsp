@@ -135,8 +135,8 @@
                                                                     <c:if test="${ds.service.price == 0 || ds.service.serviceName eq 'Dịch vụ đưa đón'}">
                                                                         readonly 
                                                                     </c:if>
-                                                                    min="${serviceCannotDisable[ds.service.serviceId] != null ? serviceCannotDisable[ds.service.serviceId] : 1}"
-                                                                    max="1000"
+                                                                    min="${serviceCannotDisable[ds.service.serviceId] != null ? serviceCannotDisable[ds.service.serviceId] : minServiceQuantity}"
+                                                                    max="${maxServiceQuantity}"
                                                                 />
                                                                 <input type="hidden" name="oldQuantity_${ds.service.serviceId}" value="${ds.quantity}" />
                                                             </div>
@@ -164,7 +164,7 @@
                                                                         VNĐ</span>
                                                                 </label>
                                                                 <input type="number" name="otherQuantities"
-                                                                       min="1" max="1000" class="form-control ms-2"
+                                                                       min="${minServiceQuantity}" max="${maxServiceQuantity}" class="form-control ms-2"
                                                                        style="width: 90px;" />
                                                             </div>
                                                         </c:forEach>

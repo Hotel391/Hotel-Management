@@ -24,7 +24,7 @@ import models.CustomerAccount;
 @WebServlet(name="Cart", urlPatterns={"/cart"})
 public class Cart extends HttpServlet {
     private final Map<String, CartAction> actions = new HashMap<>();
-    private static final int maxTimeSpan = 90;
+    private static final int maxTimeSpan = models.Cart.MAX_TIME_SPAN;
    
     @Override
     public void init() {

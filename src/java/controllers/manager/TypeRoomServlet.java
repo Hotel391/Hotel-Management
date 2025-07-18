@@ -58,7 +58,7 @@ public class TypeRoomServlet extends HttpServlet {
             boolean check = false;
 
             if (Validation.validateField(request, "nameError", name, "TYPE_ROOM_NAME_BASIC",
-                    "Type Name", "Chỉ bao gồm chữ cái")) {
+                    "Type Name", "Chỉ bao gồm chữ cái và tối đa 100 ký tự")) {
                 check = true;
             }
 
@@ -85,18 +85,28 @@ public class TypeRoomServlet extends HttpServlet {
                 request.setAttribute("nameExistedError", "Tên loại phòng đã tồn tại");
             }
 
-            if (!maxAdultRaw.matches("^[1-9][0-9]*$")) {
-                check = true;
-                request.setAttribute("maxAdultError", "Chỉ được nhập số > 0");
-            } else {
+            try {
                 maxAdult = Integer.parseInt(maxAdultRaw);
+                if (maxAdult < 1 || maxAdult > 10) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException e) {
+                check = true;
+                request.setAttribute("maxAdultError", "Giới hạn người trong khoảng 1-10");
             }
 
-            if (!maxChildrenRaw.matches("^[1-9][0-9]*$")) {
-                check = true;
-                request.setAttribute("maxChildrenError", "Chỉ được nhập số > 0");
-            } else {
+            try {
                 maxChildren = Integer.parseInt(maxChildrenRaw);
+                if (maxChildren < 1 || maxChildren > 10) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException e) {
+                check = true;
+                request.setAttribute("maxChildrenError", "Giới hạn trẻ em trong khoảng 1-10");
+            }
+            if (Validation.validateField(request, "descError", description, "DESCRIPTION",
+                    "Mô tả", "Chỉ bao gồm chữ cái và tối đa 255 ký tự")) {
+                check = true;
             }
 
             Collection<Part> fileParts = request.getParts();
@@ -187,7 +197,7 @@ public class TypeRoomServlet extends HttpServlet {
             int maxChildren = 0;
 
             if (Validation.validateField(request, "nameError", typeName, "TYPE_ROOM_NAME_BASIC",
-                    "Type Name", "Chỉ bao gồm chữ cái")) {
+                    "Type Name", "Chỉ bao gồm chữ cái và tối đa 100 ký tự")) {
                 check = true;
             }
 
@@ -224,20 +234,6 @@ public class TypeRoomServlet extends HttpServlet {
             } catch (NumberFormatException e) {
                 check = true;
                 request.setAttribute("maxChildrenError", "Giới hạn trẻ em trong khoảng 1-10");
-            }
-            if (!maxAdultRaw.matches("^[1-9][0-9]*$")) {
-                check = true;
-                request.setAttribute("maxAdultError", "Giới hạn người lớn trong khoảng 1-10");
-            } else {
-                try {
-                    maxAdult = Integer.parseInt(maxAdultRaw);
-                    if (maxAdult < 1 || maxAdult > 10) {
-                        throw new NumberFormatException();
-                    }
-                } catch (NumberFormatException e) {
-                    check = true;
-                    request.setAttribute("maxAdultError", "Giới hạn người lớn trong khoảng 1-10");
-                }
             }
 
             try {
@@ -337,18 +333,16 @@ public class TypeRoomServlet extends HttpServlet {
                     String quantity = request.getParameter("serviceQuantity_" + serviceId);
 
                     System.out.println(serviceId + "-" + quantity);
-
-                    if (quantity == null || quantity.isEmpty()) {
+                    
+                    int quantityNum = 0;
+                    try {
+                        quantityNum = Integer.parseInt(quantity);
+                        if(quantityNum < 1 || quantityNum > 10){
+                            throw new NumberFormatException();
+                        }
+                    } catch (NumberFormatException e) {
                         request.setAttribute("typeId", typeId);
-                        request.setAttribute("quantityError", "Số lượng không được để trống");
-                        request.setAttribute("showModalService", typeId);
-                        showTypeRoom(request, response);
-                        return;
-                    }
-
-                    if (Integer.parseInt(quantity) < 0) {
-                        request.setAttribute("typeId", typeId);
-                        request.setAttribute("quantityError", "Số lượng phải > 0");
+                        request.setAttribute("quantityError", "Vui lòng nhập số lượng trong khoảng từ 1 đến 10");
                         request.setAttribute("showModalService", typeId);
                         showTypeRoom(request, response);
                         return;

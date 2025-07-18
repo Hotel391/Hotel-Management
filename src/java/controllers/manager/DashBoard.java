@@ -23,9 +23,8 @@ public class DashBoard extends HttpServlet {
         request.setAttribute("checkinCount", dal.BookingDetailDAO.getInstance().checkinCount());
         List<DailyRevenue> dailyRevenue = dal.BookingDAO.getInstance().totalMoneyInOneWeek();
 
-
         List<String> label = generateWeekLabels();
-        List<Integer> data = mapRevenueToWeekLabels(dailyRevenue,label);
+        List<Long> data = mapRevenueToWeekLabels(dailyRevenue, label);
         request.setAttribute("labels", label);
         request.setAttribute("data", data);
         request.setAttribute("availableRoomCount", dal.RoomDAO.getInstance().roomAvailableCount());
@@ -58,12 +57,12 @@ public class DashBoard extends HttpServlet {
         return label;
     }
 
-    public static List<Integer> mapRevenueToWeekLabels(List<DailyRevenue> revenues, List<String> label) {
-        List<Integer> data = new ArrayList<>(Collections.nCopies(7, 0));
+    public static List<Long> mapRevenueToWeekLabels(List<DailyRevenue> revenues, List<String> label) {
+        List<Long> data = new ArrayList<>(Collections.nCopies(7, 0L));
         for (DailyRevenue dr : revenues) {
             int index = label.indexOf(dr.getWeekdayName());
             if (index != -1) {
-                data.set(index, (int) dr.getTotalPrice());
+                data.set(index, dr.getTotalPrice());
             }
         }
         return data;

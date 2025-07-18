@@ -106,17 +106,13 @@ public class CartDAO {
         LocalDate today = LocalDate.now();
         Date startDate = cart.getStartDate();
         Date endDate = cart.getEndDate();
-        
+
         if (!cart.isIsActive() && !startDate.before(Date.valueOf(today))) {
             reactivateCartIfRoomAvailable(cart, startDate, endDate);
         }
-        
+
         if (cart.isIsActive()) {
             deactivateCartIfStartDatePast(cart, today);
-        }
-
-        if(cart.isIsActive() && !checkRoomOfCartStatus(cart.getCartId())){
-            handleRoomNumberConflict(cart, startDate, endDate);
         }
 
         if (cart.isIsActive()) {
@@ -128,7 +124,7 @@ public class CartDAO {
         }
     }
 
-    private boolean checkRoomOfCartStatus(int cartId){
+    private boolean checkRoomOfCartStatus(int cartId) {
         String sql = """
                 select r.IsActive from Room r
                 join Cart ca on ca.RoomNumber=r.RoomNumber
@@ -223,7 +219,7 @@ public class CartDAO {
 
     public void handleRoomNumberConflict(Cart cart, Date startDate, Date endDate) {
         if (!checkRoomNumberStatus(cart.getRoomNumber(), startDate, endDate)) {
-            int newRoom = getRoomNumber(cart.getRoomNumber(), startDate, endDate);
+            int newRoom = getRoomNumber(getTyperoomOfRoomNumber(cart.getRoomNumber()), startDate, endDate);
             if (newRoom == 0) {
                 cart.setIsActive(false);
                 updateCartActiveToIsActive(cart.getCartId());
@@ -430,7 +426,7 @@ public class CartDAO {
                 LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber
                     AND c.isPayment = 1
                     AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
-                where BookingDetailCheck.BookingDetailId is null and c.CartId is null and r.RoomNumber=?
+                where BookingDetailCheck.BookingDetailId is null and c.CartId is null and r.RoomNumber=? AND r.IsActive = 1
                 """;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDate(1, checkin);
@@ -517,7 +513,7 @@ public class CartDAO {
                 ) BookingDetailCheck on BookingDetailCheck.RoomNumber=r.RoomNumber
                 left join Cart c on c.RoomNumber=r.RoomNumber and c.isPayment=1
                 AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
-                where r.TypeId=? and BookingDetailCheck.BookingDetailId is null and c.CartId is null
+                where r.TypeId=? and BookingDetailCheck.BookingDetailId is null and c.CartId is null and r.IsActive = 1
                 order by r.RoomNumber desc
                 """;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -890,7 +886,7 @@ public class CartDAO {
                c.PayDay, c.isActive, c.isPayment,
                pm.PaymentMethodId, pm.PaymentName,
                cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender,cus.CCCD, 
-               s.ServiceId, s.ServiceName, s.Price, cs.Quantity
+               s.ServiceId, s.ServiceName, s.Price, cs.Quantity, cs.priceAtTime
         FROM Cart c
         JOIN PaymentMethod pm ON c.PaymentMethodId = pm.PaymentMethodId
         JOIN Customer cus ON c.mainCustomerId = cus.CustomerId
@@ -937,6 +933,9 @@ public class CartDAO {
                     Service service = new Service(serviceId, rs.getString("ServiceName"), rs.getInt("Price"));
                     int quantity = rs.getInt("Quantity");
                     CartService cs = new CartService();
+                    int priceAtTime = rs.getInt("priceAtTime");
+                    cs.setPriceAtTime(priceAtTime);
+
                     cs.setService(service);
                     cs.setQuantity(quantity);
                     cart.getCartServices().add(cs);

@@ -6,7 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import models.Booking;
 import models.BookingDetail;
 import java.sql.Date;
@@ -481,5 +484,46 @@ public class BookingDetailDAO {
             System.out.println(e);
         }
         return bookingDetails;
+    }
+
+
+    public BookingDetail getBookingDetailStartAndEndDate(int bookingDetailId) {
+        String sql = "SELECT StartDate, EndDate FROM BookingDetail WHERE BookingDetailId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingDetailId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                BookingDetail bookingDetail = new BookingDetail();
+                bookingDetail.setStartDate(rs.getDate("StartDate"));
+                bookingDetail.setEndDate(rs.getDate("EndDate"));
+                return bookingDetail;
+            }
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return null;
+    }
+
+    public Map<Integer, Integer> getServiceCannotDisable(int bookingDetailId) {
+        String sql = """
+                SELECT rns.ServiceId, rns.quantity
+                FROM Room r
+                JOIN RoomNService rns ON rns.TypeId = r.TypeId
+                WHERE r.RoomNumber = (
+                    select RoomNumber from BookingDetail
+                    WHERE BookingDetailId = ?
+                )""";
+        Map<Integer, Integer> serviceMap = new HashMap<>();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bookingDetailId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    serviceMap.put(rs.getInt("ServiceId"), rs.getInt("quantity"));
+                }
+            }
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return serviceMap;
     }
 }

@@ -1,6 +1,9 @@
 package controllers.receptionist;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.time.temporal.ChronoUnit;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -8,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import models.BookingDetail;
 import models.Customer;
@@ -82,10 +86,22 @@ public class StayingRoom extends HttpServlet {
 
     private void handleViewService(HttpServletRequest request)
             throws ServletException, IOException {
-        String bookingDetailId = request.getParameter("bookingDetailId");
-        List<DetailService> detailService = dal.ServiceDAO.getInstance().getServiceByBookingDetailId(Integer.parseInt(bookingDetailId));
+        int bookingDetailId = Integer.parseInt(request.getParameter("bookingDetailId"));
+        BookingDetail bookingDetail = dal.BookingDetailDAO.getInstance().getBookingDetailStartAndEndDate(bookingDetailId);
+        Date checkinDate= bookingDetail.getStartDate();
+        Date checkoutDate = bookingDetail.getEndDate();
+        int numberOfNight = (int) ChronoUnit.DAYS.between(checkinDate.toLocalDate(), checkoutDate.toLocalDate());
+        Map<Integer,Integer> serviceCannotDisable= dal.BookingDetailDAO.getInstance().getServiceCannotDisable(bookingDetailId);
+        serviceCannotDisable.replaceAll((serviceId, quantity) -> quantity * numberOfNight);
+        for(int id : dal.CartDAO.getInstance().serviceIdsDonNeedTimes) {
+            if (serviceCannotDisable.containsKey(id)) {
+                serviceCannotDisable.put(id, 1);
+            }
+        }
+        request.setAttribute("serviceCannotDisable", serviceCannotDisable);
+        List<DetailService> detailService = dal.ServiceDAO.getInstance().getServiceByBookingDetailId(bookingDetailId);
         request.setAttribute("detailService", detailService);
-        List<Service> otherServices = dal.ServiceDAO.getInstance().getServiceNotInBookingDetail(Integer.parseInt(bookingDetailId));
+        List<Service> otherServices = dal.ServiceDAO.getInstance().getServiceNotInBookingDetail(bookingDetailId);
         request.setAttribute("otherServices", otherServices);
     }
 
@@ -125,7 +141,7 @@ public class StayingRoom extends HttpServlet {
             for (int i = 0; i < otherServiceIds.length; i++) {
                 int serviceId = Integer.parseInt(otherServiceIds[i]);
                 int quantity = Integer.parseInt(otherQuantitiesStr[i]);
-                if (quantity > 0) {
+                if (quantity > 0 && quantity <= 1000) {
                     dal.ServiceDAO.getInstance().insertDetailService(Integer.parseInt(bookingDetailId), serviceId, quantity);
                 }
             }
@@ -143,7 +159,7 @@ public class StayingRoom extends HttpServlet {
             int quantity = Integer.parseInt(request.getParameter("quantity_" + sid));
             int oldQuantity = Integer.parseInt(request.getParameter("oldQuantity_" + sid));
 
-            if (quantity != oldQuantity) {
+            if (quantity != oldQuantity && quantity > 0 && quantity <= 1000) {
                 dal.ServiceDAO.getInstance().updateDetailService(Integer.parseInt(bookingDetailId), serviceId, quantity, oldQuantity);
             }
         }

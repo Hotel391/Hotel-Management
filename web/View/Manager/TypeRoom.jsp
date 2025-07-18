@@ -67,7 +67,7 @@
                                                     </div>
                                                     <div class="col md-6">
                                                         <label for="price" class="form-label">Type room's price (VND)</label>
-                                                        <input class="form-control" value="${param.price}" type="text" name="price" required>
+                                                        <input class="form-control" value="${param.price}" type="number" name="price" required>
                                                         <c:if test="${not empty priceError}">
                                                             <p class="alert alert-danger">${priceError}</p>
                                                         </c:if>
@@ -96,6 +96,9 @@
                                                     <textarea  class="form-control" name="typeDesc" rows="4" >
                                                         <c:out value="${param.typeDesc}"/>
                                                     </textarea>
+                                                    <c:if test="${not empty descError}">
+                                                            <p class="alert alert-danger">${descError}</p>
+                                                        </c:if>
                                                 </div>
                                                 <div class="row g-3">
                                                     <label for="formFile" class="form-label">Default file input example</label>
@@ -269,7 +272,7 @@
                                                                                     <i class="fas fa-wifi"></i>
                                                                                 </div>
 
-                                                                                <div class="service-name">${os.serviceName} - ${os.serviceId}</div>
+                                                                                <div class="service-name">${os.serviceName}</div>
                                                                                 <c:choose>
                                                                                     <c:when test="${os.price != 0}">
                                                                                         <div class="service-quantity" style="display: none;">
@@ -427,7 +430,7 @@
                                                                         <div class="col-md-6">
                                                                             <label for="typeNameEdit_${trl.typeId}" class="form-label">Price (VND)</label>
                                                                             <input spellcheck="false" 
-                                                                                   type="text" 
+                                                                                   type="number" 
                                                                                    id="typeRoomEdit_${trl.typeId}" 
                                                                                    name="price" 
                                                                                    value="${param.price != null ? param.price : trl.price}" 

@@ -27,9 +27,9 @@ import utility.ValidationRule;
 public class DetailRoom extends HttpServlet {
 
     private static final int NUMBER_OF_REVIEWS_PER_PAGE = 4;
-    private static final int maxTimeSpan = 90;
-    private Date maxCheckoutDate = Date.valueOf(LocalDate.now().plusYears(1));
-    private Date maxCheckinDate = Date.valueOf(maxCheckoutDate.toLocalDate().minusDays(1));
+    private static final int maxTimeSpan = models.Cart.MAX_TIME_SPAN;
+    private Date maxCheckoutDate = models.Cart.MAX_CHECKOUT_DATE;
+    private Date maxCheckinDate = models.Cart.MAX_CHECKIN_DATE;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -194,7 +194,7 @@ public class DetailRoom extends HttpServlet {
         Date checkout = getCheckoutDate(request, checkin);
         boolean isPayment = false;
         TypeRoom room = dal.TypeRoomDAO.getInstance().getTypeRoomByTypeId(checkin, checkout, typeId, adults, children, "", 0, 1);
-        if (room == null) {
+        if (room.getNumberOfAvailableRooms() == 0) {
             request.getSession().setAttribute("error", "Room is not available in this time range.");
             return false;
         }

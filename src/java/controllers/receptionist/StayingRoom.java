@@ -27,10 +27,12 @@ import websocket.RoomStatusSocket;
 public class StayingRoom extends HttpServlet {
 
     private static final int NUMBER_OF_ROWS = 8;
+    private static final int MAX_SERVICE_QUANTITY = Service.MAX_SERVICE_QUANTITY;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setAttribute("maxServiceQuantity", MAX_SERVICE_QUANTITY);
         String search = request.getParameter("search");
         String pageStr = request.getParameter("page");
         String oldSearch = request.getParameter("oldSearch");

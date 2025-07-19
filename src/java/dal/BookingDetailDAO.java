@@ -526,4 +526,57 @@ public class BookingDetailDAO {
         }
         return serviceMap;
     }
+    
+    public List<BookingDetail> getBookingDetailByBookingIdAndRoomNumberPagination(Booking booking, int roomNumber, int index) {
+        List<BookingDetail> bookingDetails = new ArrayList<>();
+        String sql = "SELECT * FROM BookingDetail WHERE BookingId = ? and roomNumber = ? order by bookingDetailId offset"
+                + " ? rows fetch next 2 rows only";
+        
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getBookingId());
+            st.setInt(2, roomNumber);
+            st.setInt(3, (index - 1) * 2);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                BookingDetail bookingDetail = new BookingDetail();
+                bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
+                bookingDetail.setStartDate(rs.getDate("StartDate"));
+                bookingDetail.setEndDate(rs.getDate("EndDate"));
+                bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
+                bookingDetail.setServices(
+                        DetailServiceDAO.getInstance()
+                                .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetails.add(bookingDetail);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return bookingDetails;
+    }
+    public List<BookingDetail> getBookingDetailByBookingIdPagination(Booking booking, int index) {
+        List<BookingDetail> bookingDetails = new ArrayList<>();
+        String sql = "SELECT * FROM BookingDetail WHERE BookingId = ? order by bookingdetailId offset "
+                + "? rows fetch next 2 rows only";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getBookingId());
+            st.setInt(2, (index - 1) * 2);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                BookingDetail bookingDetail = new BookingDetail();
+                bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
+                bookingDetail.setStartDate(rs.getDate("StartDate"));
+                bookingDetail.setEndDate(rs.getDate("EndDate"));
+                bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
+                bookingDetail.setTotalAmount(rs.getInt("TotalAmount"));
+                bookingDetail.setServices(
+                        DetailServiceDAO.getInstance()
+                                .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetail.setBooking(booking);
+                bookingDetails.add(bookingDetail);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return bookingDetails;
+    }
 }

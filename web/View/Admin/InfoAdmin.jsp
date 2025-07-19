@@ -21,7 +21,7 @@
             <jsp:include page="leftNav.jsp" />
             <div class="right-section">
                 <!--change password-->
-                    <c:set var="title" value="Change Password" scope="request"/>
+                    <c:set var="title" value="Thay đổi mật khẩu tài khoản" scope="request"/>
                     <jsp:include page="topNav.jsp" />
 
                     <!-- Nút Back -->
@@ -34,7 +34,7 @@
                     <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
                         <form action="${pageContext.request.contextPath}/admin/page" method="post" class="w-50">
                             <input type="hidden" name="service" value="changePass">
-                            <input type="hidden" name="username" value="${sessionScope.username}">
+                            <input type="hidden" name="username" value="${sessionScope.employeeInfo.username}">
 
                             <div class="input-group mb-3">
                                 <span class="input-group-text" id="visible-addon2">
@@ -91,7 +91,7 @@
                             </small>
 
 
-                            <button type="submit" class="btn btn-primary w-100">Change</button>
+                            <button type="submit" class="btn btn-primary w-100">Thay đổi</button>
                         </form>
                     </div>
             </div>

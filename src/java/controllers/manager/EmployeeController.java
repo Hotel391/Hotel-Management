@@ -11,12 +11,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import models.CleanerFloor;
 import models.Employee;
 import models.Role;
+import utility.EmailService;
 import utility.Encryption;
 import utility.Validation;
+import utility.email_factory.EmailTemplateFactory;
 
 @WebServlet(name = "ManagerEmployees", urlPatterns = {"/manager/employees"})
 public class EmployeeController extends HttpServlet {
@@ -191,11 +195,6 @@ public class EmployeeController extends HttpServlet {
                 }
             }
 
-            if (startFloor != null && endFloor != null && startFloor >= endFloor) {
-                errorMessages.add("Tầng bắt đầu phải nhỏ hơn tầng kết thúc.");
-                hasError = true;
-            }
-
             if ("Cleaner".equalsIgnoreCase(emp.getRole().getRoleName())) {
                 if (startFloor != null && endFloor != null) {
                     CleanerFloor cf = new CleanerFloor();
@@ -213,6 +212,22 @@ public class EmployeeController extends HttpServlet {
             }
 
             if (hasError) {
+                return null;
+            }
+
+            EmailService emailService = new EmailService();
+            Map<String, Object> emailData = new HashMap<>();
+            emailData.put("fullname", fullName);
+            emailData.put("username", username);
+            emailData.put("password", password); 
+            emailData.put("loginLink", "http://localhost:9999/vn_pay/login");
+
+            try {
+                emailService.sendEmail(email, "Confirm account employee FPTHotel", EmailTemplateFactory.EmailType.EMPLOYEE_ACCOUNT, emailData);
+                request.getSession().setAttribute("success", "Employee added and email sent successfully.");
+            } catch (Exception e) {
+                errorMessages.add("Failed to send email: " + e.getMessage());
+                request.setAttribute("addErrors", errorMessages);
                 return null;
             }
 
@@ -283,11 +298,6 @@ public class EmployeeController extends HttpServlet {
                     errorMessages.add("Tầng bắt đầu không hợp lệ.");
                     hasError = true;
                 }
-            }
-
-            if (startFloor != null && endFloor != null && startFloor >= endFloor) {
-                errorMessages.add("Tầng bắt đầu phải nhỏ hơn tầng kết thúc..");
-                hasError = true;
             }
 
             if ("Cleaner".equalsIgnoreCase(emp.getRole().getRoleName())) {

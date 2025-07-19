@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.Date;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +22,17 @@ import models.Service;
  */
 public class UpdateCartAction implements CartAction {
 
-    private static final int maxTimeSpan = 90;
-    private final Date maxCheckoutDate = Date.valueOf(LocalDate.now().plusYears(1));
-    private final Date maxCheckinDate = Date.valueOf(maxCheckoutDate.toLocalDate().minusDays(1));
-    
+    private static final int maxTimeSpan = models.Cart.MAX_TIME_SPAN;
+    private final Date maxCheckoutDate = models.Cart.MAX_CHECKOUT_DATE;
+    private final Date maxCheckinDate = models.Cart.MAX_CHECKIN_DATE;
+    private final int maxServiceQuantity = Service.MAX_SERVICE_QUANTITY;
+
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setAttribute("maxTimeSpan", maxTimeSpan);
         request.setAttribute("maxCheckinDate", this.maxCheckinDate);
         request.setAttribute("maxCheckoutDate", this.maxCheckoutDate);
+        request.setAttribute("maxServiceQuantity", this.maxServiceQuantity);
         int cartId = Integer.parseInt(request.getParameter("cartId"));
         HttpSession session = request.getSession();
         CustomerAccount customer = (CustomerAccount) session.getAttribute("customerInfo");

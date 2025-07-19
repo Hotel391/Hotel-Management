@@ -4,9 +4,13 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 public class Cart {
-
+    
+    public static final int MAX_TIME_SPAN=90;
+    public static final Date MAX_CHECKOUT_DATE = Date.valueOf(LocalDate.now().plusYears(1));
+    public static final Date MAX_CHECKIN_DATE = Date.valueOf(MAX_CHECKOUT_DATE.toLocalDate().minusDays(1));
     private int cartId;
     private int totalPrice;
     private Timestamp payDay;

@@ -119,6 +119,14 @@ public class SearchRoom extends HttpServlet {
                     showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                     return;
                 }
+
+                long numberOfDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+                if (numberOfDays > 90) {
+                    request.setAttribute("errorMessage", "Vui lòng đặt lại thời gian.Thời gian đặt phòng không được vượt quá 3 tháng (90 ngày).");
+                    session.removeAttribute("selectedRooms");
+                    showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
+                    return;
+                }
                 List<String> conflictRooms = RoomDAO.getInstance().getUnavailableRooms(selectedRooms, startDate, endDate);
 
                 if (!conflictRooms.isEmpty()) {
@@ -165,7 +173,7 @@ public class SearchRoom extends HttpServlet {
                 startDate = java.sql.Date.valueOf(startDateStr);
                 endDate = java.sql.Date.valueOf(endDateStr);
             } catch (IllegalArgumentException e) {
-                request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ.");
+                request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ. (MM-DD-YYYY)");
                 showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
@@ -219,7 +227,7 @@ public class SearchRoom extends HttpServlet {
                 try {
                     children = Integer.parseInt(childrenStr);
                     if (children < 0) {
-                        children = 0; // Ensure non-negative
+                        children = 0;
                     }
                 } catch (NumberFormatException e) {
                     request.setAttribute("errorMessage", "Invalid children number.");
@@ -252,7 +260,6 @@ public class SearchRoom extends HttpServlet {
             java.sql.Date endDate = java.sql.Date.valueOf(endDateStr);
             long numberOfNights = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
             if (numberOfNights <= 0) {
-                System.out.println("calculateTotalPriceMultiple: Invalid number of nights=" + numberOfNights);
                 return 0;
             }
 
@@ -301,10 +308,5 @@ public class SearchRoom extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Search room based on dates, room type, adult, and children.";
     }
 }

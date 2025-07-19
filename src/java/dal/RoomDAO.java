@@ -502,9 +502,13 @@ public class RoomDAO {
         JOIN TypeRoom tr ON r.TypeId = tr.TypeId
         LEFT JOIN BookingDetail bd ON bd.RoomNumber = r.RoomNumber
             AND NOT (bd.EndDate <= ? OR bd.StartDate >= ?)
+            AND EXISTS (
+                SELECT 1 FROM Booking b 
+                WHERE b.BookingId = bd.BookingId 
+                AND b.Status != 'Completed CheckOut')
         LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber AND c.isPayment = 1
             AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
-        WHERE r.IsActive = 1
+        WHERE r.IsActive = 1 AND r.isCleaner = 1
           AND bd.BookingDetailId IS NULL
           AND c.CartId IS NULL
     """);
@@ -629,12 +633,16 @@ public class RoomDAO {
         SELECT COUNT(r.RoomNumber)
         FROM Room r
         JOIN TypeRoom tr ON r.TypeId = tr.TypeId
-        WHERE r.IsActive = 1  
+        WHERE r.IsActive = 1  AND r.isCleaner = 1
         AND r.RoomNumber NOT IN (
             SELECT bd.RoomNumber
             FROM BookingDetail bd
             JOIN Booking b ON bd.BookingId = b.BookingId
             WHERE (bd.StartDate < ? AND bd.EndDate > ?)
+            AND EXISTS (
+                SELECT 1 FROM Booking b 
+                WHERE b.BookingId = bd.BookingId 
+                AND b.Status != 'Completed CheckOut')
             UNION
             SELECT c.RoomNumber
             FROM Cart c
@@ -710,9 +718,14 @@ public class RoomDAO {
             SELECT COUNT(*) FROM Room r
             WHERE r.RoomNumber = ?
             AND r.IsActive = 1
+            AND r.isCleaner = 1
             AND r.RoomNumber NOT IN (
                 SELECT bd.RoomNumber FROM BookingDetail bd
                 WHERE (bd.StartDate < ? AND bd.EndDate > ?)
+                AND EXISTS (
+                    SELECT 1 FROM Booking b 
+                    WHERE b.BookingId = bd.BookingId 
+                    AND b.Status != 'Completed CheckOut')
                 UNION
                 SELECT c.RoomNumber FROM Cart c
                 WHERE c.isPayment = 1

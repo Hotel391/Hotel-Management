@@ -106,11 +106,11 @@ public class CartDAO {
         LocalDate today = LocalDate.now();
         Date startDate = cart.getStartDate();
         Date endDate = cart.getEndDate();
-        
+
         if (!cart.isIsActive() && !startDate.before(Date.valueOf(today))) {
             reactivateCartIfRoomAvailable(cart, startDate, endDate);
         }
-        
+
         if (cart.isIsActive()) {
             deactivateCartIfStartDatePast(cart, today);
         }
@@ -122,6 +122,25 @@ public class CartDAO {
         if (cart.isIsActive()) {
             updateCartPricingAndServices(cart, startDate, endDate);
         }
+    }
+
+    private boolean checkRoomOfCartStatus(int cartId) {
+        String sql = """
+                select r.IsActive from Room r
+                join Cart ca on ca.RoomNumber=r.RoomNumber
+                where ca.CartId=?
+                """;
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, cartId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBoolean("IsActive");
+                }
+            }
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return true;
     }
 
     private void reactivateCartIfRoomAvailable(Cart cart, Date startDate, Date endDate) {
@@ -866,8 +885,8 @@ public class CartDAO {
         SELECT c.CartId, c.StartDate, c.EndDate, c.TotalPrice, c.RoomNumber, c.Status,
                c.PayDay, c.isActive, c.isPayment,
                pm.PaymentMethodId, pm.PaymentName,
-               cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender,
-               s.ServiceId, s.ServiceName, s.Price, cs.Quantity
+               cus.CustomerId, cus.FullName, cus.Email, cus.PhoneNumber, cus.Gender,cus.CCCD, 
+               s.ServiceId, s.ServiceName, s.Price, cs.Quantity, cs.priceAtTime
         FROM Cart c
         JOIN PaymentMethod pm ON c.PaymentMethodId = pm.PaymentMethodId
         JOIN Customer cus ON c.mainCustomerId = cus.CustomerId
@@ -902,6 +921,7 @@ public class CartDAO {
                     cus.setFullName(rs.getString("FullName"));
                     cus.setEmail(rs.getString("Email"));
                     cus.setPhoneNumber(rs.getString("PhoneNumber"));
+                    cus.setCCCD(rs.getString("CCCD"));
                     cus.setGender(rs.getBoolean("Gender"));
                     cart.setMainCustomer(cus);
 
@@ -913,6 +933,9 @@ public class CartDAO {
                     Service service = new Service(serviceId, rs.getString("ServiceName"), rs.getInt("Price"));
                     int quantity = rs.getInt("Quantity");
                     CartService cs = new CartService();
+                    int priceAtTime = rs.getInt("priceAtTime");
+                    cs.setPriceAtTime(priceAtTime);
+
                     cs.setService(service);
                     cs.setQuantity(quantity);
                     cart.getCartServices().add(cs);

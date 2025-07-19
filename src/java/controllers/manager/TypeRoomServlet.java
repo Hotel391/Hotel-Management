@@ -69,12 +69,12 @@ public class TypeRoomServlet extends HttpServlet {
             int price = 0;
             try {
                 price = Integer.parseInt(price_raw);
-                if (!(100_000 <= price && price <= 10_000_000)) {
+                if (!(5000 <= price && price <= 20000)) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
                 check = true;
-                request.setAttribute("priceError", "Vui lòng nhập giá trong khoảng từ 100,000 VND đến 10,000,000 VND");
+                request.setAttribute("priceError", "Vui lòng nhập giá trong khoảng từ 5000 VND đến 20000 VND");
             }
 
             if (TypeRoomDAO.getInstance().getTypeRoomByName(name) != null) {
@@ -238,12 +238,12 @@ public class TypeRoomServlet extends HttpServlet {
 
             try {
                 price = Integer.parseInt(priceRaw);
-                if (!(100_000 <= price && price <= 10_000_000)) {
+                if (!(5000 <= price && price <= 20000)) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
                 check = true;
-                request.setAttribute("priceError", "Vui lòng nhập giá trong khoảng từ 100,000 VND đến 10,000,000 VND");
+                request.setAttribute("priceError", "Vui lòng nhập giá trong khoảng từ 5000 VND đến 20000 VND");
             }
 
             if (TypeRoomDAO.getInstance().getTypeRoomByNameAndPriceAndQuantity(typeRoomId, typeName, price, maxAdult, maxChildren) != null) {

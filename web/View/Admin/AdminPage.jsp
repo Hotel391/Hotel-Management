@@ -100,7 +100,7 @@
                                                 </td>
                                                 <td>
                                                     <a href="${pageContext.request.contextPath}/admin/page?service=deleteManager&employeeID=${e.employeeId}" 
-                                                       onclick="return confirm('Are you sure to delete?');"
+                                                       onclick="return confirm('Bạn chắc chắn muốn xóa tài khoản này?');"
                                                        class="btn btn-sm btn-danger">
                                                         <i class="bi bi-trash-fill"></i>
                                                     </a>

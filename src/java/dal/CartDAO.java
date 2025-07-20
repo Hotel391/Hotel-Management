@@ -1038,4 +1038,58 @@ public class CartDAO {
             throw new RuntimeException("Lỗi khi xóa cartId: " + cartId, e);
         }
     }
+
+    public Integer getExistingBookingId(int customerId, Date startDate, Date endDate) {
+        String sql = "SELECT b.BookingId FROM Booking b "
+                + "JOIN BookingDetail bd ON b.BookingId = bd.BookingId "
+                + "WHERE b.CustomerId = ? AND bd.StartDate = ? AND bd.EndDate = ? AND b.Status = 'Completed CheckIn'";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            ps.setDate(2, startDate);
+            ps.setDate(3, endDate);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("BookingId");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public int getPaidAmountByBookingId(int bookingId) {
+        String sql = "SELECT PaidAmount FROM Booking WHERE BookingId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bookingId);
+
+            try (ResultSet rs = ps.executeQuery();) {
+                if (rs.next()) {
+                    return rs.getInt("PaidAmount");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public void updatePaidAmount(int bookingId, int newPaidAmount) {
+        String sql = "UPDATE Booking SET PaidAmount = ? WHERE BookingId = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, newPaidAmount);
+            ps.setInt(2, bookingId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

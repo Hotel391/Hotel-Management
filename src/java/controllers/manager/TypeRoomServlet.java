@@ -105,7 +105,7 @@ public class TypeRoomServlet extends HttpServlet {
                 request.setAttribute("maxChildrenError", "Giới hạn trẻ em trong khoảng 1-10");
             }
             if (Validation.validateField(request, "descError", description, "DESCRIPTION",
-                    "Mô tả", "Chỉ bao gồm chữ cái và tối đa 255 ký tự")) {
+                    "Mô tả", "Vui lòng nhập mô tả với tối đa 255 ký tự")) {
                 check = true;
             }
 
@@ -288,8 +288,18 @@ public class TypeRoomServlet extends HttpServlet {
         if ("updateDesc".equals(service)) {
 
             String description = request.getParameter("typeDesc").trim();
+            
+            
 
             int typeRoomId = Integer.parseInt(request.getParameter("typeRoomId"));
+            
+            if (Validation.validateField(request, "descError", description, "DESCRIPTION",
+                    "Mô tả", "Vui lòng nhập mô tả với tối đa 255 ký tự")) {
+                request.setAttribute("showModalDesc", typeRoomId);
+                request.setAttribute("updateDesc", typeRoomId);
+                showTypeRoom(request, response);
+                return;
+            }
 
             if (description.equals(TypeRoomDAO.getInstance().getDescriptionByTypeId(typeRoomId))) {
 

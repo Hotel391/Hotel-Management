@@ -84,6 +84,8 @@ public class CartToBooking extends HttpServlet {
                 // Chuyển đổi chuỗi ngày
                 LocalDate startDate = LocalDate.parse(startDateStr); // yyyy-MM-dd
                 LocalDate endDate = LocalDate.parse(endDateStr);
+                Date startDateSql = java.sql.Date.valueOf(startDate);
+                Date endDateSql = java.sql.Date.valueOf(endDate);
 
                 // Chuyển đổi payDay
                 Timestamp payDay = Timestamp.valueOf(payDayStr); // yêu cầu định dạng yyyy-MM-dd HH:mm:ss
@@ -112,23 +114,33 @@ public class CartToBooking extends HttpServlet {
                     }
                 }
 
+                // === Kiểm tra booking tồn tại ===
+                int bookingId;
+                Integer existingBookingId = dal.CartDAO.getInstance()
+                        .getExistingBookingId(customerId, startDateSql, endDateSql);
+
                 // Tạo Booking
-                Booking booking = new Booking();
-                booking.setPayDay(new java.sql.Date(payDay.getTime())); // Giữ kiểu Date
-                booking.setStatus(status);
-                booking.setPaidAmount(paidAmount);
+                if (existingBookingId != null) {
+                    bookingId = existingBookingId;
+                    int oldPaidAmount = dal.CartDAO.getInstance().getPaidAmountByBookingId(bookingId);
+                    int newTotalPaid = oldPaidAmount + paidAmount;
+                    dal.CartDAO.getInstance().updatePaidAmount(bookingId, newTotalPaid);
+                } else {
+                    Booking booking = new Booking();
+                    booking.setPayDay(new java.sql.Date(payDay.getTime()));
+                    booking.setStatus(status);
+                    booking.setPaidAmount(paidAmount);
 
-                Customer customer = new Customer();
-                customer.setCustomerId(customerId);
-                booking.setCustomer(customer);
+                    Customer customer = new Customer();
+                    customer.setCustomerId(customerId);
+                    booking.setCustomer(customer);
 
-                PaymentMethod pm = new PaymentMethod();
-                pm.setPaymentMethodId(paymentMethodId);
-                booking.setPaymentMethodCheckIn(pm);
+                    PaymentMethod pm = new PaymentMethod();
+                    pm.setPaymentMethodId(paymentMethodId);
+                    booking.setPaymentMethodCheckIn(pm);
 
-                // Insert Booking
-                int bookingId = dal.CartDAO.getInstance().insertCartToBooking(booking);
-
+                    bookingId = dal.CartDAO.getInstance().insertCartToBooking(booking);
+                }
                 // Insert BookingDetail
                 BookingDetail bd = new BookingDetail();
                 Booking b = new Booking();
@@ -255,7 +267,7 @@ public class CartToBooking extends HttpServlet {
     private void paginateCartList(HttpServletRequest request, List<Cart> fullList) {
         String pageStr = request.getParameter("page");
         int page = pageStr != null ? Integer.parseInt(pageStr) : 1;
-        int recordsPerPage = 1;
+        int recordsPerPage = 4;
 
         int totalRecords = fullList.size();
         int totalPages = (int) Math.ceil(totalRecords * 1.0 / recordsPerPage);

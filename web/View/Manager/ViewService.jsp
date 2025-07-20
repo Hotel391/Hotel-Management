@@ -260,7 +260,7 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        Are you sure you want to delete this service?<br>
+                                        Bạn chắc chắn muốn xóa dịch vụ này?<br>
                                         <!--<strong>ID:</strong> <span id="serviceIdDisplay"></span><br>-->
                                         <strong>Name:</strong> <span id="serviceNameDisplay"></span>
                                         <input type="hidden" id="serviceIdDeleteInput" name="serviceId" />

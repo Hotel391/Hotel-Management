@@ -55,11 +55,9 @@ public class ReceptionistProfile extends HttpServlet {
 
                 boolean hasError = false;
 
-                // Use identity function for string validation
                 Function<String, String> identity = Function.identity();
                 Function<String, Date> dateParser = Date::valueOf;
 
-                // Validate all fields
                 if (Validation.validateField(request, "usernameError", "Tên đăng nhập", username, identity, "USERNAME")) {
                     hasError = true;
                 }
@@ -125,21 +123,39 @@ public class ReceptionistProfile extends HttpServlet {
             } else if ("changepassword".equals(action)) {
                 String currentPassword = request.getParameter("currentPassword");
                 String newPassword = request.getParameter("newPassword");
+                String confirmPassword = request.getParameter("confirmPassword");
+
+                boolean hasError = false;
 
                 String encryptedCurrent = Encryption.toSHA256(currentPassword);
                 if (!encryptedCurrent.equals(receptionist.getPassword())) {
-                    request.setAttribute("error", "Mật khẩu hiện tại không đúng!");
-                } else if (!Validation.checkFormatException(newPassword, "PASSWORD")) {
-                    request.setAttribute("error", "Mật khẩu mới phải dài ít nhất 8 ký tự, chứa cả chữ, số và ký tự đặc biệt!");
-                } else {
-                    String encryptedNew = Encryption.toSHA256(newPassword);
-                    employeeDAO.changePassword(receptionist.getEmployeeId(), encryptedNew);
-                    receptionist.setPassword(encryptedNew);
-                    session.setAttribute("employeeInfo", receptionist);
-                    request.setAttribute("success", "Đổi mật khẩu thành công!");
+                    request.setAttribute("currentPasswordError", "Mật khẩu hiện tại không đúng!");
+                    hasError = true;
                 }
-            }
 
+                if (!Validation.checkFormatException(newPassword, "PASSWORD")) {
+                    request.setAttribute("newPasswordError",
+                            "Mật khẩu mới phải dài ít nhất 8 ký tự, chứa cả chữ, số và ký tự đặc biệt!");
+                    hasError = true;
+                }
+
+                if (!newPassword.equals(confirmPassword)) {
+                    request.setAttribute("confirmPasswordError", "Mật khẩu xác nhận không trùng khớp!");
+                    hasError = true;
+                }
+
+                if (hasError) {
+                    request.setAttribute("receptionist", receptionist);
+                    request.getRequestDispatcher("/View/Manager/managerProfile.jsp").forward(request, response);
+                    return;
+                }
+
+                String encryptedNew = Encryption.toSHA256(newPassword);
+                employeeDAO.changePassword(receptionist.getEmployeeId(), encryptedNew);
+                receptionist.setPassword(encryptedNew);
+                session.setAttribute("employeeInfo", receptionist);
+                request.setAttribute("success", "Đổi mật khẩu thành công!");
+            }
         } catch (Exception e) {
             request.setAttribute("error", "Lỗi xử lý yêu cầu: " + e.getMessage());
             e.printStackTrace();

@@ -168,24 +168,59 @@
                 <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form action="${pageContext.request.contextPath}/receptionist/profile" method="post" onsubmit="return validatePasswordForm()">
+                            <form action="${pageContext.request.contextPath}/managerProfile" method="post" onsubmit="return validatePasswordForm()">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="passwordModalLabel">Đổi Mật Khẩu</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                                    <h5 class="modal-title">Đổi Mật Khẩu</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <input type="hidden" name="employeeId" value="${receptionist.employeeId}">
-                                    <div class="mb-3">
+                                    <input type="hidden" name="employeeId" value="${manager.employeeId}">
+
+                                    <c:if test="${not empty passwordError}">
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            ${passwordError}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    </c:if>
+
+                                    <div class="mb-3 password-toggle">
                                         <label class="form-label">Mật Khẩu Hiện Tại</label>
-                                        <input type="password" name="currentPassword" class="form-control" required>
+                                        <div class="input-group">
+                                            <input type="password" name="currentPassword" id="currentPassword" 
+                                                   class="form-control" value="${param.currentPassword}" required>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-eye-slash" onclick="togglePassword('currentPassword')"></i>
+                                            </span>
+                                        </div>
+                                        <c:if test="${not empty currentPasswordError}">
+                                            <small class="text-danger">${currentPasswordError}</small>
+                                        </c:if>
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="mb-3 password-toggle">
                                         <label class="form-label">Mật Khẩu Mới</label>
-                                        <input type="password" id="newPassword" name="newPassword" class="form-control" required>
+                                        <div class="input-group">
+                                            <input type="password" id="newPassword" name="newPassword" 
+                                                   class="form-control" value="${param.newPassword}" required>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-eye-slash" onclick="togglePassword('newPassword')"></i>
+                                            </span>
+                                        </div>
+                                        <c:if test="${not empty newPasswordError}">
+                                            <small class="text-danger">${newPasswordError}</small>
+                                        </c:if>
                                     </div>
-                                    <div class="mb-3">
+                                    <div class="mb-3 password-toggle">
                                         <label class="form-label">Xác Nhận Mật Khẩu Mới</label>
-                                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                                        <div class="input-group">
+                                            <input type="password" id="confirmPassword" name="confirmPassword" 
+                                                   class="form-control" value="${param.confirmPassword}" required>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-eye-slash" onclick="togglePassword('confirmPassword')"></i>
+                                            </span>
+                                        </div>
+                                        <c:if test="${not empty confirmPasswordError}">
+                                            <small class="text-danger">${confirmPasswordError}</small>
+                                        </c:if>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -198,20 +233,32 @@
                 </div>
             </div>
         </div>
+
         <script>
             function confirmSave() {
                 return confirm("Bạn có chắc chắn muốn lưu thay đổi?");
             }
-
-            function validatePasswordForm() {
-                const newPass = document.getElementById("newPassword").value;
-                const confirmPass = document.getElementById("confirmPassword").value;
-                if (newPass !== confirmPass) {
-                    alert("Mật khẩu xác nhận không trùng khớp!");
-                    return false;
+            function togglePassword(fieldId) {
+                const input = document.getElementById(fieldId);
+                const icon = input.nextElementSibling.querySelector('i');
+                if (input.type === "password") {
+                    input.type = "text";
+                    icon.classList.remove("bi-eye-slash");
+                    icon.classList.add("bi-eye");
+                } else {
+                    input.type = "password";
+                    icon.classList.remove("bi-eye");
+                    icon.classList.add("bi-eye-slash");
                 }
-                return true;
             }
+
+            <c:if test="${not empty passwordError || not empty currentPasswordError || 
+                          not empty newPasswordError || not empty confirmPasswordError}">
+            document.addEventListener('DOMContentLoaded', function () {
+                const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                passwordModal.show();
+            });
+            </c:if>
         </script>
     </body>
 </html>

@@ -28,10 +28,10 @@ public class Validation {
         regexMap.put("PHONE_NUMBER", Pattern.compile("^0\\d{9,10}$"));
         regexMap.put("USERNAME", Pattern.compile("^[a-zA-Z][a-zA-Z0-9_]{4,19}$"));
         regexMap.put("USERNAME_FIRST_CHAR", Pattern.compile("^[a-zA-Z].*"));
-        regexMap.put("FORBIDDEN_USERNAME", Pattern.compile("^(?!.*(admin|manager|root|support|fuck|shit)).*$", Pattern.CASE_INSENSITIVE));
+        regexMap.put("FORBIDDEN_USERNAME", Pattern.compile("^(?!.*(admin|root|support|fuck|shit)).*$", Pattern.CASE_INSENSITIVE));
         regexMap.put("EMOJI", Pattern.compile("[\\p{So}\\p{Cn}&&[^\\x00-\\x7F]]"));
         regexMap.put("EMAIL", Pattern.compile("^[a-zA-Z\\d_]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$"));
-        regexMap.put("PASSWORD", Pattern.compile("^(?=.*[a-z])(?=.*\\d)(?=.*[ @#$%^&+=!])[A-Za-z\\d @#$%^&+=!]{8,}"));
+        regexMap.put("PASSWORD", Pattern.compile("^(?=.*[a-z])(?=.*\\d)(?=.*[ @#$%^&+=!_])[A-Za-z\\d @#$%^&+=!_]{8,}"));
         regexMap.put("ADDRESS", Pattern.compile("^[\\p{L}\\d\\s,./-]{5,255}$"));
         regexMap.put("TYPE_ROOM_NAME_BASIC", Pattern.compile("^[A-Za-z\s]{1,100}$"));
         regexMap.put("ROOM_PRICE_INT", Pattern.compile("^[1-9]\\d{0,7}$"));
@@ -250,7 +250,7 @@ public class Validation {
         if (rawInput == null || rawInput.trim().isEmpty()) {
             return false;
         }
-        try{
+        try {
             value = parser.apply(rawInput);
         } catch (Exception e) {
             return false;

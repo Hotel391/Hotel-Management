@@ -1,254 +1,294 @@
 <%-- 
-    
+    Document   : cleanerProfile
+    Created on : Jul 20, 2025
     Author     : SONNAM
 --%>
 
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<fmt:formatDate value="${cleaner.dateOfBirth}" pattern="yyyy-MM-dd" var="dobFormatted"/>
+<fmt:formatDate value="${cleaner.registrationDate}" pattern="yyyy-MM-dd" var="regFormatted"/>
+
 <!DOCTYPE html>
-<html>
+<html lang="vi">
     <head>
         <meta charset="UTF-8">
-        <title>Cleaner Page</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Receptionist Profile</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <title>Hồ Sơ Nhân Viên Vệ Sinh</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
         <style>
-            body {
-                background-color: #f8f9fa;
-            }
-            .container {
+            .card {
                 max-width: 600px;
-                margin-top: 20px;
+                margin: auto;
+                border-radius: 15px;
             }
-            .card-header {
-                background-color: #007bff;
-                color: white;
-                text-align: center;
+            input[readonly] {
+                background-color: #f9f9f9;
             }
-            .readonly-field {
-                background-color: #f8f9fa;
+            .password-toggle .input-group-text {
+                background: none;
                 border: none;
+                padding: 0.375rem 0.75rem;
+                cursor: pointer;
             }
-            .editable-field {
-                border: 1px solid #ced4da;
+            .password-toggle .form-control {
+                border-right: 0;
             }
-            .btn-container {
-                margin-top: 20px;
-            }
-            .alert {
-                margin-bottom: 15px;
+            .password-toggle .input-group-text i {
+                color: #6c757d;
             }
         </style>
     </head>
     <body class="bg-light">
-        <div class="container mt-4">
-            <a href="${pageContext.request.contextPath}/cleaner/page" class="btn btn-outline-primary mb-3">Back to Dashboard</a>
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h3 class="mb-0">Cleaner Profile</h3>
-                </div>
-                <div class="card-body">
-                    <!-- Error/Success Messages -->
-                    <c:if test="${not empty error}">
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            ${error}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </c:if>
-                    <c:if test="${not empty success}">
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            ${success}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </c:if>
+        <div class="container py-4">
+            <div class="mb-3 text-center">
+                <a href="${pageContext.request.contextPath}/cleaner/page" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-arrow-left"></i> Quay Lại
+                </a>
+            </div>
 
-                    <!-- Profile Form -->
-                    <form action="${pageContext.request.contextPath}/cleaner/profile" method="post" id="profileForm">
-                        <input type="hidden" name="employeeId" value="${cleaner.employeeId}">
+            <div class="card shadow-sm p-3">
+                <h4 class="text-center text-primary mb-3">Hồ Sơ Nhân Viên Vệ Sinh</h4>
 
-                        <!-- Username -->
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">User Name</label>
-                            <div class="col-sm-9">
-                                <c:choose>
-                                    <c:when test="${isEditing}">
-                                        <input type="text" name="username" value="${cleaner.username}" class="form-control editable-field" required>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <input type="text" name="username" value="${cleaner.username}" class="form-control readonly-field" readonly required>
-                                    </c:otherwise>
-                                </c:choose>
-                                <c:if test="${not empty usernameError}">
-                                    <small class="text-danger">${usernameError}</small>
-                                </c:if>
-                            </div>
-                        </div>
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger">${error}</div>
+                </c:if>
+                <c:if test="${not empty success}">
+                    <div class="alert alert-success">${success}</div>
+                </c:if>
 
-                        <!-- Full Name -->
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Full Name</label>
-                            <div class="col-sm-9">
-                                <c:choose>
-                                    <c:when test="${isEditing}">
-                                        <input type="text" name="fullName" value="${cleaner.fullName}" class="form-control editable-field" required>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <input type="text" name="fullName" value="${cleaner.fullName}" class="form-control readonly-field" readonly required>
-                                    </c:otherwise>
-                                </c:choose>
-                                <c:if test="${not empty fullNameError}">
-                                    <small class="text-danger">${fullNameError}</small>
-                                </c:if>
-                            </div>
-                        </div>
+                <form action="${pageContext.request.contextPath}/cleaner/profile" method="post" onsubmit="return confirmSave()">
+                    <input type="hidden" name="employeeId" value="${cleaner.employeeId}">
 
-                        <!-- Address -->
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Address</label>
-                            <div class="col-sm-9">
-                                <c:choose>
-                                    <c:when test="${isEditing}">
-                                        <input type="text" name="address" value="${cleaner.address}" class="form-control editable-field" required>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <input type="text" name="address" value="${cleaner.address}" class="form-control readonly-field" readonly required>
-                                    </c:otherwise>
-                                </c:choose>
-                                <c:if test="${not empty addressError}">
-                                    <small class="text-danger">${addressError}</small>
-                                </c:if>
-                            </div>
-                        </div>
+                    <!-- Tên Đăng Nhập -->
+                    <div class="mb-2">
+                        <label class="form-label small">Tên Đăng Nhập</label>
+                        <input type="text" name="username"
+                               value="${param.username != null ? param.username : cleaner.username}"
+                               class="form-control form-control-sm" required>
+                        <c:if test="${not empty usernameError}">
+                            <small class="text-danger">${usernameError}</small>
+                        </c:if>
+                    </div>
 
-                        <!-- Phone Number -->
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Phone Number</label>
-                            <div class="col-sm-9">
-                                <c:choose>
-                                    <c:when test="${isEditing}">
-                                        <input type="text" name="phoneNumber" value="${cleaner.phoneNumber}" class="form-control editable-field" pattern="[0-9]{10,15}" required>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <input type="text" name="phoneNumber" value="${cleaner.phoneNumber}" class="form-control readonly-field" readonly required>
-                                    </c:otherwise>
-                                </c:choose>
-                                <c:if test="${not empty phoneNumberError}">
-                                    <small class="text-danger">${phoneNumberError}</small>
-                                </c:if>
-                            </div>
-                        </div>
+                    <!-- Họ và Tên -->
+                    <div class="mb-2">
+                        <label class="form-label small">Họ và Tên</label>
+                        <input type="text" name="fullName"
+                               value="${param.fullName != null ? param.fullName : cleaner.fullName}"
+                               class="form-control form-control-sm" required>
+                        <c:if test="${not empty fullNameError}">
+                            <small class="text-danger">${fullNameError}</small>
+                        </c:if>
+                    </div>
 
-                        <!-- Email -->
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Email</label>
-                            <div class="col-sm-9">
-                                <c:choose>
-                                    <c:when test="${isEditing}">
-                                        <input type="email" name="email" value="${cleaner.email}" class="form-control editable-field" required>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <input type="email" name="email" value="${cleaner.email}" class="form-control readonly-field" readonly>
-                                    </c:otherwise>
-                                </c:choose>
-                                <c:if test="${not empty emailError}">
-                                    <small class="text-danger">${emailError}</small>
-                                </c:if>
-                            </div>
-                        </div>
+                    <!-- Địa Chỉ -->
+                    <div class="mb-2">
+                        <label class="form-label small">Địa Chỉ</label>
+                        <input type="text" name="address"
+                               value="${param.address != null ? param.address : cleaner.address}"
+                               class="form-control form-control-sm" required>
+                        <c:if test="${not empty addressError}">
+                            <small class="text-danger">${addressError}</small>
+                        </c:if>
+                    </div>
 
-                        <!-- Gender -->
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Gender</label>
-                            <div class="col-sm-9">
-                                <input type="text" value="${cleaner.gender ? 'Nam' : 'Nữ'}" class="form-control readonly-field" readonly>
-                            </div>
-                        </div>
+                    <!-- Số Điện Thoại -->
+                    <div class="mb-2">
+                        <label class="form-label small">Số Điện Thoại</label>
+                        <input type="text" name="phoneNumber"
+                               value="${param.phoneNumber != null ? param.phoneNumber : cleaner.phoneNumber}"
+                               class="form-control form-control-sm" required>
+                        <c:if test="${not empty phoneNumberError}">
+                            <small class="text-danger">${phoneNumberError}</small>
+                        </c:if>
+                    </div>
 
-                        <!-- CCCD -->
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">CCCD</label>
-                            <div class="col-sm-9">
-                                <input type="text" value="${cleaner.CCCD}" class="form-control readonly-field" readonly>
-                            </div>
-                        </div>
+                    <!-- Email -->
+                    <div class="mb-2">
+                        <label class="form-label small">Email</label>
+                        <input type="email" name="email"
+                               value="${param.email != null ? param.email : cleaner.email}"
+                               class="form-control form-control-sm" required>
+                        <c:if test="${not empty emailError}">
+                            <small class="text-danger">${emailError}</small>
+                        </c:if>
+                    </div>
 
-                        <!-- Registration Date -->
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Registration Date</label>
-                            <div class="col-sm-9">
-                                <input type="text" value="${cleaner.registrationDate}" class="form-control readonly-field" readonly>
-                            </div>
-                        </div>
+                    <!-- Giới Tính -->
+                    <div class="mb-2">
+                        <label class="form-label small">Giới Tính</label>
+                        <select name="gender" class="form-select form-select-sm" required>
+                            <option value="Nam"
+                                    ${param.gender != null ? (param.gender eq 'Nam' ? 'selected' : '') : (cleaner.gender ? 'selected' : '')}>
+                                Nam
+                            </option>
+                            <option value="Nữ"
+                                    ${param.gender != null ? (param.gender eq 'Nữ' ? 'selected' : '') : (!cleaner.gender ? 'selected' : '')}>
+                                Nữ
+                            </option>
+                        </select>
+                        <c:if test="${not empty genderError}">
+                            <small class="text-danger">${genderError}</small>
+                        </c:if>
+                    </div>
 
-                        <!-- Date of Birth -->
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Date of Birth</label>
-                            <div class="col-sm-9">
-                                <input type="text" value="${cleaner.dateOfBirth}" class="form-control readonly-field" readonly>
-                            </div>
-                        </div>
+                    <!-- CCCD -->
+                    <div class="mb-2">
+                        <label class="form-label small">CCCD</label>
+                        <input type="text" name="CCCD"
+                               value="${param.CCCD != null ? param.CCCD : cleaner.CCCD}"
+                               class="form-control form-control-sm" required>
+                        <c:if test="${not empty cccdError}">
+                            <small class="text-danger">${cccdError}</small>
+                        </c:if>
+                    </div>
 
-                        <!-- Role -->
-                        <div class="row mb-3">
-                            <label class="col-sm-3 col-form-label">Role</label>
-                            <div class="col-sm-9">
-                                <input type="text" value="${cleaner.role.roleName}" class="form-control readonly-field" readonly>
-                            </div>
-                        </div>
+                    <!-- Ngày Sinh -->
+                    <div class="mb-3">
+                        <label class="form-label small">Ngày Sinh</label>
+                        <input type="date" name="dateOfBirth"
+                               value="${param.dateOfBirth != null ? param.dateOfBirth : dobFormatted}"
+                               class="form-control form-control-sm" required>
+                        <c:if test="${not empty dateOfBirthError}">
+                            <small class="text-danger">${dateOfBirthError}</small>
+                        </c:if>
+                    </div>
 
-                        <!-- Action Buttons -->
-                        <div class="btn-container d-flex justify-content-end gap-2">
-                            <c:if test="${not isEditing}">
-                                <a href="${pageContext.request.contextPath}/cleaner/profile?action=updateprofile" class="btn btn-primary">Update Profile</a>
-                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#passwordModal">Change Password</button>
-                            </c:if>
-                            <c:if test="${isEditing}">
-                                <button type="submit" name="action" value="updateprofile" class="btn btn-success">Save</button>
-                                <a href="${pageContext.request.contextPath}/cleaner/profile" class="btn btn-secondary">Cancel</a>
-                            </c:if>
-                        </div>
-                    </form>
+                    <!-- Ngày Đăng Ký -->
+                    <div class="mb-2">
+                        <label class="form-label small">Ngày Đăng Ký</label>
+                        <input type="date" value="${regFormatted}"
+                               class="form-control form-control-sm" readonly>
+                    </div>
 
-                    <!-- Password Change Modal -->
-                    <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
+                    <!-- Vai Trò -->
+                    <div class="mb-3">
+                        <label class="form-label small">Vai Trò</label>
+                        <input type="text" value="${cleaner.role.roleName}"
+                               class="form-control form-control-sm" readonly>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" name="action" value="updateprofile" class="btn btn-success btn-sm">
+                            <i class="bi bi-save"></i> Lưu Thay Đổi
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                            <i class="bi bi-key"></i> Đổi Mật Khẩu
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Modal Đổi Mật Khẩu -->
+                <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form action="${pageContext.request.contextPath}/cleaner/profile" method="post" onsubmit="return validatePasswordForm()">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="passwordModalLabel">Change Password</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <h5 class="modal-title">Đổi Mật Khẩu</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form action="${pageContext.request.contextPath}/cleanerProfile" method="post" onsubmit="return validatePasswordForm()">
-                                        <input type="hidden" name="employeeId" value="${cleaner.employeeId}">
-                                        <div class="mb-3">
-                                            <label class="form-label">Current Password</label>
-                                            <input type="password" name="currentPassword" class="form-control" required>
+                                    <input type="hidden" name="employeeId" value="${cleaner.employeeId}">
+
+                                    <c:if test="${not empty passwordError}">
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                            ${passwordError}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">New Password</label>
-                                            <input type="password" id="newPassword" name="newPassword" class="form-control" required>
+                                    </c:if>
+
+                                    <div class="mb-3 password-toggle">
+                                        <label class="form-label">Mật Khẩu Hiện Tại</label>
+                                        <div class="input-group">
+                                            <input type="password" name="currentPassword" id="currentPassword"
+                                                   class="form-control" value="${param.currentPassword}" required>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-eye-slash" onclick="togglePassword('currentPassword')"></i>
+                                            </span>
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Confirm New Password</label>
-                                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                                        <c:if test="${not empty currentPasswordError}">
+                                            <small class="text-danger">${currentPasswordError}</small>
+                                        </c:if>
+                                    </div>
+                                    <div class="mb-3 password-toggle">
+                                        <label class="form-label">Mật Khẩu Mới</label>
+                                        <div class="input-group">
+                                            <input type="password" id="newPassword" name="newPassword"
+                                                   class="form-control" value="${param.newPassword}" required>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-eye-slash" onclick="togglePassword('newPassword')"></i>
+                                            </span>
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" name="action" value="changepassword" class="btn btn-success">Update</button>
+                                        <c:if test="${not empty newPasswordError}">
+                                            <small class="text-danger">${newPasswordError}</small>
+                                        </c:if>
+                                    </div>
+                                    <div class="mb-3 password-toggle">
+                                        <label class="form-label">Xác Nhận Mật Khẩu Mới</label>
+                                        <div class="input-group">
+                                            <input type="password" id="confirmPassword" name="confirmPassword"
+                                                   class="form-control" value="${param.confirmPassword}" required>
+                                            <span class="input-group-text">
+                                                <i class="bi bi-eye-slash" onclick="togglePassword('confirmPassword')"></i>
+                                            </span>
                                         </div>
-                                    </form>
+                                        <c:if test="${not empty confirmPasswordError}">
+                                            <small class="text-danger">${confirmPasswordError}</small>
+                                        </c:if>
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                                    <button type="submit" name="action" value="changepassword" class="btn btn-success btn-sm">Cập Nhật</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <script>
+            function confirmSave() {
+                return confirm("Bạn có chắc chắn muốn lưu thay đổi?");
+            }
 
+            function validatePasswordForm() {
+                const newPass = document.getElementById("newPassword").value;
+                const confirmPass = document.getElementById("confirmPassword").value;
+                if (newPass !== confirmPass) {
+                    alert("Mật khẩu xác nhận không trùng khớp!");
+                    return false;
+                }
+                return true;
+            }
+
+            function togglePassword(fieldId) {
+                const input = document.getElementById(fieldId);
+                const icon = input.nextElementSibling.querySelector('i');
+                if (input.type === "password") {
+                    input.type = "text";
+                    icon.classList.remove("bi-eye-slash");
+                    icon.classList.add("bi-eye");
+                } else {
+                    input.type = "password";
+                    icon.classList.remove("bi-eye");
+                    icon.classList.add("bi-eye-slash");
+                }
+            }
+
+            // Auto-show modal if there are password errors
+            <c:if test="${not empty passwordError || not empty currentPasswordError || 
+                          not empty newPasswordError || not empty confirmPasswordError}">
+            document.addEventListener('DOMContentLoaded', function () {
+                const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+                passwordModal.show();
+            });
+            </c:if>
+        </script>
     </body>
-
 </html>

@@ -41,6 +41,13 @@
                         <c:if test="${not empty error}">
                             <div class="alert alert-danger mt-3">${error}</div>
                         </c:if>
+                        <c:if test="${not empty sessionScope.success}">
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                ${sessionScope.success}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <c:remove var="success" scope="session"/>
+                        </c:if>    
 
                         <div class="table-container">
                             <table class="table align-middle">
@@ -165,5 +172,16 @@
         <script src="${pageContext.request.contextPath}/Js/navDashboardJs.js"></script>
         <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
         <%-- Các script khác ở dưới --%>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const successAlert = document.querySelector('.alert-success');
+                if (successAlert) {
+                    setTimeout(() => {
+                        successAlert.classList.remove('show');
+                        successAlert.style.display = 'none';
+                    }, 5000);
+                }
+            });
+        </script>
     </body>
 </html>

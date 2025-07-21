@@ -8,6 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <title>Tìm Phòng</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/navDashboardStyle.css"/>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/dashboardStyle.css"/>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/Css/mainDashboardStyle.css"/>
@@ -63,11 +64,11 @@
                                 </div>
                                 <div class="col-md-2">
                                     <label>Số người lớn:</label>
-                                    <input type="number" name="adult" id="adult" class="form-control" value="${empty adultSearch ? 1 : adultSearch}" min="0" required/>
+                                    <input type="number" name="adult" id="adult" class="form-control" value="${empty adultSearch ? 1 : adultSearch}" min="0" max ="10" required/>
                                 </div>
                                 <div class="col-md-2">
                                     <label>Số trẻ em:</label>
-                                    <input type="number" name="children" id="children" class="form-control" value="${empty childrenSearch ? 1 : childrenSearch}" min="0" required/>
+                                    <input type="number" name="children" id="children" class="form-control" value="${empty childrenSearch ? 1 : childrenSearch}" min="0" max="10" required/>
                                 </div>
                                 <div class="col-md-2">
                                     <label>Loại phòng:</label>

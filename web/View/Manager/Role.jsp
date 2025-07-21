@@ -61,10 +61,10 @@
                                                 </button>
                                                 <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(${role.roleId}, '${role.roleName}')">
                                                     <i class="bi bi-pencil"></i>
-                                                </button>
+<!--                                                </button>
                                                 <button class="btn btn-sm btn-outline-danger" onclick="openDeleteModal(${role.roleId})">
                                                     <i class="bi bi-trash"></i>
-                                                </button>
+                                                </button>-->
                                             </td>
                                         </tr>
                                     </c:forEach>

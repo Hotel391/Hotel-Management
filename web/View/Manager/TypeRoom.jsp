@@ -101,7 +101,7 @@
                                                         </c:if>
                                                 </div>
                                                 <div class="row g-3">
-                                                    <label for="formFile" class="form-label">Default file input example</label>
+                                                    <label for="formFile" class="form-label">Upload Images</label>
                                                     <input class="form-control" type="file" id="formFile" multiple name="image" accept="image/*" required>
                                                 </div>
                                                 <c:if test="${not empty addSuccess}">
@@ -371,7 +371,7 @@
                                                             </div>
                                                             <form action="${pageContext.request.contextPath}/manager/types" method="post" enctype="multipart/form-data">
                                                                 <div class="row g-0">
-                                                                    <label style="text-align: center;" for="formFile" class="form-label">Default file input example</label>
+                                                                    <label style="text-align: center;" for="formFile" class="form-label">Upload Images</label>
                                                                     <input class="form-control" type="file" id="formFile" multiple name="image" accept="image/*" required>
                                                                 </div>
 

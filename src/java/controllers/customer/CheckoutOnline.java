@@ -51,7 +51,6 @@ public class CheckoutOnline extends HttpServlet {
 
         Boolean fromCart = (Boolean) session.getAttribute("fromCart");
         Integer attempts = (Integer) session.getAttribute("checkoutAttempts");
-        System.out.println("attemps version: " + attempts);
         if (attempts == null) {
             attempts = 0;
         }
@@ -112,8 +111,6 @@ public class CheckoutOnline extends HttpServlet {
 
         request.setAttribute("expireTime-" + cartId, expireTime);
 
-        System.out.println("done");
-
         String service = request.getParameter("service");
 
         if (service == null) {
@@ -146,9 +143,6 @@ public class CheckoutOnline extends HttpServlet {
         if ("confirmInformation".equals(service)) {
 
             int timeLeft = Integer.parseInt(request.getParameter("timeLeft-" + cartId));
-            System.out.println("timeLeft: " + timeLeft);
-
-            System.out.println("timeLeft: " + timeLeft);
 
             if (timeLeft == 0) {
                 attempts++;
@@ -160,7 +154,6 @@ public class CheckoutOnline extends HttpServlet {
                     return;
                 }
                 session.setAttribute("checkoutAttempts", attempts);
-                System.out.println("attemps: " + attempts);
                 CartDAO.getInstance().updateCartToFail(checkCart);
                 session.removeAttribute("expireTime-" + cartId);
                 request.setAttribute("overTime", "Đã quá thời gian thanh toán");
@@ -205,8 +198,6 @@ public class CheckoutOnline extends HttpServlet {
                 mainCustomer.setFullName(fullName);
                 mainCustomer.setEmail(email);
                 mainCustomer.setPhoneNumber(phone);
-
-                System.out.println("main customer: " + mainCustomer);
 
                 session.setAttribute("timeLeft-" + cartId, timeLeft);
 

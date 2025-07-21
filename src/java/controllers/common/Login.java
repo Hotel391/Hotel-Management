@@ -69,7 +69,6 @@ public class Login extends HttpServlet {
 
             CustomerAccount customerInfo = CustomerAccountDAO.getInstance().checkLogin(username, password);
             if (customerInfo != null) {
-                System.out.println("Info: " + customerInfo);
                 session.setAttribute("customerInfo", customerInfo);
                 response.sendRedirect("home");
                 return;
@@ -77,7 +76,6 @@ public class Login extends HttpServlet {
 
             Employee employeeInfo = EmployeeDAO.getInstance().getEmployeeLogin(username, password);
             if (employeeInfo != null) {
-                System.out.println(employeeInfo);
                 session.setAttribute("employeeInfo", employeeInfo);
                 int roleId = employeeInfo.getRole().getRoleId();
                 switch (roleId) {
@@ -167,7 +165,6 @@ public class Login extends HttpServlet {
                     CustomerAccountDAO.getInstance().insertCustomerAccount(accountForExistedCustomer);
                     session.setAttribute("customerInfo", accountForExistedCustomer);
                 } else if (!accInfo.getCustomer().getActivate()) {
-                    System.out.println("deactive");
                     response.sendRedirect("home");
                     return;
                 }else{

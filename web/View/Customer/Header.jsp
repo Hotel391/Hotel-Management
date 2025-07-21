@@ -22,6 +22,9 @@
         justify-content: center;
         border: 2px solid #f1c40f;
     }
+    .keep-white {
+        color: white !important;
+    }
 </style>
 
 <header class="header">
@@ -73,9 +76,9 @@
                          style="display: none; top: 100%; right: 0; background: rgba(0, 0, 0, 0.85); border-radius: 8px; min-width: 180px;
                          box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000;">
                         <a href="${pageContext.request.contextPath}/customerProfile?service=info&username=${sessionScope.customerInfo.username}"
-                           class="dropdown-item d-block px-3 py-2 text-white text-decoration-none">My Profile</a>
+                           class="dropdown-item d-block px-3 py-2 text-white text-decoration-none keep-white">My Profile</a>
                         <a href="${pageContext.request.contextPath}/login?service=logout"
-                           class="dropdown-item d-block px-3 py-2 text-white text-decoration-none">Logout</a>
+                           class="dropdown-item d-block px-3 py-2 text-white text-decoration-none keep-white">Logout</a>
                     </div>
                 </div>
 
@@ -108,7 +111,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const path = window.location.pathname.toLowerCase();
-        const isWhitePage = path.includes("home") || path.includes("login") || path.includes("register") || path.includes("about")||path.includes("contact") || path === "/";
+        const isWhitePage = path.includes("home") || path.includes("login") || path.includes("register") || path.includes("about") || path.includes("contact") || path === "/";
 
         if (!isWhitePage) {
             document.querySelectorAll('.main_nav a').forEach(link => {
@@ -119,7 +122,7 @@
             if (hotelName)
                 hotelName.style.setProperty("color", "#003366", "important");
 
-            document.querySelectorAll('.header .text-white').forEach(el => {
+            document.querySelectorAll('.header .text-white:not(.keep-white)').forEach(el => {
                 el.classList.remove('text-white');
                 el.classList.add('text-dark');
             });

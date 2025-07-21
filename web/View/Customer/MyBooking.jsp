@@ -119,9 +119,6 @@
                                     </div>
                                     <div class="d-flex justify-content-end mt-2">
                                         <a href="${pageContext.request.contextPath}/customerProfile?service=bookingDetail&id=${dl.key.bookingId}" class="btn btn-primary">Xem chi tiết</a>
-                                        <c:if test="${dl.key.status == 'Completed CheckOut'}">
-                                            <a href="#" class="btn btn-secondary ms-2">Gửi bài đánh giá</a>
-                                        </c:if>
                                     </div>
                                 </div>
                             </c:forEach>

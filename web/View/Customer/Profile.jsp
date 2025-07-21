@@ -67,10 +67,8 @@
                                     <div class="row mb-3">
                                         <div class="col-md-6">
                                             <label for="gender" class="form-label">Giới tính</label>
-                                            <select class="form-select" id="gender" name="gender" readonly>
-                                                <option value="true" ${customerAccount.customer.gender ? "selected" : ""}>Nam</option>
-                                                <option value="false" ${!customerAccount.customer.gender ? "selected" : ""}>Nữ</option>
-                                            </select>
+                                            <input type="text" class="form-control" id="gender" name="gender"
+                                                   value="${customerAccount.customer.gender ? 'Nam' : 'Nữ'}" readonly>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="phoneNumber" class="form-label">Số điện thoại</label>

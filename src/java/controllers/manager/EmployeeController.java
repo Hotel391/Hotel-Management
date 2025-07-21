@@ -223,7 +223,7 @@ public class EmployeeController extends HttpServlet {
             emailData.put("fullname", fullName);
             emailData.put("username", username);
             emailData.put("password", password);
-            emailData.put("loginLink", "http://localhost:8080/vn_pay/login");
+            emailData.put("loginLink", "http://localhost:9999/vn_pay/login");
 
             try {
                 emailService.sendEmail(email, "Confirm account employee FPTHotel", EmailTemplateFactory.EmailType.EMPLOYEE_ACCOUNT, emailData);

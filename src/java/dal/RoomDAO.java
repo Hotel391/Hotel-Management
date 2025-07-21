@@ -508,7 +508,7 @@ public class RoomDAO {
                 AND b.Status != 'Completed CheckOut')
         LEFT JOIN Cart c ON c.RoomNumber = r.RoomNumber AND c.isPayment = 1
             AND NOT (c.EndDate <= ? OR c.StartDate >= ?)
-        WHERE r.IsActive = 1 AND r.isCleaner = 1
+        WHERE r.IsActive = 1 AND (? > CAST(GETDATE() AS DATE) OR r.isCleaner = 1)
           AND bd.BookingDetailId IS NULL
           AND c.CartId IS NULL
     """);
@@ -531,7 +531,7 @@ public class RoomDAO {
             pst.setDate(paramIndex++, endDate);   // bd.StartDate >= ?
             pst.setDate(paramIndex++, startDate); // c.EndDate <= ?
             pst.setDate(paramIndex++, endDate);   // c.StartDate >= ?
-
+            pst.setDate(paramIndex++, startDate);
             if (typeRoomId != null) {
                 pst.setInt(paramIndex++, typeRoomId);
             }

@@ -14,6 +14,7 @@ import models.Customer;
 import models.Role;
 import utility.Validation;
 import dal.CustomerDAO;
+import dal.EmployeeDAO;
 import dal.RoomDAO;
 import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
@@ -171,6 +172,9 @@ public class Checkout extends HttpServlet {
             } else if (CustomerDAO.getInstance().checkExistedEmail(email)) {
                 check = true;
                 request.setAttribute("emailError", "Email đã tồn tại");
+            }else if(EmployeeDAO.getInstance().checkEmail(email)){
+                check = true;
+                request.setAttribute("emailError", "Email không hợp lệ");
             }
 
             if ("default".equals(paymentMethod)) {

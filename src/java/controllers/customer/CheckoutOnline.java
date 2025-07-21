@@ -8,6 +8,7 @@ import dal.CartDAO;
 import dal.CartServiceDAO;
 import dal.CustomerAccountDAO;
 import dal.CustomerDAO;
+import dal.EmployeeDAO;
 import dal.TypeRoomDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -179,6 +180,11 @@ public class CheckoutOnline extends HttpServlet {
             
             if (Validation.validateField(request, "emailEmpty", email, "EMAIL", "Email", "Email không hợp lệ")) {
                 check = true;
+            }
+            
+            if(EmployeeDAO.getInstance().checkEmail(email)){
+                check = true;
+                request.setAttribute("emailEmpty", "Email không hợp lệ");
             }
 
             if (Validation.validateField(request, "phoneError", phone, "PHONE_NUMBER", "SĐT", "SDT không hợp lệ")) {

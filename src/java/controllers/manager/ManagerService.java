@@ -16,6 +16,8 @@ public class ManagerService extends HttpServlet {
     private String serviceServlet = "service";
     private String submitt = "submit";
     private String serviceNamee = "serviceName";
+    private String errorPrice = "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 5000 (5 nghìn) vnđ.";
+    private int maxPrice = 5000;
 
     private ServiceDAO dao = dal.ServiceDAO.getInstance(); // dùng thay cho ServiceDAO.getInstance()
 
@@ -141,13 +143,13 @@ public class ManagerService extends HttpServlet {
 
         try {
             price = Integer.parseInt(priceStr);
-            if (price <= 0 || price > 1000000) {
-                request.setAttribute("priceUpdateError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 1000000 (1 triệu) vnđ.");
+            if (price <= 0 || price > maxPrice) {
+                request.setAttribute("priceUpdateError", errorPrice);
                 haveError = true;
             }
         } catch (NumberFormatException e) {
             haveError = true;
-            request.setAttribute("priceUpdateError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 1000000 (1 triệu) vnđ.");
+            request.setAttribute("priceUpdateError", errorPrice);
         }
 
         for (Service service : list) {
@@ -192,12 +194,12 @@ public class ManagerService extends HttpServlet {
 
         try {
             price = Integer.parseInt(priceStr);
-            if (price <= 0 || price > 1000000) {
-                request.setAttribute("priceAddError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 1000000 (1 triệu) vnđ.");
+            if (price <= 0 || price > maxPrice) {
+                request.setAttribute("priceAddError", errorPrice);
                 haveError = true;
             }
         } catch (NumberFormatException e) {
-            request.setAttribute("priceAddError", "Giá phải là chữ số lớn hơn hoặc bằng 0 và nhỏ hơn 1000000 (1 triệu) vnđ.");
+            request.setAttribute("priceAddError", errorPrice);
             haveError = true;
         }
 

@@ -53,13 +53,11 @@ public class Validation {
                         "Username phải gồm 6-20 kí tự"),
                 new ValidationRule<String>(value -> Validation.checkFormatException(value, "USERNAME_FIRST_CHAR"),
                         "Username bắt đầu bằng 1 chữ cái"),
-                new ValidationRule<String>(
-                        value -> Validation.checkFormatException(value, "USERNAME"),
-                        "Username chỉ có thể chứa chữ cái, số, dấu gạch dưới"),
+                new ValidationRule<String>(value -> Validation.checkFormatException(value, "USERNAME"),
+                        "Username chỉ bao gồm chữ cái, số và dấu gạch dưới"),
                 new ValidationRule<String>(value -> !Validation.checkFormatException(value, "EMOJI"),
-                        "Username không thể chứa biểu tượng cảm xúc."),
-                new ValidationRule<String>(value -> Validation.checkFormatException(value, "FORBIDDEN_USERNAME"),
-                        "Username chứa các từ bị hạn chế")));
+                        "Username không được chứa emoji")
+        ));
         ruleCheck.put("PASSWORD", List.of(
                 new ValidationRule<String>(value -> value.charAt(0) != ' ' && value.charAt(value.length() - 1) != ' ',
                         "Password không thể bắt đầu hoặc kết thúc bằng khoảng trắng"),

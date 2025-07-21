@@ -77,8 +77,12 @@ public class EmployeeController extends HttpServlet {
                     Employee newEmp = addEmployee(request, response);
                     if (newEmp != null) {
                         EmployeeDAO.getInstance().addEmployee(newEmp);
+                        // Success message already set in addEmployee
                     } else {
                         request.setAttribute("showAddModal", true);
+                        if (request.getAttribute("addErrors") != null) {
+                            request.setAttribute("addErrors", request.getAttribute("addErrors"));
+                        }
                         doGet(request, response);
                         return;
                     }
@@ -87,22 +91,21 @@ public class EmployeeController extends HttpServlet {
                     Employee updateEmp = editEmployee(request, response);
                     if (updateEmp != null) {
                         EmployeeDAO.getInstance().updateEmployee(updateEmp);
+                        request.getSession().setAttribute("success", "Cập nhật thông tin nhân viên thành công.");
                     } else {
                         request.setAttribute("showEditModalId", request.getParameter("employeeId"));
                         doGet(request, response);
                         return;
                     }
                     break;
-
                 case "delete":
                     int employeeId = Integer.parseInt(request.getParameter("employeeId"));
                     if (EmployeeDAO.getInstance().getEmployeeById(employeeId).isActivate() == false) {
                         EmployeeDAO.getInstance().deleteEmployee(employeeId);
-                        request.getSession().setAttribute("success", "Employee deleted successfully.");
+                        request.getSession().setAttribute("success", "Xóa nhân viên thành công.");
                     } else {
                         request.setAttribute("error", "Không xóa nhân viên đang hoạt động!");
                     }
-
                     break;
                 case "toggleStatus":
                     int empId = Integer.parseInt(request.getParameter("employeeId"));
@@ -110,7 +113,7 @@ public class EmployeeController extends HttpServlet {
                     if (emp != null) {
                         boolean newStatus = !emp.isActivate();
                         EmployeeDAO.getInstance().updateEmployeeStatus(empId, newStatus);
-                        request.getSession().setAttribute("success", "Employee status updated.");
+                        request.getSession().setAttribute("success", "Cập nhật trạng thái nhân viên thành công.");
                     }
                     break;
                 default:
@@ -219,18 +222,19 @@ public class EmployeeController extends HttpServlet {
             Map<String, Object> emailData = new HashMap<>();
             emailData.put("fullname", fullName);
             emailData.put("username", username);
-            emailData.put("password", password); 
-            emailData.put("loginLink", "http://localhost:9999/vn_pay/login");
+            emailData.put("password", password);
+            emailData.put("loginLink", "http://localhost:8080/vn_pay/login");
 
             try {
                 emailService.sendEmail(email, "Confirm account employee FPTHotel", EmailTemplateFactory.EmailType.EMPLOYEE_ACCOUNT, emailData);
-                request.getSession().setAttribute("success", "Employee added and email sent successfully.");
+                request.getSession().setAttribute("success", "Thêm nhân viên và gửi email xác nhận thành công.");
             } catch (Exception e) {
-                errorMessages.add("Failed to send email: " + e.getMessage());
+                System.out.println("Email sending failed: " + e.getMessage());
+                errorMessages.add("Không thể gửi email xác nhận. Vui lòng kiểm tra địa chỉ email và thử lại.");
                 request.setAttribute("addErrors", errorMessages);
+                request.setAttribute("showAddModal", true);
                 return null;
             }
-
             return emp;
         } catch (NumberFormatException e) {
             errorMessages.add("Đã xảy ra lỗi: " + e.getMessage());
@@ -364,7 +368,7 @@ public class EmployeeController extends HttpServlet {
         }
 
         if (!errorMessages.isEmpty()) {
-            request.setAttribute("errorMessages", errorMessages);
+            request.setAttribute("addErrors", errorMessages);
             hasError = true;
         }
 

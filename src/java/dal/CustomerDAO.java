@@ -391,7 +391,11 @@ public class CustomerDAO {
     }
 
     public int countCustomer() {
-        String sql = "SELECT COUNT(*) FROM Customer";
+        String sql = " SELECT c.*, r.RoleName, ca.Username\n"
+                + "            FROM Customer c\n"
+                + "            JOIN Role r ON c.RoleId = r.RoleId\n"
+                + "            JOIN CustomerAccount ca ON c.CustomerId = ca.CustomerId\n"
+                + "            WHERE 1=1";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -640,7 +644,8 @@ public class CustomerDAO {
             e.printStackTrace();
         }
     }
-    public void updatePhoneNumberAndGender(Customer customer){
+
+    public void updatePhoneNumberAndGender(Customer customer) {
         String sql = "update Customer set PhoneNumber = ?, Gender = ? where Email = ?";
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setString(1, customer.getPhoneNumber());

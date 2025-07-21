@@ -77,7 +77,11 @@ public class EmployeeDAO {
     }
 
     public int countEmployee() {
-        String sql = "SELECT COUNT(*) FROM Employee";
+        String sql = "SELECT e.*, r.RoleName, cf.StartFloor, cf.EndFloor "
+                + "FROM Employee e "
+                + "JOIN Role r ON r.RoleId = e.RoleId "
+                + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
+                + "WHERE r.RoleId NOT IN (0, 1)";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);

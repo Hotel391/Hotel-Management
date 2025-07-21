@@ -92,11 +92,6 @@ public class SearchRoom extends HttpServlet {
         request.setAttribute("selectedRoomTypes", selectedRoomTypes);
 
         if (checkInAction != null) {
-            if (selectedRooms.isEmpty()) {
-                request.setAttribute("errorMessage", "Please select at least one room to book.");
-                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
-                return;
-            }
 
             if (startDateStr == null || endDateStr == null || startDateStr.isEmpty() || endDateStr.isEmpty()) {
                 request.setAttribute("errorMessage", "Vui lòng chọn cả ngày nhận phòng và ngày trả phòng");
@@ -153,39 +148,32 @@ public class SearchRoom extends HttpServlet {
                             roomTypeMap.put(roomNumber, room.getTypeRoom().getTypeName());
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println("Error parsing room number " + roomNumber + ": " + e.getMessage());
                     }
                 }
                 session.setAttribute("roomTypeMap", roomTypeMap);
                 response.sendRedirect(request.getContextPath() + "/receptionist/roomInformation");
                 return;
             } catch (IllegalArgumentException e) {
-                request.setAttribute("errorMessage", "Invalid date format.");
+                request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ (YYYY-MM-DD).");
                 showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
         }
 
-        if (startDateStr != null && !startDateStr.isEmpty() && endDateStr != null && !endDateStr.isEmpty()) {
-            java.sql.Date startDate;
-            java.sql.Date endDate;
-            try {
-                startDate = java.sql.Date.valueOf(startDateStr);
-                endDate = java.sql.Date.valueOf(endDateStr);
-            } catch (IllegalArgumentException e) {
-                request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ. (MM-DD-YYYY)");
-                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
-                return;
-            }
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        String todayStr = sdf.format(new Date());
+        String tomorrowStr = sdf.format(new Date(new Date().getTime() + 24 * 60 * 60 * 1000));
 
-            if (startDateStr == null || endDateStr == null || startDateStr.isEmpty() || endDateStr.isEmpty()) {
-                request.setAttribute("errorMessage", "Vui lòng chọn cả ngày nhận phòng và ngày trả phòng");
-                showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
-                return;
-            }
+        if (startDateStr == null || startDateStr.isEmpty()) {
+            startDateStr = todayStr;
+        }
+        if (endDateStr == null || endDateStr.isEmpty()) {
+            endDateStr = tomorrowStr;
+        }
 
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-            String todayStr = sdf.format(new Date());
+        try {
+            java.sql.Date startDate = java.sql.Date.valueOf(startDateStr);
+            java.sql.Date endDate = java.sql.Date.valueOf(endDateStr);
 
             if (startDateStr.compareTo(todayStr) < 0) {
                 request.setAttribute("errorMessage", "Ngày nhận phòng bắt đầu từ ngày hôm nay.");
@@ -194,7 +182,7 @@ public class SearchRoom extends HttpServlet {
             }
 
             if (endDate.compareTo(startDate) <= 0) {
-                request.setAttribute("errorMessage", "ngày trả phong phải sau ngày nhận phòng.");
+                request.setAttribute("errorMessage", "Ngày trả phòng phải sau ngày nhận phòng.");
                 showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                 return;
             }
@@ -202,15 +190,17 @@ public class SearchRoom extends HttpServlet {
             Integer typeRoomId = null;
             Integer adult = null;
             Integer children = null;
+
             if (typeRoomIdStr != null && !typeRoomIdStr.isEmpty()) {
                 try {
                     typeRoomId = Integer.parseInt(typeRoomIdStr);
                 } catch (NumberFormatException e) {
-                    request.setAttribute("errorMessage", "Invalid room type.");
+                    request.setAttribute("errorMessage", "Loại phòng không hợp lệ.");
                     showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                     return;
                 }
             }
+
             if (adultStr != null && !adultStr.isEmpty()) {
                 try {
                     adult = Integer.parseInt(adultStr);
@@ -218,11 +208,12 @@ public class SearchRoom extends HttpServlet {
                         adult = 0;
                     }
                 } catch (NumberFormatException e) {
-                    request.setAttribute("errorMessage", "Invalid adult number.");
+                    request.setAttribute("errorMessage", "Số người lớn không hợp lệ.");
                     showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                     return;
                 }
             }
+
             if (childrenStr != null && !childrenStr.isEmpty()) {
                 try {
                     children = Integer.parseInt(childrenStr);
@@ -230,7 +221,7 @@ public class SearchRoom extends HttpServlet {
                         children = 0;
                     }
                 } catch (NumberFormatException e) {
-                    request.setAttribute("errorMessage", "Invalid children number.");
+                    request.setAttribute("errorMessage", "Số trẻ em không hợp lệ.");
                     showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
                     return;
                 }
@@ -239,10 +230,12 @@ public class SearchRoom extends HttpServlet {
             List<Room> availableRooms = RoomDAO.getInstance().searchAvailableRooms(startDate, endDate, typeRoomId, adult, children, page, recordsPerPage);
             int totalRecords = RoomDAO.getInstance().countAvailableRooms(startDate, endDate, typeRoomId, adult, children);
             int totalPages = (int) Math.ceil(totalRecords * 1.0 / recordsPerPage);
-
-            System.out.println("Available rooms size: " + availableRooms.size() + ", Total records: " + totalRecords + ", Total pages: " + totalPages);
             request.setAttribute("availableRooms", availableRooms);
             request.setAttribute("totalPages", totalPages);
+        } catch (IllegalArgumentException e) {
+            request.setAttribute("errorMessage", "Định dạng ngày không hợp lệ (YYYY-MM-DD).");
+            showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
+            return;
         }
 
         showSearchRoom(request, response, startDateStr, endDateStr, typeRoomIdStr, adultStr, childrenStr, pageStr);
@@ -250,9 +243,6 @@ public class SearchRoom extends HttpServlet {
 
     private double calculateTotalPriceMultiple(String[] roomNumbers, String startDateStr, String endDateStr) {
         if (roomNumbers == null || roomNumbers.length == 0 || startDateStr == null || endDateStr == null) {
-            System.out.println("calculateTotalPriceMultiple: Invalid input - roomNumbers="
-                    + (roomNumbers == null ? "null" : Arrays.toString(roomNumbers))
-                    + ", startDate=" + startDateStr + ", endDate=" + endDateStr);
             return 0;
         }
         try {
@@ -271,17 +261,12 @@ public class SearchRoom extends HttpServlet {
                     if (room != null && room.getTypeRoom() != null) {
                         double basePrice = TypeRoomDAO.getInstance().getPriceByTypeId(room.getTypeRoom().getTypeId());
                         totalPrice += basePrice * numberOfNights;
-                    } else {
-                        System.out.println("Room not found or no type for roomNumber=" + roomNumber);
                     }
                 } catch (NumberFormatException e) {
-                    System.out.println("Error parsing room number " + roomNumber + ": " + e.getMessage());
                 }
             }
-            System.out.println("Calculated totalPrice=" + totalPrice);
             return totalPrice;
         } catch (IllegalArgumentException e) {
-            System.out.println("calculateTotalPriceMultiple: Invalid date format - " + e.getMessage());
             return 0;
         }
     }

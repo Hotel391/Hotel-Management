@@ -51,7 +51,6 @@ public class CustomerProfile extends HttpServlet {
 
         if (service == null) {
             service = "info";
-            System.out.println("Service parameter is null, defaulting to 'info'");
         }
 
         if (service.equals("changeUserName")) {
@@ -78,7 +77,7 @@ public class CustomerProfile extends HttpServlet {
                 boolean hasError = false;
                 hasError |= Validation.validateField(
                         request, "usernameError", newUserName, "USERNAME", "Username",
-                        "Username must be 5–20 characters, letters/numbers/underscores only."
+                        "Tên người dùng phải dài từ 5–20 ký tự, chỉ bao gồm chữ cái/số/dấu gạch dưới."
                 );
 
                 // Check for duplicate username
@@ -137,7 +136,7 @@ public class CustomerProfile extends HttpServlet {
                 boolean hasError = false;
                 hasError |= Validation.validateField(
                         request, "passwordError", newPassWord, "PASSWORD", "Password",
-                        "Password must be at least 8 characters, include 1 letter, 1 digit, and 1 special character."
+                        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt."
                 );
                 if (newPassWordSh.equals(ca.getPassword())) {
                     hasError = true;
@@ -173,14 +172,14 @@ public class CustomerProfile extends HttpServlet {
                 boolean hasError = false;
                 hasError |= Validation.validateField(request, "fullNameError",
                         fullName, "FULLNAME", "Full Name",
-                        "Full name must be 2–100 characters, letters and spaces only.");
+                        "Tên đầy đủ phải dài từ 2–100 ký tự, chỉ bao gồm chữ cái và khoảng trắng.");
 
                 String currentPhone = ca.getCustomer() != null ? ca.getCustomer().getPhoneNumber() : null;
 
                 if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
                     hasError |= Validation.validateField(request, "phoneError",
                             phoneNumber, "PHONE_NUMBER", "Phone Number",
-                            "Phone number must start with 0 and have 10–11 digits.");
+                            "Số điện thoại phải bắt đầu bằng số 0 và có 10–11 chữ số.");
                     List<String> list = dal.CustomerDAO.getInstance().getAllPhone();
                     for (String phone : list) {
                         if (phone != null && !phone.equals(currentPhone) && phone.equals(phoneNumber)) {
@@ -251,11 +250,9 @@ public class CustomerProfile extends HttpServlet {
             int customerId = ca.getCustomer().getCustomerId();
             try {
                 int bookingId = Integer.parseInt(request.getParameter("id"));
-                System.out.println("Fetching booking for ID: " + bookingId + ", Customer ID: " + customerId);
 
                 Booking booking = bookingDAO.getBookingByBookingId(bookingId);
                 if (booking == null || booking.getCustomer() == null || booking.getCustomer().getCustomerId() != customerId) {
-                    System.out.println("Booking not found or does not belong to customer: " + (booking == null ? "null" : booking.getCustomer().getCustomerId()));
                     request.setAttribute("error", "Không tìm thấy đơn đặt phòng hoặc bạn không có quyền xem.");
                     request.getRequestDispatcher("/View/Customer/MyBookingDetail.jsp").forward(request, response);
                     return;
@@ -267,28 +264,18 @@ public class CustomerProfile extends HttpServlet {
                     try {
                         int roomNumber = Integer.parseInt(searchRoom.trim());
                         detailList = bookingDetailDAO.getBookingDetailByBookingIdAndRoomNumber(booking, roomNumber);
-                        System.out.println("Fetched " + detailList.size() + " booking details for room number: " + roomNumber);
-                        for (BookingDetail detail : detailList) {
-                            System.out.println("Booking Detail: ID=" + detail.getBookingDetailId() + ", Services=" + (detail.getServices() != null ? detail.getServices().size() : 0));
-                        }
                     } catch (NumberFormatException e) {
-                        System.out.println("Invalid room number: " + searchRoom);
                         detailList = new ArrayList<>();
                         request.setAttribute("error", "Số phòng không hợp lệ.");
                     }
                 } else {
                     detailList = bookingDetailDAO.getBookingDetailByBookingId(booking);
-                    System.out.println("Fetched " + detailList.size() + " booking details for booking ID: " + bookingId);
-                    for (BookingDetail detail : detailList) {
-                        System.out.println("Booking Detail: ID=" + detail.getBookingDetailId() + ", Services=" + (detail.getServices() != null ? detail.getServices().size() : 0));
-                    }
                 }
 
                 request.setAttribute("booking", booking);
                 request.setAttribute("details", detailList);
                 request.getRequestDispatcher("/View/Customer/MyBookingDetail.jsp").forward(request, response);
             } catch (NumberFormatException e) {
-                System.out.println("Invalid booking ID: " + request.getParameter("id"));
                 request.setAttribute("error", "Mã đơn đặt phòng không hợp lệ.");
                 request.getRequestDispatcher("/View/Customer/MyBookingDetail.jsp").forward(request, response);
             }

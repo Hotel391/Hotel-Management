@@ -166,7 +166,6 @@ public class RoomInformation extends HttpServlet {
                 newDs.setService(s);
                 newDs.setQuantity(quantity);
                 serviceMap.put(s.getServiceId(), newDs);
-                System.out.println("Included Service: " + s.getServiceName() + ", Quantity: " + quantity + ", Room: " + roomNumber);
             }
 
             String[] selectedIds = request.getParameterValues("serviceId_" + roomNumber);
@@ -187,7 +186,6 @@ public class RoomInformation extends HttpServlet {
                                         return;
                                     }
                                 } catch (NumberFormatException ignored) {
-                                    System.out.println("Invalid quantity for serviceId: " + serviceId + ", Room: " + roomNumber + ", Defaulting to 1");
                                 }
                             }
 
@@ -203,26 +201,17 @@ public class RoomInformation extends HttpServlet {
 
                             double cost = service.getPrice() * quantity;
                             totalServiceCost += cost;
-                            System.out.println("Optional Service: " + service.getServiceName() + ", Price: " + service.getPrice() + ", Quantity: " + quantity + ", Cost: " + cost + ", Room: " + roomNumber);
-                        } else {
-                            System.out.println("Service not found for serviceId: " + serviceId + ", Room: " + roomNumber);
                         }
                     } catch (NumberFormatException ignored) {
-                        System.out.println("Invalid serviceId: " + serviceIdStr + ", Room: " + roomNumber);
                     }
                 }
-            } else {
-                System.out.println("No optional services selected for room: " + roomNumber);
             }
-
             roomServices.addAll(serviceMap.values());
             roomServicesMap.put(roomNumber, roomServices);
         }
 
         session.setAttribute("roomServicesMap", roomServicesMap);
         session.setAttribute("totalPrice", totalRoomPrice + totalServiceCost);
-        System.out.println("Total Service Cost: " + totalServiceCost);
-        System.out.println("Total Price: " + (totalRoomPrice + totalServiceCost));
 
         response.sendRedirect(request.getContextPath() + "/receptionist/checkout");
     }

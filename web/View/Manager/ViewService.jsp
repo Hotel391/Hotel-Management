@@ -185,7 +185,7 @@
                                         <!-- Price -->
                                         <div class="mb-3">
                                             <label for="price" class="form-label">Giá (VND)</label>
-                                            <input type="number" class="form-control" id="price" name="price" required min="0" max="1000000"
+                                            <input type="number" class="form-control" id="price" name="price" required min="0" max="5000"
                                                    value="${param.price}" />
                                         </div>
                                         <c:if test="${not empty requestScope.serviceNameUpdateError}">
@@ -227,7 +227,7 @@
                                         <div class="mb-3">
                                             <label for="roomTypeSelect" class="form-label">Giá (VNĐ)</label>
                                             <input type="number" id="newServicePriceAdd" name="priceServiceAdd" class="form-control"  value="${param.priceServiceAdd}" 
-                                                   min="0" max="1000000" required="">
+                                                   min="0" max="5000" required="">
                                         </div>
                                         <c:if test="${not empty requestScope.nameAddError}">
                                             <div style="color: red;">${requestScope.nameAddError}</div>

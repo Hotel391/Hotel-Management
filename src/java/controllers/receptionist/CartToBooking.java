@@ -201,9 +201,6 @@ public class CartToBooking extends HttpServlet {
             throws ServletException, IOException {
         List<Cart> allCarts = dal.CartDAO.getInstance().getAllCompletedCheckInCarts();
         List<Cart> listCartCompleteBank = new ArrayList<>();
-        for (Cart cart : listCartCompleteBank) {
-            System.out.println(cart.getMainCustomer().getCCCD());
-        }
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -294,12 +291,6 @@ public class CartToBooking extends HttpServlet {
         int customerId = Integer.parseInt(customerIdstr);
         String cccd = request.getParameter("cccd");
         String searchEmail = request.getParameter("searchEmail");
-
-        System.out.println(cartStatus);
-        System.out.println(customerIdstr);
-        System.out.println(email);
-        System.out.println(fullname);
-        System.out.println(cccd);
 
         if (!cccd.matches("\\d{12}")) {
             request.setAttribute("fullname", fullname);

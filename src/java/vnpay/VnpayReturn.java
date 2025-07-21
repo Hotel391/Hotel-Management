@@ -331,31 +331,6 @@ public class VnpayReturn extends HttpServlet {
                         //tên phương thức thanh toán
                         String paymentMethod = dal.BookingDAO.getInstance().getPaymentNameByBookingId(bookingId);
 
-                        System.out.println("========== CHECK-IN SUMMARY ==========");
-
-                        System.out.println("Customer Name: " + customerName);
-                        System.out.println("Email: " + email);
-                        System.out.println("Phone: " + phone);
-                        System.out.println("Start Date: " + startDateStr);
-                        System.out.println("End Date: " + endDateStr);
-                        System.out.println("Total Paid: " + total);
-                        System.out.println("Payment Method: " + paymentMethod);
-
-                        System.out.println("---- ROOM TYPES ----");
-                        for (int i = 0; i < typeRoom.size(); i++) {
-                            System.out.println("Type: " + typeRoom.get(i)
-                                    + ", Quantity: " + quantityTypeRoom.get(i)
-                                    + ", Price: " + priceTypeRoom.get(i));
-                        }
-
-                        System.out.println("---- SERVICES ----");
-                        for (int i = 0; i < services.size(); i++) {
-                            System.out.println("Service: " + services.get(i)
-                                    + ", Quantity: " + serviceQuantity.get(i)
-                                    + ", Price: " + servicePrice.get(i));
-                        }
-
-                        System.out.println("========== END OF SUMMARY ==========");
                         Map<String, Object> data = new HashMap<>();
                         data.put("customerName", customerName);
                         data.put("email", email);
@@ -521,9 +496,6 @@ public class VnpayReturn extends HttpServlet {
 
             request.getRequestDispatcher("/paymentResult.jsp").forward(request, response);
         } else {
-            //RETURN PAGE ERROR
-            System.out.println("GD KO HOP LE (invalid signature)");
-
             // Thử lấy bookingId từ vnp_TxnRef
             String vnp_TxnRef = request.getParameter("vnp_TxnRef");
             if (vnp_TxnRef != null && vnp_TxnRef.contains("_")) {

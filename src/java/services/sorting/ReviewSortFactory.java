@@ -20,7 +20,7 @@ public class ReviewSortFactory {
                 return new RatingLowToHighSort();
             case "helpful":
             default:
-                return new MostHelpfulSort();
+                return new MostRecentSort();
         }
     }
 }

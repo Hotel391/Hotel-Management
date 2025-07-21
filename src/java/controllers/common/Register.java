@@ -30,7 +30,6 @@ public class Register extends HttpServlet {
     private static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
     private static final String ERROR_CONFIRM_FIELD = "errorConfirmPassword";
     private static final String VIEW_REGISTER = "View/Register.jsp";
-    private static final String REGISTER_SUBJECT = "register";
     private static final String VERIFY_EMAIL_URL = "verifyEmail?email=";
 
     @Override
@@ -103,7 +102,7 @@ public class Register extends HttpServlet {
 
     private boolean validateFullname(HttpServletRequest request, String input) {
         return Validation.validateField(request,
-                "errorFullname",
+                "errorFullName",
                 FULLNAME_FIELD,
                 input,
                 Function.identity(),
@@ -118,7 +117,7 @@ public class Register extends HttpServlet {
                 Function.identity(),
                 "EMAIL",
                 List.of(new ValidationRule<>(value -> !service.isEmailExists(value),
-                                "Email already exists")));
+                                "Email đã tồn tại")));
     }
 
     private boolean validateUsername(HttpServletRequest request, IRegisterService service, String input) {
@@ -129,7 +128,7 @@ public class Register extends HttpServlet {
                 Function.identity(),
                 "USERNAME",
                 List.of(new ValidationRule<>(value -> !service.isUsernameExists(value),
-                                "Username already exists")));
+                                "Username đã tồn tại")));
     }
 
     private boolean validatePassword(HttpServletRequest request, String input) {
@@ -144,10 +143,10 @@ public class Register extends HttpServlet {
     private boolean isErrorConfirmPassword(HttpServletRequest request, String confirmPassword, String password) {
         boolean errorConfirmPassword = false;
         if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm password is required");
+            request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm password không được để trống.");
             errorConfirmPassword = true;
         } else if (!confirmPassword.equals(password)) {
-            request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm Password do not match Password");
+            request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm Password không khớp với Password");
             errorConfirmPassword = true;
         }
         if (!errorConfirmPassword) {

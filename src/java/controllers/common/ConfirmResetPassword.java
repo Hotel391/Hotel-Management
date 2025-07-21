@@ -93,16 +93,16 @@ public class ConfirmResetPassword extends HttpServlet {
                 Function.identity(),
                 "PASSWORD",
                 List.of(new ValidationRule<>(value-> !Encryption.toSHA256(value).equals(oldPassword),
-                                "New password cannot be the same as old password")));
+                                "New password không thể giống old password")));
     }
 
     private boolean isErrorConfirmPassword(HttpServletRequest request, String confirmPassword, String password) {
         boolean errorConfirmPassword = false;
         if (confirmPassword == null || confirmPassword.trim().isEmpty()) {
-            request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm password is required");
+            request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm password không được để trống.");
             errorConfirmPassword = true;
         } else if (!confirmPassword.equals(password)) {
-            request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm Password do not match Password");
+            request.setAttribute(ERROR_CONFIRM_FIELD, "Confirm Password không khớp với Password");
             errorConfirmPassword = true;
         }
         if (!errorConfirmPassword) {

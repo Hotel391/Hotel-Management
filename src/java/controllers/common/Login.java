@@ -112,6 +112,34 @@ public class Login extends HttpServlet {
 
             AccountGoogle userInfo = AccountGoogleDAO.getInstance().getUserInfo(accessToken);
 
+            if (EmployeeDAO.getInstance().checkEmail(userInfo.getEmail())) {
+                Employee employee = EmployeeDAO.getInstance().getEmployeeLoginGoogle(userInfo.getEmail());
+
+                if (employee != null) {
+                    session.setAttribute("employeeInfo", employee);
+                    int roleId = employee.getRole().getRoleId();
+                    switch (roleId) {
+                        case 0:
+                            response.sendRedirect("admin/page");
+                            break;
+                        case 1:
+                            response.sendRedirect("manager/dashboard");
+                            break;
+                        case 2:
+                            response.sendRedirect("receptionist/page");
+                            break;
+                        case 3:
+                            response.sendRedirect("cleaner/page");
+                            break;
+                        default:
+                            request.getRequestDispatcher("View/Login.jsp").forward(request, response);
+                            break;
+                    }
+                    return;
+                }
+
+            }
+
             if (!CustomerDAO.getInstance().checkExistedEmail(userInfo.getEmail())) {
                 Customer customerInfo = new Customer();
 
@@ -145,7 +173,7 @@ public class Login extends HttpServlet {
                 session.setAttribute("customerInfo", accInfo);
             } else {
                 CustomerAccount accInfo = CustomerAccountDAO.getInstance().checkAccountByEmail(userInfo.getEmail());
-                
+
                 if (accInfo == null) {
 
                     CustomerAccount accountForExistedCustomer = new CustomerAccount();
@@ -167,7 +195,7 @@ public class Login extends HttpServlet {
                 } else if (!accInfo.getCustomer().getActivate()) {
                     response.sendRedirect("home");
                     return;
-                }else{
+                } else {
                     session.setAttribute("customerInfo", accInfo);
                 }
             }

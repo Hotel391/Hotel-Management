@@ -32,7 +32,7 @@
                     <form class="mb-3" method="get">
                         <div class="input-group" style="max-width: 400px;">
                             <input type="hidden" name="oldSearch" value="${oldSearch}">
-                            <input type="text" class="form-control" name="search" placeholder="Nhập số phòng..."
+                            <input type="number" class="form-control" name="search" placeholder="Nhập số phòng..."
                                    value="${param.search}">
                             <button class="btn btn-outline-primary" type="submit">Search</button>
                             <a class="btn btn-outline-secondary" href="stayingRoom">Clear</a>

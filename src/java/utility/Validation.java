@@ -1,6 +1,5 @@
 package utility;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,15 +44,15 @@ public class Validation {
                 new ValidationRule<String>(value -> Validation.checkFormatException(value, "FULLNAME"),
                         "Họ tên chỉ bao gồm chữ cái"),
                 new ValidationRule<String>(value -> !value.contains("  "),
-                        "Họ tên không thể chứa khoảng cách")));
+                        "Họ tên không thể chứa khoảng cách liên tiếp")));
         ruleCheck.put("EMAIL", List.of(
                 new ValidationRule<String>(value -> Validation.checkFormatException(value, "EMAIL"),
-                        "Email phải theo định dạng: user@gmail.com")));
+                        "Email phải theo định dạng: user@example.com")));
         ruleCheck.put("USERNAME", List.of(
                 new ValidationRule<String>(value -> value.length() >= 6 && value.length() <= 20,
                         "Username phải gồm 6-20 kí tự"),
                 new ValidationRule<String>(value -> Validation.checkFormatException(value, "USERNAME_FIRST_CHAR"),
-                        "Username bắt đầu bằng 1 kí tự"),
+                        "Username bắt đầu bằng 1 chữ cái"),
                 new ValidationRule<String>(
                         value -> Validation.checkFormatException(value, "USERNAME"),
                         "Username chỉ có thể chứa chữ cái, số, dấu gạch dưới"),
@@ -65,7 +64,7 @@ public class Validation {
                 new ValidationRule<String>(value -> value.charAt(0) != ' ' && value.charAt(value.length() - 1) != ' ',
                         "Password không thể bắt đầu hoặc kết thúc bằng khoảng trắng"),
                 new ValidationRule<String>(value -> Validation.checkFormatException(value, "PASSWORD"),
-                        "Password phải chứa 8 ký tự với chữ thường, chữ hoa, chữ đặc biệt và chữ số")));
+                        "Password phải chứa ít nhất 8 ký tự với chữ thường, hoa, đặc biệt và số")));
         ruleCheck.put("PHONE_NUMBER", List.of(
                 new ValidationRule<String>(value -> Validation.checkFormatException(value, "PHONE_NUMBER"),
                         "Số điện thoại phải bắt đầu bằng số 0 và có 10-11 chữ số"),

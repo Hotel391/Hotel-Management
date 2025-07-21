@@ -194,10 +194,6 @@ public class DetailRoom extends HttpServlet {
         Date checkout = getCheckoutDate(request, checkin);
         boolean isPayment = false;
         TypeRoom room = dal.TypeRoomDAO.getInstance().getTypeRoomByTypeId(checkin, checkout, typeId, adults, children, "", 0, 1);
-        if (room.getNumberOfAvailableRooms() == 0) {
-            request.getSession().setAttribute("error", "Room is not available in this time range.");
-            return false;
-        }
 
         if (checkin.after(maxCheckinDate)) {
             request.getSession().setAttribute("error", "Check-in date must be before " + maxCheckinDate.toString());
@@ -222,6 +218,11 @@ public class DetailRoom extends HttpServlet {
         System.out.println("Children: " + children + ", Room Children Capacity: " + room.getChildren());
         if (children > room.getChildren()) {
             request.getSession().setAttribute("error", "Too many children for selected room.");
+            return false;
+        }
+        
+        if (room.getNumberOfAvailableRooms() == 0) {
+            request.getSession().setAttribute("error", "Room is not available in this time range.");
             return false;
         }
 

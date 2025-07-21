@@ -73,7 +73,7 @@ public class ForgotPassword extends HttpServlet {
                 Function.identity(),
                 "EMAIL",
                 List.of(new ValidationRule<>(value -> service.isEmailExists(value),
-                                "Email didn't existed")));
+                                "Email không tồn tại")));
     }
 
     @Override

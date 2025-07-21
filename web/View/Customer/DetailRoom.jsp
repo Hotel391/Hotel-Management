@@ -201,10 +201,10 @@
                     <input type="hidden" name="checkout" value="${param.checkout}">
                     <label for="sortBy">Sắp xếp theo:</label>
                     <select name="sortBy" class="form-control mb-3" onchange="this.form.submit()">
-                        <option value="recent" ${param.sortBy == 'recent' ? 'selected' : ''}>Gần đây nhất</option>
-                        <option value="rating_high" ${param.sortBy == 'rating_high' ? 'selected' : ''}>Đánh giá, cao đến thấp</option>
-                        <option value="rating_low" ${param.sortBy == 'rating_low' ? 'selected' : ''}>Đánh giá, thấp đến cao</option>
-                        <option value="helpful" ${param.sortBy ne 'recent' && param.sortBy ne 'rating_high' && param.sortBy ne 'rating_low' ? 'selected' : ''}>Hữu ích nhất</option>
+                        <option value="recent" ${param.sortBy == null || param.sortBy eq 'recent'? 'selected' : ''}>Gần đây nhất</option>
+                        <option value="rating_high" ${param.sortBy eq 'rating_high' ? 'selected' : ''}>Đánh giá, cao đến thấp</option>
+                        <option value="rating_low" ${param.sortBy eq 'rating_low' ? 'selected' : ''}>Đánh giá, thấp đến cao</option>
+                        <option value="helpful" ${param.sortBy eq 'helpful'}>Hữu ích nhất</option>
                     </select>
                 </form>
             </div>

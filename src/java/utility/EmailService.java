@@ -23,7 +23,7 @@ import javax.mail.internet.MimeMessage;
 
 public class EmailService {
 
-    private static final int LIMIT_MINUS = 5;
+    private static final int LIMIT_MINUS = 1;
     private String from = "fpthotel@gmail.com";
     private String password = "jcfu lbfu zxvz mpkc";
     private final Session session;

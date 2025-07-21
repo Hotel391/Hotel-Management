@@ -122,15 +122,22 @@
                                             </td>
                                             <td>${c.roomNumber}</td>
                                             <td>
-                                                <ul class="list-unstyled mb-0">
+                                                <button class="btn btn-sm btn-outline-success ms-1"
+                                                        onclick="showServiceInfo('${c.cartId}')">
+                                                    <i class="bi bi-basket"></i> Xem DV
+                                                </button>
+
+                                                <script type="text/plain" id="service-data-${c.cartId}">
+                                                    <ul class='list-unstyled mb-0'>
                                                     <c:forEach var="s" items="${c.cartServices}">
-                                                        <li class="mb-1">
-                                                            <span class="fw-bold text-primary">${s.service.serviceName}</span>
-                                                            <span class="badge bg-success ms-2">${s.priceAtTime}đ</span>
-                                                            <span class="badge bg-info text-dark ms-1">x${s.quantity}</span>
+                                                        <li class='mb-1'>
+                                                        <span class='fw-bold text-primary'>${s.service.serviceName}</span>
+                                                        <span class='badge bg-success ms-2'>${s.priceAtTime}đ</span>
+                                                        <span class='badge bg-info text-dark ms-1'>x${s.quantity}</span>
                                                         </li>
                                                     </c:forEach>
-                                                </ul>
+                                                    </ul>
+                                                </script>
                                             </td>
                                             <c:if test="${requestScope.cartStatus != 'view'}">
                                                 <td>
@@ -146,7 +153,7 @@
                                                         <input type="hidden" name="roomNumber" value="${c.roomNumber}" />
                                                         <input type="hidden" name="choose" value="cartToBooking" />
                                                         <input type="hidden" name="page" value="${requestScope.currentPage}">
-                                                        
+
                                                         <input type="hidden" name="searchEmail" value="${param.searchEmail}"/>
 
                                                         <c:forEach var="s" items="${c.cartServices}">
@@ -194,6 +201,21 @@
                                         </c:forEach>
                                     </ul>
                                 </nav>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal thông tin dịch vụ -->
+                    <div class="modal fade" id="serviceInfoModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Dịch vụ đã đặt</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body" id="serviceModalBody">
+                                    <!-- Dữ liệu dịch vụ sẽ được inject ở đây -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -282,6 +304,13 @@
             </div>
         </div>
         <script>
+//            hiện thông tin dịch vụ
+            function showServiceInfo(bookingId) {
+                const rawHtml = document.getElementById("service-data-" + bookingId).textContent;
+                document.getElementById("serviceModalBody").innerHTML = rawHtml;
+                new bootstrap.Modal(document.getElementById("serviceInfoModal")).show();
+            }
+
 //            hiện thông tin khách hàng
             function showCustomerInfo(name, email, phone, gender, cccd) {
                 document.getElementById("cusName").innerText = name;

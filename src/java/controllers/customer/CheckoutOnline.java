@@ -172,20 +172,13 @@ public class CheckoutOnline extends HttpServlet {
                 check = true;
                 request.setAttribute("genderEmpty", "Vui lòng chọn giới tính");
             }
-
-            if (fullName == null || fullName.isEmpty()) {
+            
+            if (Validation.validateField(request, "fullNameEmpty", fullName, "FULLNAME", "Họ tên", "Vui lòng chỉ nhập chữ cái từ 2-100 ký tự")) {
                 check = true;
-                request.setAttribute("fullNameEmpty", "Vui lòng điền họ tên");
             }
-
-            if (email == null || email.isEmpty()) {
+            
+            if (Validation.validateField(request, "emailEmpty", email, "EMAIL", "Email", "Email không hợp lệ")) {
                 check = true;
-                request.setAttribute("emailEmpty", "Vui lòng điền email");
-            }
-
-            if (phone == null || phone.isEmpty()) {
-                check = true;
-                request.setAttribute("phoneEmpty", "Vui lòng điền số điện thoại");
             }
 
             if (Validation.validateField(request, "phoneError", phone, "PHONE_NUMBER", "SĐT", "SDT không hợp lệ")) {

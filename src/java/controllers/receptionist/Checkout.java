@@ -144,7 +144,7 @@ public class Checkout extends HttpServlet {
                 request.setAttribute("genderError", "Vui lòng chọn giới tính");
             }
 
-            if (Validation.validateField(request, "nameError", fullName, "FULLNAME", "Họ tên", "Họ tên không hợp lệ")) {
+            if (Validation.validateField(request, "nameError", fullName, "FULLNAME", "Họ tên", "Vui lòng chỉ nhập chữ cái từ 2-100 ký tự")) {
                 check = true;
             }
 

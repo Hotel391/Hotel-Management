@@ -573,4 +573,50 @@ public class EmployeeDAO {
         }
         return null;
     }
+    
+    public boolean checkEmail(String email) {
+        String sql = "SELECT 1 FROM Employee WHERE Email = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, email);
+            return st.executeQuery().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    public Employee getEmployeeLoginGoogle(String email) {
+        String sql = """
+                     select e.*, r.RoleName from Employee e
+                     join Role r on r.RoleId=e.RoleId where email COLLATE SQL_Latin1_General_CP1_CI_AS = ? and e.activate = 1""";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, email);
+
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                Employee e = new Employee();
+                e.setEmployeeId(rs.getInt("EmployeeId"));
+                e.setUsername(rs.getString("Username"));
+                e.setPassword(Encryption.toSHA256(rs.getString("Password")));
+                e.setFullName(rs.getString("FullName"));
+                e.setAddress(rs.getString("Address"));
+                e.setPhoneNumber(rs.getString("PhoneNumber"));
+                e.setEmail(rs.getString("Email"));
+                e.setGender(rs.getBoolean("Gender"));
+                e.setCCCD(rs.getString("CCCD"));
+                e.setDateOfBirth(rs.getDate("dateOfBirth"));
+                e.setRegistrationDate(rs.getDate("registrationDate"));
+                e.setActivate(rs.getBoolean("activate"));
+
+                Role r = new Role(rs.getInt(8));
+                r.setRoleId(rs.getInt("RoleId"));
+                r.setRoleName(rs.getString("RoleName"));
+                e.setRole(r);
+                return e;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

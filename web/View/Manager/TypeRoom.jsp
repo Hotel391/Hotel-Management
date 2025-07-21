@@ -97,13 +97,16 @@
                                                         <c:out value="${param.typeDesc}"/>
                                                     </textarea>
                                                     <c:if test="${not empty descError}">
-                                                            <p class="alert alert-danger">${descError}</p>
-                                                        </c:if>
+                                                        <p class="alert alert-danger">${descError}</p>
+                                                    </c:if>
                                                 </div>
                                                 <div class="row g-3">
                                                     <label for="formFile" class="form-label">Upload Images</label>
                                                     <input class="form-control" type="file" id="formFile" multiple name="image" accept="image/*" required>
                                                 </div>
+                                                <c:if test="${not empty imageError}">
+                                                    <p class="alert alert-warning">${imageError}</p>
+                                                </c:if>
                                                 <c:if test="${not empty addSuccess}">
                                                     <p class="alert alert-success">${addSuccess}</p>
                                                 </c:if>
@@ -343,12 +346,7 @@
                                                                 <h1 class="modal-title fs-5" id="exampleModalLabel">Images of ${trl.typeName}</h1>
                                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                             </div>
-                                                            <c:if test="${not empty deleteImg}">
-                                                                <p class="alert alert-success">${deleteImg}</p>
-                                                            </c:if>
-                                                            <c:if test="${not empty addImg}">
-                                                                <p class="alert alert-success">${addImg}</p>
-                                                            </c:if>
+
 
                                                             <div class="modal-body">
 
@@ -374,6 +372,15 @@
                                                                     <label style="text-align: center;" for="formFile" class="form-label">Upload Images</label>
                                                                     <input class="form-control" type="file" id="formFile" multiple name="image" accept="image/*" required>
                                                                 </div>
+                                                                <c:if test="${not empty imageError}">
+                                                                    <p class="alert alert-warning">${imageError}</p>
+                                                                </c:if>
+                                                                <c:if test="${not empty deleteImg}">
+                                                                    <p class="alert alert-success">${deleteImg}</p>
+                                                                </c:if>
+                                                                <c:if test="${not empty addImg}">
+                                                                    <p class="alert alert-success">${addImg}</p>
+                                                                </c:if>
 
                                                                 <div class="modal-footer">
                                                                     <input type="hidden"  name="service" value="addImg">
@@ -557,21 +564,21 @@
         <c:if test="${not empty showModalDesc}">
             <script>
 
-            window.addEventListener('load', function () {
-            var modal = new bootstrap.Modal(document.getElementById('viewTypeRoomModal_${showModalDesc}'));
-            modal.show();
+                                                                        window.addEventListener('load', function () {
+                                                                            var modal = new bootstrap.Modal(document.getElementById('viewTypeRoomModal_${showModalDesc}'));
+                                                                            modal.show();
                 <c:if test="${not empty updateMessageDesc}">
-                    console.log(1);
-                        setTimeout(function () {
+                                                                            console.log(1);
+                                                                            setTimeout(function () {
 
-                        clearMessage(${showModalDesc});
+                                                                                clearMessage(${showModalDesc});
 
 
-                        modal.hide();
-                        }, 2000);
+                                                                                modal.hide();
+                                                                            }, 2000);
                 </c:if>
 
-             });
+                                                                        });
 
 
             </script>

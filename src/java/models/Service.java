@@ -2,6 +2,7 @@ package models;
 
 public class Service {
 
+    public static final int MAX_SERVICE_QUANTITY = 1000;
     private int serviceId;
     private String serviceName;
     private boolean isActive;

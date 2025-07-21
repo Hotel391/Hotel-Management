@@ -23,53 +23,60 @@ import utility.ValidationRule;
  *
  * @author HieuTT
  */
-@WebServlet(name="DetailRoom", urlPatterns={"/detailRoom"})
+@WebServlet(name = "DetailRoom", urlPatterns = {"/detailRoom"})
 public class DetailRoom extends HttpServlet {
+
     private static final int NUMBER_OF_REVIEWS_PER_PAGE = 4;
-   
+    private static final int maxTimeSpan = models.Cart.MAX_TIME_SPAN;
+    private Date maxCheckoutDate = models.Cart.MAX_CHECKOUT_DATE;
+    private Date maxCheckinDate = models.Cart.MAX_CHECKIN_DATE;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
+        request.setAttribute("maxTimeSpan", maxTimeSpan);
+        request.setAttribute("maxCheckinDate", this.maxCheckinDate);
+        request.setAttribute("maxCheckoutDate", this.maxCheckoutDate);
         int typeId = request.getParameter("typeRoomId") != null ? Integer.parseInt(request.getParameter("typeRoomId")) : 0;
-        Date checkin=getCheckinDate(request);
-        Date checkout=getCheckoutDate(request, checkin);
-        if(typeId==0 || checkin == null || checkout == null) {
+        Date checkin = getCheckinDate(request);
+        Date checkout = getCheckoutDate(request, checkin);
+        if (typeId == 0 || checkin == null || checkout == null) {
             response.sendRedirect("searchRoom");
             return;
         }
 
-        String sortOption= request.getParameter("sortBy") != null ? request.getParameter("sortBy") : "";
-        ReviewSortStrategy strategy=ReviewSortFactory.getStrategy(sortOption);
+        String sortOption = request.getParameter("sortBy") != null ? request.getParameter("sortBy") : "";
+        ReviewSortStrategy strategy = ReviewSortFactory.getStrategy(sortOption);
         String orderByClause = strategy.getOrderByClause();
         processPostFeedBack(request, typeId);
         int currentPage = request.getParameter("page") != null ? Integer.parseInt(request.getParameter("page")) : 1;
         int offset = (currentPage - 1) * NUMBER_OF_REVIEWS_PER_PAGE;
         int adults = getAdults(request);
         int children = getChildren(request);
-        
+
         TypeRoom selectedTypeRoom = dal.TypeRoomDAO.getInstance().getTypeRoomByTypeId(checkin, checkout, typeId, adults, children, orderByClause, offset, NUMBER_OF_REVIEWS_PER_PAGE);
-        if(selectedTypeRoom == null) {
+        if (selectedTypeRoom == null) {
             response.sendRedirect("searchRoom");
             return;
         }
-        
-        int numberOfReviews= selectedTypeRoom.getNumberOfReviews();
+
+        int numberOfReviews = selectedTypeRoom.getNumberOfReviews();
         int totalPages = (int) Math.ceil((double) numberOfReviews / NUMBER_OF_REVIEWS_PER_PAGE);
         request.setAttribute("currentPage", currentPage);
         request.setAttribute("totalPages", totalPages);
         request.setAttribute("selectedTypeRoom", selectedTypeRoom);
         request.getRequestDispatcher("View/Customer/DetailRoom.jsp").forward(request, response);
-    } 
+    }
 
     private void processPostFeedBack(HttpServletRequest request, int typeId) throws ServletException, IOException {
         HttpSession session = request.getSession();
         if (session.getAttribute("customerInfo") == null) {
             return;
         }
-        CustomerAccount customerAccount= (CustomerAccount) session.getAttribute("customerInfo");
-        Customer customer= customerAccount.getCustomer();
+        CustomerAccount customerAccount = (CustomerAccount) session.getAttribute("customerInfo");
+        Customer customer = customerAccount.getCustomer();
         boolean canPostFeedback = dal.BookingDetailDAO.getInstance().canPostFeedback(typeId, customer.getCustomerId());
-        if(canPostFeedback){
+        if (canPostFeedback) {
             request.setAttribute("canPostFeedback", true);
             return;
         }
@@ -79,9 +86,9 @@ public class DetailRoom extends HttpServlet {
     private Date getCheckinDate(HttpServletRequest request) throws ServletException, IOException {
         String dateStr = request.getParameter("checkin");
         Date defaultDate = Date.valueOf(LocalDate.now());
-        Date checkin= readInputField(dateStr, Date::valueOf, 
+        Date checkin = readInputField(dateStr, Date::valueOf,
                 List.of(
-                    new ValidationRule<>(value -> !value.before(defaultDate), "Check-in date must be today or after today.")
+                        new ValidationRule<>(value -> !value.before(defaultDate), "Check-in date must be today or after today.")
                 ), defaultDate);
         request.setAttribute("checkin", checkin);
         return checkin;
@@ -90,9 +97,9 @@ public class DetailRoom extends HttpServlet {
     private Date getCheckoutDate(HttpServletRequest request, Date checkinDate) throws ServletException, IOException {
         String dateStr = request.getParameter("checkout");
         Date defaultDate = Date.valueOf(checkinDate.toLocalDate().plusDays(1));
-        Date checkout= readInputField(dateStr, Date::valueOf, 
+        Date checkout = readInputField(dateStr, Date::valueOf,
                 List.of(
-                    new ValidationRule<>(value -> value.after(checkinDate), "Check-out date must be after check-in date.")
+                        new ValidationRule<>(value -> value.after(checkinDate), "Check-out date must be after check-in date.")
                 ), defaultDate);
         request.setAttribute("checkout", checkout);
         return checkout;
@@ -101,31 +108,33 @@ public class DetailRoom extends HttpServlet {
     private int getAdults(HttpServletRequest request) throws ServletException, IOException {
         String adultsStr = request.getParameter("adults");
         int defaultAdults = 1;
-        int adults = readInputField(adultsStr, Integer::parseInt, 
+        int adults = readInputField(adultsStr, Integer::parseInt,
                 List.of(
-                    new ValidationRule<>(value -> value > 0, "Number of adults must be greater than 0.")
+                        new ValidationRule<>(value -> value > 0, "Number of adults must be greater than 0.")
                 ), defaultAdults);
         request.setAttribute("adults", adults);
+        System.out.println("Adults: " + adults);
         return adults;
     }
 
     private int getChildren(HttpServletRequest request) throws ServletException, IOException {
         String childrenStr = request.getParameter("children");
         int defaultChildren = 0;
-        int children = readInputField(childrenStr, Integer::parseInt, 
+        int children = readInputField(childrenStr, Integer::parseInt,
                 List.of(
-                    new ValidationRule<>(value -> value >= 0, "Number of children must be 0 or greater.")
+                        new ValidationRule<>(value -> value >= 0, "Number of children must be 0 or greater.")
                 ), defaultChildren);
         request.setAttribute("children", children);
+        System.out.println("Children: " + children);
         return children;
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         String action = request.getParameter("action");
         int typeId = request.getParameter("typeRoomId") != null ? Integer.parseInt(request.getParameter("typeRoomId")) : 0;
-        if(typeId == 0) {
+        if (typeId == 0) {
             response.sendRedirect("searchRoom");
             return;
         }
@@ -137,14 +146,14 @@ public class DetailRoom extends HttpServlet {
         CustomerAccount customerAccount = (CustomerAccount) session.getAttribute("customerInfo");
         Customer customer = customerAccount.getCustomer();
 
-        if( "addToCart".equals(action)) {
+        if ("addToCart".equals(action)) {
             boolean isAdded = addToCart(request, typeId, customer.getCustomerId());
             if (isAdded) {
                 response.sendRedirect("cart");
                 return;
             }
         }
-            
+
         if ("postFeedback".equals(action)) {
             addReview(request, customer.getCustomerId(), typeId, customerAccount.getUsername());
         }
@@ -152,7 +161,7 @@ public class DetailRoom extends HttpServlet {
     }
 
     private void addReview(HttpServletRequest request, int customerId, int typeId, String username) throws ServletException, IOException {
-        String reviewContent= request.getParameter("reviewContent");
+        String reviewContent = request.getParameter("reviewContent");
         int rating = readRating(request);
         if (reviewContent == null || reviewContent.trim().isEmpty()) {
             return;
@@ -163,9 +172,9 @@ public class DetailRoom extends HttpServlet {
     private int readRating(HttpServletRequest request) throws ServletException, IOException {
         String ratingStr = request.getParameter("rating");
         int defaultRating = 5; // Default rating value
-        return readInputField(ratingStr, Integer::parseInt, 
+        return readInputField(ratingStr, Integer::parseInt,
                 List.of(
-                    new ValidationRule<>(value -> value >= 1 && value <= 5, "Rating must be between 0 and 5.")
+                        new ValidationRule<>(value -> value >= 1 && value <= 5, "Rating must be between 0 and 5.")
                 ), defaultRating);
     }
 
@@ -183,10 +192,42 @@ public class DetailRoom extends HttpServlet {
         int children = getChildren(request);
         Date checkin = getCheckinDate(request);
         Date checkout = getCheckoutDate(request, checkin);
-        boolean isPayment= false;
+        boolean isPayment = false;
+        TypeRoom room = dal.TypeRoomDAO.getInstance().getTypeRoomByTypeId(checkin, checkout, typeId, adults, children, "", 0, 1);
+        if (room.getNumberOfAvailableRooms() == 0) {
+            request.getSession().setAttribute("error", "Room is not available in this time range.");
+            return false;
+        }
+
+        if (checkin.after(maxCheckinDate)) {
+            request.getSession().setAttribute("error", "Check-in date must be before " + maxCheckinDate.toString());
+            return false;
+        }
+
+        if (checkout.after(maxCheckoutDate)) {
+            request.getSession().setAttribute("error", "Check-out date must be before " + maxCheckoutDate.toString());
+            return false;
+        }
+
+        long daysBetween = checkout.toLocalDate().toEpochDay() - checkin.toLocalDate().toEpochDay();
+        if (daysBetween > maxTimeSpan) {
+            request.getSession().setAttribute("error", "Stay must not exceed " + maxTimeSpan + " days.");
+            return false;
+        }
+
+        if (adults > room.getAdults()) {
+            request.getSession().setAttribute("error", "Too many adults for selected room.");
+            return false;
+        }
+        System.out.println("Children: " + children + ", Room Children Capacity: " + room.getChildren());
+        if (children > room.getChildren()) {
+            request.getSession().setAttribute("error", "Too many children for selected room.");
+            return false;
+        }
 
         return dal.CartDAO.getInstance().addToCart(customerId, typeId, checkin, checkout, adults, children, isPayment);
     }
+
     @Override
     public String getServletInfo() {
         return "Short description";

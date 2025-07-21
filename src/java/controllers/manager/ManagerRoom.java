@@ -145,7 +145,7 @@ public class ManagerRoom extends HttpServlet {
                         haveError = true;
                     }
                 } catch (NumberFormatException e) {
-                    request.setAttribute("error", "Số phòng phải là số lớn hơn 0.");
+                    request.setAttribute("error", "Số phòng và Id loại phòng phải là số lớn hơn 0.");
                     haveError = true;
                 }
 

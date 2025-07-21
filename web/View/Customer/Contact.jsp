@@ -65,7 +65,7 @@
                                 <div class="contact_list">
                                     <ul style="list-style: none; padding-left: 0;">
                                         <li>
-                                            <a href="https://www.google.com/maps/place/FPT+University+Hòa+Lạc" 
+                                            <a href="https://www.google.com/maps/place/Tr%C6%B0%E1%BB%9Dng+%C4%90%E1%BA%A1i+h%E1%BB%8Dc+FPT+H%C3%A0+N%E1%BB%99i/@21.0124167,105.5227143,17z/data=!3m1!4b1!4m6!3m5!1s0x3135abc60e7d3f19:0x2be9d7d0b5abcbf4!8m2!3d21.0124167!4d105.5252892!16s%2Fm%2F02rsytm?entry=ttu&g_ep=EgoyMDI1MDcwOS4wIKXMDSoASAFQAw%3D%3D" 
                                                target="_blank" 
                                                style="color: white; text-decoration: underline;">
                                                 FPT University, Khu CNC Hòa Lạc, Hà Nội

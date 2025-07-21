@@ -1,6 +1,7 @@
 package controllers.customer;
 
 import java.io.IOException;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -20,17 +21,19 @@ import static utility.Validation.readInputField;
 @WebServlet(name="SearchRoomCustomer", urlPatterns={"/searchRoom"})
 public class SearchRoomCustomer extends HttpServlet {
     private static final int PAGE_SIZE = 4;
-   
+    private int maxPrice=dal.TypeRoomDAO.getInstance().getMaxPriceOfTypeRoom();
+    private static final int maxTimeSpan = models.Cart.MAX_TIME_SPAN;
+    private Date maxCheckoutDate=models.Cart.MAX_CHECKOUT_DATE;
+    private Date maxCheckinDate=models.Cart.MAX_CHECKIN_DATE;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        String checkin=request.getParameter("checkin");
-        Date checkinDate = getDate(checkin,null,Date.valueOf(LocalDate.now()));
+        Date checkinDate = getCheckinDate(request);
+        Date checkoutDate = getCheckoutDate(request, checkinDate);
+
         request.setAttribute("checkin", checkinDate);
-
-        String checkout=request.getParameter("checkout");
-        Date checkoutDate = getDate(checkout, true, checkinDate);
-
+        request.setAttribute("checkout", checkoutDate);
         int adult= request.getParameter("adults") != null ? Integer.parseInt(request.getParameter("adults")) : 1;
         int children= request.getParameter("children") != null ? Integer.parseInt(request.getParameter("children")) : 0;
         if(adult < 1) {
@@ -41,6 +44,7 @@ public class SearchRoomCustomer extends HttpServlet {
         }
         request.setAttribute("adults", adult);
         request.setAttribute("children", children);
+        setMaxOfMaxPriceAndTimeSpan(request);
         handleDefault(request, checkinDate, checkoutDate, adult, children);
         request.setAttribute("checkout", checkoutDate);
         request.getRequestDispatcher("/View/Customer/SearchRoom.jsp").forward(request, response);
@@ -65,8 +69,8 @@ public class SearchRoomCustomer extends HttpServlet {
         String minPriceStr = request.getParameter("minPrice");
         return readInputField(request, "errorPrice", minPriceStr, s-> Integer.valueOf(s.replaceAll("\\D", "")), 
                     List.of(
-                        new ValidationRule<>(value-> value >= 0, "Minimum price must be a non-negative number."),
-                        new ValidationRule<>(value -> value <= 1000000000, "Minimum price must be less than or equal to 1,000,000,000.")
+                        new ValidationRule<>(value-> value >= 0, "Giá tối thiểu không được âm."),
+                        new ValidationRule<>(value -> value <= maxPrice, "Giá tối thiểu phải lớn hơn hoặc bằng "+ String.format("%,d", maxPrice).replace(',', '.') + ".")
                     ));
     }
 
@@ -75,28 +79,36 @@ public class SearchRoomCustomer extends HttpServlet {
         Integer baseMinPrice = minPrice == null ? 0 : minPrice;
         return readInputField(request, "errorPrice", maxPriceStr, s-> Integer.valueOf(s.replaceAll("\\D", "")), 
                     List.of(
-                        new ValidationRule<>(value-> value > 0, "Maximum price must be a positive number."),
-                        new ValidationRule<>(value -> value > baseMinPrice, "Maximum price must be greater than minimum price."),
-                        new ValidationRule<>(value -> value <= 1000000000, "Maximum price must be less than or equal to 1,000,000,000.")
+                        new ValidationRule<>(value-> value > 0, "Giá tối đa phải là một số dương."),
+                        new ValidationRule<>(value -> value >= baseMinPrice, "Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu."),
+                        new ValidationRule<>(value -> value <= maxPrice, "Giá tối đa phải nhỏ hơn hoặc bằng "+ String.format("%,d", maxPrice).replace(',', '.') + ".")
                     ));
     }
 
-    private Date getDate(String dateStr, Boolean isCheckout, Date minDate) {
-        if (dateStr == null || dateStr.isEmpty()) {
-            if(isCheckout != null && isCheckout) {
-                return java.sql.Date.valueOf(LocalDate.now().plusDays(1));
-            }
-            return java.sql.Date.valueOf(LocalDate.now());
-        } else {
-            Date result= Date.valueOf(dateStr);
-            if(result.before(minDate)) {
-                if(isCheckout != null && isCheckout) {
-                    return java.sql.Date.valueOf(LocalDate.now().plusDays(1));
-                }
-                return java.sql.Date.valueOf(LocalDate.now());
-            }
-            return result;
-        }
+    private Date getCheckinDate(HttpServletRequest request) throws ServletException, IOException {
+        String dateStr = request.getParameter("checkin");
+        Date defaultDate = Date.valueOf(LocalDate.now());
+        Date checkin= readInputField(dateStr, Date::valueOf, 
+                List.of(
+                    new ValidationRule<>(value -> !value.before(defaultDate), "Check-in date must be today or after today."),
+                    new ValidationRule<>(value -> !value.after(maxCheckinDate), "Check-in date must be before " + maxCheckinDate + ".")
+                ), defaultDate);
+        request.setAttribute("checkin", checkin);
+        return checkin;
+    }
+
+    private Date getCheckoutDate(HttpServletRequest request, Date checkinDate) throws ServletException, IOException {
+        String dateStr = request.getParameter("checkout");
+        Date defaultDate = Date.valueOf(checkinDate.toLocalDate().plusDays(1));
+        Date calculatedMaxDate = Date.valueOf(checkinDate.toLocalDate().plusDays(maxTimeSpan));
+        final Date maxCheckoutDateLocal = calculatedMaxDate.after(maxCheckoutDate) ? maxCheckoutDate : calculatedMaxDate;
+        Date checkout= readInputField(dateStr, Date::valueOf, 
+                List.of(
+                    new ValidationRule<>(value -> value.after(checkinDate), "Check-out date must be after check-in date."),
+                    new ValidationRule<>(value -> !value.after(maxCheckoutDateLocal), "Check-out date must be before " + maxCheckoutDateLocal + ".")
+                ), defaultDate);
+        request.setAttribute("checkout", checkout);
+        return checkout;
     }
 
     private String getSortOrder(HttpServletRequest request) {
@@ -116,6 +128,13 @@ public class SearchRoomCustomer extends HttpServlet {
             default -> {
             }
         }
+    }
+
+    private void setMaxOfMaxPriceAndTimeSpan(HttpServletRequest request) {
+        request.setAttribute("maxPriceAvailable", maxPrice);
+        request.setAttribute("maxTimeSpan", maxTimeSpan);
+        request.setAttribute("maxCheckinDate", this.maxCheckinDate);
+        request.setAttribute("maxCheckoutDate", this.maxCheckoutDate);
     }
 
     @Override

@@ -6,7 +6,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import models.Booking;
 import models.BookingDetail;
 import java.sql.Date;
@@ -475,6 +478,100 @@ public class BookingDetailDAO {
                         DetailServiceDAO.getInstance()
                                 .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
                 bookingDetail.setBooking(BookingDAO.getInstance().getBookingByBookingId(rs.getInt("BookingId")));
+                bookingDetails.add(bookingDetail);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return bookingDetails;
+    }
+
+
+    public BookingDetail getBookingDetailStartAndEndDate(int bookingDetailId) {
+        String sql = "SELECT StartDate, EndDate FROM BookingDetail WHERE BookingDetailId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, bookingDetailId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                BookingDetail bookingDetail = new BookingDetail();
+                bookingDetail.setStartDate(rs.getDate("StartDate"));
+                bookingDetail.setEndDate(rs.getDate("EndDate"));
+                return bookingDetail;
+            }
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return null;
+    }
+
+    public Map<Integer, Integer> getServiceCannotDisable(int bookingDetailId) {
+        String sql = """
+                SELECT rns.ServiceId, rns.quantity
+                FROM Room r
+                JOIN RoomNService rns ON rns.TypeId = r.TypeId
+                WHERE r.RoomNumber = (
+                    select RoomNumber from BookingDetail
+                    WHERE BookingDetailId = ?
+                )""";
+        Map<Integer, Integer> serviceMap = new HashMap<>();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bookingDetailId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    serviceMap.put(rs.getInt("ServiceId"), rs.getInt("quantity"));
+                }
+            }
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return serviceMap;
+    }
+    
+    public List<BookingDetail> getBookingDetailByBookingIdAndRoomNumberPagination(Booking booking, int roomNumber, int index) {
+        List<BookingDetail> bookingDetails = new ArrayList<>();
+        String sql = "SELECT * FROM BookingDetail WHERE BookingId = ? and roomNumber = ? order by bookingDetailId offset"
+                + " ? rows fetch next 2 rows only";
+        
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getBookingId());
+            st.setInt(2, roomNumber);
+            st.setInt(3, (index - 1) * 2);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                BookingDetail bookingDetail = new BookingDetail();
+                bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
+                bookingDetail.setStartDate(rs.getDate("StartDate"));
+                bookingDetail.setEndDate(rs.getDate("EndDate"));
+                bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
+                bookingDetail.setServices(
+                        DetailServiceDAO.getInstance()
+                                .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetails.add(bookingDetail);
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return bookingDetails;
+    }
+    public List<BookingDetail> getBookingDetailByBookingIdPagination(Booking booking, int index) {
+        List<BookingDetail> bookingDetails = new ArrayList<>();
+        String sql = "SELECT * FROM BookingDetail WHERE BookingId = ? order by bookingdetailId offset "
+                + "? rows fetch next 2 rows only";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, booking.getBookingId());
+            st.setInt(2, (index - 1) * 2);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                BookingDetail bookingDetail = new BookingDetail();
+                bookingDetail.setBookingDetailId(rs.getInt("BookingDetailId"));
+                bookingDetail.setStartDate(rs.getDate("StartDate"));
+                bookingDetail.setEndDate(rs.getDate("EndDate"));
+                bookingDetail.setRoom(RoomDAO.getInstance().getRoomByNumber(rs.getInt("RoomNumber")));
+                bookingDetail.setTotalAmount(rs.getInt("TotalAmount"));
+                bookingDetail.setServices(
+                        DetailServiceDAO.getInstance()
+                                .getAllDetailServiceByBookingDetailId(rs.getInt("BookingDetailId")));
+                bookingDetail.setBooking(booking);
                 bookingDetails.add(bookingDetail);
             }
         } catch (SQLException e) {

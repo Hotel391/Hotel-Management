@@ -33,8 +33,8 @@ public class Admin extends HttpServlet {
         }
 
         if (service.equals("changePass")) {
-            Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(username);
-            request.setAttribute("employee", em);
+//            Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(username);
+//            request.setAttribute("employee", em);
             request.getRequestDispatcher(linkInfoAdmin).forward(request, response);
         }
 
@@ -149,7 +149,7 @@ public class Admin extends HttpServlet {
 
         if (isUsernameTaken(userNameManager)) {
             hasError = true;
-            request.setAttribute("usernameError", "Username already exists.");
+            request.setAttribute("usernameError", "Username đã được sử dụng.");
         }
 
         if (hasError) {

@@ -8,7 +8,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<fmt:setLocale value="vi_VN" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -65,8 +66,8 @@
                                                         </c:if>
                                                     </div>
                                                     <div class="col md-6">
-                                                        <label for="price" class="form-label">Type room's price</label>
-                                                        <input class="form-control" value="${param.price}" type="text" name="price" required>
+                                                        <label for="price" class="form-label">Type room's price (VND)</label>
+                                                        <input class="form-control" value="${param.price}" type="number" name="price" required>
                                                         <c:if test="${not empty priceError}">
                                                             <p class="alert alert-danger">${priceError}</p>
                                                         </c:if>
@@ -92,9 +93,12 @@
                                                 </div>
                                                 <div class="row g-3">
                                                     <label for="typeName" class="form-label">Type room's description</label>
-                                                    <textarea  class="form-control" name="typeDesc" rows="4">
-                                                        ${param.typesDesc}
+                                                    <textarea  class="form-control" name="typeDesc" rows="4" >
+                                                        <c:out value="${param.typeDesc}"/>
                                                     </textarea>
+                                                    <c:if test="${not empty descError}">
+                                                            <p class="alert alert-danger">${descError}</p>
+                                                        </c:if>
                                                 </div>
                                                 <div class="row g-3">
                                                     <label for="formFile" class="form-label">Default file input example</label>
@@ -132,7 +136,7 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col">Type Room's Name</th>
-                                        <th scope="col">Price</th>
+                                        <th scope="col">Price (VND)</th>
                                         <th scope="col">Description</th>
                                         <th scope="col">Service</th>
                                         <th scope="col">Images</th>
@@ -143,7 +147,7 @@
                                     <c:forEach var="trl" items="${requestScope.typeRoomList}">
                                         <tr>
                                             <td><c:out value="${trl.typeName}" default="-"/></td>
-                                            <td><c:out value="${trl.price}" default="-"/></td>
+                                            <td><fmt:formatNumber value="${trl.price}" pattern="#,##0" /> VND</td>
                                             <td class="viewTypeRoom">
                                                 <!-- View typeroom Modal -->
                                                 <button onclick="clearMessage(${trl.typeId})" class="btn btn-sm btn-outline-info me-1" data-bs-toggle="modal" data-bs-target="#viewTypeRoomModal_${trl.typeId}">
@@ -171,8 +175,8 @@
                                                                 </div>
                                                                 <div class="modal-footer">
                                                                     <input type="hidden" name="typeRoomId" value="${trl.typeId}">
-                                                                    <input type="hidden" name="page" value="${currentPage}"}>
-                                                                    <input type="hidden" name="key" value="${key}"}>
+                                                                    <input type="hidden" name="page" value="${currentPage}">
+                                                                    <input type="hidden" name="key" value="${key}">
                                                                     <input type="hidden" name="service" value="updateDesc">
                                                                     <button type="submit" class="btn btn-success">Update Description</button>
                                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -268,7 +272,7 @@
                                                                                     <i class="fas fa-wifi"></i>
                                                                                 </div>
 
-                                                                                <div class="service-name">${os.serviceName} - ${os.serviceId}</div>
+                                                                                <div class="service-name">${os.serviceName}</div>
                                                                                 <c:choose>
                                                                                     <c:when test="${os.price != 0}">
                                                                                         <div class="service-quantity" style="display: none;">
@@ -424,9 +428,9 @@
                                                                         </div>
 
                                                                         <div class="col-md-6">
-                                                                            <label for="typeNameEdit_${trl.typeId}" class="form-label">Price</label>
+                                                                            <label for="typeNameEdit_${trl.typeId}" class="form-label">Price (VND)</label>
                                                                             <input spellcheck="false" 
-                                                                                   type="text" 
+                                                                                   type="number" 
                                                                                    id="typeRoomEdit_${trl.typeId}" 
                                                                                    name="price" 
                                                                                    value="${param.price != null ? param.price : trl.price}" 
@@ -493,34 +497,6 @@
                                                 </div>
 
                                             </td>
-
-                                            <td>
-                                                <!-- Delete Employee Modal -->
-                                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_${trl.typeId}">
-                                                    <i class="bi bi-trash"></i> Delete
-
-                                                </button>
-                                                <div class="modal fade" id="deleteModal_${trl.typeId}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Are you sure to delete</h1>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <p alert alert-primary>Bạn có chắc muốn xóa ${trl.typeName}</p>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                                <input type="hidden" name="typeId" value="${trl.typeId}">
-                                                                <input type="hidden" name="service" value="deleleTypeRoom">
-                                                                <button type="button" class="btn btn-primary">Delete</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-
                                         </tr>
                                     </c:forEach>
                                 </tbody>
@@ -581,21 +557,21 @@
         <c:if test="${not empty showModalDesc}">
             <script>
 
-                                                                        window.addEventListener('load', function () {
-                                                                            var modal = new bootstrap.Modal(document.getElementById('viewTypeRoomModal_${showModalDesc}'));
-                                                                            modal.show();
+            window.addEventListener('load', function () {
+            var modal = new bootstrap.Modal(document.getElementById('viewTypeRoomModal_${showModalDesc}'));
+            modal.show();
                 <c:if test="${not empty updateMessageDesc}">
-                                                                            console.log(1);
-                                                                            setTimeout(function () {
+                    console.log(1);
+                        setTimeout(function () {
 
-                                                                                clearMessage(${showModalDesc});
+                        clearMessage(${showModalDesc});
 
 
-                                                                                modal.hide();
-                                                                            }, 2000);
+                        modal.hide();
+                        }, 2000);
                 </c:if>
 
-                                                                        });
+             });
 
 
             </script>
@@ -728,12 +704,12 @@
                     if (descTextarea) {
                         descTextarea.value = '';
                     }
-                    
+
                     var maxAdultInput = form.querySelector('input[name="maxAdult"]');
                     if (maxAdultInput) {
                         maxAdultInput.value = '';
                     }
-                    
+
                     var maxChildrenInput = form.querySelector('input[name="maxChildren"]');
                     if (maxChildrenInput) {
                         maxChildrenInput.value = '';

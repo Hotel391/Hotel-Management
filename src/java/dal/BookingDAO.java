@@ -72,10 +72,11 @@ public class BookingDAO {
                 DailyRevenue dr = new DailyRevenue();
                 dr.setWeekdayName(rs.getString("WeekdayName"));
                 dr.setDay(rs.getInt("Day"));
-                dr.setTotalPrice(rs.getDouble("TotalPrice"));
+                dr.setTotalPrice(rs.getLong("TotalPrice"));
                 result.add(dr);
             }
         } catch (SQLException e) {
+            //
         }
         return result;
     }
@@ -509,7 +510,7 @@ public class BookingDAO {
             sql += "AND b.Status = 'Completed CheckOut' ";
         }
 
-        sql += "ORDER BY b.BookingId OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+        sql += "ORDER BY b.BookingId DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, customerId);
@@ -555,5 +556,41 @@ public class BookingDAO {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public List<Booking> getBookingByPayDayPagination(Date payDay, String phone, int index) {
+        List<Booking> bookings = new ArrayList<>();
+        String sql = "SELECT b.* FROM Booking b join Customer c on b.customerId = c.customerId "
+                + "WHERE DATEDIFF(Day, ?, b.PayDay) = 0 and b.Status = 'Completed CheckOut'";
+        if (phone != null && !phone.isEmpty()) {
+            sql += " and c.phoneNumber = ?";
+        }
+        sql += " Order by b.BookingId OFFSET ? ROWS FETCH NEXT 2 ROWS ONLY";
+        System.out.println(sql);
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setDate(1, payDay);
+            if (phone != null && !phone.isEmpty()) {
+                st.setString(2, phone);
+                st.setInt(3, (index - 1) * 2);
+            }else{
+                
+                st.setInt(2, (index - 1) * 2);
+            }
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Booking booking = new Booking();
+                    booking.setBookingId(rs.getInt("BookingID"));
+                    booking.setCustomer(CustomerDAO.getInstance().getCustomerByCustomerID(rs.getInt("CustomerId")));
+                    booking.setPayDay(rs.getDate("PayDay"));
+                    booking.setTotalPrice(rs.getInt("TotalPrice"));
+                    booking.setStatus(rs.getString("status"));
+                    booking.setPaymentMethod(PaymentMethodDAO.getInstance().getPaymentMethodByBookingId(rs.getInt("BookingID")));
+                    bookings.add(booking);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
     }
 }

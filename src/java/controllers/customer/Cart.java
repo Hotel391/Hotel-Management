@@ -24,6 +24,7 @@ import models.CustomerAccount;
 @WebServlet(name="Cart", urlPatterns={"/cart"})
 public class Cart extends HttpServlet {
     private final Map<String, CartAction> actions = new HashMap<>();
+    private static final int maxTimeSpan = models.Cart.MAX_TIME_SPAN;
    
     @Override
     public void init() {
@@ -36,6 +37,7 @@ public class Cart extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        request.setAttribute("maxTimeSpan", maxTimeSpan);
         HttpSession session = request.getSession();
         CustomerAccount customerAccount = (CustomerAccount) session.getAttribute("customerInfo");
         if(customerAccount == null) {

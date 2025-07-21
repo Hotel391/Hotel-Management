@@ -131,12 +131,12 @@
                             <c:choose>
                                 <c:when test="${search != null && !search.isEmpty()}">
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage - 1}&startDate=${start}&endDate=${end}&search=search&customerId=${customerId}" class="page-link">Previous</a>
+                                        <a href="?page=${currentPage - 1}&bookingId=${bookingId}&searchRoom=${searchRoom}" class="page-link">Previous</a>
                                     </li>
                                 </c:when>
                                 <c:otherwise>
                                     <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage - 1}&customerId=${customerId}" class="page-link">Previous</a>
+                                        <a href="?page=${currentPage - 1}&bookingId=${bookingId}" class="page-link">Previous</a>
                                     </li>
                                 </c:otherwise>
                             </c:choose>
@@ -144,13 +144,13 @@
                                 <c:choose>
                                     <c:when test="${search != null && !search.isEmpty()}">
                                         <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                            <a class="page-link" href="?page=${i}&startDate=${start}&endDate=${end}&search=search&customerId=${customerId}">${i}</a>
+                                            <a class="page-link" href="?page=${i}&bookingId=${bookingId}&searchRoom=${searchRoom}">${i}</a>
                                         </li>
 
                                     </c:when>
                                     <c:otherwise>
                                         <li class="page-item ${i == currentPage ? 'active' : ''}">
-                                            <a class="page-link" href="?page=${i}&customerId=${customerId}">${i}</a>
+                                            <a class="page-link" href="?page=${i}&bookingId=${bookingId}">${i}</a>
                                         </li>
                                     </c:otherwise>
                                 </c:choose>
@@ -160,12 +160,12 @@
                                 <c:when test="${search != null && !search.isEmpty()}">
 
                                     <li class="page-item ${currentPage == endPage ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage + 1}&startDate=${start}&endDate=${end}&search=search&customerId=${customerId}" class="page-link">Next</a>
+                                        <a href="?page=${currentPage + 1}&bookingId=${bookingId}&searchRoom=${searchRoom}" class="page-link">Next</a>
                                     </li>
                                 </c:when>
                                 <c:otherwise>
                                     <li class="page-item ${currentPage == endPage ? 'disabled' : ''}">
-                                        <a href="?page=${currentPage + 1}&customerId=${customerId}" class="page-link">Next</a>
+                                        <a href="?page=${currentPage + 1}&bookingId=${bookingId}" class="page-link">Next</a>
                                     </li>
                                 </c:otherwise>
                             </c:choose>

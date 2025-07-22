@@ -42,7 +42,7 @@ public class Validation {
                 new ValidationRule<String>(value -> value.length() >= 2 && value.length() <= 100,
                         "Họ tên phải gồm 2-100 kí tự"),
                 new ValidationRule<String>(value -> Validation.checkFormatException(value, "FULLNAME"),
-                        "Họ tên chỉ bao gồm chữ cái"),
+                        "Họ tên chỉ bao gồm chữ cái và khoảng trắng"),
                 new ValidationRule<String>(value -> !value.contains("  "),
                         "Họ tên không thể chứa khoảng cách liên tiếp")));
         ruleCheck.put("EMAIL", List.of(

@@ -546,10 +546,6 @@ public class RoomDAO {
             pst.setInt(paramIndex, recordsPerPage);
 
             ResultSet rs = pst.executeQuery();
-            System.out.println("Executing query: " + queryBuilder.toString());
-            System.out.println("Parameters - startDate: " + startDate + ", endDate: " + endDate
-                    + ", typeRoomId: " + typeRoomId + ", adult: " + adult + ", children: " + children
-                    + ", page: " + page + ", recordsPerPage: " + recordsPerPage);
             while (rs.next()) {
                 Room room = new Room();
                 room.setRoomNumber(rs.getInt("RoomNumber"));
@@ -569,12 +565,9 @@ public class RoomDAO {
                 typeRoom.setServices(services);
 
                 availableRooms.add(room);
-                System.out.println("Found room: " + room.getRoomNumber() + ", Type: " + typeRoom.getTypeName());
             }
-            System.out.println("Total rooms found: " + availableRooms.size());
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("SQL Error: " + e.getMessage());
         }
 
         return availableRooms;
@@ -633,7 +626,7 @@ public class RoomDAO {
         SELECT COUNT(r.RoomNumber)
         FROM Room r
         JOIN TypeRoom tr ON r.TypeId = tr.TypeId
-        WHERE r.IsActive = 1  AND r.isCleaner = 1
+        WHERE r.IsActive = 1 AND (? > CAST(GETDATE() AS DATE) OR r.isCleaner = 1)
         AND r.RoomNumber NOT IN (
             SELECT bd.RoomNumber
             FROM BookingDetail bd
@@ -663,12 +656,12 @@ public class RoomDAO {
 
         try (PreparedStatement pst = con.prepareStatement(queryBuilder.toString())) {
             int paramIndex = 1;
-
-            pst.setDate(paramIndex++, endDate);
             pst.setDate(paramIndex++, startDate);
             pst.setDate(paramIndex++, endDate);
             pst.setDate(paramIndex++, startDate);
-
+            pst.setDate(paramIndex++, endDate);
+            pst.setDate(paramIndex++, startDate);
+            
             if (typeRoomId != null) {
                 pst.setInt(paramIndex++, typeRoomId);
             }
@@ -680,16 +673,11 @@ public class RoomDAO {
             }
 
             ResultSet rs = pst.executeQuery();
-            System.out.println("Count query: " + queryBuilder.toString());
-            System.out.println("Count parameters - startDate: " + startDate + ", endDate: " + endDate
-                    + ", typeRoomId: " + typeRoomId + ", adult: " + adult + ", children: " + children);
             if (rs.next()) {
                 count = rs.getInt(1);
-                System.out.println("Total available rooms: " + count);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("SQL Error: " + e.getMessage());
         }
 
         return count;
@@ -718,7 +706,7 @@ public class RoomDAO {
             SELECT COUNT(*) FROM Room r
             WHERE r.RoomNumber = ?
             AND r.IsActive = 1
-            AND r.isCleaner = 1
+            AND (? > CAST(GETDATE() AS DATE) OR r.isCleaner = 1)
             AND r.RoomNumber NOT IN (
                 SELECT bd.RoomNumber FROM BookingDetail bd
                 WHERE (bd.StartDate < ? AND bd.EndDate > ?)
@@ -737,14 +725,13 @@ public class RoomDAO {
             con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             try (PreparedStatement pst = con.prepareStatement(query)) {
                 pst.setInt(1, roomNumber);
-                pst.setDate(2, endDate);   // bd.StartDate < endDate
-                pst.setDate(3, startDate); // bd.EndDate > startDate
-                pst.setDate(4, endDate);   // c.StartDate < endDate
-                pst.setDate(5, startDate); // c.EndDate > startDate
+                pst.setDate(2, startDate);   // để so sánh với GETDATE()
+                pst.setDate(3, endDate);     // bd.StartDate < endDate
+                pst.setDate(4, startDate);   // bd.EndDate > startDate
+                pst.setDate(5, endDate);     // c.StartDate < endDate
+                pst.setDate(6, startDate);
                 ResultSet rs = pst.executeQuery();
                 boolean available = rs.next() && rs.getInt(1) > 0;
-                System.out.println("Room " + roomNumber + " availability check: " + available
-                        + ", startDate: " + startDate + ", endDate: " + endDate);
                 con.commit();
                 return available;
             }
@@ -754,7 +741,6 @@ public class RoomDAO {
             } catch (SQLException rollbackEx) {
                 rollbackEx.printStackTrace();
             }
-            System.out.println("SQL Error in isRoomAvailable for room " + roomNumber + ": " + e.getMessage());
             e.printStackTrace();
             return false;
         } finally {
@@ -776,7 +762,6 @@ public class RoomDAO {
                     conflictRooms.add(roomNumStr);
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Room number không hợp lệ: " + roomNumStr);
             }
         }
         return conflictRooms;

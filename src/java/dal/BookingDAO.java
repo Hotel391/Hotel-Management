@@ -566,7 +566,6 @@ public class BookingDAO {
             sql += " and c.phoneNumber = ?";
         }
         sql += " Order by b.BookingId OFFSET ? ROWS FETCH NEXT 2 ROWS ONLY";
-        System.out.println(sql);
         try (PreparedStatement st = con.prepareStatement(sql)) {
             st.setDate(1, payDay);
             if (phone != null && !phone.isEmpty()) {

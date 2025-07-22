@@ -356,6 +356,7 @@ public class VnpayReturn extends HttpServlet {
                         session.removeAttribute("listService");
                         session.removeAttribute("roomServicesMap");
                         session.removeAttribute("roomNumbers");
+                        session.removeAttribute("selectedRooms");
 
                     } else {
                         booking.setStatus("Failed");

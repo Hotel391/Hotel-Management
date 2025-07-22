@@ -172,7 +172,7 @@ public class Checkout extends HttpServlet {
             } else if (CustomerDAO.getInstance().checkExistedEmail(email)) {
                 check = true;
                 request.setAttribute("emailError", "Email đã tồn tại");
-            }else if(EmployeeDAO.getInstance().checkEmail(email)){
+            } else if (EmployeeDAO.getInstance().checkEmail(email)) {
                 check = true;
                 request.setAttribute("emailError", "Email không hợp lệ");
             }
@@ -426,6 +426,7 @@ public class Checkout extends HttpServlet {
         session.removeAttribute("listService");
         session.removeAttribute("roomServicesMap");
         session.removeAttribute("roomNumbers");
+        session.removeAttribute("selectedRooms");
     }
 
     private void checkInByMoney(HttpServletRequest request, HttpServletResponse response, int customerId)
@@ -585,7 +586,6 @@ public class Checkout extends HttpServlet {
 //        }
 //        return false;
 //    }
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

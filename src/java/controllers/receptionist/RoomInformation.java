@@ -115,7 +115,6 @@ public class RoomInformation extends HttpServlet {
             session.removeAttribute("roomTypeMap");
             session.removeAttribute("includedServiceQuantities");
             session.removeAttribute("roomServicesMap");
-            session.removeAttribute("selectedRooms");
             response.sendRedirect(request.getContextPath() + "/receptionist/searchRoom");
             return;
         }

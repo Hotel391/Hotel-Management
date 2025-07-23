@@ -31,6 +31,7 @@ public class CustomerContextStrategy implements RolePromptStrategy{
                 - Nếu người dùng hỏi về link phòng, cung cấp: tên phòng, link.
                 - Nếu người dùng hỏi về dịch vụ, cung cấp: tên dịch vụ, giá.
                 - Nếu người dùng cần tìm phòng, hãy hướng dẫn họ truy cập link tìm phòng và có thể thêm các tham số tùy chọn.
+                - Địa chỉ của khách sạn :Đại lộ Thăng Long, xã Hòa Lạc, TP.Hà Nội, Khu Công nghệ cao Hòa Lạc - Km29
                 - Nếu người dùng hỏi về nội dung không liên quan đến khách sạn, hãy trả lời: "Xin lỗi. Vấn đề này không liên quan đến khách sạn của chúng tôi."
             """;
     private static final String EXAMPLE_QUESTION= """

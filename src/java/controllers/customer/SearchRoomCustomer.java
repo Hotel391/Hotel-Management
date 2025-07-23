@@ -70,7 +70,7 @@ public class SearchRoomCustomer extends HttpServlet {
         return readInputField(request, "errorPrice", minPriceStr, s-> Integer.valueOf(s.replaceAll("\\D", "")), 
                     List.of(
                         new ValidationRule<>(value-> value >= 0, "Giá tối thiểu không được âm."),
-                        new ValidationRule<>(value -> value <= maxPrice, "Giá tối thiểu phải lớn hơn hoặc bằng "+ String.format("%,d", maxPrice).replace(',', '.') + ".")
+                        new ValidationRule<>(value -> value <= maxPrice, "Giá tối thiểu phải nhỏ hơn hoặc bằng "+ String.format("%,d", maxPrice).replace(',', '.') + ".")
                     ));
     }
 

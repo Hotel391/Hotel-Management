@@ -56,7 +56,7 @@ public class AdminDao {
                  WHERE 
                      e.RoleId = 1
                  ORDER BY 
-                     e.registrationDate DESC
+                     e.registrationDate DESC, e.EmployeeId DESC
                  """;
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             while (rs.next()) {

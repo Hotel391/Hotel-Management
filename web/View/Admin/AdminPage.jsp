@@ -51,7 +51,7 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             </c:if>
-                            
+
                             <c:if test="${requestScope.statusAction == 'false'}">
                                 <div id="errorAlert" class="alert alert-danger alert-dismissible fade show mt-3 mx-auto text-center" role="alert" style="width: fit-content;">
                                     <c:choose>
@@ -91,7 +91,7 @@
                                                 </td>
                                                 <td>${e.role.roleName}</td>
                                                 <td>
-                                                    <a href="${pageContext.request.contextPath}/admin/page?service=activateManager&employeeID=${e.employeeId}&activate=${not e.activate}" 
+                                                    <a href="${pageContext.request.contextPath}/admin/page?service=activateManager&page=${currentPage}&employeeID=${e.employeeId}&activate=${not e.activate}" 
                                                        onclick="return confirm('Bạn chắc chắn muốn chuyển trạng thái tài khoản này?');">
                                                         <button type="submit" class="btn btn-sm ${e.activate ? 'btn-warning' : 'btn-success'}" title="Chuyển trạng thái">
                                                             <i class="bi bi-power"></i>
@@ -99,7 +99,7 @@
                                                     </a>
                                                 </td>
                                                 <td>
-                                                    <a href="${pageContext.request.contextPath}/admin/page?service=deleteManager&employeeID=${e.employeeId}" 
+                                                    <a href="${pageContext.request.contextPath}/admin/page?service=deleteManager&employeeID=${e.employeeId}&page=${currentPage}" 
                                                        onclick="return confirm('Bạn chắc chắn muốn xóa tài khoản này?');"
                                                        class="btn btn-sm btn-danger">
                                                         <i class="bi bi-trash-fill"></i>
@@ -109,6 +109,23 @@
                                         </c:forEach>
                                     </tbody>
                                 </table>
+
+                                <!-- Nút phân trang -->
+                                <div class="d-flex justify-content-center mt-3">
+                                    <nav>
+                                        <ul class="pagination">
+                                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                                <li class="page-item ${i == currentPage ? 'active' : ''}">
+                                                    <form action="${pageContext.request.contextPath}/admin/page" method="get">
+                                                        <input type="hidden" name="choose" value="viewAll">
+                                                        <button class="page-link">${i}</button>
+                                                        <input type="hidden" name="page" value="${i}" />
+                                                    </form>
+                                                </li>
+                                            </c:forEach>
+                                        </ul>
+                                    </nav>
+                                </div>
                             </div>
                         </div>
 
@@ -157,8 +174,8 @@
                                         </div>
                                         <div class="modal-footer">
                                             <input type="submit" name="submit" class="btn btn-success" value="Thêm"/>
-                                            <input type="reset" name="reset" value="Reset"/>
-                                            <!--<input type="hidden" name="page" value="${currentPage}" />-->
+                                            <button type="button" class="btn btn-secondary" onclick="resetFormFields()">Reset</button>
+                                            <input type="hidden" name="page" value="${currentPage}" />
                                             <input type="hidden" name="service" value="add">
                                         </div>
 
@@ -172,6 +189,12 @@
         </div>
 
         <script>
+            
+            function resetFormFields() {
+                document.getElementById("userNameManager").value = "";
+                document.getElementById("passwordField").value = "";
+            }
+            
             document.addEventListener('DOMContentLoaded', function () {
                 //thông báo thành công
                 const alertBox = document.getElementById("successAlert");
@@ -190,7 +213,7 @@
                         window.history.replaceState({}, document.title, url.toString());
                     }, 3000); // Hiển thị 3s
                 }
-                
+
                 //thông báo lỗi
                 const errorAlertBox = document.getElementById("errorAlert");
                 if (errorAlertBox) {
@@ -200,7 +223,7 @@
                         setTimeout(() => errorAlertBox.remove(), 500);
                     }, 3000);
                 }
-                
+
                 // --- ADD MANAGER ACCOUNT MODAL ---
                 const addModalEl = document.getElementById("addManagerAccountModal");
                 if (addModalEl) {

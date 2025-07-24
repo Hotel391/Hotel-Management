@@ -39,13 +39,15 @@ public class Admin extends HttpServlet {
         }
 
         if (service.equals("activateManager")) { //soft delete
+            String pageParam = request.getParameter("page"); 
             int employeeID = Integer.parseInt(request.getParameter("employeeID"));
             boolean activate = Boolean.parseBoolean(request.getParameter("activate"));
             dal.EmployeeDAO.getInstance().updateEmployeeStatus(employeeID, activate);
-            response.sendRedirect(request.getContextPath() + "/admin/page?statusAction=true&action=changeStatus");
+            response.sendRedirect(request.getContextPath() + "/admin/page?statusAction=true&action=changeStatus&page="+pageParam);
         }
 
         if (service.equals("deleteManager")) {
+            String pageParam = request.getParameter("page"); 
             int employeeID = Integer.parseInt(request.getParameter("employeeID"));
             Employee employee = dal.EmployeeDAO.getInstance().getEmployeeById(employeeID);
             request.setAttribute("action", "delete");
@@ -53,19 +55,19 @@ public class Admin extends HttpServlet {
                 request.setAttribute("statusAction", false);
                 Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(username);
                 List<Employee> list = dal.AdminDao.getInstance().getAllEmployee();
-                request.setAttribute("list", list);
+                paginateServiceList(request, list);
                 request.setAttribute("adminAccount", em);
                 request.getRequestDispatcher(linkAdminPage).forward(request, response);
                 return;
             }
             dal.AdminDao.getInstance().deleteManagerAccount(employeeID);
-            response.sendRedirect(request.getContextPath() + "/admin/page?statusAction=true&action=delete");
+            response.sendRedirect(request.getContextPath() + "/admin/page?statusAction=true&action=delete&page="+pageParam);
         }
 
         if (service.equals("viewAll")) {
             Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(username);
             List<Employee> list = dal.AdminDao.getInstance().getAllEmployee();
-            request.setAttribute("list", list);
+            paginateServiceList(request, list);
             request.setAttribute("adminAccount", em);
             request.getRequestDispatcher(linkAdminPage).forward(request, response);
         }
@@ -155,14 +157,43 @@ public class Admin extends HttpServlet {
         if (hasError) {
             Employee em = dal.EmployeeDAO.getInstance().getAccountAdmin(usernameAdmin);
             List<Employee> list = dal.AdminDao.getInstance().getAllEmployee();
-            request.setAttribute("list", list);
+            paginateServiceList(request, list);
             request.setAttribute("adminAccount", em);
             request.getRequestDispatcher(linkAdminPage).forward(request, response);
             return;
         }
-
+        String page = request.getParameter("page");
         dal.AdminDao.getInstance().addNewAccountManager(userNameManager, passwordSh);
-        response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll&statusAction=true&action=add");
+        response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll&statusAction=true&action=add&page="+page);
+    }
+    
+    private void paginateServiceList(HttpServletRequest request, List<Employee> fullList) {
+        String pageStr = request.getParameter("page");
+        int page = 1;
+        try {
+            if (pageStr != null) {
+                page = Integer.parseInt(pageStr);
+            }
+        } catch (NumberFormatException e) {
+            // giữ page = 1 nếu sai định dạng
+        }
+
+        int recordsPerPage = 2;
+        int totalRecords = fullList.size();
+        int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+
+        // Giảm page nếu vượt quá số trang thực tế
+        if (page > totalPages && totalPages > 0) {
+            page = totalPages;
+        }
+
+        int start = (page - 1) * recordsPerPage;
+        int end = Math.min(start + recordsPerPage, totalRecords);
+        List<Employee> paginatedList = fullList.subList(start, end);
+
+        request.setAttribute("list", paginatedList);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
     }
 
     private boolean isUsernameTaken(String userNameManager) {

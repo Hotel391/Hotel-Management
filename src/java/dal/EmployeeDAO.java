@@ -77,11 +77,9 @@ public class EmployeeDAO {
     }
 
     public int countEmployee() {
-        String sql = "SELECT e.*, r.RoleName, cf.StartFloor, cf.EndFloor "
-                + "FROM Employee e "
-                + "JOIN Role r ON r.RoleId = e.RoleId "
-                + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
-                + "WHERE r.RoleId NOT IN (0, 1)";
+        String sql = "SELECT COUNT(*) FROM Employee e "
+           + "JOIN Role r ON r.RoleId = e.RoleId "
+           + "WHERE r.RoleId NOT IN (0, 1)";
         try (PreparedStatement st = con.prepareStatement(sql); ResultSet rs = st.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
@@ -446,7 +444,8 @@ public class EmployeeDAO {
                 + "FROM Employee e "
                 + "JOIN Role r ON r.RoleId = e.RoleId "
                 + "LEFT JOIN CleanerFloor cf ON e.EmployeeId = cf.EmployeeId "
-                + "WHERE e.Username LIKE ? OR e.FullName LIKE ? OR e.PhoneNumber LIKE ? OR e.Email LIKE ? "
+                + "WHERE r.RoleId NOT IN (0, 1) "
+                + "AND (e.Username LIKE ? OR e.FullName LIKE ? OR e.PhoneNumber LIKE ? OR e.Email LIKE ?)"
                 + "ORDER BY e.EmployeeId";
 
         List<Employee> list = Collections.synchronizedList(new ArrayList<>());
@@ -573,7 +572,7 @@ public class EmployeeDAO {
         }
         return null;
     }
-    
+
     public boolean checkEmail(String email) {
         String sql = "SELECT 1 FROM Employee WHERE Email = ?";
         try (PreparedStatement st = con.prepareStatement(sql)) {
@@ -584,7 +583,7 @@ public class EmployeeDAO {
         }
         return false;
     }
-    
+
     public Employee getEmployeeLoginGoogle(String email) {
         String sql = """
                      select e.*, r.RoleName from Employee e

@@ -412,12 +412,16 @@ public class BookingDetailDAO {
     private int getBookingDetailId(int customerId, int typeId) {
         String sql = """
                 SELECT TOP 1 bd.BookingDetailId
-                FROM BookingDetail bd
-                JOIN Booking b ON bd.BookingId = b.BookingId
+                FROM Customer c
+                JOIN Booking b ON c.CustomerId = b.CustomerId
+                JOIN BookingDetail bd ON b.BookingId = bd.BookingId
                 JOIN Room r ON bd.RoomNumber = r.RoomNumber
                 JOIN TypeRoom tr ON r.TypeId = tr.TypeId
-                WHERE b.CustomerId = ? AND tr.TypeId = ?
-                ORDER BY bd.StartDate ASC
+                LEFT JOIN Review rv ON rv.BookingDetailId = bd.BookingDetailId
+                WHERE rv.ReviewId IS NULL
+                  AND c.CustomerId = 3
+                  AND tr.TypeId = 5
+                ORDER BY bd.BookingDetailId ASC
                 """;
         try (PreparedStatement ptm = con.prepareStatement(sql)) {
             ptm.setInt(1, customerId);

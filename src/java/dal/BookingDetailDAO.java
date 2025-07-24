@@ -419,8 +419,8 @@ public class BookingDetailDAO {
                 JOIN TypeRoom tr ON r.TypeId = tr.TypeId
                 LEFT JOIN Review rv ON rv.BookingDetailId = bd.BookingDetailId
                 WHERE rv.ReviewId IS NULL
-                  AND c.CustomerId = 3
-                  AND tr.TypeId = 5
+                  AND c.CustomerId = ?
+                  AND tr.TypeId = ?
                 ORDER BY bd.BookingDetailId ASC
                 """;
         try (PreparedStatement ptm = con.prepareStatement(sql)) {

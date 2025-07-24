@@ -672,7 +672,7 @@ public class CartDAO {
                 placeholders.append(",");
             }
         }
-        String sql = "SELECT ServiceId, ServiceName, Price FROM Service WHERE ServiceId NOT IN (" + placeholders + ")";
+        String sql = "SELECT ServiceId, ServiceName, Price FROM Service WHERE ServiceId NOT IN (" + placeholders + ") and IsActive=1";
         List<Service> services = new ArrayList<>();
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             for (int i = 0; i < serviceIds.size(); i++) {

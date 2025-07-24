@@ -418,7 +418,7 @@ public class ajaxServlet extends HttpServlet {
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
             session.removeAttribute("timeLeft-" + cartId);
         } else {
-            cld.add(Calendar.MINUTE, 1); // tiếp tục dùng cld
+            cld.add(Calendar.MINUTE, 5); // tiếp tục dùng cld
             String vnp_ExpireDate = formatter.format(cld.getTime());
             vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
         }

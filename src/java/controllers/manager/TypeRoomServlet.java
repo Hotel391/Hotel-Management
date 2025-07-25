@@ -24,10 +24,16 @@ import java.util.Map;
 import models.RoomNService;
 
 @WebServlet(name = "TypeRoomServlet", urlPatterns = {"/manager/types"})
-@MultipartConfig(fileSizeThreshold = 1024 * 1024, // 1MB
-        maxFileSize = 1024 * 1024 * 5, // 5MB
+@MultipartConfig(fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 5,
         maxRequestSize = 1024 * 1024 * 10)
 public class TypeRoomServlet extends HttpServlet {
+    private int MIN_PRICE = 10000;
+    private int MAX_PRICE = 20000;
+    private int MIN_ADULT = 1;
+    private int MAX_ADULT = 10;
+    private int MIN_CHILDREN = 1;
+    private int MAX_CHILDREN = 10;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -63,12 +69,12 @@ public class TypeRoomServlet extends HttpServlet {
             int price = 0;
             try {
                 price = Integer.parseInt(price_raw);
-                if (!(5000 <= price && price <= 20000)) {
+                if (!(MIN_PRICE <= price && price <= MAX_PRICE)) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
                 check = true;
-                request.setAttribute("priceError", "Vui lòng nhập giá trong khoảng từ 5000 VND đến 20000 VND");
+                request.setAttribute("priceError", "Vui lòng nhập giá trong khoảng từ 10000 VND đến 20000 VND");
             }
 
             if (TypeRoomDAO.getInstance().getTypeRoomByName(name) != null) {
@@ -81,7 +87,7 @@ public class TypeRoomServlet extends HttpServlet {
 
             try {
                 maxAdult = Integer.parseInt(maxAdultRaw);
-                if (maxAdult < 1 || maxAdult > 10) {
+                if (maxAdult < MIN_ADULT || maxAdult > MAX_ADULT) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
@@ -91,7 +97,7 @@ public class TypeRoomServlet extends HttpServlet {
 
             try {
                 maxChildren = Integer.parseInt(maxChildrenRaw);
-                if (maxChildren < 1 || maxChildren > 10) {
+                if (maxChildren < MIN_CHILDREN || maxChildren > MAX_CHILDREN) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
@@ -118,21 +124,6 @@ public class TypeRoomServlet extends HttpServlet {
             if (imageParts.isEmpty()) {
                 check = true;
                 request.setAttribute("imageError", "Vui lòng chọn ít nhất 1 ảnh");
-            }
-
-            for (Part imagePart : imageParts.keySet()) {
-                if (imagePart.getSize() > 5 * 1024 * 1024) {
-                    check = true;
-                    request.setAttribute("imageError", "Kích thước file không được vượt quá 5MB");
-                    break;
-                }
-
-                String contentType = imagePart.getContentType();
-                if (contentType == null || !contentType.startsWith("image/")) {
-                    check = true;
-                    request.setAttribute("imageError", "Chỉ chấp nhận file ảnh (jpg, png, gif, etc.)");
-                    break;
-                }
             }
 
             if (!check) {
@@ -172,80 +163,23 @@ public class TypeRoomServlet extends HttpServlet {
             int typeRoomId = Integer.parseInt(request.getParameter("typeRoomId"));
 
             boolean check = false;
-
-            String typeName = request.getParameter("typeName").trim();
+            
             String priceRaw = request.getParameter("price").trim();
-            String maxAdultRaw = request.getParameter("maxAdult").trim();
-
-            String maxChildrenRaw = request.getParameter("maxChildren").trim();
 
             int price = 0;
 
-            int maxAdult = 0;
-
-            int maxChildren = 0;
-
-            if (Validation.validateField(request, "nameError", typeName, "TYPE_ROOM_NAME_BASIC",
-                    "Type Name", "Chỉ bao gồm chữ cái và tối đa 100 ký tự")) {
-                check = true;
-            }
-
-            if (TypeRoomDAO.getInstance().getTypeRoomByNameAndId(typeName, typeRoomId) != null) {
-                check = true;
-                request.setAttribute("name", typeName);
-                request.setAttribute("price", priceRaw);
-//                request.setAttribute("description", description);
-                request.setAttribute("nameUpdateExistedError", "Tên loại phòng đã tồn tại");
-                
-            }
-
-            try {
-                maxAdult = Integer.parseInt(maxAdultRaw);
-                if (maxAdult < 1 || maxAdult > 10) {
-                    throw new NumberFormatException();
-                }
-            } catch (NumberFormatException e) {
-                check = true;
-                request.setAttribute("maxAdultError", "Giới hạn người trong khoảng 1-10");
-            }
-
-            try {
-                maxChildren = Integer.parseInt(maxChildrenRaw);
-                if (maxChildren < 1 || maxChildren > 10) {
-                    throw new NumberFormatException();
-                }
-            } catch (NumberFormatException e) {
-                check = true;
-                request.setAttribute("maxChildrenError", "Giới hạn trẻ em trong khoảng 1-10");
-            }
-
             try {
                 price = Integer.parseInt(priceRaw);
-                if (!(5000 <= price && price <= 20000)) {
+                if (!(MIN_PRICE <= price && price <= MAX_PRICE)) {
                     throw new NumberFormatException();
                 }
             } catch (NumberFormatException e) {
                 check = true;
-                request.setAttribute("priceError", "Vui lòng nhập giá trong khoảng từ 5000 VND đến 20000 VND");
-            }
-
-            if (TypeRoomDAO.getInstance().getTypeRoomByNameAndPriceAndQuantity(typeRoomId, typeName, price, maxAdult, maxChildren) != null) {
-                check = true;
-                request.setAttribute("typeName", typeName);
-                request.setAttribute("price", priceRaw);
-                request.setAttribute("updateNameAndPrice", typeRoomId);
-                request.setAttribute("noChangeError", "Không có gì thay đổi");
-
-                request.setAttribute("showModalEdit", typeRoomId);
-
-                request.setAttribute("key", key);
-
-                showTypeRoom(request, response);
-                return;
+                request.setAttribute("priceError", "Vui lòng nhập giá trong khoảng từ 10000 VND đến 20000 VND");
             }
 
             if (!check) {
-                boolean success = TypeRoomDAO.getInstance().editTypeRoom(typeRoomId, typeName, price, maxAdult, maxChildren);
+                boolean success = TypeRoomDAO.getInstance().editTypeRoom(typeRoomId, price);
 
                 if (success) {
                     // Set attribute để hiển thị thông báo thành công
@@ -301,12 +235,12 @@ public class TypeRoomServlet extends HttpServlet {
         }
 
         if ("addServiceItem".equals(service)) {
+            int typeId = Integer.parseInt(request.getParameter("typeId"));
+
             String serviceItem[] = request.getParameterValues("serviceItem");
 
-            int typeId = Integer.parseInt(request.getParameter("typeId"));
-            
             String serviceQuantity[] = request.getParameterValues("serviceQuantity");
-            
+
             Map<Integer, Integer> serviceQuantityMap = new HashMap<>();
 
             if (serviceItem != null && serviceItem.length > 0) {
@@ -395,10 +329,6 @@ public class TypeRoomServlet extends HttpServlet {
             showTypeRoom(request, response);
         }
 
-        if ("deleleTypeRoom".equals(service)) {
-
-        }
-
         if ("deleteImg".equals(service)) {
             int imageId = Integer.parseInt(request.getParameter("imageId"));
             String imageName = request.getParameter("imageName");
@@ -420,8 +350,10 @@ public class TypeRoomServlet extends HttpServlet {
             int typeId = Integer.parseInt(request.getParameter("typeId"));
 
             Collection<Part> fileParts = request.getParts();
+            System.out.println("fileParts: " + fileParts);
             HashMap<Part, String> imageParts = new HashMap<>();
             for (Part part : fileParts) {
+                System.out.println(part.toString());
                 if (part.getName().equals("image") && part.getSize() > 0) {
                     String fileName = extractFileName(part);
                     if (fileName != null && part.getContentType() != null && part.getContentType().startsWith("image/")) {
@@ -429,7 +361,7 @@ public class TypeRoomServlet extends HttpServlet {
                     }
                 }
             }
-            
+
             if (imageParts.isEmpty()) {
                 request.setAttribute("showModalImage", typeId);
                 request.setAttribute("imageError", "Vui lòng chọn ít nhất 1 ảnh");
@@ -486,7 +418,7 @@ public class TypeRoomServlet extends HttpServlet {
             }
         }
         request.setAttribute("endPage", endPage);
-        
+
         int indexPage = Integer.parseInt(request.getParameter("page") == null ? "1" : request.getParameter("page"));
 
         typeRoomList = dal.TypeRoomDAO.getInstance().typeRoomPagination(indexPage, key);
@@ -522,8 +454,8 @@ public class TypeRoomServlet extends HttpServlet {
 
         String fullPath = savePath + File.separator + fileName;
 
-        filePart.write(fullPath);   
-        filePart.write(fullBuildPath);  
+        filePart.write(fullPath);
+        filePart.write(fullBuildPath);
     }
 
     private void deleteImage(HttpServletRequest request, String fileName, int typeId) throws IOException {
@@ -551,7 +483,9 @@ public class TypeRoomServlet extends HttpServlet {
     }
 
     private String extractFileName(Part part) {
+//        System.out.println("header: " + part.getHeader());
         String contentDisp = part.getHeader("content-disposition");
+        System.out.println("disposition: " + contentDisp);
         for (String token : contentDisp.split(";")) {
             if (token.trim().startsWith("filename")) {
                 return new File(token.split("=")[1].replace("\"", "")).getName();

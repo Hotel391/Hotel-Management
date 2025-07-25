@@ -39,6 +39,9 @@
                     <c:if test="${not empty paymentMethodError}">
                         <p class="alert alert-primary">${paymentMethodError}</p>
                     </c:if>
+                    <c:if test="${not empty limitationError}">
+                        <p class="alert alert-primary">${limitationError}</p>
+                    </c:if>
                     <table id="roomTable" class="table table-bordered table-hover text-center align-middle">
                         <thead class="table-primary">
                             <tr>
@@ -94,6 +97,7 @@
                                 <td>${ckl.key.paidAmount} VND</td>
                                 <td>${totalAmount - ckl.key.paidAmount} VND</td>
                                 <c:if test="${totalAmount - ckl.key.paidAmount > 0}">
+                                    <input type="hidden" name="remainPrice" value="${totalAmount - ckl.key.paidAmount}">
                                     <td style="width: 230px;">
                                         <select name="paymentMethod" class="form-select w-160" aria-label="Default select example">
                                             <option selected value="default">Chọn phương thức</option>

@@ -210,6 +210,9 @@
                                                     <i class="bi bi-eye-slash" id="toggleIcon"></i>
                                                 </span>
                                             </div>
+                                            <c:if test="${not empty newPasswordError}">
+                                                <div class="text-danger">${newPasswordError}</div>
+                                            </c:if>
                                             <c:if test="${not empty passwordError}">
                                                 <div class="text-danger">${passwordError}</div>
                                             </c:if>

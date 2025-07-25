@@ -112,7 +112,7 @@
                         <label class="form-label small">Email</label>
                         <input type="email" name="email"
                                value="${param.email != null ? param.email : cleaner.email}"
-                               class="form-control form-control-sm" required>
+                               class="form-control form-control-sm" required readonly>
                         <c:if test="${not empty emailError}">
                             <small class="text-danger">${emailError}</small>
                         </c:if>

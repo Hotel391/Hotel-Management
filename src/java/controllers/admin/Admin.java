@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import java.util.function.Function;
 import models.Employee;
 import utility.Encryption;
 import utility.Validation;
@@ -129,6 +130,18 @@ public class Admin extends HttpServlet {
         response.sendRedirect(request.getContextPath() + "/admin/page?service=viewAll&statusAction=true&action=changePass");
     }
 
+    private boolean checkUsername(HttpServletRequest request, HttpServletResponse response, String userNameManager)
+            throws ServletException, IOException {
+        return Validation.validateField(request, "usernameError", "username", userNameManager
+                , Function.identity(), "USERNAME");
+    }
+    
+    private boolean checkPass(HttpServletRequest request, HttpServletResponse response, String pass)
+            throws ServletException, IOException {
+        return Validation.validateField(request, "passwordError", 
+                "password", pass, Function.identity(), "PASSWORD");
+    }
+    
     private void handleAddNewAccount(HttpServletRequest request, HttpServletResponse response, String userNameManager)
             throws ServletException, IOException {
 
@@ -139,15 +152,13 @@ public class Admin extends HttpServlet {
         String password = request.getParameter("password");
         String passwordSh = Encryption.toSHA256(password);
         boolean hasError = false;
-
-        hasError |= Validation.validateField(
-                request, "usernameError", userNameManager, "USERNAME", "Username",
-                "Tên người dùng phải dài từ 5–20 ký tự, chỉ bao gồm chữ cái/số/dấu gạch dưới."
-        );
-        hasError |= Validation.validateField(
-                request, "passwordError", password, "PASSWORD", "Password",
-                "Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt."
-        );
+        
+        if(checkUsername(request, response, userNameManager)){
+            hasError = true;
+        }
+        if(checkPass(request, response, password)){
+            hasError = true;
+        }
 
         if (isUsernameTaken(userNameManager)) {
             hasError = true;

@@ -204,7 +204,7 @@
                         <option value="recent" ${param.sortBy == null || param.sortBy eq 'recent'? 'selected' : ''}>Gần đây nhất</option>
                         <option value="rating_high" ${param.sortBy eq 'rating_high' ? 'selected' : ''}>Đánh giá, cao đến thấp</option>
                         <option value="rating_low" ${param.sortBy eq 'rating_low' ? 'selected' : ''}>Đánh giá, thấp đến cao</option>
-                        <option value="helpful" ${param.sortBy eq 'helpful'}>Hữu ích nhất</option>
+                        <option value="helpful" ${param.sortBy eq 'helpful' ? 'selected' : ''}>Hữu ích nhất</option>
                     </select>
                 </form>
             </div>

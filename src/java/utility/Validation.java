@@ -86,10 +86,18 @@ public class Validation {
                         return false;
                     }
                     long time = value.getTime();
-                    long minTime = new Date(1900 - 1900, 0, 1).getTime(); // January 1, 1900
-                    long maxTime = new Date(System.currentTimeMillis()).getTime(); // Today
+                    long minTime = new Date(1900 - 1900, 0, 1).getTime();
+                    long maxTime = new Date(System.currentTimeMillis()).getTime();
                     return time >= minTime && time <= maxTime;
-                }, "ngày sinh phải nằm trong khoảng 1900 đến hôm nay")));
+                }, "ngày sinh phải nằm trong khoảng 1900 đến hôm nay"),
+                 new ValidationRule<Date>(value -> {
+                    if (value == null) {
+                        return false;
+                    }
+                    long eighteenYearsAgo = new Date(System.currentTimeMillis()).getTime() - (18L * 365 * 24 * 60 * 60 * 1000);
+                    return value.getTime() <= eighteenYearsAgo;
+                }, "Bạn phải trên 18 tuổi")
+                ));
 
     }
 

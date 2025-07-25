@@ -106,6 +106,12 @@ public class Login extends HttpServlet {
         }
 
         if ("loginGoogle".equals(state)) {
+            String error = request.getParameter("error");
+            
+            if(error != null){
+                request.getRequestDispatcher("View/Login.jsp").forward(request, response);
+                return;
+            }
             String code = request.getParameter("code");
 
             String accessToken = AccountGoogleDAO.getInstance().getToken(code);

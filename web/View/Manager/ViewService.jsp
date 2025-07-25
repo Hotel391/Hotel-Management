@@ -38,7 +38,7 @@
                         </ul>
 
                         <!--thông báo thành công-->
-                        <c:if test="${param.success == 'true'}">
+                        <c:if test="${param.success == 'true' or requestScope.success == true}">
                             <div id="successAlert" class="alert alert-success alert-dismissible fade show mt-3 mx-auto text-center" role="alert" style="width: fit-content;">
                                 <c:choose>
                                     <c:when test="${param.action == 'add'}">Thêm dịch vụ thành công!</c:when>
@@ -50,13 +50,18 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         </c:if>
-                        <!-- Thông báo lỗi -->
-                        <c:if test="${not empty requestScope.canNotUpdate || not empty requestScope.canNotDelete}">
-                            <div id="errorAlert" class="alert alert-danger alert-dismissible fade show mt-3 mx-auto text-center" role="alert" style="width: fit-content;">
-                                <c:out value="${requestScope.canNotUpdate}" default="${requestScope.canNotDelete}" />
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <c:if test="${param.success == 'false' or requestScope.success == false}">
+                             <div id="errorAlert" class="alert alert-danger alert-dismissible fade show mt-3 mx-auto text-center" role="alert" style="width: fit-content;">
+                                <c:choose>
+                                 <c:when test="${requestScope.action == 'isActiveFalse'}">Đổi trạng thái dịch vụ không thành công vì dịch vụ đang được sử dụng!</c:when>
+                                 <c:when test="${requestScope.action == 'deleteFalse'}">Xóa dịch vụ không thành công vì đã được sử dụng!</c:when>
+                                 <c:when test="${requestScope.action == 'deleteFalseIsActive'}">Xóa dịch vụ không thành công vì dịch vụ đang mở!</c:when>
+                                 <c:otherwise>Thao tác không thành công!</c:otherwise>
+                                </c:choose>
+                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                             </div>
                         </c:if>
+                        
 
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -115,7 +120,8 @@
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#deleteServiceModal"
                                                     data-service-id="${s.serviceId}"
-                                                    data-service-name="${s.serviceName}">
+                                                    data-service-name="${s.serviceName}"
+                                                    data-service-isActive="${s.isActive}">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>  
@@ -271,6 +277,7 @@
                                         <input type="hidden" name="choose" value="deleteService"/>
                                         <input type="hidden" name="serviceNameSearch" value="${param.serviceNameSearch}">
                                         <input type="hidden" name="page" value="${currentPage}" />
+                                        <input type="hidden" name="isActive" id="isActive"/>
 
                                     </div>
                                 </form>
@@ -357,9 +364,11 @@
                         const button = event.relatedTarget;
                         const serviceId = button.getAttribute('data-service-id');
                         const serviceName = button.getAttribute('data-service-name');
+                        const isActive = button.getAttribute('data-service-isActive');
+                        
                         document.getElementById('serviceIdDeleteInput').value = serviceId;
                         document.getElementById('serviceNameDisplay').textContent = serviceName;
-                        document.getElementById('serviceIdDisplay').textContent = serviceId;
+                        document.getElementById('isActive').value = isActive;
                     });
                 }
 

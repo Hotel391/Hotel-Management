@@ -299,14 +299,11 @@ public class TypeRoomDAO {
         return list;
     }
 
-    public boolean editTypeRoom(int typeId, String typeName, int price, int maxAdult, int maxChildren) {
-        String sql = "UPDATE TypeRoom SET typeName = ?, price = ?, Adult = ?, Children = ? WHERE typeId = ? ";
+    public boolean editTypeRoom(int typeId, int price) {
+        String sql = "UPDATE TypeRoom SET price = ? WHERE typeId = ? ";
         try (PreparedStatement st = con.prepareStatement(sql)) {
-            st.setString(1, typeName);
-            st.setInt(2, price);
-            st.setInt(3, maxAdult);
-            st.setInt(4, maxChildren);
-            st.setInt(5, typeId);
+            st.setInt(1, price);
+            st.setInt(2, typeId);
             int rowsAffected = st.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException ex) {
@@ -796,5 +793,39 @@ public class TypeRoomDAO {
             e.printStackTrace();
         }
         return 0; // Default value if no price found
+    }
+
+    public boolean getTypeRoomInBookingDetail(int typeId) {
+        String sql = "select tr.* from BookingDetail bd join Room r on bd.RoomNumber = r.RoomNumber join TypeRoom tr on tr.TypeId = r.TypeId\n"
+                + " join booking b on b.bookingId = bd.bookingId \n"
+                + "where GETDATE() >= bd.StartDate and GETDATE() <= bd.EndDate and b.Status != 'Completed CheckOut' and r.TypeId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, typeId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean getTypeRoomInCart(int typeId) {
+        String sql = "select r.TypeId from Cart c join Room r on c.RoomNumber = r.RoomNumber\n"
+                + "	join TypeRoom tr on tr.TypeId = r.TypeId\n"
+                + "	where c.StartDate <= GETDATE() and GETDATE() <= c.EndDate and c.isPayment = 1 and tr.TypeId = ?";
+        try (PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, typeId);
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

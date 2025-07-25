@@ -214,9 +214,4 @@ public class RoomInformation extends HttpServlet {
 
         response.sendRedirect(request.getContextPath() + "/receptionist/checkout");
     }
-
-    @Override
-    public String getServletInfo() {
-        return "Handles room info and service selection";
-    }
 }

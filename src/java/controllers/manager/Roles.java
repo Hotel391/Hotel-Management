@@ -35,15 +35,28 @@ public class Roles extends HttpServlet {
                 switch (action) {
                     case "add":
                         String roleNameAdd = request.getParameter("roleName");
-                        if (roleNameAdd == null || roleNameAdd.trim().isEmpty()) {
+                        if (roleNameAdd == null || (roleNameAdd = roleNameAdd.trim()).isEmpty()) {
                             error = "Tên vai trò không được để trống.";
                             break;
                         }
-                        if (roleNameAdd.trim().length() > 50) {
-                            error = "Tên vai trò phải ít hơn 50 ký tự.";
+                        if (roleNameAdd.length() < 2 || roleNameAdd.length() > 50) {
+                            error = "Tên vai trò phải có độ dài từ 2 đến 50 ký tự.";
                             break;
                         }
-                        Role newRole = new Role(0, roleNameAdd.trim());
+                        if (!Character.isLetter(roleNameAdd.charAt(0))) {
+                            error = "Ký tự đầu tiên của tên vai trò phải là chữ cái.";
+                            break;
+                        }
+                        for (char c : roleNameAdd.toCharArray()) {
+                            if (!Character.isLetter(c) && c != ' ') {
+                                error = "Tên vai trò chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt.";
+                                break;
+                            }
+                        }
+                        if (error != null) {
+                            break;
+                        }
+                        Role newRole = new Role(0, roleNameAdd);
                         if (!RoleDAO.getInstance().addRole(newRole)) {
                             error = "Thêm vai trò thất bại. Tên vai trò có thể đã tồn tại.";
                         }
@@ -51,15 +64,30 @@ public class Roles extends HttpServlet {
                     case "update":
                         int roleIdUpdate = Integer.parseInt(request.getParameter("roleId"));
                         String roleNameUpdate = request.getParameter("roleName");
-                        if (roleNameUpdate == null || roleNameUpdate.trim().isEmpty()) {
+                        if (roleNameUpdate == null || (roleNameUpdate = roleNameUpdate.trim()).isEmpty()) {
                             error = "Tên vai trò không được để trống.";
                             break;
                         }
-                        if (roleNameUpdate.trim().length() > 50) {
-                            error = "Tên vai trò phải ít hơn 50 ký tự.";
+                        if (roleNameUpdate.length() < 2 || roleNameUpdate.length() > 50) {
+                            error = "Tên vai trò phải có độ dài từ 2 đến 50 ký tự.";
                             break;
                         }
-                        Role updatedRole = new Role(roleIdUpdate, roleNameUpdate.trim());
+                        if (!Character.isLetter(roleNameUpdate.charAt(0))) {
+                            error = "Ký tự đầu tiên của tên vai trò phải là chữ cái.";
+                            break;
+                        }
+                        for (char c : roleNameUpdate.toCharArray()) {
+                            if (!Character.isLetter(c) && c != ' ') {
+                                error = "Tên vai trò chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt.";
+                                break;
+                            }
+                        }
+
+                        if (error != null) {
+                            break;
+                        }
+
+                        Role updatedRole = new Role(roleIdUpdate, roleNameUpdate);
                         if (!RoleDAO.getInstance().updateRole(updatedRole)) {
                             error = "Cập nhật vai trò thất bại. Vai trò có thể không tồn tại hoặc tên đã tồn tại.";
                         }

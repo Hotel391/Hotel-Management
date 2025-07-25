@@ -138,11 +138,7 @@ public class ManagerProfile extends HttpServlet {
                     hasError = true;
                 }
 
-                if (!Validation.checkFormatException(newPassword, "PASSWORD")) {
-                    request.setAttribute("newPasswordError",
-                            "Mật khẩu mới phải dài ít nhất 8 ký tự, chứa cả chữ, số và ký tự đặc biệt!");
-                    hasError = true;
-                }
+                hasError |= Validation.validateField(request, "newPasswordError", "Mật khẩu mới", newPassword, s -> s, "PASSWORD");
 
                 if (!newPassword.equals(confirmPassword)) {
                     request.setAttribute("confirmPasswordError", "Mật khẩu xác nhận không trùng khớp!");

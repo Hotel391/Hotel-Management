@@ -89,13 +89,13 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">Adult</span>
-                                        <input class="form-control" type="number" name="adults" value="<c:out value='${adults}' default='1' />" min="1">
+                                        <input class="form-control" type="number" name="adults" value="<c:out value='${adults}' default='1' />" min="1" max="10">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">Children</span>
-                                        <input class="form-control" type="number" name="children" value="<c:out value='${children}' default='0' />" min="0">
+                                        <input class="form-control" type="number" name="children" value="<c:out value='${children}' default='0' />" min="0" max="10">
                                     </div>
                                 </div>
                             </div>

@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -131,7 +132,7 @@
                                 </div>
                                 <c:if test="${!isActive}">
                                     <div class="room-price">
-                                        Phòng này đã không còn khả dụng
+                                        Cart này đã không còn khả dụng
                                     </div>
                                 </c:if>
                                 <c:if test="${isActive}">
@@ -239,7 +240,7 @@
                                                 <td><fmt:formatNumber value="${s.service.price}" type="number" groupingUsed="true" /> ₫</td>
                                                 <td>
                                                     <input type="number" name="quantity_${s.service.serviceId}" value="${s.quantity}" 
-                                                           <c:if test="${s.service.price == 0 || s.service.serviceName eq 'Dịch vụ đưa đón'}">
+                                                           <c:if test="${s.service.price == 0 || fn:contains(fn:toLowerCase(s.service.serviceName), 'đưa đón')}">
                                                                readonly 
                                                            </c:if>
                                                            min="${serviceCannotDisable[s.service.serviceId] != null ? serviceCannotDisable[s.service.serviceId] : 1}"

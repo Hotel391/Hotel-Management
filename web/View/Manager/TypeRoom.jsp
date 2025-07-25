@@ -220,8 +220,8 @@
                                                                             </h5> 
                                                                         </c:otherwise>
                                                                     </c:choose>
-                                                                    <c:if test="${not empty updateMessageService and typeId == trl.typeId}">
-                                                                        <p class="alert alert-success">${updateMessageService}</p>
+                                                                    <c:if test="${not empty noUpdatedServices and typeId == trl.typeId}">
+                                                                        <p class="alert alert-success">${noUpdatedServices}</p>
                                                                     </c:if>
                                                                     <c:if test="${not empty noChangeServiceError and typeId == trl.typeId}">
                                                                         <p class="alert alert-danger">${noChangeServiceError}</p>
@@ -417,7 +417,8 @@
                                                                     <div class="row g-3">
                                                                         <div class="col-md-6">
                                                                             <label for="typeNameEdit_${trl.typeId}" class="form-label">Type room's name</label>
-                                                                            <input spellcheck="false" 
+                                                                            <input readonly
+                                                                                   spellcheck="false" 
                                                                                    type="text" 
                                                                                    id="typeRoomEdit_${trl.typeId}" 
                                                                                    name="typeName"
@@ -451,6 +452,7 @@
                                                                         <div class="col-md-6">
                                                                             <label for="typeMaxAdultEdit_${trl.typeId}" class="form-label">Max Adult</label>
                                                                             <input spellcheck="false" 
+                                                                                   readonly
                                                                                    type="number" 
                                                                                    id="typeRoomEdit_${trl.typeId}" 
                                                                                    name="maxAdult" 
@@ -466,6 +468,7 @@
                                                                             <label for="typeMaxAdultEdit_${trl.typeId}" class="form-label">Max Children</label>
                                                                             <input spellcheck="false" 
                                                                                    type="number" 
+                                                                                   readonly
                                                                                    id="typeRoomEdit_${trl.typeId}" 
                                                                                    name="maxChildren" 
                                                                                    value="${param.maxChildren != null ? param.maxChildren : trl.maxChildren}" 
@@ -483,6 +486,9 @@
                                                                     </div>
                                                                     <c:if test="${not empty updateMessageNameAndPrice and updateNameAndPrice == trl.typeId}">
                                                                         <p class="alert alert-success">${updateMessageNameAndPrice}</p>
+                                                                    </c:if>
+                                                                    <c:if test="${not empty NotBeUpdated and updateNameAndPrice == trl.typeId}">
+                                                                        <p class="alert alert-success">${NotBeUpdated}</p>
                                                                     </c:if>
                                                                     <div class="upload-img">
 

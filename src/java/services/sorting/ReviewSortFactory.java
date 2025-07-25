@@ -19,6 +19,7 @@ public class ReviewSortFactory {
             case "rating_low":
                 return new RatingLowToHighSort();
             case "helpful":
+                return new MostHelpfulSort();
             default:
                 return new MostRecentSort();
         }

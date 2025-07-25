@@ -56,8 +56,12 @@
                             </div>
                             <c:remove var="success" scope="session"/>
                         </c:if>
-                        <c:if test="${not empty error}">
-                            <div class="alert alert-danger mt-3">${error}</div>
+                        <c:if test="${not empty sessionScope.error}">
+                            <div class="alert alert-danger mt-3" role="alert">
+                                ${sessionScope.error}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <c:remove var="error" scope="session"/>
                         </c:if>
 
                         <div class="table-container">
@@ -69,7 +73,7 @@
                                         <th scope="col">Số Điện Thoại</th>
                                         <th scope="col">Email</th>
                                         <th scope="col">Vai Trò</th>
-                                        <th scope="col" class="text-center">Hành Động</th>
+                                        <th scope="col" class="text-center">Trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -215,8 +219,6 @@
                                                 </div>
                                             </c:if>
 
-
-
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label for="usernameEdit_${emp.employeeId}" class="form-label">Tên Đăng Nhập</label>
@@ -238,26 +240,22 @@
                                                     <input type="email" id="emailEdit_${emp.employeeId}" name="email" value="${requestScope.email != null ? requestScope.email : emp.email}" class="form-control" required />
                                                 </div>
 
-                                                <!-- Bộ Lựa Chọn Vai Trò -->
+                                                <!-- Display Role as Read-Only -->
                                                 <div class="col-md-6">
-                                                    <label for="roleIdEdit_${emp.employeeId}" class="form-label">Vai Trò</label>
-                                                    <select id="roleIdEdit_${emp.employeeId}" name="roleId" class="form-select" required onchange="toggleFloorFieldEdit(${emp.employeeId})">
-                                                        <c:forEach var="role" items="${listRole}">
-                                                            <c:if test="${role.roleName == 'Receptionist' || role.roleName == 'Cleaner'}">
-                                                                <option value="${role.roleId}" ${requestScope.roleId == role.roleId || emp.role.roleId == role.roleId ? 'selected' : ''}>${role.roleName}</option>
-                                                            </c:if>
-                                                        </c:forEach>
-                                                    </select>
+                                                    <label class="form-label">Vai Trò</label>
+                                                    <input type="text" class="form-control" value="${emp.role != null ? emp.role.roleName : '-'}" readonly />
                                                 </div>
 
-                                                <!-- Tầng Bắt Đầu/Kết Thúc cho Cleaner -->
-                                                <div class="col-md-6" id="floorFieldEdit_${emp.employeeId}" style="display:${requestScope.roleId == 'Cleaner' || emp.role.roleName == 'Cleaner' ? 'block' : 'none'};">
-                                                    <label for="startFloorEdit_${emp.employeeId}" class="form-label">Tầng Bắt Đầu</label>
-                                                    <input type="number" id="startFloorEdit_${emp.employeeId}" name="startFloor" value="${requestScope.startFloor != null ? requestScope.startFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.startFloor : '')}" class="form-control" min="1" max="7" />
+                                                <!-- Tầng Bắt Đầu/Kết Thúc for Cleaner -->
+                                                <c:if test="${emp.role != null && emp.role.roleName == 'Cleaner'}">
+                                                    <div class="col-md-6" id="floorFieldEdit_${emp.employeeId}">
+                                                        <label for="startFloorEdit_${emp.employeeId}" class="form-label">Tầng Bắt Đầu <span class="text-danger">*</span></label>
+                                                        <input type="number" id="startFloorEdit_${emp.employeeId}" name="startFloor" value="${requestScope.startFloor != null ? requestScope.startFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.startFloor : '')}" class="form-control" min="1" max="7" required />
 
-                                                    <label for="endFloorEdit_${emp.employeeId}" class="form-label">Tầng Kết Thúc</label>
-                                                    <input type="number" id="endFloorEdit_${emp.employeeId}" name="endFloor" value="${requestScope.endFloor != null ? requestScope.endFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.endFloor : '')}" class="form-control" min="1" max="7" />
-                                                </div>
+                                                        <label for="endFloorEdit_${emp.employeeId}" class="form-label">Tầng Kết Thúc <span class="text-danger">*</span></label>
+                                                        <input type="number" id="endFloorEdit_${emp.employeeId}" name="endFloor" value="${requestScope.endFloor != null ? requestScope.endFloor : (emp.cleanerFloor != null ? emp.cleanerFloor.endFloor : '')}" class="form-control" min="1" max="7" required />
+                                                    </div>
+                                                </c:if>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -382,53 +380,56 @@
         <script src="${pageContext.request.contextPath}/Js/userProfileJs.js"></script>
         <%-- Các script khác ở dưới --%>
         <script>
-                                                        function toggleFloorFieldAdd() {
-                                                            const roleName = document.querySelector('#roleIdAdd option:checked').text;
-                                                            const floorField = document.getElementById('floorFieldAdd');
-                                                            floorField.style.display = roleName.toLowerCase() === 'cleaner' ? 'block' : 'none';
+                                                    function toggleFloorFieldAdd() {
+                                                        const roleName = document.querySelector('#roleIdAdd option:checked').text;
+                                                        const floorField = document.getElementById('floorFieldAdd');
+                                                        floorField.style.display = roleName.toLowerCase() === 'cleaner' ? 'block' : 'none';
+                                                    }
+
+                                                    function toggleFloorFieldEdit(employeeId) {
+                                                        const roleSelect = document.getElementById(`roleIdEdit_${employeeId}`);
+                                                        const selectedRole = roleSelect.options[roleSelect.selectedIndex].text;
+                                                        const floorField = document.getElementById(`floorFieldEdit_${employeeId}`);
+
+                                                        if (selectedRole.toLowerCase() === 'cleaner') {
+                                                            floorField.style.display = 'block';
+                                                        } else {
+                                                            floorField.style.display = 'none';
                                                         }
+                                                    }
 
-                                                        function toggleFloorFieldEdit(employeeId) {
-                                                            const roleSelect = document.querySelector(`#roleIdEdit_${employeeId}`);
-                                                            const roleName = roleSelect.options[roleSelect.selectedIndex].text;
-                                                            const floorField = document.getElementById(`floorFieldEdit_${employeeId}`);
-                                                            if (roleName.toLowerCase() === 'cleaner') {
-                                                                floorField.style.display = 'block';
-                                                            } else {
-                                                                floorField.style.display = 'none';
+
+
+                                                    document.addEventListener('DOMContentLoaded', function () {
+                                                        const showAddModal = ${not empty requestScope.showAddModal};
+                                                        if (showAddModal) {
+                                                            const addEmployeeModalEl = document.getElementById("addEmployeeModal");
+                                                            if (addEmployeeModalEl) {
+                                                                const modal = new bootstrap.Modal(addEmployeeModalEl);
+                                                                modal.show();
                                                             }
                                                         }
+                                                    });
 
-                                                        document.addEventListener('DOMContentLoaded', function () {
-                                                            const showAddModal = ${not empty requestScope.showAddModal};
-                                                            if (showAddModal) {
-                                                                const addEmployeeModalEl = document.getElementById("addEmployeeModal");
-                                                                if (addEmployeeModalEl) {
-                                                                    const modal = new bootstrap.Modal(addEmployeeModalEl);
-                                                                    modal.show();
-                                                                }
+                                                    document.addEventListener('DOMContentLoaded', function () {
+                                                        const showEditModalId = "<c:out value='${showEditModalId}' default=''/>";
+                                                        if (showEditModalId !== "") {
+                                                            const editEmployeeModalEl = document.getElementById("editEmployeeModal_" + showEditModalId);
+                                                            if (editEmployeeModalEl) {
+                                                                const modal = new bootstrap.Modal(editEmployeeModalEl);
+                                                                modal.show();
                                                             }
-                                                        });
-
-                                                        document.addEventListener('DOMContentLoaded', function () {
-                                                            const showEditModalId = "<c:out value='${showEditModalId}' default=''/>";
-                                                            if (showEditModalId !== "") {
-                                                                const editEmployeeModalEl = document.getElementById("editEmployeeModal_" + showEditModalId);
-                                                                if (editEmployeeModalEl) {
-                                                                    const modal = new bootstrap.Modal(editEmployeeModalEl);
-                                                                    modal.show();
-                                                                }
-                                                            }
-                                                        });
-                                                        document.addEventListener('DOMContentLoaded', function () {
-                                                            const successAlert = document.querySelector('.alert-success');
-                                                            if (successAlert) {
-                                                                setTimeout(() => {
-                                                                    successAlert.classList.remove('show');
-                                                                    successAlert.style.display = 'none';
-                                                                }, 5000);
-                                                            }
-                                                        });
+                                                        }
+                                                    });
+                                                    document.addEventListener('DOMContentLoaded', function () {
+                                                        const successAlert = document.querySelector('.alert-success');
+                                                        if (successAlert) {
+                                                            setTimeout(() => {
+                                                                successAlert.classList.remove('show');
+                                                                successAlert.style.display = 'none';
+                                                            }, 5000);
+                                                        }
+                                                    });
         </script>
     </body>
 </html>

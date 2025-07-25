@@ -15,7 +15,6 @@
 <!-- Sidebar Avatar + Info -->
 <div class="setting-card text-center mb-4 p-4">
     <div class="sidebar-avatar-circle mx-auto mb-3">${initialLetter}</div>
-    <h6 class="mb-1 fw-bold">${customerAccount.customer.fullName}</h6>
     <p class="text-muted">${customerAccount.username}</p>
 </div>
 

@@ -254,8 +254,12 @@
                                                                     const tomorrow = new Date(today);
                                                                     tomorrow.setDate(today.getDate() + 1);
 
+                                                                    const maxStart = new Date(today);
+                                                                    maxStart.setFullYear(maxStart.getFullYear() + 1);
+
                                                                     const formattedToday = today.toISOString().split('T')[0];
                                                                     const formattedTomorrow = tomorrow.toISOString().split('T')[0];
+                                                                    const formattedMaxStart = maxStart.toISOString().split('T')[0];
 
                                                                     const startDateInput = document.getElementById("startDate");
                                                                     const endDateInput = document.getElementById("endDate");
@@ -269,8 +273,30 @@
                                                                     }
 
                                                                     startDateInput.min = formattedToday;
-                                                                    endDateInput.min = formattedToday;
+                                                                    startDateInput.max = formattedMaxStart;
+
+                                                                    startDateInput.addEventListener("change", function () {
+                                                                        const startDate = new Date(this.value);
+                                                                        if (isNaN(startDate.getTime()))
+                                                                            return;
+
+                                                                        const minEndDate = new Date(startDate);
+                                                                        minEndDate.setDate(minEndDate.getDate() + 1);
+
+                                                                        const maxEndDate = new Date(startDate);
+                                                                        maxEndDate.setFullYear(maxEndDate.getFullYear() + 1);
+
+                                                                        endDateInput.min = minEndDate.toISOString().split('T')[0];
+                                                                        endDateInput.max = maxEndDate.toISOString().split('T')[0];
+
+                                                                        const currentEnd = new Date(endDateInput.value);
+                                                                        if (currentEnd < minEndDate || currentEnd > maxEndDate) {
+                                                                            endDateInput.value = minEndDate.toISOString().split('T')[0];
+                                                                        }
+                                                                    });
+                                                                    startDateInput.dispatchEvent(new Event("change"));
                                                                 };
+
         </script>
     </body>
 </html>

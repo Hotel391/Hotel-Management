@@ -78,7 +78,6 @@ public class EmployeeController extends HttpServlet {
                     Employee newEmp = addEmployee(request, response);
                     if (newEmp != null) {
                         EmployeeDAO.getInstance().addEmployee(newEmp);
-                        // Success message already set in addEmployee
                     } else {
                         request.setAttribute("showAddModal", true);
                         if (request.getAttribute("addErrors") != null) {
@@ -105,7 +104,7 @@ public class EmployeeController extends HttpServlet {
                         EmployeeDAO.getInstance().deleteEmployee(employeeId);
                         request.getSession().setAttribute("success", "Xóa nhân viên thành công.");
                     } else {
-                        request.setAttribute("error", "Không xóa nhân viên đang hoạt động!");
+                        request.getSession().setAttribute("error", "Không xóa nhân viên đang hoạt động!");
                     }
                     break;
                 case "toggleStatus":
@@ -159,7 +158,6 @@ public class EmployeeController extends HttpServlet {
             int roleId = Integer.parseInt(request.getParameter("roleId"));
             String startFloorStr = request.getParameter("startFloor");
             String endFloorStr = request.getParameter("endFloor");
-
 
             request.setAttribute("username", username);
             request.setAttribute("password", password);
@@ -241,7 +239,6 @@ public class EmployeeController extends HttpServlet {
             String fullName = request.getParameter("fullName");
             String phoneNumber = request.getParameter("phoneNumber");
             String email = request.getParameter("email");
-            int roleId = Integer.parseInt(request.getParameter("roleId"));
             String startFloorStr = request.getParameter("startFloor");
             String endFloorStr = request.getParameter("endFloor");
 
@@ -249,11 +246,19 @@ public class EmployeeController extends HttpServlet {
             request.setAttribute("fullName", fullName);
             request.setAttribute("phoneNumber", phoneNumber);
             request.setAttribute("email", email);
-            request.setAttribute("roleId", roleId);
             request.setAttribute("startFloor", startFloorStr);
             request.setAttribute("endFloor", endFloorStr);
 
-            hasError = validateEditEmployeeInput(request, username, fullName, phoneNumber, email, roleId, emp.getEmployeeId(), startFloorStr, endFloorStr, errorMessages);
+            Employee existingEmployee = EmployeeDAO.getInstance().getEmployeeById(emp.getEmployeeId());
+            if (existingEmployee == null) {
+                errorMessages.add("Nhân viên không tồn tại!");
+                request.setAttribute("editErrors_" + emp.getEmployeeId(), errorMessages);
+                return null;
+            }
+
+            emp.setRole(existingEmployee.getRole());
+
+            hasError = validateEditEmployeeInput(request, username, fullName, phoneNumber, email, existingEmployee.getRole().getRoleId(), emp.getEmployeeId(), startFloorStr, endFloorStr, errorMessages);
 
             if (hasError) {
                 request.setAttribute("editErrors_" + emp.getEmployeeId(), errorMessages);
@@ -265,9 +270,6 @@ public class EmployeeController extends HttpServlet {
             emp.setFullName(fullName);
             emp.setPhoneNumber(phoneNumber);
             emp.setEmail(email);
-            emp.setRole(RoleDAO.getInstance().getRoleById(roleId));
-
-            Employee existingEmployee = EmployeeDAO.getInstance().getEmployeeById(emp.getEmployeeId());
             emp.setActivate(existingEmployee.isActivate());
 
             if ("Cleaner".equalsIgnoreCase(emp.getRole().getRoleName())) {
@@ -277,11 +279,13 @@ public class EmployeeController extends HttpServlet {
                 cf.setStartFloor(startFloor);
                 cf.setEndFloor(endFloor);
                 emp.setCleanerFloor(cf);
+            } else {
+                emp.setCleanerFloor(null);
             }
 
             return emp;
         } catch (NumberFormatException e) {
-            errorMessages.add("An error occurred: " + e.getMessage());
+            errorMessages.add("Đã xảy ra lỗi: " + e.getMessage());
             request.setAttribute("editErrors_" + emp.getEmployeeId(), errorMessages);
             request.setAttribute("showEditModalId", emp.getEmployeeId());
             return null;
@@ -292,27 +296,31 @@ public class EmployeeController extends HttpServlet {
             String fullName, String phoneNumber, String email, int roleId, String startFloorStr, String endFloorStr, List<String> errorMessages) {
         boolean hasError = false;
 
-        if (Validation.validateField(request, "usernameError", username, "USERNAME", "Username", "Tên đăng nhập không hợp lệ!")) {
-            errorMessages.add("Tên đăng nhập phải bắt đầu bằng chữ cái và có 5-20 ký tự (chữ, số, hoặc gạch dưới).");
+        if (Validation.validateField(request, "usernameError", "Tên đăng nhập", username, s -> s, "USERNAME")) {
+            errorMessages.add((String) request.getAttribute("usernameError"));
             hasError = true;
         }
-        if (Validation.validateField(request, "passwordError", password, "PASSWORD", "Password", "Mật khẩu không hợp lệ!")) {
-            errorMessages.add("Mật khẩu phải có ít nhất 8 ký tự, gồm chữ thường, số và ký tự đặc biệt.");
+
+        if (Validation.validateField(request, "passwordError", "Mật khẩu", password, s -> s, "PASSWORD")) {
+            errorMessages.add((String) request.getAttribute("passwordError"));
             hasError = true;
         }
-        if (Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Họ tên", "Họ tên không hợp lệ!")) {
-            errorMessages.add("Họ tên phải gồm 2-100 ký tự chữ và khoảng trắng.");
+
+        if (Validation.validateField(request, "fullNameError", "Họ tên", fullName, s -> s, "FULLNAME")) {
+            errorMessages.add((String) request.getAttribute("fullNameError"));
             hasError = true;
         }
-        if (Validation.validateField(request, "phoneNumberError", phoneNumber, "PHONE_NUMBER", "Số điện thoại", "Số điện thoại không hợp lệ!")) {
-            errorMessages.add("Số điện thoại phải bắt đầu bằng số 0 và có 10-11 chữ số.");
+
+        if (Validation.validateField(request, "phoneNumberError", "Số điện thoại", phoneNumber, s -> s, "PHONE_NUMBER")) {
+            errorMessages.add((String) request.getAttribute("phoneNumberError"));
             hasError = true;
         }
-        if (Validation.validateField(request, "emailError", email, "EMAIL", "Email", "Email không hợp lệ!")) {
-            errorMessages.add("Email không đúng định dạng (vd: example@gmail.com).");
+
+        if (Validation.validateField(request, "emailError", "Email", email, s -> s, "EMAIL")) {
+            errorMessages.add((String) request.getAttribute("emailError"));
             hasError = true;
         }
-        
+
         EmployeeDAO employeeDAO = EmployeeDAO.getInstance();
         CustomerAccountDAO customerDAO = CustomerAccountDAO.getInstance();
         CustomerDAO customer = CustomerDAO.getInstance();
@@ -330,7 +338,6 @@ public class EmployeeController extends HttpServlet {
             hasError = true;
         }
 
-
         Role role = RoleDAO.getInstance().getRoleById(roleId);
         if (role == null) {
             errorMessages.add("Vai trò không hợp lệ!");
@@ -342,7 +349,7 @@ public class EmployeeController extends HttpServlet {
             Integer endFloor = null;
 
             if (startFloorStr == null || startFloorStr.trim().isEmpty()) {
-                errorMessages.add("Vui lòng nhập tầng bắt đầu cho vai trò nhân viên dọn phòng.");
+                errorMessages.add("Vui lòng nhập tầng bắt đầu cho nhân viên dọn phòng.");
                 hasError = true;
             } else {
                 try {
@@ -378,20 +385,20 @@ public class EmployeeController extends HttpServlet {
             String phoneNumber, String email, int roleId, int employeeId, String startFloorStr, String endFloorStr, List<String> errorMessages) {
         boolean hasError = false;
 
-        if (Validation.validateField(request, "usernameError", username, "USERNAME", "Username", "Tên đăng nhập không hợp lệ!")) {
-            errorMessages.add("Tên đăng nhập phải bắt đầu bằng chữ cái và có 5-20 ký tự (chữ, số, hoặc gạch dưới).");
+        if (Validation.validateField(request, "usernameError", "Tên đăng nhập", username, s -> s, "USERNAME")) {
+            errorMessages.add((String) request.getAttribute("usernameError"));
             hasError = true;
         }
-        if (Validation.validateField(request, "fullNameError", fullName, "FULLNAME", "Họ tên", "Họ tên không hợp lệ!")) {
-            errorMessages.add("Họ tên phải gồm 2-100 ký tự chữ và khoảng trắng.");
+        if (Validation.validateField(request, "fullNameError", "Họ tên", fullName, s -> s, "FULLNAME")) {
+            errorMessages.add((String) request.getAttribute("fullNameError"));
             hasError = true;
         }
-        if (Validation.validateField(request, "phoneNumberError", phoneNumber, "PHONE_NUMBER", "Số điện thoại", "Số điện thoại không hợp lệ!")) {
-            errorMessages.add("Số điện thoại phải bắt đầu bằng số 0 và có 10-11 chữ số.");
+        if (Validation.validateField(request, "phoneNumberError", "Số điện thoại", phoneNumber, s -> s, "PHONE_NUMBER")) {
+            errorMessages.add((String) request.getAttribute("phoneNumberError"));
             hasError = true;
         }
-        if (Validation.validateField(request, "emailError", email, "EMAIL", "Email", "Email không hợp lệ!")) {
-            errorMessages.add("Email không đúng định dạng (vd: example@gmail.com).");
+        if (Validation.validateField(request, "emailError", "Email", email, s -> s, "EMAIL")) {
+            errorMessages.add((String) request.getAttribute("emailError"));
             hasError = true;
         }
 
@@ -420,15 +427,16 @@ public class EmployeeController extends HttpServlet {
         }
 
         if (role != null && "Cleaner".equalsIgnoreCase(role.getRoleName())) {
-            Integer startFloor = null;
-            Integer endFloor = null;
-
             if (startFloorStr == null || startFloorStr.trim().isEmpty()) {
-                errorMessages.add("Vui lòng nhập tầng bắt đầu cho vai trò nhân viên dọn phòng.");
+                errorMessages.add("Vui lòng nhập tầng bắt đầu cho nhân viên dọn phòng.");
                 hasError = true;
             } else {
                 try {
-                    startFloor = Integer.valueOf(startFloorStr);
+                    Integer startFloor = Integer.valueOf(startFloorStr);
+                    if (startFloor < 1 || startFloor > 7) {
+                        errorMessages.add("Tầng bắt đầu phải từ 1 đến 7.");
+                        hasError = true;
+                    }
                 } catch (NumberFormatException e) {
                     errorMessages.add("Tầng bắt đầu không hợp lệ.");
                     hasError = true;
@@ -436,20 +444,31 @@ public class EmployeeController extends HttpServlet {
             }
 
             if (endFloorStr == null || endFloorStr.trim().isEmpty()) {
-                errorMessages.add("Vui lòng nhập tầng kết thúc cho vai trò nhân viên dọn phòng.");
+                errorMessages.add("Vui lòng nhập tầng kết thúc cho nhân viên dọn phòng.");
                 hasError = true;
             } else {
                 try {
-                    endFloor = Integer.valueOf(endFloorStr);
+                    Integer endFloor = Integer.valueOf(endFloorStr);
+                    if (endFloor < 1 || endFloor > 7) {
+                        errorMessages.add("Tầng kết thúc phải từ 1 đến 7.");
+                        hasError = true;
+                    }
                 } catch (NumberFormatException e) {
                     errorMessages.add("Tầng kết thúc không hợp lệ.");
                     hasError = true;
                 }
             }
 
-            if (startFloor != null && endFloor != null && startFloor > endFloor) {
-                errorMessages.add("Tầng bắt đầu phải nhỏ hơn hoặc bằng tầng kết thúc.");
-                hasError = true;
+            if (!hasError) {
+                try {
+                    Integer startFloor = Integer.valueOf(startFloorStr);
+                    Integer endFloor = Integer.valueOf(endFloorStr);
+                    if (startFloor > endFloor) {
+                        errorMessages.add("Tầng bắt đầu phải nhỏ hơn hoặc bằng tầng kết thúc.");
+                        hasError = true;
+                    }
+                } catch (NumberFormatException e) {
+                }
             }
         }
 

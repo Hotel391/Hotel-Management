@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.text.Normalizer;
 import java.util.List;
+import models.Cart;
+import models.CartService;
 import models.Service;
 
 public class ManagerService extends HttpServlet {
@@ -51,19 +53,39 @@ public class ManagerService extends HttpServlet {
         if (choose.equals("deleteService")) {
             String serviceIdStr = request.getParameter(serviceIdd);
             int serviceId = Integer.parseInt(serviceIdStr);
+            boolean isActive = Boolean.parseBoolean(request.getParameter("isActive"));
+            if(isActive){
+                request.setAttribute("success", false);
+                request.setAttribute("action", "deleteFalseIsActive");
+                paginateServiceList(request, list, pageStr);
+                request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
+                return;
+            }
+            boolean hasError = false;
             List<Integer> allServiceOfDetailService = dal.ServiceDAO.getInstance().getAllServiceIdsFromDetailService();
             for (Integer integer : allServiceOfDetailService) {
                 if (integer == serviceId) {
-                    paginateServiceList(request, list, pageStr);
-                    request.setAttribute("canNotDelete", "không thể xóa dịch vụ vì dịch vụ đã được sử dụng");
-                    request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
-                    return;
+                   hasError = true;
                 }
+            }
+            List<Integer> listCart = dal.ServiceDAO.getInstance().getServiceIdInCart();
+            for (Integer integer : listCart) {
+                if (integer == serviceId) {
+                    hasError = true;
+                }
+            }
+            
+            if (hasError) {
+                request.setAttribute("success", false);
+                request.setAttribute("action", "deleteFalse");
+                paginateServiceList(request, list, pageStr);
+                request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
+                return;
             }
 
             dao.deleteService(serviceId);
             paginateServiceList(request, list, pageStr);
-            response.sendRedirect(request.getContextPath() + "/manager/service?choose=search&serviceNameSearch="+serviceNameSearch+"&page=" + pageStr + "&action=delete&success=true");
+            response.sendRedirect(request.getContextPath() + "/manager/service?choose=search&serviceNameSearch=" + serviceNameSearch + "&page=" + pageStr + "&action=delete&success=true");
         }
         //list all service
         if (choose.equals("ViewAllService")) {
@@ -93,6 +115,39 @@ public class ManagerService extends HttpServlet {
 
         if ("toggleStatus".equals(choose)) {
             int serviceId = Integer.parseInt(request.getParameter(serviceIdd));
+            List<Integer> listCart = dal.ServiceDAO.getInstance().getServiceIdInCart();
+            boolean hasError = false;
+            for (Integer integer : listCart) {
+                if (integer == serviceId) {
+                    hasError = true;
+                    break;
+                }
+            }
+            List<Integer> listServiceInRoomNService = dal.ServiceDAO.getInstance().getServiceInRoomNService();
+            for (Integer integer : listServiceInRoomNService) {
+                if (integer == serviceId) {
+                    hasError = true;
+                    break;
+                }
+            }
+            
+            List<Integer> listServiceInDetailService = dal.ServiceDAO.getInstance().getServiceInDetailService();
+            for (Integer integer : listServiceInDetailService) {
+                if (integer == serviceId) {
+                    hasError = true;
+                    break;
+                }
+            }
+
+            if (hasError) {
+                request.setAttribute("success", false);
+                request.setAttribute("action", "isActiveFalse");
+                paginateServiceList(request, list, pageStr);
+                request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
+                return;
+            }
+            
+            dal.ServiceDAO.getInstance().deleteServiceInCartService(serviceId);
             dal.ServiceDAO.getInstance().toggleServiceStatus(serviceId);
             response.sendRedirect(request.getContextPath() + "/manager/service?choose=search&serviceNameSearch=" + serviceNameSearch + "&page=" + pageStr + "&action=isActive&success=true");
         }
@@ -117,33 +172,33 @@ public class ManagerService extends HttpServlet {
 
         List<Integer> allServiceOfDetailService = dal.ServiceDAO.getInstance().getAllServiceIdsFromDetailService();
         boolean isUsed = allServiceOfDetailService.contains(serviceId);
-
-        // Lấy tên cũ từ list
         String oldName = "";
-        for (Service service : list) {
-            if (service.getServiceId() == serviceId) {
-                oldName = service.getServiceName();
-                break;
+        // Lấy tên cũ từ list
+        // Không cho đổi tên nếu đã dùng
+        if (isUsed) {
+            for (Service service : list) {
+                if (service.getServiceId() == serviceId) {
+                    oldName = service.getServiceName();
+                    break;
+                }
+            }
+            if (!oldName.equals(serviceName)) {
+                request.setAttribute("canNotUpdate", "Không thể thay đổi tên dịch vụ vì dịch vụ đã được sử dụng.");
+                paginateServiceList(request, list, pageStr);
+                request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
+                return;
             }
         }
 
-        // Không cho đổi tên nếu đã dùng
-        if (oldName != null && isUsed && !normalize(serviceName).equals(normalize(oldName))) {
-            request.setAttribute("canNotUpdate", "Không thể thay đổi tên dịch vụ vì dịch vụ đã được sử dụng.");
-            paginateServiceList(request, list, pageStr);
-            request.getRequestDispatcher("/View/Manager/ViewService.jsp").forward(request, response);
-            return;
-        }
-
-        if (serviceName == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
-            request.setAttribute("serviceNameUpdateError", "Tên dịch vụ không được để trống,"
-                    + "Tên dịch vụ chỉ được chứa các chữ cái, chữ số và một khoảng trắng giữa các từ.");
+        if (serviceName == null || !serviceName.matches("^[\\p{L}][\\p{L}0-9]*( [\\p{L}0-9]+)*$")) {
+            request.setAttribute("serviceNameUpdateError",
+                    "Tên dịch vụ phải bắt đầu bằng chữ cái, chỉ chứa chữ cái, chữ số và khoảng trắng giữa các từ.");
             haveError = true;
         }
 
         try {
             price = Integer.parseInt(priceStr);
-            if (price <= 0 || price > maxPrice) {
+            if (price < 0 || price > maxPrice) {
                 request.setAttribute("priceUpdateError", errorPrice);
                 haveError = true;
             }
@@ -180,11 +235,12 @@ public class ManagerService extends HttpServlet {
         int price = 0;
         boolean haveError = false;
 
-        if (serviceName == null || !serviceName.matches("^[\\p{L}0-9]+( [\\p{L}0-9]+)*$")) {
-            request.setAttribute("nameAddError", "Tên dịch vụ không được để trống,"
-                    + " Tên dịch vụ chỉ được chứa các chữ cái, chữ số và một khoảng trắng giữa các từ.");
+        if (serviceName == null || !serviceName.matches("^[\\p{L}][\\p{L}0-9]*( [\\p{L}0-9]+)*$")) {
+            request.setAttribute("nameAddError",
+                    "Tên dịch vụ phải bắt đầu bằng chữ cái, chỉ chứa chữ cái, chữ số và khoảng trắng giữa các từ.");
             haveError = true;
         }
+
         for (Service service : list) {
             if (normalize(service.getServiceName()).equals(normalize(serviceName))) {
                 request.setAttribute("nameAddError", "Tên dịch vụ này đã tồn tại.");
@@ -194,7 +250,7 @@ public class ManagerService extends HttpServlet {
 
         try {
             price = Integer.parseInt(priceStr);
-            if (price <= 0 || price > maxPrice) {
+            if (price < 0 || price > maxPrice) {
                 request.setAttribute("priceAddError", errorPrice);
                 haveError = true;
             }

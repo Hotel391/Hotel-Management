@@ -86,8 +86,6 @@ public class CheckoutRoom extends HttpServlet {
 
             int bookingId = Integer.parseInt(request.getParameter("bookingId"));
 
-            System.out.println("bookingId: " + bookingId);
-
             Booking bookingSelected = BookingDAO.getInstance().getBookingByBookingId(bookingId);
 
             List<BookingDetail> detail = BookingDetailDAO.getInstance().getBookingDetailByBookingId(bookingSelected);
@@ -144,8 +142,14 @@ public class CheckoutRoom extends HttpServlet {
             }
 
             if ("online".equals(paymentMethodSelected)) {
-
-                System.out.println("done to online");
+                
+                int remainPrice = Integer.parseInt(request.getParameter("remainPrice"));
+                
+                if(remainPrice < 10000){
+                    request.setAttribute("limitationError", "Số tiền ít hơn 10000 VND vui lòng thanh toán bằng tiền mặt");
+                    showCheckoutRoom(request, response);
+                    return;
+                }
 
                 session.setAttribute("bookingId", bookingId);
 

@@ -11,12 +11,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.sql.Date;
+import java.util.AbstractList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import models.TypeRoom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import models.Cart;
+import models.CartService;
 
 public class ServiceDAO {
 
@@ -469,7 +474,7 @@ public class ServiceDAO {
 
         return services;
     }
-    
+
     public List<Service> getAllActiveServicesForChatbot() {
         String sql = "SELECT ServiceId, ServiceName, Price FROM Service WHERE IsActive = 1";
         List<Service> services = new ArrayList<>();
@@ -483,4 +488,83 @@ public class ServiceDAO {
         }
         return services;
     }
+
+    public List<Integer> getServiceIdInCart() {
+        List<Integer> serviceIds = new ArrayList<>();
+
+        String sql = """
+        SELECT DISTINCT cs.ServiceId
+        FROM Cart c
+        JOIN CartService cs ON c.CartId = cs.CartId
+        WHERE 
+            YEAR(c.EndDate) = YEAR(GETDATE())
+            AND MONTH(c.EndDate) = MONTH(GETDATE())
+            AND GETDATE() < c.EndDate
+            AND c.Status = 'Completed CheckIn'
+    """;
+
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                int serviceId = rs.getInt("ServiceId");
+                serviceIds.add(serviceId);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace(); // Debug/log nếu cần
+        }
+
+        return serviceIds;
+    }
+
+    public List<Integer> getServiceInRoomNService() {
+        List<Integer> listServiceId = new ArrayList<>();
+        String sql = """
+                     SELECT DISTINCT ServiceId
+                     FROM RoomNService""";
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                int serviceId = rs.getInt("ServiceId");
+                listServiceId.add(serviceId);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return listServiceId;
+    }
+
+    public List<Integer> getServiceInDetailService() {
+        List<Integer> listServiceId = new ArrayList<>();
+        String sql = """
+                     SELECT DISTINCT s.ServiceId
+                         FROM DetailService ds
+                         JOIN BookingDetail bd ON ds.BookingDetailId = bd.BookingDetailId
+                         JOIN Booking b ON bd.BookingId = b.BookingId
+                         JOIN [Service] s ON ds.ServiceId = s.ServiceId
+                         WHERE 
+                             YEAR(bd.EndDate) = YEAR(GETDATE()) AND
+                             MONTH(bd.EndDate) = MONTH(GETDATE()) AND
+                             GETDATE() < bd.EndDate AND
+                             b.Status IN ('Completed CheckIn', 'Processing')""";
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            int serviceId = rs.getInt("ServiceId");
+            listServiceId.add(serviceId);
+        } catch (SQLException e) {
+        }
+
+        return listServiceId;
+    }
+
+    public void deleteServiceInCartService(int serviceId) {
+        String sql = """
+                 DELETE FROM CartService
+                 WHERE ServiceId = ?""";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, serviceId);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

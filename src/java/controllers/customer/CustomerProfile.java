@@ -19,7 +19,7 @@ import models.CustomerAccount;
 import utility.Encryption;
 import utility.Validation;
 
-@WebServlet(name = "CustomerProfile", urlPatterns = {"/customerProfile"})
+@WebServlet(name = "CustomerProfile", urlPatterns = { "/customerProfile" })
 public class CustomerProfile extends HttpServlet {
 
     private BookingDAO bookingDAO = BookingDAO.getInstance();
@@ -76,9 +76,7 @@ public class CustomerProfile extends HttpServlet {
 
                 boolean hasError = false;
                 hasError |= Validation.validateField(
-                        request, "usernameError", newUserName, "USERNAME", "Username",
-                        "Tên người dùng phải dài từ 5–20 ký tự, chỉ bao gồm chữ cái/số/dấu gạch dưới."
-                );
+                        request, "usernameError", "Username", newUserName, s -> s, "USERNAME");
 
                 // Check for duplicate username
                 List<String> userNames = dal.CustomerAccountDAO.getInstance().getAllUsername();
@@ -94,7 +92,7 @@ public class CustomerProfile extends HttpServlet {
                 for (String un : employees) {
                     if (un.equalsIgnoreCase(newUserName)) {
                         hasError = true;
-                        request.setAttribute("usernameError", "Username already exists.");
+                        request.setAttribute("usernameError", "Username đã tồn tại.");
                         break;
                     }
                 }
@@ -106,9 +104,11 @@ public class CustomerProfile extends HttpServlet {
                 }
 
                 dal.CustomerAccountDAO.getInstance().changeUsername(newUserName, customerId);
-                CustomerAccount updatedAccount = dal.CustomerAccountDAO.getInstance().getCustomerAccountById(customerId);
+                CustomerAccount updatedAccount = dal.CustomerAccountDAO.getInstance()
+                        .getCustomerAccountById(customerId);
                 session.setAttribute("customerAccount", updatedAccount);
-                response.sendRedirect(request.getContextPath() + "/customerProfile?service=info&username=" + newUserName);
+                response.sendRedirect(
+                        request.getContextPath() + "/customerProfile?service=info&username=" + newUserName);
             }
         }
 
@@ -135,9 +135,7 @@ public class CustomerProfile extends HttpServlet {
 
                 boolean hasError = false;
                 hasError |= Validation.validateField(
-                        request, "passwordError", newPassWord, "PASSWORD", "Password",
-                        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt."
-                );
+                        request, "newPasswordError", "Mật khẩu mới", newPassWord, s -> s, "PASSWORD");
                 if (newPassWordSh.equals(ca.getPassword())) {
                     hasError = true;
                     request.setAttribute("passwordError", "Mật khẩu mới trùng với mật khẩu cũ.");
@@ -170,16 +168,15 @@ public class CustomerProfile extends HttpServlet {
                 int genderValue = genderBoolean ? 1 : 0;
 
                 boolean hasError = false;
-                hasError |= Validation.validateField(request, "fullNameError",
-                        fullName, "FULLNAME", "Full Name",
-                        "Tên đầy đủ phải dài từ 2–100 ký tự, chỉ bao gồm chữ cái và khoảng trắng.");
+                hasError |= Validation.validateField(
+                        request, "fullNameError", "Họ tên", fullName, s -> s, "FULLNAME");
 
                 String currentPhone = ca.getCustomer() != null ? ca.getCustomer().getPhoneNumber() : null;
 
                 if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
-                    hasError |= Validation.validateField(request, "phoneError",
-                            phoneNumber, "PHONE_NUMBER", "Phone Number",
-                            "Số điện thoại phải bắt đầu bằng số 0 và có 10–11 chữ số.");
+                    hasError |= Validation.validateField(
+                            request, "phoneError", "Số điện thoại", phoneNumber, s -> s, "PHONE_NUMBER");
+
                     List<String> list = dal.CustomerDAO.getInstance().getAllPhone();
                     for (String phone : list) {
                         if (phone != null && !phone.equals(currentPhone) && phone.equals(phoneNumber)) {
@@ -232,7 +229,8 @@ public class CustomerProfile extends HttpServlet {
                 page = endPage;
             }
 
-            List<Booking> bookingList = bookingDAO.getBookingByCustomerIdAndStatus(customerId, page, PAGE_SIZE, status, null);
+            List<Booking> bookingList = bookingDAO.getBookingByCustomerIdAndStatus(customerId, page, PAGE_SIZE, status,
+                    null);
             HashMap<Booking, List<BookingDetail>> detailList = new HashMap<>();
             for (Booking booking : bookingList) {
                 List<BookingDetail> details = bookingDetailDAO.getBookingDetailByBookingId(booking);
@@ -252,7 +250,8 @@ public class CustomerProfile extends HttpServlet {
                 int bookingId = Integer.parseInt(request.getParameter("id"));
 
                 Booking booking = bookingDAO.getBookingByBookingId(bookingId);
-                if (booking == null || booking.getCustomer() == null || booking.getCustomer().getCustomerId() != customerId) {
+                if (booking == null || booking.getCustomer() == null
+                        || booking.getCustomer().getCustomerId() != customerId) {
                     request.setAttribute("error", "Không tìm thấy đơn đặt phòng hoặc bạn không có quyền xem.");
                     request.getRequestDispatcher("/View/Customer/MyBookingDetail.jsp").forward(request, response);
                     return;
